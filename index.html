@@ -2364,6 +2364,93 @@ views.alertas = () => {
   </div>`;
 };
 
+/* ---------- Supabase Fase 2: gestão de formandos (turma) ---------- */
+async function supaRoster(){ return await supaRpc('listar_utilizadores',{p_token:supaToken()}); }
+async function supaAddFormando(p){ return await supaRpc('criar_formando',{p_token:supaToken(),p_username:p.username,p_password:p.password,p_nome:p.nome,p_apelido:p.apelido||'',p_email:p.email||'',p_papel:p.papel||'Formando'}); }
+async function supaRemove(id){ return await supaRpc('remover_utilizador',{p_token:supaToken(),p_user_id:id}); }
+async function supaResetPwd(id,pwd){ return await supaRpc('redefinir_password',{p_token:supaToken(),p_user_id:id,p_nova_password:pwd}); }
+function slugUser(nome,apelido){ return (String(nome||'')+'.'+String(apelido||'')).normalize('NFD').toLowerCase().replace(/[^a-z0-9.]+/g,'').replace(/^\.+|\.+$/g,'')||'formando'; }
+function turmaUsersCardHTML(){
+  return `<div class="card card-pad">
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Formandos da turma ${esc(TURMA)}</h3><div class="sub">Acessos geridos centralmente (online), ligados a esta turma.</div></div></div>
+    <div class="callout info" style="margin-bottom:14px">${ic('alert',16)}<div class="ctxt"><strong>Como funciona — leia antes de usar</strong><br>
+      1. Os acessos dos formandos vivem <strong>online</strong> e estão ligados a <strong>esta</strong> turma (${esc(TURMA)}).<br>
+      2. Partilhe o link <code>?t=${esc(TURMA)}</code> com a turma. Cada formando abre-o, <strong>escolhe o seu nome</strong> na lista e entra com a palavra-passe.<br>
+      3. Cada formando <strong>só acede a esta turma</strong> — nunca a outra — e tem a <strong>sua própria sandbox</strong>: os dados de trabalho ficam no computador dele e não se misturam com os dos colegas.<br>
+      4. <strong>Importação em massa:</strong> descarregue o <strong>Modelo</strong>, preencha no Excel (nome, apelido, email), defina a <strong>palavra-passe inicial</strong> e clique <strong>Importar lista</strong>. Pode sempre ajustar, adicionar ou remover individualmente em baixo.</div></div>
+    <div class="toolbar" style="margin-bottom:12px;align-items:flex-end;gap:10px;flex-wrap:wrap">
+      <button class="btn-sec" data-act="users-template">${ic('download',16)} Modelo Excel/CSV</button>
+      <div class="field" style="margin:0"><label style="font-size:.72rem">Palavra-passe inicial (importação)</label><input id="rosterInitPwd" value="iefp2026" style="width:220px"></div>
+      <button class="btn-sec" data-act="import-roster">${ic('upload',16)} Importar lista</button>
+    </div>
+    <input type="file" id="importRosterFile" accept=".csv,text/csv" style="display:none">
+    <div class="divider" style="margin:4px 0 14px"></div>
+    <h3 style="font-size:.95rem;margin-bottom:10px">Adicionar individualmente</h3>
+    <form id="rosterAddForm" onsubmit="return false" class="form-grid" style="margin-bottom:18px">
+      <div class="field"><label>Nome *</label><input name="nome" placeholder="primeiro nome"></div>
+      <div class="field"><label>Apelido</label><input name="apelido"></div>
+      <div class="field"><label>Email</label><input name="email" type="email"></div>
+      <div class="field"><label>Utilizador (auto se vazio)</label><input name="username" placeholder="ex.: joao.silva"></div>
+      <div class="field"><label>Palavra-passe *</label><input name="password" type="text" placeholder="palavra-passe"></div>
+      <div class="field"><label>Papel</label><select name="papel"><option>Formando</option><option>Formador</option></select></div>
+      <div class="field full"><button type="button" class="btn" data-act="roster-add">${ic('users',16)} Adicionar à turma</button></div>
+    </form>
+    <div id="turmaRoster"><div class="muted" style="padding:10px">A carregar…</div></div>
+  </div>`;
+}
+function renderTurmaRoster(){
+  const box=$('#turmaRoster'); if(!box) return;
+  supaRoster().then(list=>{
+    const me=currentUser(); list=list||[];
+    const rows=list.map(u=>`<tr>
+      <td class="cell-main">${esc(((u.nome||'')+' '+(u.apelido||'')).trim())}${me&&me.id===u.id?' <span class="tag">eu</span>':''}</td>
+      <td><span class="chip">${ic('key',13)} ${esc(u.username)}</span></td>
+      <td>${esc(u.email||'—')}</td>
+      <td><span class="chip">${esc(u.papel)}</span></td>
+      <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="roster-pwd" data-id="${u.id}" data-nome="${esc(u.username)}">Repor palavra-passe</button>${me&&me.id===u.id?`<span class="btn-xs" style="color:var(--muted2)" title="A sua conta">${ic('lock',13)}</span>`:`<button class="btn-danger btn-xs" data-act="roster-del" data-id="${u.id}" data-nome="${esc(((u.nome||'')+' '+(u.apelido||'')).trim())}">✕</button>`}</div></td></tr>`).join('');
+    box.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Nome</th><th>Utilizador</th><th>Email</th><th>Papel</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="5" class="muted" style="padding:14px">Ainda sem utilizadores nesta turma. Adicione um formando ou importe a lista.</td></tr>`}</tbody></table></div><div class="muted" style="font-size:.76rem;margin-top:8px">${list.length} utilizador(es) · turma ${esc(TURMA)}</div>`;
+  }).catch(e=>{ box.innerHTML=`<div class="callout warn" style="margin:0">${ic('alert',16)}<div class="ctxt">${esc(supaMsg(e))}</div></div>`; });
+}
+function rosterAdd(){
+  const f=$('#rosterAddForm'); if(!f) return;
+  const g=n=>((f.querySelector('[name="'+n+'"]')||{}).value||'').trim();
+  const nome=g('nome'), apelido=g('apelido'), email=g('email'); let username=g('username'); const password=g('password'); const papel=g('papel')||'Formando';
+  if(!nome){ toast('Falta o nome','Indique o nome do formando','warn'); return; }
+  if(!password){ toast('Falta a palavra-passe','Defina uma palavra-passe','warn'); return; }
+  if(!username) username=slugUser(nome,apelido);
+  const btn=f.querySelector('[data-act="roster-add"]'); if(btn){ btn.disabled=true; btn.textContent='A adicionar…'; }
+  const reset=()=>{ const b=$('#rosterAddForm [data-act="roster-add"]'); if(b){ b.disabled=false; b.innerHTML=ic('users',16)+' Adicionar à turma'; } };
+  supaAddFormando({username,password,nome,apelido,email,papel}).then(()=>{
+    toast('Adicionado à turma',username); ['nome','apelido','email','username','password'].forEach(n=>{const el=f.querySelector('[name="'+n+'"]'); if(el) el.value='';}); renderTurmaRoster(); reset();
+  }).catch(e=>{ toast('Erro',supaMsg(e),'err'); reset(); });
+}
+function importTurmaCSV(file){
+  const initPwd=(($('#rosterInitPwd')||{}).value||'').trim()||'iefp2026';
+  const r=new FileReader();
+  r.onload=async e=>{
+    let rows; try{ rows=parseCSV(e.target.result); }catch(err){ toast('Erro no ficheiro','Verifique o formato','err'); return; }
+    if(!rows||rows.length<2){ toast('Ficheiro vazio','Use o modelo e preencha pelo menos uma linha','warn'); return; }
+    const head=rows[0].map(h=>h.trim().toLowerCase()); const idx=n=>head.indexOf(n);
+    const c={nome:idx('nome'),apelido:idx('apelido'),email:idx('email'),username:idx('username'),password:idx('password'),papel:idx('papel')};
+    if(c.nome<0){ toast('Ficheiro inválido','Falta a coluna "nome"','err'); return; }
+    toast('A importar…','Aguarde um momento',''); let ok=0,fail=0; const errs=[];
+    for(const cols of rows.slice(1)){
+      const g=k=>c[k]>=0?(cols[c[k]]||'').trim():'';
+      const nome=g('nome'); if(!nome) continue;
+      const apelido=g('apelido'), email=g('email'); let username=g('username'); let password=g('password'); let papel=g('papel')||'Formando';
+      if(papel!=='Formador'&&papel!=='Formando') papel='Formando';
+      if(!username) username=slugUser(nome,apelido);
+      if(!password) password=initPwd;
+      try{ await supaAddFormando({username,password,nome,apelido,email,papel}); ok++; }
+      catch(err){ fail++; errs.push(username+': '+supaMsg(err)); }
+    }
+    renderTurmaRoster();
+    toast('Importação concluída',`${ok} criado(s)${fail?` · ${fail} falhou(aram)`:''}`,fail?'warn':'ok');
+    if(errs.length) console.warn('Erros de importação:',errs);
+  };
+  r.readAsText(file);
+}
+
 /* ---------- DEFINIÇÕES ---------- */
 views.definicoes = () => {
   const s=state.settings;
@@ -2421,7 +2508,7 @@ views.definicoes = () => {
     </div>
     <div class="callout info" style="margin-top:14px">${ic('alert',16)}<div class="ctxt">Fluxo para crescer a base: atualiza os exemplos → <strong>Exportar base</strong> → substitui o <strong>base.json</strong> no repositório (GitHub). Quem abrir a app pela 1.ª vez recebe a base; quem já a tem clica em <strong>Recarregar base online</strong>.</div></div>
   </div>
-  <div class="card card-pad">
+  ${TURMA?turmaUsersCardHTML():`<div class="card card-pad">
     <div class="section-head" style="margin-bottom:16px">
       <div><h3>Utilizadores</h3><div class="sub">Acessos com utilizador e palavra-passe. Importe os formandos em massa (Excel/CSV) — ficam ativos como Formando — ou crie um a um.</div></div>
       <div class="toolbar"><button class="btn-sec" data-act="users-template">${ic('download',16)} Modelo</button><button class="btn-sec" data-act="import-users">${ic('upload',16)} Importar</button><button class="btn" data-act="new" data-type="utilizador">+ Utilizador</button></div>
@@ -2431,7 +2518,7 @@ views.definicoes = () => {
       ${pgu.slice.map(u=>`<tr><td><div style="display:flex;align-items:center;gap:10px">${avatarHTML(u,30)}<span class="cell-main">${esc(u.nome)} ${esc(u.apelido||'')}${currentUser()&&currentUser().id===u.id?' <span class="tag">eu</span>':''}</span></div></td><td><span class="chip">${ic('key',13)} ${esc(u.username||'—')}</span></td><td>${esc(u.email)}</td><td><span class="chip">${esc(u.papel)}</span></td><td><span class="pill ${u.estado==='Ativo'?'green':'grey'}">${esc(u.estado)}</span></td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="utilizador" data-id="${u.id}">Editar</button>${(u.id==='u1'||u.protegido)?`<span class="btn-xs" style="color:var(--muted2)" title="Protegido">${ic('lock',13)}</span>`:`<button class="btn-danger btn-xs" data-act="delete" data-type="utilizador" data-id="${u.id}">✕</button>`}</div></td></tr>`).join('')}
     </tbody></table></div>
     ${pager('utilizadores',pgu)}
-  </div>
+  </div>`}
   <div class="card card-pad">
     <div class="section-head" style="margin-bottom:6px"><div><h3>Grupos de Utilizadores</h3><div class="sub">Crie grupos e marque os módulos a que cada um tem acesso. Aplica-se a todos os utilizadores do grupo.</div></div><button class="btn" data-act="new-group">${ic('users',16)} Novo grupo</button></div>
     <div class="table-wrap"><table><thead><tr><th>Grupo</th>${NAV_FLAT.map(m=>`<th class="t-center" style="font-size:.68rem">${esc(m.label)}</th>`).join('')}<th></th></tr></thead><tbody>
@@ -3103,6 +3190,7 @@ function render(){
   $('#breadcrumb').textContent='IEFP CRM · '+(crumbs[v]||'');
   const fn=views[v]||views.dashboard;
   $('#content').innerHTML=`<section class="view active">${fn()}</section>`;
+  if(TURMA && v==='definicoes') renderTurmaRoster();
   startI18n();
 }
 
@@ -3220,6 +3308,10 @@ document.addEventListener('click', e=>{
     case 'csv-products-template': downloadProductTemplate(); break;
     case 'import-users': $('#importUsersFile').click(); break;
     case 'users-template': downloadUserTemplate(); break;
+    case 'import-roster': $('#importRosterFile').click(); break;
+    case 'roster-add': rosterAdd(); break;
+    case 'roster-del': { const nm=el.dataset.nome||''; if(confirm('Remover '+nm+' desta turma?\nO acesso deixa de funcionar (os dados locais do próprio computador não são afetados).')){ supaRemove(el.dataset.id).then(()=>{ toast('Removido',nm); renderTurmaRoster(); }).catch(er=>toast('Erro',supaMsg(er),'err')); } break; }
+    case 'roster-pwd': { const p=prompt('Nova palavra-passe para "'+(el.dataset.nome||'')+'":'); if(p&&p.trim()){ supaResetPwd(el.dataset.id,p.trim()).then(()=>toast('Palavra-passe reposta',el.dataset.nome)).catch(er=>toast('Erro',supaMsg(er),'err')); } break; }
     case 'gen': gerarExemplos(+el.dataset.n||0, +el.dataset.p||0, +el.dataset.e||0); break;
     case 'submit-work': submitWork(); break;
     case 'export-base': exportBase(); break;
@@ -3290,6 +3382,7 @@ document.addEventListener('change', e=>{
   if(e.target.id==='importClientsFile'&&e.target.files[0]){ importClientsCSV(e.target.files[0]); e.target.value=''; }
   if(e.target.id==='importProductsFile'&&e.target.files[0]){ importProductsCSV(e.target.files[0]); e.target.value=''; }
   if(e.target.id==='importUsersFile'&&e.target.files[0]){ importUsersCSV(e.target.files[0]); e.target.value=''; }
+  if(e.target.id==='importRosterFile'&&e.target.files[0]){ importTurmaCSV(e.target.files[0]); e.target.value=''; }
 });
 // inputs em tempo real (totais de proposta, pesquisa de tabela)
 document.addEventListener('focusin', e=>{ if(e.target.matches('[data-tagtarget],[data-emtag]')) lastTagEl=e.target; });
