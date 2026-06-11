@@ -1189,6 +1189,8 @@ const SUPA_ERR={
   USERNAME_EM_USO:'Esse nome de utilizador já existe nesta turma.',
   SESSAO_INVALIDA:'Sessão expirada. Inicie sessão novamente.',
   SEM_PERMISSAO:'Sem permissão para esta ação.',
+  PASSWORD_ATUAL_ERRADA:'A palavra-passe atual está incorreta.',
+  TURMA_SEM_UTILIZADORES:'Essa turma ainda não tem utilizadores.',
   DADOS_EM_FALTA:'Preencha todos os campos obrigatórios.'};
 function supaMsg(e){ const m=(e&&e.message)||String(e); return SUPA_ERR[m]||m; }
 // Espelha um utilizador do Supabase no state local (para permissões/currentUser funcionarem)
@@ -2411,6 +2413,7 @@ async function supaRoster(){ return await supaRpc('listar_utilizadores',{p_token
 async function supaAddFormando(p){ return await supaRpc('criar_formando',{p_token:supaToken(),p_username:p.username,p_password:p.password,p_nome:p.nome,p_apelido:p.apelido||'',p_email:p.email||'',p_papel:p.papel||'Formando'}); }
 async function supaRemove(id){ return await supaRpc('remover_utilizador',{p_token:supaToken(),p_user_id:id}); }
 async function supaResetPwd(id,pwd){ return await supaRpc('redefinir_password',{p_token:supaToken(),p_user_id:id,p_nova_password:pwd}); }
+async function supaMudarMinhaPwd(atual,nova){ return await supaRpc('mudar_minha_password',{p_token:supaToken(),p_atual:atual,p_nova:nova}); }
 function slugUser(nome,apelido){ return (String(nome||'')+'.'+String(apelido||'')).normalize('NFD').toLowerCase().replace(/[^a-z0-9.]+/g,'').replace(/^\.+|\.+$/g,'')||'formando'; }
 function turmaUsersCardHTML(){
   return `<div class="card card-pad">
@@ -2785,7 +2788,8 @@ function openProfile(){
       <div class="field"><label>Email</label><input name="email" type="email" value="${esc(u.email||'')}"></div>
       <div class="field"><label>Telefone</label><input name="telefone" value="${esc(u.telefone||'')}"></div>
       <div class="field"><label>Cargo / função</label><input name="cargo" value="${esc(u.cargo||'')}" placeholder="ex.: Comercial"></div>
-      <div class="field"><label>Nova palavra-passe</label><input name="password" type="password" placeholder="Deixe em branco para manter a atual" autocomplete="new-password"></div>
+      ${(TURMA&&supaToken())?`<div class="field"><label>Palavra-passe atual</label><input name="pwatual" type="password" placeholder="Deixe em branco para não mudar" autocomplete="current-password"></div>
+      <div class="field"><label>Nova palavra-passe</label><input name="password" type="password" placeholder="••••••••" autocomplete="new-password"></div>`:`<div class="field"><label>Nova palavra-passe</label><input name="password" type="password" placeholder="Deixe em branco para manter a atual" autocomplete="new-password"></div>`}
       <div class="field"><label>Utilizador (login)</label><input value="${esc(u.username||'')}" readonly style="background:var(--surface3);color:var(--muted);cursor:not-allowed"></div>
       <div class="field"><label>Papel</label><input value="${esc(u.papel||'')}" readonly style="background:var(--surface3);color:var(--muted);cursor:not-allowed"></div>
       <div class="field full">
@@ -2817,7 +2821,14 @@ function saveProfile(){
   u.nome=nome; u.apelido=String(fd.get('apelido')||'').trim();
   u.email=String(fd.get('email')||'').trim(); u.telefone=String(fd.get('telefone')||'').trim();
   u.cargo=String(fd.get('cargo')||'').trim(); u.avatar=fd.get('avatar')||'';
-  const pw=String(fd.get('password')||''); if(pw) u.password=hashPwd(pw);
+  const pw=String(fd.get('password')||'');
+  if(pw){
+    if(TURMA && supaToken()){
+      const atual=String(fd.get('pwatual')||'');
+      if(!atual){ toast('Falta a palavra-passe atual','Para mudar, escreva primeiro a palavra-passe atual','warn'); return; }
+      supaMudarMinhaPwd(atual,pw).then(()=>toast('Palavra-passe alterada','Use a nova no próximo início de sessão')).catch(e=>toast('Não foi possível mudar a palavra-passe',supaMsg(e),'err'));
+    } else { u.password=hashPwd(pw); }
+  }
   const ed=$('#sigEditor'); if(ed) u.assinatura=ed.innerHTML;
   const ff=$('#modalForm [data-sigfont]'); if(ff) u.assinaturaFont=ff.value;
   const fz=$('#modalForm [data-sigsize]'); if(fz) u.assinaturaSize=fz.value;
@@ -3832,8 +3843,7 @@ function renderLogin(){
       <p class="login-sub">Inicie sessão na sua turma.</p>
       ${turmaSelectorHTML()}
       <form id="loginForm" onsubmit="return false">
-        <div class="field"><label>Utilizador</label>
-          <select name="username" id="loginUserSel"><option value="">A carregar…</option></select></div>
+        <div class="field"><label>Utilizador</label><input name="username" autocomplete="username" placeholder="o seu utilizador"></div>
         <div class="field"><label>Palavra-passe</label><input name="password" type="password" autocomplete="current-password" placeholder="••••••••"></div>
         <button type="button" class="btn login-btn" data-act="login">Entrar</button>
       </form>
@@ -3871,16 +3881,12 @@ function renderLogin(){
         <div class="login-foot"><a class="login-portal" data-act="rootlogout">Terminar suporte</a></div>`;
     }
   } else {
+    // Principal = HUB (sem login próprio). Acesso: escolher/entrar numa turma,
+    // criar turma (formador) ou suporte (root, via "Entrar por código…" → root).
     body=`<h2 class="login-h">Bem-vindo</h2>
-      <p class="login-sub">Inicie sessão para aceder à plataforma.</p>
+      <p class="login-sub">Escolha a sua turma para entrar, ou crie uma nova.</p>
       ${turmaSelectorHTML()}
-      <form id="loginForm" onsubmit="return false">
-        <div class="field"><label>Utilizador</label><input name="username" autocomplete="username" placeholder="o seu utilizador"></div>
-        <div class="field"><label>Palavra-passe</label><input name="password" type="password" autocomplete="current-password" placeholder="••••••••"></div>
-        <button type="button" class="btn login-btn" data-act="login">Entrar</button>
-      </form>
       <div id="loginErr" class="login-err"></div>
-      <div class="login-sep">ou</div>
       <a class="login-action" data-act="login-tocreate">${ic('users',16)} Sou formador — criar nova turma</a>
       <div class="login-foot">
         <a class="login-portal" href="#portal">Portal do Titular (RGPD) →</a>
@@ -3898,20 +3904,10 @@ function renderLogin(){
       <a class="login-credit" href="https://www.linkedin.com/in/ldvale/" target="_blank" rel="noopener noreferrer">${ic('linkedin',14)} Created by Diogo du Valle</a>
     </div>
   </div>`;
-  if(inTurma) loadTurmaRoster();
   const ts=$('#turmaSel'); if(ts){ ts.value=TURMA||''; ts.addEventListener('change',onTurmaSelChange); }
-  const fname=mode==='criarturma'?'email':mode==='root'?'rootpass':(inTurma?'password':'username');
-  setTimeout(()=>{ const el=$('#login [name="'+fname+'"]'); if(el&&el.focus) el.focus(); },50);
+  const fname=mode==='criarturma'?'email':mode==='root'?'rootpass':(inTurma?'username':null);
+  if(fname) setTimeout(()=>{ const el=$('#login [name="'+fname+'"]'); if(el&&el.focus) el.focus(); },50);
   startI18n();
-}
-// Popula o dropdown de utilizadores da turma (roster público do Supabase)
-function loadTurmaRoster(){
-  const sel=$('#loginUserSel'); if(!sel) return;
-  supaRpc('listar_utilizadores_publico',{p_codigo:TURMA}).then(list=>{
-    const s=$('#loginUserSel'); if(!s) return;
-    if(!list||!list.length){ s.innerHTML='<option value="">— sem utilizadores —</option>'; const err=$('#loginErr'); if(err) err.textContent='Turma não encontrada ou ainda sem utilizadores. Confirme o link com o formador.'; return; }
-    s.innerHTML=list.map(u=>`<option value="${esc(u.username)}">${esc(((u.nome||'')+' '+(u.apelido||'')).trim()||u.username)} — ${esc(u.papel)}</option>`).join('');
-  }).catch(e=>{ const s=$('#loginUserSel'); if(s) s.innerHTML='<option value="">(erro)</option>'; const err=$('#loginErr'); if(err) err.textContent=supaMsg(e); });
 }
 // Criar turma (Principal): valida e redireciona para ?t=<codigo>
 function submitCriarTurma(){

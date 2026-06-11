@@ -225,6 +225,25 @@ returns json language sql security definer set search_path = public as $$
   select json_build_object('ok', true);
 $$;
 
+-- O PRÓPRIO utilizador muda a sua password (tem de saber a atual).
+-- Esquecimento NÃO se recupera por email: o formador/admin repõe (redefinir_password).
+create or replace function public.mudar_minha_password(
+  p_token uuid, p_atual text, p_nova text
+) returns json
+language plpgsql security definer set search_path = public, extensions as $$
+declare caller public.utilizadores;
+begin
+  select * into caller from _user_from_token(p_token);
+  if caller.id is null then raise exception 'SESSAO_INVALIDA'; end if;
+  if coalesce(p_nova,'') = '' then raise exception 'DADOS_EM_FALTA'; end if;
+  if caller.pass_hash <> extensions.crypt(p_atual, caller.pass_hash) then
+    raise exception 'PASSWORD_ATUAL_ERRADA';
+  end if;
+  update utilizadores set pass_hash = extensions.crypt(p_nova, extensions.gen_salt('bf'))
+    where id = caller.id;
+  return json_build_object('ok', true);
+end $$;
+
 -- ---------------------------------------------------------------------
 -- Permissões: o anon só pode EXECUTAR as funções públicas.
 -- (O helper interno fica vedado.)
@@ -340,6 +359,7 @@ grant execute on function public.listar_utilizadores(uuid)                      
 grant execute on function public.criar_formando(uuid,text,text,text,text,text,text) to anon, authenticated;
 grant execute on function public.redefinir_password(uuid,uuid,text)               to anon, authenticated;
 grant execute on function public.remover_utilizador(uuid,uuid)                    to anon, authenticated;
+grant execute on function public.mudar_minha_password(uuid,text,text)             to anon, authenticated;
 grant execute on function public.logout(uuid)                                     to anon, authenticated;
 grant execute on function public.login_root(text)                                 to anon, authenticated;
 grant execute on function public.listar_turmas(uuid)                              to anon, authenticated;
