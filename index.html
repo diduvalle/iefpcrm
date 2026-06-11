@@ -466,6 +466,14 @@ td .cell-sub{font-size:.78rem;color:var(--muted)}
 .login-hint{font-size:.74rem;color:var(--muted);line-height:1.5;margin:0 0 22px;padding:0 2px}
 .login-hint code{background:var(--surface2);border:1px solid var(--border);padding:1px 6px;border-radius:5px;font-size:.92em;color:var(--g700);font-weight:600;white-space:nowrap}
 .turma-chip{display:flex;align-items:center;justify-content:center;gap:6px;font-size:.72rem;font-weight:700;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:6px 8px;margin-top:8px}
+.login-sep{display:flex;align-items:center;gap:12px;margin:20px 0 16px;color:var(--muted2);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+.login-sep::before,.login-sep::after{content:"";flex:1;height:1px;background:var(--border)}
+.login-action{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:12px;border:1px solid var(--border);border-radius:11px;background:var(--surface);color:var(--g700);font-weight:700;font-size:.9rem;text-decoration:none;cursor:pointer;transition:.16s}
+.login-action:hover{border-color:var(--g400);background:var(--g50)}
+.login-foot{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:20px;font-size:.82rem}
+.login-foot .login-dot{color:var(--muted2)}
+.login-tnote{display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:9px 12px;margin-bottom:20px}
+.login-tnote strong{color:var(--text)}
 @media(max-width:780px){.login-bg{display:none}.login-panel{width:100%}}
 .portal-card{width:min(640px,100%);padding:26px;animation:fade .3s ease}
 .portal-head{display:flex;align-items:center;gap:13px;margin-bottom:18px}
@@ -3477,7 +3485,7 @@ function globalSearch(q){
   box.innerHTML=out.length?out.map(o=>`<div class="sr-item" data-act="search-go" data-kind="${o.k}" data-id="${o.id}">${ic(o.i,15)}<div class="grow"><strong>${esc(o.t)}</strong><span>${esc(o.s||'')}</span></div></div>`).join(''):'<div class="sr-item" style="color:var(--muted2);cursor:default">Sem resultados</div>';
 }
 document.addEventListener('keydown', e=>{
-  if(e.target.closest('#loginForm')&&e.key==='Enter'){ e.preventDefault(); if(loginMode==='register') doRegister(); else submitLogin(); return; }
+  if(e.target.closest('#loginForm')&&e.key==='Enter'){ e.preventDefault(); if(!TURMA&&loginMode==='criarturma') submitCriarTurma(); else submitLogin(); return; }
   if(e.key==='Escape'){ if($('#previewBack').classList.contains('open')){ closePreview(); return; } $('#notifPanel')?.classList.remove('open'); closeModal(); closeDrawer(); $('#app').classList.remove('nav-open'); document.body.classList.remove('present'); const sb=$('#searchResults'); if(sb){sb.innerHTML='';sb.style.display='none';} }
   if(e.target.id==='globalSearch'&&e.key==='Enter'){
     const q=e.target.value.trim().toLowerCase();
@@ -3753,24 +3761,19 @@ let loginMode='login';
 function renderLogin(){
   const inTurma=!!TURMA;
   const mode=inTurma?'login':loginMode;     // Principal: 'login' | 'criarturma'
-  const chip=`<div class="login-turma" data-act="login-turma" title="Mudar de turma / criar nova">
-        <span class="lt-ic">${ic('building',16)}</span>
-        <span class="lt-body"><span class="lt-label">Turma</span><span class="lt-name">${esc(TURMA||'Principal')}</span></span>
-        <span class="lt-change">mudar</span>
-      </div>`;
   let body;
   if(inTurma){
     body=`<h2 class="login-h">Bem-vindo</h2>
-      <p class="login-sub">Escolha o seu utilizador e inicie sessão.</p>
-      ${chip}
+      <p class="login-sub">Inicie sessão na sua turma.</p>
+      <div class="login-tnote">${ic('building',15)} <span>Turma <strong>${esc(TURMA)}</strong></span></div>
       <form id="loginForm" onsubmit="return false">
         <div class="field"><label>Utilizador</label>
           <select name="username" id="loginUserSel"><option value="">A carregar…</option></select></div>
         <div class="field"><label>Palavra-passe</label><input name="password" type="password" autocomplete="current-password" placeholder="••••••••"></div>
-        <button class="btn login-btn" data-act="login">Entrar</button>
+        <button type="button" class="btn login-btn" data-act="login">Entrar</button>
       </form>
       <div id="loginErr" class="login-err"></div>
-      <div class="login-links"><a class="login-portal" href="#portal">Portal do Titular (RGPD) →</a></div>`;
+      <div class="login-foot"><a class="login-portal" href="#portal">Portal do Titular (RGPD) →</a></div>`;
   } else if(mode==='criarturma'){
     body=`<h2 class="login-h">Criar nova turma</h2>
       <p class="login-sub">Apenas formadores IEFP. Valide o seu email institucional.</p>
@@ -3780,24 +3783,25 @@ function renderLogin(){
         <div class="field"><label>Número da turma — 8 dígitos *</label><input name="codigo" inputmode="numeric" placeholder="12345678" maxlength="8"></div>
         <div class="field"><label>Nome da turma (opcional)</label><input name="nometurma" placeholder="ex.: CRM 2026 — Manhã"></div>
         <div class="form-grid" style="gap:12px"><div class="field"><label>Utilizador *</label><input name="username" autocomplete="username" placeholder="ex.: formador"></div><div class="field"><label>Palavra-passe *</label><input name="password" type="password" autocomplete="new-password" placeholder="••••••••"></div></div>
-        <button class="btn login-btn" data-act="criarturma">Criar turma e entrar</button>
+        <button type="button" class="btn login-btn" data-act="criarturma">Criar turma e entrar</button>
       </form>
       <div id="loginErr" class="login-err"></div>
-      <div class="login-links"><a class="login-portal" data-act="login-tologin">← Voltar ao início de sessão</a></div>`;
+      <div class="login-foot"><a class="login-portal" data-act="login-tologin">← Voltar ao início de sessão</a></div>`;
   } else {
     body=`<h2 class="login-h">Bem-vindo</h2>
       <p class="login-sub">Inicie sessão para aceder à plataforma.</p>
-      ${chip}
-      <p class="login-hint">Cada turma tem o seu ambiente próprio — use o nº de turma no link: <code>?t=12345678</code></p>
       <form id="loginForm" onsubmit="return false">
         <div class="field"><label>Utilizador</label><input name="username" autocomplete="username" placeholder="o seu utilizador"></div>
         <div class="field"><label>Palavra-passe</label><input name="password" type="password" autocomplete="current-password" placeholder="••••••••"></div>
-        <button class="btn login-btn" data-act="login">Entrar</button>
+        <button type="button" class="btn login-btn" data-act="login">Entrar</button>
       </form>
       <div id="loginErr" class="login-err"></div>
-      <div class="login-links">
-        <a class="login-portal" data-act="login-tocreate">Sou formador · criar nova turma →</a>
-        <a class="login-portal" href="#portal">Portal do Titular (RGPD) →</a>
+      <div class="login-sep">ou</div>
+      <a class="login-action" data-act="login-tocreate">${ic('users',16)} Sou formador — criar nova turma</a>
+      <div class="login-foot">
+        <a class="login-portal" href="#portal">Portal do Titular (RGPD)</a>
+        <span class="login-dot">·</span>
+        <a class="login-portal" data-act="login-turma" style="cursor:pointer">Entrar noutra turma</a>
       </div>`;
   }
   $('#login').innerHTML=`
