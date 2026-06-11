@@ -462,8 +462,10 @@ td .cell-sub{font-size:.78rem;color:var(--muted)}
 .login-action:hover{border-color:var(--g400);background:var(--g50)}
 .login-foot{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:20px;font-size:.82rem}
 .login-foot .login-dot{color:var(--muted2)}
-.login-tnote{display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:9px 12px;margin-bottom:20px}
-.login-tnote strong{color:var(--text)}
+.root-list{display:flex;flex-direction:column;gap:8px;max-height:46vh;overflow:auto;margin-bottom:8px}
+.root-trow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+.root-tinfo strong{display:block;font-size:.9rem}
+.root-tinfo span{display:block;font-size:.72rem;color:var(--muted)}
 @media(max-width:780px){.login-bg{display:none}.login-panel{width:100%}}
 .portal-card{width:min(640px,100%);padding:26px;animation:fade .3s ease}
 .portal-head{display:flex;align-items:center;gap:13px;margin-bottom:18px}
@@ -1201,13 +1203,14 @@ function ingestSupaUser(u){
 function restoreSupaSession(){
   if(!TURMA) return;
   const s=supaSession();
-  if(s&&s.user){ ingestSupaUser(s.user); sessionUserId=s.user.id; }
+  if(s&&s.user){ ingestSupaUser(s.user); sessionUserId=s.user.id; rememberTurma(TURMA); }
 }
 // Login numa turma via Supabase
 async function supaLogin(username,password){
   const data=await supaRpc('login',{p_codigo:TURMA,p_username:username,p_password:password});
   setSupaSession({token:data.token,user:data.user});
   ingestSupaUser(data.user); sessionUserId=data.user.id;
+  rememberTurma(TURMA);
   return data.user;
 }
 // Criar turma (gate de email IEFP) — devolve {token,turma,user}
@@ -1216,6 +1219,47 @@ async function supaCriarTurma(p){
   return data;
 }
 function supaLogout(){ const t=supaToken(); if(t&&supa()) supaRpc('logout',{p_token:t}).catch(()=>{}); setSupaSession(null); }
+
+/* ---------- Registo de turmas RECENTES neste dispositivo ----------
+   Lista local (não-namespaced) que alimenta o seletor de Turma no login.
+   Sem backend: só conhece as turmas que ESTE browser já visitou/criou. */
+const RECENT_TURMAS_KEY='iefp-turmas-recentes';
+function recentTurmas(){ try{ const a=JSON.parse(localStorage.getItem(RECENT_TURMAS_KEY)||'[]'); return Array.isArray(a)?a.filter(t=>t&&/^\d{8}$/.test(t.codigo)):[]; }catch(e){ return []; } }
+function rememberTurma(codigo,nome){
+  codigo=(codigo||'').replace(/\D/g,''); if(codigo.length!==8) return;
+  try{
+    let a=recentTurmas().filter(t=>t.codigo!==codigo);
+    a.unshift({codigo,nome:(nome||'').trim()||'',ts:todayISO()});
+    if(a.length>8) a.length=8;
+    localStorage.setItem(RECENT_TURMAS_KEY,JSON.stringify(a));
+  }catch(e){}
+}
+
+/* ---------- ROOT / SUPORTE (acesso global à identidade) ----------
+   Entra-se pelo gesto escondido: no seletor de Turma → "Entrar por código…"
+   → escrever "root". Token de root só em memória + localStorage temporário. */
+let rootSession=null, rootTurmas=[];
+async function supaLoginRoot(pw){ return await supaRpc('login_root',{p_password:pw}); }
+async function supaListarTurmas(tok){ return await supaRpc('listar_turmas',{p_token:tok}); }
+async function supaRootAbrir(tok,codigo){ return await supaRpc('root_abrir_turma',{p_token:tok,p_codigo:codigo}); }
+function submitRootLogin(){
+  const f=$('#loginForm'); if(!f) return; const err=$('#loginErr'); if(err) err.textContent='';
+  const pw=(f.querySelector('[name="rootpass"]')||{}).value||'';
+  if(!pw){ if(err) err.textContent='Indique a palavra-passe de suporte.'; return; }
+  const btn=f.querySelector('[data-act="rootlogin"]'); if(btn){ btn.disabled=true; btn.textContent='A entrar…'; }
+  supaLoginRoot(pw).then(d=>{ rootSession=d.token; return supaListarTurmas(d.token); })
+    .then(list=>{ rootTurmas=list||[]; renderLogin(); })
+    .catch(e=>{ if(err) err.textContent=supaMsg(e); const b=$('#loginForm [data-act="rootlogin"]'); if(b){ b.disabled=false; b.textContent='Entrar como suporte'; } });
+}
+function rootOpenTurma(codigo){
+  if(!rootSession) return; const err=$('#loginErr'); if(err) err.textContent='';
+  supaRootAbrir(rootSession,codigo).then(d=>{
+    try{ localStorage.setItem('iefp-supa::'+codigo, JSON.stringify({token:d.token,user:d.user})); }catch(_){}
+    rememberTurma(codigo);
+    location.href=location.pathname+'?t='+codigo;
+  }).catch(e=>{ if(err) err.textContent=supaMsg(e); });
+}
+function rootLogout(){ if(rootSession&&supa()) supaRpc('logout_root',{p_token:rootSession}).catch(()=>{}); rootSession=null; rootTurmas=[]; loginMode='login'; renderLogin(); }
 
 /* =========================================================================
    COMPONENTES UI
@@ -3237,7 +3281,9 @@ document.addEventListener('click', e=>{
     case 'criarturma': submitCriarTurma(); break;
     case 'login-tocreate': loginMode='criarturma'; renderLogin(); break;
     case 'login-tologin': loginMode='login'; renderLogin(); break;
-    case 'login-turma': switchTurma(); break;
+    case 'rootlogin': submitRootLogin(); break;
+    case 'root-open': rootOpenTurma(el.dataset.codigo); break;
+    case 'rootlogout': rootLogout(); break;
     case 'lang': { setLang(getLang()==='en'?'pt':'en'); const _lb=$('#langBtn'); if(_lb) _lb.textContent=(getLang()==='en')?'EN':'PT'; } break;
     case 'page': { const np=+el.dataset.p; if(np>=1){ _pages[el.dataset.key]=np; render(); const tw=$('.table-wrap'); if(tw) tw.scrollIntoView({block:'nearest'}); } } break;
     case 'logout': if(confirm('Terminar sessão?')) doLogout(); break;
@@ -3475,7 +3521,7 @@ function globalSearch(q){
   box.innerHTML=out.length?out.map(o=>`<div class="sr-item" data-act="search-go" data-kind="${o.k}" data-id="${o.id}">${ic(o.i,15)}<div class="grow"><strong>${esc(o.t)}</strong><span>${esc(o.s||'')}</span></div></div>`).join(''):'<div class="sr-item" style="color:var(--muted2);cursor:default">Sem resultados</div>';
 }
 document.addEventListener('keydown', e=>{
-  if(e.target.closest('#loginForm')&&e.key==='Enter'){ e.preventDefault(); if(!TURMA&&loginMode==='criarturma') submitCriarTurma(); else submitLogin(); return; }
+  if(e.target.closest('#loginForm')&&e.key==='Enter'){ e.preventDefault(); if(!TURMA&&loginMode==='criarturma') submitCriarTurma(); else if(!TURMA&&loginMode==='root') submitRootLogin(); else submitLogin(); return; }
   if(e.key==='Escape'){ if($('#previewBack').classList.contains('open')){ closePreview(); return; } $('#notifPanel')?.classList.remove('open'); closeModal(); closeDrawer(); $('#app').classList.remove('nav-open'); document.body.classList.remove('present'); const sb=$('#searchResults'); if(sb){sb.innerHTML='';sb.style.display='none';} }
   if(e.target.id==='globalSearch'&&e.key==='Enter'){
     const q=e.target.value.trim().toLowerCase();
@@ -3748,14 +3794,43 @@ function submitPortalDsar(){
 
 /* ---------- Ecrã de login ---------- */
 let loginMode='login';
+// Seletor de Turma no topo do login (substitui o "Entrar noutra turma")
+function turmaSelectorHTML(){
+  const cur=TURMA||'';
+  const rec=recentTurmas();
+  const seen=new Set();
+  let opts=`<option value="">Principal</option>`;
+  // garante a turma atual no topo da lista, mesmo que ainda não esteja no registo
+  if(cur){ opts+=`<option value="${esc(cur)}">${esc(cur)}</option>`; seen.add(cur); }
+  rec.forEach(t=>{ if(seen.has(t.codigo)) return; seen.add(t.codigo); opts+=`<option value="${esc(t.codigo)}">${esc(t.codigo)}</option>`; });
+  opts+=`<option disabled>──────────────</option>`;
+  opts+=`<option value="__new">＋ Criar nova turma…</option>`;
+  opts+=`<option value="__code">⌨ Entrar por código…</option>`;
+  return `<div class="field login-turmasel"><label>Turma</label><select id="turmaSel">${opts}</select></div>`;
+}
+function onTurmaSelChange(e){
+  const v=e.target.value;
+  if(v==='__new'){
+    if(TURMA){ try{ sessionStorage.setItem('iefp-login-criar','1'); }catch(_){} location.href=location.pathname; }  // criar turma é sempre no Principal
+    else { loginMode='criarturma'; renderLogin(); }
+    return;
+  }
+  if(v==='__code'){ e.target.value=TURMA||''; switchTurma(); return; }
+  if(v===(TURMA||'')) return;            // já estamos nessa turma
+  location.href=location.pathname+(v?('?t='+v):'');
+}
 function renderLogin(){
   const inTurma=!!TURMA;
+  if(!inTurma){ try{
+    if(sessionStorage.getItem('iefp-login-criar')){ loginMode='criarturma'; sessionStorage.removeItem('iefp-login-criar'); }
+    if(sessionStorage.getItem('iefp-login-root')){ loginMode='root'; sessionStorage.removeItem('iefp-login-root'); }
+  }catch(e){} }
   const mode=inTurma?'login':loginMode;     // Principal: 'login' | 'criarturma'
   let body;
   if(inTurma){
     body=`<h2 class="login-h">Bem-vindo</h2>
       <p class="login-sub">Inicie sessão na sua turma.</p>
-      <div class="login-tnote">${ic('building',15)} <span>Turma <strong>${esc(TURMA)}</strong></span></div>
+      ${turmaSelectorHTML()}
       <form id="loginForm" onsubmit="return false">
         <div class="field"><label>Utilizador</label>
           <select name="username" id="loginUserSel"><option value="">A carregar…</option></select></div>
@@ -3777,9 +3852,28 @@ function renderLogin(){
       </form>
       <div id="loginErr" class="login-err"></div>
       <div class="login-foot"><a class="login-portal" data-act="login-tologin">← Voltar ao início de sessão</a></div>`;
+  } else if(mode==='root'){
+    if(!rootSession){
+      body=`<h2 class="login-h">Suporte</h2>
+        <p class="login-sub">Acesso de suporte (root) à identidade — turmas e contas.</p>
+        <form id="loginForm" onsubmit="return false">
+          <div class="field"><label>Palavra-passe de suporte</label><input name="rootpass" type="password" autocomplete="current-password" placeholder="••••••••"></div>
+          <button type="button" class="btn login-btn" data-act="rootlogin">Entrar como suporte</button>
+        </form>
+        <div id="loginErr" class="login-err"></div>
+        <div class="login-foot"><a class="login-portal" data-act="login-tologin">← Voltar</a></div>`;
+    } else {
+      const rows=rootTurmas.map(t=>`<div class="root-trow"><div class="root-tinfo"><strong>${esc(t.nome||('Turma '+t.codigo))}</strong><span>${esc(t.codigo)} · ${t.n_utilizadores} util. · ${esc(t.criado_por||'—')}</span></div><button type="button" class="btn-sec btn-sm" data-act="root-open" data-codigo="${esc(t.codigo)}">Abrir</button></div>`).join('');
+      body=`<h2 class="login-h">Suporte — turmas</h2>
+        <p class="login-sub">${rootTurmas.length} turma(s). "Abrir" entra como administrador da turma.</p>
+        <div class="root-list">${rows||'<div class="muted" style="padding:12px;text-align:center">Ainda não há turmas criadas.</div>'}</div>
+        <div id="loginErr" class="login-err"></div>
+        <div class="login-foot"><a class="login-portal" data-act="rootlogout">Terminar suporte</a></div>`;
+    }
   } else {
     body=`<h2 class="login-h">Bem-vindo</h2>
       <p class="login-sub">Inicie sessão para aceder à plataforma.</p>
+      ${turmaSelectorHTML()}
       <form id="loginForm" onsubmit="return false">
         <div class="field"><label>Utilizador</label><input name="username" autocomplete="username" placeholder="o seu utilizador"></div>
         <div class="field"><label>Palavra-passe</label><input name="password" type="password" autocomplete="current-password" placeholder="••••••••"></div>
@@ -3789,9 +3883,7 @@ function renderLogin(){
       <div class="login-sep">ou</div>
       <a class="login-action" data-act="login-tocreate">${ic('users',16)} Sou formador — criar nova turma</a>
       <div class="login-foot">
-        <a class="login-portal" href="#portal">Portal do Titular (RGPD)</a>
-        <span class="login-dot">·</span>
-        <a class="login-portal" data-act="login-turma" style="cursor:pointer">Entrar noutra turma</a>
+        <a class="login-portal" href="#portal">Portal do Titular (RGPD) →</a>
       </div>`;
   }
   $('#login').innerHTML=`
@@ -3807,7 +3899,9 @@ function renderLogin(){
     </div>
   </div>`;
   if(inTurma) loadTurmaRoster();
-  setTimeout(()=>{ const el=$('#login [name="'+(mode==='criarturma'?'email':(inTurma?'password':'username'))+'"]'); if(el&&el.focus) el.focus(); },50);
+  const ts=$('#turmaSel'); if(ts){ ts.value=TURMA||''; ts.addEventListener('change',onTurmaSelChange); }
+  const fname=mode==='criarturma'?'email':mode==='root'?'rootpass':(inTurma?'password':'username');
+  setTimeout(()=>{ const el=$('#login [name="'+fname+'"]'); if(el&&el.focus) el.focus(); },50);
   startI18n();
 }
 // Popula o dropdown de utilizadores da turma (roster público do Supabase)
@@ -3829,12 +3923,19 @@ function submitCriarTurma(){
   const btn=f.querySelector('[data-act="criarturma"]'); if(btn){ btn.disabled=true; btn.textContent='A criar…'; }
   supaCriarTurma(p).then(data=>{
     try{ localStorage.setItem('iefp-supa::'+p.codigo, JSON.stringify({token:data.token,user:data.user})); }catch(e){}
+    rememberTurma(p.codigo,p.nomeTurma);
     location.href=location.pathname+'?t='+p.codigo;
   }).catch(e=>{ if(err) err.textContent=supaMsg(e); const b=$('#loginForm [data-act="criarturma"]'); if(b){ b.disabled=false; b.textContent='Criar turma e entrar'; } });
 }
 function switchTurma(){
   const t=prompt('Número da turma (8 dígitos).\nDeixe vazio para o ambiente principal:', TURMA);
   if(t===null) return;
+  const raw=(t||'').trim().toLowerCase();
+  if(raw==='root'||raw==='suporte'){            // gesto escondido → modo suporte (sempre no Principal)
+    if(TURMA){ try{ sessionStorage.setItem('iefp-login-root','1'); }catch(_){} location.href=location.pathname; }
+    else { loginMode='root'; renderLogin(); }
+    return;
+  }
   const d=(t||'').replace(/\D/g,'');
   if(t.trim()!=='' && d.length!==8){ alert('⚠️ O número da turma deve ter exatamente 8 dígitos.\n\nUse o número oficial da turma (ex.: 12345678).'); return; }
   location.href=location.pathname+(d.length===8?('?t='+d):'');

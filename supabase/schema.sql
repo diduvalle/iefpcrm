@@ -100,9 +100,11 @@ begin
     values (p_codigo, coalesce(nullif(trim(p_nome_turma),''), 'Turma '||p_codigo), v_email)
     returning id into v_turma;
 
+  -- O formador que CRIA a turma é o Administrador exclusivo dessa turma.
+  -- (Co-formadores adicionados depois ficam 'Formador'; ver criar_formando.)
   insert into utilizadores(turma_id, username, nome, apelido, email, papel, pass_hash)
     values (v_turma, lower(trim(p_username)), p_nome, p_apelido, v_email,
-            'Formador', extensions.crypt(p_password, extensions.gen_salt('bf')))
+            'Administrador', extensions.crypt(p_password, extensions.gen_salt('bf')))
     returning id into v_user;
 
   insert into sessoes(user_id) values (v_user) returning token into v_token;
@@ -111,7 +113,7 @@ begin
     'token', v_token,
     'turma', json_build_object('codigo', p_codigo),
     'user',  json_build_object('id', v_user, 'username', lower(trim(p_username)),
-             'nome', p_nome, 'apelido', p_apelido, 'papel', 'Formador'));
+             'nome', p_nome, 'apelido', p_apelido, 'papel', 'Administrador'));
 end $$;
 
 -- LOGIN numa turma (qualquer utilizador do roster dessa turma).
@@ -237,6 +239,113 @@ grant execute on function public.criar_formando(uuid,text,text,text,text,text,te
 grant execute on function public.redefinir_password(uuid,uuid,text)               to anon, authenticated;
 grant execute on function public.remover_utilizador(uuid,uuid)                    to anon, authenticated;
 grant execute on function public.logout(uuid)                                     to anon, authenticated;
+
+-- =====================================================================
+--  ROOT / SUPORTE  (acesso global à IDENTIDADE — Fase 3)
+-- ---------------------------------------------------------------------
+--  Credencial única de suporte (a tua). NÃO vive no código do browser:
+--  o hash fica na BD; o browser só envia a password à função login_root.
+--  Alcance: turmas + contas + sessões. NÃO toca nos dados de prática do
+--  CRM (esses são locais por design).
+-- =====================================================================
+
+create table if not exists public.root_cfg (
+  id        int  primary key default 1 check (id = 1),
+  pass_hash text not null
+);
+create table if not exists public.sessoes_root (
+  token     uuid primary key default gen_random_uuid(),
+  criado_em timestamptz not null default now(),
+  expira_em timestamptz not null default (now() + interval '7 days')
+);
+alter table public.root_cfg     enable row level security;
+alter table public.sessoes_root enable row level security;
+
+-- Definir/alterar a password de root. CORRE MANUALMENTE no SQL Editor (1x):
+--    select public.set_root_password('A-TUA-PASS-FORTE');
+-- (Sem grant ao anon → o browser nunca pode redefinir a password de root.)
+create or replace function public.set_root_password(p_password text)
+returns json language plpgsql security definer set search_path = public, extensions as $$
+begin
+  if coalesce(p_password,'') = '' then raise exception 'DADOS_EM_FALTA'; end if;
+  insert into root_cfg(id, pass_hash) values (1, extensions.crypt(p_password, extensions.gen_salt('bf')))
+    on conflict (id) do update set pass_hash = excluded.pass_hash;
+  return json_build_object('ok', true);
+end $$;
+
+-- Login de root → devolve um token de sessão de root.
+create or replace function public.login_root(p_password text)
+returns json language plpgsql security definer set search_path = public, extensions as $$
+declare h text; v_token uuid;
+begin
+  select pass_hash into h from root_cfg where id = 1;
+  if h is null or h <> extensions.crypt(p_password, h) then raise exception 'CREDENCIAIS_INVALIDAS'; end if;
+  insert into sessoes_root default values returning token into v_token;
+  return json_build_object('token', v_token, 'root', true);
+end $$;
+
+create or replace function public._is_root(p_token uuid)
+returns boolean language sql security definer set search_path = public as $$
+  select exists (select 1 from sessoes_root where token = p_token and expira_em > now());
+$$;
+
+-- Listar TODAS as turmas (só root) → alimenta o dropdown global do modo suporte.
+create or replace function public.listar_turmas(p_token uuid)
+returns table(codigo text, nome text, criado_por text, criado_em timestamptz, n_utilizadores bigint)
+language plpgsql security definer set search_path = public as $$
+begin
+  if not _is_root(p_token) then raise exception 'SEM_PERMISSAO'; end if;
+  return query
+    select t.codigo, t.nome, t.criado_por, t.criado_em, count(u.id)
+    from turmas t left join utilizadores u on u.turma_id = t.id
+    group by t.id order by t.criado_em desc;
+end $$;
+
+-- Root abre uma turma como super-admin: gera uma sessão na turma usando o
+-- Administrador dessa turma (ou o 1.º utilizador). Devolve {token,user}.
+create or replace function public.root_abrir_turma(p_token uuid, p_codigo text)
+returns json language plpgsql security definer set search_path = public as $$
+declare v_turma uuid; r public.utilizadores; v_token uuid;
+begin
+  if not _is_root(p_token) then raise exception 'SEM_PERMISSAO'; end if;
+  select id into v_turma from turmas where codigo = p_codigo;
+  if v_turma is null then raise exception 'TURMA_NAO_EXISTE'; end if;
+  select * into r from utilizadores where turma_id = v_turma
+    order by case papel when 'Administrador' then 0 when 'Formador' then 1 else 2 end, criado_em
+    limit 1;
+  if r.id is null then raise exception 'TURMA_SEM_UTILIZADORES'; end if;
+  insert into sessoes(user_id) values (r.id) returning token into v_token;
+  return json_build_object('token', v_token,
+    'user', json_build_object('id', r.id, 'username', r.username, 'nome', r.nome,
+            'apelido', r.apelido, 'email', r.email, 'papel', r.papel));
+end $$;
+
+create or replace function public.logout_root(p_token uuid)
+returns json language sql security definer set search_path = public as $$
+  delete from public.sessoes_root where token = p_token;
+  select json_build_object('ok', true);
+$$;
+
+-- ---------------------------------------------------------------------
+-- Permissões: o anon só pode EXECUTAR as funções públicas.
+-- (O helper interno fica vedado.)
+-- ---------------------------------------------------------------------
+revoke all on function public._user_from_token(uuid) from public, anon, authenticated;
+revoke all on function public._is_root(uuid)          from public, anon, authenticated;
+
+grant execute on function public.criar_turma(text,text,text,text,text,text,text) to anon, authenticated;
+grant execute on function public.login(text,text,text)                            to anon, authenticated;
+grant execute on function public.listar_utilizadores_publico(text)                to anon, authenticated;
+grant execute on function public.listar_utilizadores(uuid)                        to anon, authenticated;
+grant execute on function public.criar_formando(uuid,text,text,text,text,text,text) to anon, authenticated;
+grant execute on function public.redefinir_password(uuid,uuid,text)               to anon, authenticated;
+grant execute on function public.remover_utilizador(uuid,uuid)                    to anon, authenticated;
+grant execute on function public.logout(uuid)                                     to anon, authenticated;
+grant execute on function public.login_root(text)                                 to anon, authenticated;
+grant execute on function public.listar_turmas(uuid)                              to anon, authenticated;
+grant execute on function public.root_abrir_turma(uuid,text)                      to anon, authenticated;
+grant execute on function public.logout_root(uuid)                                to anon, authenticated;
+-- NOTA: set_root_password NÃO recebe grant (corre-se no SQL Editor como owner).
 
 -- =====================================================================
 --  Fim. Próximo: ligar o index.html ao Supabase (cliente).
