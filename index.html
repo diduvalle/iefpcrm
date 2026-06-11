@@ -536,6 +536,7 @@ body.present .header .menu-btn,body.present .header [data-act="toggle-nav"]{disp
 body.present .content{max-width:1320px}
 body.present #presentExit{display:inline-flex;align-items:center;gap:6px;position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:210;background:var(--g700);color:#fff;border:0;border-radius:30px;padding:10px 20px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-lg)}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="toast-wrap" id="toasts"></div>
@@ -1162,8 +1163,61 @@ function doLogin(username,password){
   sessionUserId=u.id; try{localStorage.setItem(SESSION_KEY,u.id);}catch(e){}
   return {ok:true,user:u};
 }
-function doLogout(){ sessionUserId=null; try{localStorage.removeItem(SESSION_KEY);}catch(e){} render(); }
+function doLogout(){ sessionUserId=null; try{localStorage.removeItem(SESSION_KEY);}catch(e){} if(TURMA) supaLogout(); render(); }
 function firstAllowedView(){ const r=currentRole(); return (r&&r.modules[0])||'dashboard'; }
+
+/* ---------- Supabase: identidade central (modelo híbrido) ----------
+   Só a identidade/roster (turmas + utilizadores) vive no Supabase.
+   Os dados de prática do CRM continuam locais (localStorage por turma).
+   Auth via funções RPC; ver supabase/schema.sql. */
+const SUPA_URL='https://qgfzbyhfyqvmmmdiqycu.supabase.co';
+const SUPA_KEY='sb_publishable_atlEEoeN4-CWY8mD7KQNsw_m1cXjdIE';
+const SUPA_TOKEN_KEY='iefp-supa'+TURMA_SFX;
+let _supa=null;
+function supa(){ if(!_supa && window.supabase){ try{ _supa=window.supabase.createClient(SUPA_URL,SUPA_KEY); }catch(e){} } return _supa; }
+async function supaRpc(fn,args){ const c=supa(); if(!c) throw new Error('SEM_LIGACAO'); const {data,error}=await c.rpc(fn,args); if(error) throw error; return data; }
+function supaSession(){ try{ return JSON.parse(localStorage.getItem(SUPA_TOKEN_KEY)||'null'); }catch(e){ return null; } }
+function setSupaSession(s){ try{ s?localStorage.setItem(SUPA_TOKEN_KEY,JSON.stringify(s)):localStorage.removeItem(SUPA_TOKEN_KEY); }catch(e){} }
+function supaToken(){ const s=supaSession(); return s&&s.token||null; }
+const SUPA_ERR={
+  SEM_LIGACAO:'Sem ligação ao servidor. Verifique a internet.',
+  EMAIL_NAO_AUTORIZADO:'Esse email não é de um formador IEFP autorizado (forNNNN@formacao.iefp.pt).',
+  CODIGO_INVALIDO:'O número da turma tem de ter exatamente 8 dígitos.',
+  TURMA_JA_EXISTE:'Já existe uma turma com esse número.',
+  TURMA_NAO_EXISTE:'Turma não encontrada. Confirme o link com o formador.',
+  CREDENCIAIS_INVALIDAS:'Utilizador ou palavra-passe incorretos.',
+  USERNAME_EM_USO:'Esse nome de utilizador já existe nesta turma.',
+  SESSAO_INVALIDA:'Sessão expirada. Inicie sessão novamente.',
+  SEM_PERMISSAO:'Sem permissão para esta ação.',
+  DADOS_EM_FALTA:'Preencha todos os campos obrigatórios.'};
+function supaMsg(e){ const m=(e&&e.message)||String(e); return SUPA_ERR[m]||m; }
+// Espelha um utilizador do Supabase no state local (para permissões/currentUser funcionarem)
+function ingestSupaUser(u){
+  if(!u||!u.id) return;
+  const rec={id:u.id,username:u.username,nome:u.nome,apelido:u.apelido||'',email:u.email||'',papel:u.papel||'Formando',estado:'Ativo',password:'(supabase)'};
+  const lu=state.utilizadores.find(x=>x.id===u.id);
+  if(lu) Object.assign(lu,rec); else state.utilizadores.push(rec);
+  save();
+}
+// Restaura a sessão Supabase guardada (turma mode) no arranque
+function restoreSupaSession(){
+  if(!TURMA) return;
+  const s=supaSession();
+  if(s&&s.user){ ingestSupaUser(s.user); sessionUserId=s.user.id; }
+}
+// Login numa turma via Supabase
+async function supaLogin(username,password){
+  const data=await supaRpc('login',{p_codigo:TURMA,p_username:username,p_password:password});
+  setSupaSession({token:data.token,user:data.user});
+  ingestSupaUser(data.user); sessionUserId=data.user.id;
+  return data.user;
+}
+// Criar turma (gate de email IEFP) — devolve {token,turma,user}
+async function supaCriarTurma(p){
+  const data=await supaRpc('criar_turma',{p_codigo:p.codigo,p_email:p.email,p_username:p.username,p_password:p.password,p_nome:p.nome,p_apelido:p.apelido||'',p_nome_turma:p.nomeTurma||null});
+  return data;
+}
+function supaLogout(){ const t=supaToken(); if(t&&supa()) supaRpc('logout',{p_token:t}).catch(()=>{}); setSupaSession(null); }
 
 /* =========================================================================
    COMPONENTES UI
@@ -3094,8 +3148,8 @@ document.addEventListener('click', e=>{
     case 'modal-save': saveModal(); break;
     case 'modal-delete': { const ed=Object.assign({},editing); const gname=groupDraft&&groupDraft.orig; const aid=autoDraft&&autoDraft.id; closeModal(); if(ed.type==='__group'){ if(gname) delGroup(gname); } else if(ed.type==='__auto'){ if(aid){ state.automacoes=state.automacoes.filter(x=>x.id!==aid); save(); render(); toast('Automação eliminada'); } } else if(ed.type&&ed.id&&STORE_OF[ed.type]) deleteEntity(ed.type,ed.id); } break;
     case 'login': submitLogin(); break;
-    case 'register': doRegister(); break;
-    case 'login-toregister': loginMode='register'; renderLogin(); break;
+    case 'criarturma': submitCriarTurma(); break;
+    case 'login-tocreate': loginMode='criarturma'; renderLogin(); break;
     case 'login-tologin': loginMode='login'; renderLogin(); break;
     case 'login-turma': switchTurma(); break;
     case 'lang': { setLang(getLang()==='en'?'pt':'en'); const _lb=$('#langBtn'); if(_lb) _lb.textContent=(getLang()==='en')?'EN':'PT'; } break;
@@ -3604,7 +3658,55 @@ function submitPortalDsar(){
 /* ---------- Ecrã de login ---------- */
 let loginMode='login';
 function renderLogin(){
-  const reg=loginMode==='register';
+  const inTurma=!!TURMA;
+  const mode=inTurma?'login':loginMode;     // Principal: 'login' | 'criarturma'
+  const chip=`<div class="login-turma" data-act="login-turma" title="Mudar de turma / criar nova">
+        <span class="lt-ic">${ic('building',16)}</span>
+        <span class="lt-body"><span class="lt-label">Turma</span><span class="lt-name">${esc(TURMA||'Principal')}</span></span>
+        <span class="lt-change">mudar</span>
+      </div>`;
+  let body;
+  if(inTurma){
+    body=`<h2 class="login-h">Bem-vindo</h2>
+      <p class="login-sub">Escolha o seu utilizador e inicie sessão.</p>
+      ${chip}
+      <form id="loginForm" onsubmit="return false">
+        <div class="field"><label>Utilizador</label>
+          <select name="username" id="loginUserSel"><option value="">A carregar…</option></select></div>
+        <div class="field"><label>Palavra-passe</label><input name="password" type="password" autocomplete="current-password" placeholder="••••••••"></div>
+        <button class="btn login-btn" data-act="login">Entrar</button>
+      </form>
+      <div id="loginErr" class="login-err"></div>
+      <div class="login-links"><a class="login-portal" href="#portal">Portal do Titular (RGPD) →</a></div>`;
+  } else if(mode==='criarturma'){
+    body=`<h2 class="login-h">Criar nova turma</h2>
+      <p class="login-sub">Apenas formadores IEFP. Valide o seu email institucional.</p>
+      <form id="loginForm" onsubmit="return false">
+        <div class="field"><label>Email de formador IEFP *</label><input name="email" type="email" autocomplete="email" placeholder="forNNNN@formacao.iefp.pt"></div>
+        <div class="form-grid" style="gap:12px"><div class="field"><label>Nome *</label><input name="nome" placeholder="primeiro nome"></div><div class="field"><label>Apelido</label><input name="apelido" placeholder="apelido"></div></div>
+        <div class="field"><label>Número da turma — 8 dígitos *</label><input name="codigo" inputmode="numeric" placeholder="12345678" maxlength="8"></div>
+        <div class="field"><label>Nome da turma (opcional)</label><input name="nometurma" placeholder="ex.: CRM 2026 — Manhã"></div>
+        <div class="form-grid" style="gap:12px"><div class="field"><label>Utilizador *</label><input name="username" autocomplete="username" placeholder="ex.: formador"></div><div class="field"><label>Palavra-passe *</label><input name="password" type="password" autocomplete="new-password" placeholder="••••••••"></div></div>
+        <button class="btn login-btn" data-act="criarturma">Criar turma e entrar</button>
+      </form>
+      <div id="loginErr" class="login-err"></div>
+      <div class="login-links"><a class="login-portal" data-act="login-tologin">← Voltar ao início de sessão</a></div>`;
+  } else {
+    body=`<h2 class="login-h">Bem-vindo</h2>
+      <p class="login-sub">Inicie sessão para aceder à plataforma.</p>
+      ${chip}
+      <p class="login-hint">Cada turma tem o seu ambiente próprio — use o nº de turma no link: <code>?t=12345678</code></p>
+      <form id="loginForm" onsubmit="return false">
+        <div class="field"><label>Utilizador</label><input name="username" autocomplete="username" placeholder="o seu utilizador"></div>
+        <div class="field"><label>Palavra-passe</label><input name="password" type="password" autocomplete="current-password" placeholder="••••••••"></div>
+        <button class="btn login-btn" data-act="login">Entrar</button>
+      </form>
+      <div id="loginErr" class="login-err"></div>
+      <div class="login-links">
+        <a class="login-portal" data-act="login-tocreate">Sou formador · criar nova turma →</a>
+        <a class="login-portal" href="#portal">Portal do Titular (RGPD) →</a>
+      </div>`;
+  }
   $('#login').innerHTML=`
   <div class="login-bg" aria-hidden="true"></div>
   <div class="login-panel">
@@ -3613,35 +3715,35 @@ function renderLogin(){
         <div class="brand-logo"><img src="${esc(logoURL())}" alt="logo"></div>
         <div><h1>${esc(brandName())}</h1><p>Plataforma de Formação</p></div>
       </div>
-      <h2 class="login-h">${reg?'Criar conta':'Bem-vindo'}</h2>
-      <p class="login-sub">${reg?'Registe-se nesta turma para começar.':'Inicie sessão para aceder à plataforma.'}</p>
-      <div class="login-turma" data-act="login-turma" title="Mudar de turma / criar nova">
-        <span class="lt-ic">${ic('building',16)}</span>
-        <span class="lt-body"><span class="lt-label">Turma</span><span class="lt-name">${esc(TURMA||'Principal')}</span></span>
-        <span class="lt-change">mudar</span>
-      </div>
-      <p class="login-hint">Cada turma tem o seu ambiente próprio — use o nº de turma no link: <code>?t=12345678</code></p>
-      ${reg?`<form id="loginForm" onsubmit="return false">
-        <div class="form-grid" style="gap:12px"><div class="field"><label>Nome *</label><input name="rnome" placeholder="primeiro nome"></div><div class="field"><label>Apelido</label><input name="rapelido" placeholder="apelido"></div></div>
-        <div class="field"><label>Utilizador (único) *</label><input name="rusername" autocomplete="username" placeholder="ex.: joao.silva"></div>
-        <div class="field"><label>Palavra-passe *</label><input name="rpassword" type="password" autocomplete="new-password" placeholder="••••••••"></div>
-        <button class="btn login-btn" data-act="register">Criar conta e entrar</button>
-      </form>
-      <div id="loginErr" class="login-err"></div>
-      <div class="login-links"><a class="login-portal" data-act="login-tologin">← Já tenho conta · iniciar sessão</a></div>`:`<form id="loginForm" onsubmit="return false">
-        <div class="field"><label>Utilizador</label><input name="username" autocomplete="username" placeholder="o seu utilizador"></div>
-        <div class="field"><label>Palavra-passe</label><input name="password" type="password" autocomplete="current-password" placeholder="••••••••"></div>
-        <button class="btn login-btn" data-act="login">Entrar</button>
-      </form>
-      <div id="loginErr" class="login-err"></div>
-      <div class="login-links">
-        <a class="login-portal" href="#portal">Portal do Titular (RGPD) →</a>
-      </div>`}
+      ${body}
       <a class="login-credit" href="https://www.linkedin.com/in/ldvale/" target="_blank" rel="noopener noreferrer">${ic('linkedin',14)} Created by Diogo du Valle</a>
     </div>
   </div>`;
-  setTimeout(()=>$('#login [name="'+(reg?'rnome':'username')+'"]')?.focus(),50);
+  if(inTurma) loadTurmaRoster();
+  setTimeout(()=>{ const el=$('#login [name="'+(mode==='criarturma'?'email':(inTurma?'password':'username'))+'"]'); if(el&&el.focus) el.focus(); },50);
   startI18n();
+}
+// Popula o dropdown de utilizadores da turma (roster público do Supabase)
+function loadTurmaRoster(){
+  const sel=$('#loginUserSel'); if(!sel) return;
+  supaRpc('listar_utilizadores_publico',{p_codigo:TURMA}).then(list=>{
+    const s=$('#loginUserSel'); if(!s) return;
+    if(!list||!list.length){ s.innerHTML='<option value="">— sem utilizadores —</option>'; const err=$('#loginErr'); if(err) err.textContent='Turma não encontrada ou ainda sem utilizadores. Confirme o link com o formador.'; return; }
+    s.innerHTML=list.map(u=>`<option value="${esc(u.username)}">${esc(((u.nome||'')+' '+(u.apelido||'')).trim()||u.username)} — ${esc(u.papel)}</option>`).join('');
+  }).catch(e=>{ const s=$('#loginUserSel'); if(s) s.innerHTML='<option value="">(erro)</option>'; const err=$('#loginErr'); if(err) err.textContent=supaMsg(e); });
+}
+// Criar turma (Principal): valida e redireciona para ?t=<codigo>
+function submitCriarTurma(){
+  const f=$('#loginForm'); if(!f) return; const err=$('#loginErr'); if(err) err.textContent='';
+  const g=n=>(f.querySelector('[name="'+n+'"]')||{}).value||'';
+  const p={codigo:g('codigo').replace(/\D/g,''),email:g('email').trim(),nome:g('nome').trim(),apelido:g('apelido').trim(),username:g('username').trim(),password:g('password'),nomeTurma:g('nometurma').trim()};
+  if(!p.email||!p.nome||!p.username||!p.password){ if(err) err.textContent='Preencha email, nome, utilizador e palavra-passe.'; return; }
+  if(p.codigo.length!==8){ if(err) err.textContent='O número da turma tem de ter exatamente 8 dígitos.'; return; }
+  const btn=f.querySelector('[data-act="criarturma"]'); if(btn){ btn.disabled=true; btn.textContent='A criar…'; }
+  supaCriarTurma(p).then(data=>{
+    try{ localStorage.setItem('iefp-supa::'+p.codigo, JSON.stringify({token:data.token,user:data.user})); }catch(e){}
+    location.href=location.pathname+'?t='+p.codigo;
+  }).catch(e=>{ if(err) err.textContent=supaMsg(e); const b=$('#loginForm [data-act="criarturma"]'); if(b){ b.disabled=false; b.textContent='Criar turma e entrar'; } });
 }
 function switchTurma(){
   const t=prompt('Número da turma (8 dígitos).\nDeixe vazio para o ambiente principal:', TURMA);
@@ -3664,10 +3766,19 @@ function doRegister(){
   loginMode='login'; location.hash='#'+firstAllowedView(); render(); toast('Conta criada',`Bem-vindo, ${nome}`);
 }
 function submitLogin(){
-  const f=$('#loginForm'); if(!f) return;
-  const r=doLogin(f.querySelector('[name="username"]').value, f.querySelector('[name="password"]').value);
+  const f=$('#loginForm'); if(!f) return; const e=$('#loginErr'); if(e) e.textContent='';
+  const username=(f.querySelector('[name="username"]')||{}).value||'';
+  const password=(f.querySelector('[name="password"]')||{}).value||'';
+  if(TURMA){
+    const btn=f.querySelector('[data-act="login"]'); if(btn){ btn.disabled=true; btn.textContent='A entrar…'; }
+    supaLogin(username,password).then(u=>{
+      location.hash='#'+firstAllowedView(); render(); toast('Sessão iniciada',`Bem-vindo, ${u.nome}`);
+    }).catch(err=>{ if(e) e.textContent=supaMsg(err); const b=$('#loginForm [data-act="login"]'); if(b){ b.disabled=false; b.textContent='Entrar'; } });
+    return;
+  }
+  const r=doLogin(username,password);
   if(r.ok){ location.hash='#'+firstAllowedView(); render(); toast('Sessão iniciada',`Bem-vindo, ${r.user.nome}`); }
-  else { const e=$('#loginErr'); if(e) e.textContent=r.msg; }
+  else if(e) e.textContent=r.msg;
 }
 
 /* ---------- Wizard: gerar campanha a partir de persona ---------- */
@@ -3881,6 +3992,7 @@ load();
 applyTheme(localStorage.getItem('iefp-theme')||'light');
 applyBrand();
 if(localStorage.getItem('iefp-nav')==='1') $('#app').classList.add('nav-collapsed');
+restoreSupaSession();
 render();
 tryLoadBase();
 
