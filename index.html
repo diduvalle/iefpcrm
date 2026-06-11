@@ -450,21 +450,10 @@ td .cell-sub{font-size:.78rem;color:var(--muted)}
 .login-card .field{margin-bottom:15px}
 .login-btn{width:100%;margin-top:8px;padding:13px;font-size:.95rem;border-radius:11px;font-weight:700}
 .login-err{color:var(--danger);font-size:.84rem;margin-top:10px;text-align:center;min-height:18px}
-.login-links{display:flex;flex-direction:column;align-items:center;gap:11px;margin-top:20px}
 .login-portal{font-size:.84rem;color:var(--g700);font-weight:600;text-decoration:none}
 .login-portal:hover{text-decoration:underline}
 .login-credit{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:26px;padding-top:18px;border-top:1px solid var(--border);font-size:.75rem;color:var(--muted);text-decoration:none}
 .login-credit:hover{color:var(--g700)}
-.login-turma{display:flex;align-items:center;gap:11px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:10px 13px;margin-bottom:9px;cursor:pointer;transition:.16s}
-.login-turma:hover{border-color:var(--g400);background:var(--g50)}
-.login-turma .lt-ic{width:34px;height:34px;border-radius:9px;flex:none;display:grid;place-items:center;background:var(--g100);color:var(--g700)}
-.login-turma .lt-body{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.2}
-.login-turma .lt-label{font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted2)}
-.login-turma .lt-name{font-size:.95rem;font-weight:700;color:var(--text)}
-.login-turma .lt-change{font-size:.8rem;font-weight:700;color:var(--g700);flex:none}
-.login-turma:hover .lt-change{text-decoration:underline}
-.login-hint{font-size:.74rem;color:var(--muted);line-height:1.5;margin:0 0 22px;padding:0 2px}
-.login-hint code{background:var(--surface2);border:1px solid var(--border);padding:1px 6px;border-radius:5px;font-size:.92em;color:var(--g700);font-weight:600;white-space:nowrap}
 .turma-chip{display:flex;align-items:center;justify-content:center;gap:6px;font-size:.72rem;font-weight:700;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:6px 8px;margin-top:8px}
 .login-sep{display:flex;align-items:center;gap:12px;margin:20px 0 16px;color:var(--muted2);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em}
 .login-sep::before,.login-sep::after{content:"";flex:1;height:1px;background:var(--border)}
@@ -3848,19 +3837,6 @@ function switchTurma(){
   const d=(t||'').replace(/\D/g,'');
   if(t.trim()!=='' && d.length!==8){ alert('⚠️ O número da turma deve ter exatamente 8 dígitos.\n\nUse o número oficial da turma (ex.: 12345678).'); return; }
   location.href=location.pathname+(d.length===8?('?t='+d):'');
-}
-function doRegister(){
-  const f=$('#loginForm'); if(!f) return;
-  const nome=(f.querySelector('[name="rnome"]').value||'').trim();
-  const apelido=(f.querySelector('[name="rapelido"]').value||'').trim();
-  const username=(f.querySelector('[name="rusername"]').value||'').trim().toLowerCase();
-  const password=f.querySelector('[name="rpassword"]').value||'';
-  const err=$('#loginErr');
-  if(!nome||!username||!password){ if(err) err.textContent='Preencha nome, utilizador e palavra-passe.'; return; }
-  if(state.utilizadores.some(u=>(u.username||'').toLowerCase()===username)){ if(err) err.textContent='Esse utilizador já existe nesta turma.'; return; }
-  const u={id:uid('usr'),nome,apelido,email:'',username,password:hashPwd(password),papel:'Formando',estado:'Ativo'};
-  state.utilizadores.push(u); save(); sessionUserId=u.id; try{localStorage.setItem(SESSION_KEY,u.id);}catch(e){}
-  loginMode='login'; location.hash='#'+firstAllowedView(); render(); toast('Conta criada',`Bem-vindo, ${nome}`);
 }
 function submitLogin(){
   const f=$('#loginForm'); if(!f) return; const e=$('#loginErr'); if(e) e.textContent='';
