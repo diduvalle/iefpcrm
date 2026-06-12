@@ -2076,7 +2076,7 @@ function loadEmailJS(){
     document.head.appendChild(s);
   });
 }
-function emailParams(o){ const s=state.settings; return { to_email:o.toEmail||'', to_name:o.toName||'', subject:o.subject||'', message:o.message||'', from_name:s.entidade||'', reply_to:s.email||'', cc:o.cc||'', bcc:o.bcc||'' }; }
+function emailParams(o){ const s=state.settings; return { to_email:o.toEmail||'', to_name:o.toName||'', subject:o.subject||'', message:o.message||'', from_name:o.fromName||s.entidade||'', reply_to:o.replyTo||s.email||'', cc:o.cc||'', bcc:o.bcc||'' }; }
 function sendViaEmailJS(o){ const c=emailjsCfg(); return loadEmailJS().then(ej=>ej.send(c.serviceId, c.templateId, emailParams(o), {publicKey:c.publicKey})); }
 function sendTestEmailJS(){
   if(!emailjsActive()){ toast('Configure primeiro','Preencha os 3 campos e ative o modo real','warn'); return; }
@@ -2858,6 +2858,7 @@ function saveModal(){
   if(editing&&editing.type==='__profile') return saveProfile();
   if(editing&&editing.type==='__wizard') return wizardGenerate();
   if(editing&&editing.type==='__send') return doSendEmail(false);
+  if(editing&&editing.type==='__submitwork') return sendSubmitWork();
   if(editing&&editing.type==='__auto') return saveAuto();
   if(editing&&editing.type==='__group') return saveGroup();
   if(editing&&editing.type==='proposta') return savePropModal();
@@ -3193,9 +3194,63 @@ function submitWork(){
   const u=currentUser(); const nome=u?(((u.nome||'')+'-'+(u.apelido||'')).normalize('NFD').replace(/[^a-zA-Z]/g,'')||u.username||'formando'):'formando';
   const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='trabalho-'+nome+'.json'; a.click(); URL.revokeObjectURL(a.href);
-  const url=state.settings.entregaURL;
-  if(url){ setTimeout(()=>{ if(confirm('Trabalho descarregado.\n\nAbrir agora a pasta de entrega para colocar o ficheiro lá?')) window.open(url,'_blank','noopener'); },200); toast('Trabalho descarregado',`trabalho-${nome}.json — coloque na pasta de entrega`); }
-  else toast('Trabalho descarregado',`trabalho-${nome}.json — envie ao formador`);
+  toast('Trabalho descarregado',`trabalho-${nome}.json — pode anexá-lo ao email`);
+}
+// Resumo compacto do trabalho (vai no corpo do email de entrega)
+function resumoTrabalho(){
+  const s=state; const pe=est=>(s.propostas||[]).filter(p=>p.estado===est).length;
+  return [
+    `• Empresas: ${(s.empresas||[]).length}`,
+    `• Contactos/clientes: ${(s.clientes||[]).length}`,
+    `• Produtos: ${(s.produtos||[]).length}`,
+    `• Propostas: ${(s.propostas||[]).length} (Ganhas ${pe('Ganha')}, Negociação ${pe('Negociação')}, Perdidas ${pe('Perdida')})`,
+    `• Campanhas: ${(s.campanhas||[]).length}`,
+    `• RGPD — consentimentos: ${(s.consentimentos||[]).length} · pedidos de titular: ${(s.pedidos||[]).length}`
+  ].join('\n');
+}
+// Modal: o formando submete o trabalho por email, a partir do CRM
+function openSubmitWork(){
+  const u=currentUser(); if(!u) return;
+  editing={type:'__submitwork'};
+  $('#modalTitle').textContent='Submeter o meu trabalho';
+  $('#modalSub').textContent=`${u.nome||''} ${u.apelido||''}${TURMA?' · Turma '+TURMA:''}`.trim();
+  $('#modal').classList.add('wide');
+  $('#modalDelete').style.display='none';
+  { const sv=$('[data-act="modal-save"]'); if(sv) sv.textContent='Enviar ao formador'; }
+  const temSig=hasSignature(u);
+  const assunto=`Entrega de trabalho — ${(u.nome||'')} ${(u.apelido||'')}`.trim()+(TURMA?` (Turma ${TURMA})`:'');
+  $('#modalForm').innerHTML=`
+    <div class="callout info" style="margin-bottom:14px">${ic('send',16)}<div class="ctxt">Envia o teu trabalho ao formador <strong>a partir do CRM</strong>. O email leva a tua mensagem, um <strong>resumo do trabalho</strong> e a tua <strong>assinatura</strong>. As respostas do formador vêm para o teu email.</div></div>
+    ${temSig?'':`<div class="callout warn" style="margin-bottom:14px">${ic('alert',16)}<div class="ctxt"><strong>Falta a tua assinatura.</strong> É obrigatória para submeter (autentica a autoria). <a data-act="profile" style="cursor:pointer;text-decoration:underline">Adicionar assinatura no perfil →</a></div></div>`}
+    <div class="form-grid">
+      <div class="field"><label>Email do formador *</label><input name="swto" type="email" placeholder="email do formador"></div>
+      <div class="field"><label>O meu email (para resposta)</label><input value="${esc(u.email||'')}" readonly style="background:var(--surface3);color:var(--muted)"></div>
+      <div class="field full"><label>Assunto</label><input name="swsubject" value="${esc(assunto)}"></div>
+      <div class="field full"><label>Mensagem para o formador *</label><textarea name="swmsg" rows="5" placeholder="Escreve uma mensagem (ex.: o que fizeste, dúvidas, notas)…"></textarea></div>
+    </div>
+    <div class="toolbar" style="margin:4px 0 10px"><button class="btn-sec btn-sm" type="button" data-act="download-trabalho">${ic('download',15)} Descarregar o trabalho completo (.json)</button></div>
+    ${temSig?`<div class="muted" style="font-size:.8rem;font-weight:700;margin:8px 0 6px">${ic('check',14)} A tua assinatura (vai no fim do email)</div><div style="border:1px solid var(--border);border-radius:10px;padding:12px;background:var(--surface)">${currentSigHTML(null,null)}</div>`:''}`;
+  $('#modalBack').classList.add('open');
+}
+function sendSubmitWork(){
+  const u=currentUser(); if(!u){ closeModal(); return; }
+  const f=$('#modalForm'); if(!f) return;
+  const g=n=>String((f.querySelector('[name="'+n+'"]')||{}).value||'').trim();
+  const to=g('swto'), subject=g('swsubject')||'Entrega de trabalho', msg=g('swmsg');
+  if(!hasSignature(u)){ toast('Assinatura obrigatória','Adicione a assinatura no seu perfil para submeter','warn'); openProfile(); return; }
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)){ toast('Email do formador inválido','Confirme o endereço','warn'); return; }
+  if(!msg){ toast('Escreva uma mensagem','Diga ao formador o que está a entregar','warn'); return; }
+  const sigT=sigHtmlToText(u.assinatura);
+  const body=`${msg}\n\n———\nRESUMO DO TRABALHO\n${resumoTrabalho()}\n\nEntregue por: ${(u.nome||'')} ${(u.apelido||'')}${TURMA?' · Turma '+TURMA:''} · ${todayISO()}\n\n${sigT}`;
+  const fromName=(`${(u.nome||'').trim()} ${(u.apelido||'').trim()}`.trim()||u.username||'Formando')+' (IEFP CRM)';
+  if(!emailjsActive()){
+    try{ window.location.href=`mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`; }catch(e){}
+    closeModal(); toast('Email aberto no seu programa','Anexe o ficheiro do trabalho e envie','info'); return;
+  }
+  closeModal(); toast('A enviar trabalho…','via EmailJS','info');
+  sendViaEmailJS({toEmail:to,toName:'Formador',subject,message:body,fromName,replyTo:u.email||''})
+    .then(()=>toast('Trabalho enviado',`Para ${to}`))
+    .catch(err=>toast('Falha no envio',String(err&&(err.text||err.message)||err),'err'));
 }
 
 /* =========================================================================
@@ -3220,7 +3275,8 @@ function buildNav(){
   if(foot){
     const credit=`${TURMA?`<div class="turma-chip" title="Ambiente isolado desta turma">${ic('building',12)} Turma: ${esc(TURMA)}</div>`:''}<a href="https://www.linkedin.com/in/ldvale/" target="_blank" rel="noopener noreferrer" class="made-by" title="LinkedIn — Diogo du Valle">${ic('linkedin',14)}<span>Created by Diogo du Valle</span></a>`;
     if(u){
-      foot.innerHTML=`<div class="profile"><div class="profile-id" data-act="profile" title="Editar o meu perfil" style="display:flex;align-items:center;gap:11px;flex:1;min-width:0;cursor:pointer">${avatarHTML(u,36)}<div class="profile-txt"><strong>${esc(u.nome)} ${esc(u.apelido||'')}</strong><span>${esc(u.papel)}</span></div></div><button class="icon-btn" data-act="logout" title="Terminar sessão" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18);color:#fff;width:34px;height:34px">${ic('logout',16)}</button></div><button class="btn-sec btn-sm submit-work" data-act="submit-work" title="Descarregar e entregar o meu trabalho">${ic('upload',15)}<span>Submeter o meu trabalho</span></button>${credit}`;
+      const submitBtn=(u.papel==='Formando')?`<button class="btn-sec btn-sm submit-work" data-act="submit-work" title="Enviar o meu trabalho ao formador">${ic('upload',15)}<span>Submeter o meu trabalho</span></button>`:'';
+      foot.innerHTML=`<div class="profile"><div class="profile-id" data-act="profile" title="Editar o meu perfil" style="display:flex;align-items:center;gap:11px;flex:1;min-width:0;cursor:pointer">${avatarHTML(u,36)}<div class="profile-txt"><strong>${esc(u.nome)} ${esc(u.apelido||'')}</strong><span>${esc(u.papel)}</span></div></div><button class="icon-btn" data-act="logout" title="Terminar sessão" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18);color:#fff;width:34px;height:34px">${ic('logout',16)}</button></div>${submitBtn}${credit}`;
     } else {
       foot.innerHTML=`<div class="profile"><div class="avatar">DV</div><div class="profile-txt"><strong>Formador IEFP</strong><span>Sessão de demonstração</span></div></div>${credit}`;
     }
@@ -3396,7 +3452,8 @@ document.addEventListener('click', e=>{
     case 'roster-del': { const nm=el.dataset.nome||''; if(confirm('Remover '+nm+' desta turma?\nO acesso deixa de funcionar (os dados locais do próprio computador não são afetados).')){ supaRemove(el.dataset.id).then(()=>{ toast('Removido',nm); renderTurmaRoster(); }).catch(er=>toast('Erro',supaMsg(er),'err')); } break; }
     case 'roster-pwd': { const p=prompt('Nova palavra-passe para "'+(el.dataset.nome||'')+'":'); if(p&&p.trim()){ supaResetPwd(el.dataset.id,p.trim()).then(()=>toast('Palavra-passe reposta',el.dataset.nome)).catch(er=>toast('Erro',supaMsg(er),'err')); } break; }
     case 'gen': gerarExemplos(+el.dataset.n||0, +el.dataset.p||0, +el.dataset.e||0); break;
-    case 'submit-work': submitWork(); break;
+    case 'submit-work': openSubmitWork(); break;
+    case 'download-trabalho': submitWork(); break;
     case 'export-base': exportBase(); break;
     case 'reload-base': reloadBase(); break;
     case 'save-share': { $$('[data-share]').forEach(el2=>{ state.settings[el2.dataset.share]=el2.value.trim(); }); save(); render(); toast('Guardado','Base e entregas configuradas'); } break;
