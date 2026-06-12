@@ -9,17 +9,16 @@ site_dir: ../manual
 
 theme:
   name: material
+  custom_dir: overrides
   language: pt-BR
   logo: assets/logo.png
   favicon: assets/favicon.png
-  icon:
-    repo: octicons/mark-github-16
   font:
     text: Inter
     code: JetBrains Mono
   features:
-    - navigation.tabs
     - navigation.sections
+    - navigation.expand
     - navigation.top
     - navigation.indexes
     - navigation.footer
@@ -29,19 +28,18 @@ theme:
     - content.tooltips
     - toc.follow
   palette:
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
+    # Modo claro POR DEFEITO (independente do sistema)
+    - scheme: default
       primary: custom
       accent: custom
       toggle:
-        icon: material/weather-night
+        icon: iefp/moon
         name: Mudar para modo escuro
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
+    - scheme: slate
       primary: custom
       accent: custom
       toggle:
-        icon: material/weather-sunny
+        icon: iefp/sun
         name: Mudar para modo claro
 
 extra_css:
@@ -79,7 +77,6 @@ nav:
       - Gerir a turma: formador/gerir-turma.md
       - Entrega & validação: formador/entregas.md
       - Email & Marca: formador/email-marca.md
-      - Suporte (root): formador/suporte.md
   - Para o Formando:
       - Trabalhar no CRM: formando/trabalhar.md
       - Submeter o trabalho: formando/submeter.md

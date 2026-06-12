@@ -1,7 +1,7 @@
 # FAQ — perguntas frequentes
 
 ??? question "Esqueci-me da palavra-passe. E agora?"
-    **Formando:** pede ao formador para a repor (*Gerir a turma*). **Formador:** usa o código de recuperação que recebeste ao criar a turma, ou pede ao suporte (root).
+    **Formando:** pede ao formador para a repor (*Gerir a turma*). **Formador:** usa o **código de recuperação** que recebeste ao criar a turma.
 
 ??? question "Escrevi o número da turma e diz que não existe."
     Confirma o número (8 dígitos) com o formador. Se a turma existir, entras; senão, a app avisa para evitar enganos.
