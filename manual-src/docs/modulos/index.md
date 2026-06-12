@@ -34,5 +34,14 @@ O IEFP CRM cobre todo o ciclo de um CRM real. Esta secção vai crescer com uma 
 | **Alertas** | Avisos (propostas a expirar, pedidos RGPD, tarefas) e histórico |
 | **Definições** | Entidade, marca, email, utilizadores, entregas, dados & backup |
 
-!!! note "Em expansão"
-    Cada módulo terá a sua página com passo-a-passo e screenshots. Diz-nos por qual queres que comecemos.
+## Em detalhe
+
+- [Dashboard & Agenda](dashboard-agenda.md)
+- [Empresas & Contactos](empresas-contactos.md)
+- [Propostas](propostas.md) — Kanban, modelos e PDF
+- [Campanhas & Email](campanhas-email.md)
+- [Analytics](analytics.md) — KPIs, funil, CAC/LTV
+- [RGPD & Pedagogia](../rgpd.md)
+
+!!! note "Screenshots a caminho"
+    As páginas vão receber **capturas reais** de cada ecrã para acompanhar o passo-a-passo.

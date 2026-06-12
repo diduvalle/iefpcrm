@@ -83,6 +83,11 @@ nav:
       - Recuperar a password: formando/recuperar.md
   - Funcionalidades:
       - Visão geral dos módulos: modulos/index.md
+      - Dashboard & Agenda: modulos/dashboard-agenda.md
+      - Empresas & Contactos: modulos/empresas-contactos.md
+      - Propostas: modulos/propostas.md
+      - Campanhas & Email: modulos/campanhas-email.md
+      - Analytics: modulos/analytics.md
   - RGPD & Pedagogia: rgpd.md
   - FAQ: faq.md
   - Glossário: glossario.md
