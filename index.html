@@ -2535,7 +2535,10 @@ function revisarFicheiro(file){ if(!file) return; const r=new FileReader(); r.on
 function printEntregaProp(propId){
   if(!revisaoPayload||!propId) return;
   const bak=state;
-  try{ state=revisaoPayload; printProposal(propId); }
+  // Usa os modelos DA ENTREGA (os que o formando criou). Se a entrega não
+  // trouxer modelos, cai nos do formador para gerar na mesma.
+  const tpls=(revisaoPayload.propostaTemplates&&revisaoPayload.propostaTemplates.length)?revisaoPayload.propostaTemplates:bak.propostaTemplates;
+  try{ state=Object.assign({}, revisaoPayload, {propostaTemplates:tpls}); printProposal(propId); }
   catch(e){ toast('Não foi possível gerar o PDF',String(e&&e.message||e),'err'); }
   finally{ state=bak; }
 }
