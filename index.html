@@ -1048,7 +1048,7 @@ function demoData(){
   ];
   propostas.forEach((p,i)=>{ p.templateId = p.templateId || (i%2 ? 'pt2' : 'pt1'); p.criadoPor='u2'; p.alteradoPor='u2'; p.alteradoEm=p.criada; });
   return {
-    settings:{entidade:'IEFP CRM — Centro de Formação',nif:'600000000',email:'geral@iefpcrm.pt',telefone:'210 000 000',cidade:'Lisboa',epd:'Rita Sousa',numeroSeq:6,requireLogin:true,
+    settings:{entidade:'IEFP CRM — Centro de Formação',nif:'600000000',email:'iefpcrm@cr0x.org',telefone:'210 000 000',cidade:'Lisboa',epd:'Rita Sousa',numeroSeq:6,requireLogin:true,
       origens:['Website','Recomendação','Feira','Campanha Email','Redes Sociais','Outro'],
       emailjs:Object.assign({},EMAILJS_DEFAULT),
       baseURL:'base.json', entregaURL:'',
@@ -1083,6 +1083,7 @@ function load(){
   if(!Array.isArray(state.settings.origens)||!state.settings.origens.length) state.settings.origens=def.settings.origens;
   if(!state.settings.emailjs||typeof state.settings.emailjs!=='object') state.settings.emailjs=Object.assign({},EMAILJS_DEFAULT);
   if(state.settings.emailjs && !state.settings.emailjs.serviceId && !state.settings.emailjs.templateId && !state.settings.emailjs.publicKey) state.settings.emailjs=Object.assign({},EMAILJS_DEFAULT);
+  if(state.settings.email==='geral@iefpcrm.pt') state.settings.email='iefpcrm@cr0x.org';  // reply-to: placeholder antigo → email real
   { const adm=state.utilizadores.find(u=>u.id==='u1'); if(adm && adm.apelido==='Vale') adm.apelido='du Valle'; }
   Object.values(state.roles||{}).forEach(r=>{ if(r&&Array.isArray(r.modules)&&!r.modules.includes('email')&&(r.gestor||r.modules.includes('campanhas'))) r.modules.push('email'); });
   // --- Empresas & Contactos (modelo Account/Contact) — migração additiva ---
