@@ -1009,10 +1009,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#o-que-analisas" class="md-nav__link">
+  <a href="#filtro-e-comparacao" class="md-nav__link">
     <span class="md-ellipsis">
       
-        O que analisas
+        Filtro e comparação
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#os-indicadores-um-a-um" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Os indicadores — um a um
       
     </span>
   </a>
@@ -1156,10 +1167,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#o-que-analisas" class="md-nav__link">
+  <a href="#filtro-e-comparacao" class="md-nav__link">
     <span class="md-ellipsis">
       
-        O que analisas
+        Filtro e comparação
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#os-indicadores-um-a-um" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Os indicadores — um a um
       
     </span>
   </a>
@@ -1195,23 +1217,36 @@
 
 
 <h1 id="analytics">Analytics<a class="headerlink" href="#analytics" title="Permanent link">&para;</a></h1>
-<p>O módulo de <strong>KPIs &amp; Dashboards</strong> — o foco da UFCD <strong>10868 — CRM Analytics</strong>. Tudo respeita o <strong>filtro temporal</strong> (período personalizado, mês, trimestre, ano) e permite <strong>comparar com o período anterior</strong>.</p>
-<h2 id="o-que-analisas">O que analisas<a class="headerlink" href="#o-que-analisas" title="Permanent link">&para;</a></h2>
+<p>O módulo de <strong>KPIs &amp; Dashboards</strong> — o foco da UFCD <strong>10868</strong>. Tudo respeita o <strong>filtro temporal</strong> e permite <strong>comparar com o período anterior</strong>.</p>
+<h2 id="filtro-e-comparacao">Filtro e comparação<a class="headerlink" href="#filtro-e-comparacao" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Funil de vendas</strong> — conversão entre etapas do pipeline.</li>
-<li><strong>Ticket médio</strong>, <strong>taxa de conversão</strong>, <strong>churn</strong>.</li>
-<li><strong>Receita por mês</strong> e <strong>vendas por estado</strong>.</li>
-<li><strong>Top clientes</strong> por valor ganho.</li>
-<li><strong>Análise de perdas</strong> — agrupa os <em>motivos de perda</em> das propostas perdidas.</li>
-<li><strong>CAC &amp; LTV/CAC</strong> — custo de aquisição (orçamento ÷ novos clientes) e rácio com o valor do cliente (cor verde quando ≥ 3:1).</li>
-<li><strong>Lead scoring</strong> — pontuação 0–100 de cada contacto (compras, <em>engagement</em>, loyalty, segmento) → Quente / Morno / Frio.</li>
-<li><strong>Insights de IA</strong> <em>(simulado)</em> — leitura automática dos KPIs com sugestões.</li>
+<li><strong>Filtro temporal</strong> no topo: Tudo / 30 dias / Trimestre / Este mês / Este ano / datas De–Até.</li>
+<li>Botão <strong>Comparar</strong> — calcula o período anterior de igual duração e mostra <strong>▲▼ X% vs anterior</strong> em cada KPI (o churn aparece invertido).</li>
+</ul>
+<h2 id="os-indicadores-um-a-um">Os indicadores — um a um<a class="headerlink" href="#os-indicadores-um-a-um" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Funil de vendas</strong> — conversão entre etapas do pipeline (ou propostas criadas no período).</li>
+<li><strong>Taxa de conversão</strong> — % de propostas que chegam a <em>Ganha</em>.</li>
+<li><strong>Ticket médio</strong> — valor médio das propostas ganhas.</li>
+<li><strong>Churn</strong> — perda de clientes (menor é melhor).</li>
+<li><strong>Receita por mês</strong> — barras das propostas ganhas no período.</li>
+<li><strong>Vendas por estado</strong> — distribuição por estado do pipeline.</li>
+<li><strong>Top clientes</strong> — por valor ganho.</li>
+<li><strong>Análise de perdas</strong> — agrupa os <strong>motivos de perda</strong> das propostas perdidas (barras + maior causa).</li>
+<li><strong>CAC</strong> — Custo de Aquisição de Cliente = <strong>orçamento de marketing ÷ novos clientes</strong>. Defines o orçamento no campo próprio (<strong>Aplicar</strong>).</li>
+<li><strong>LTV / CAC</strong> — rácio entre o valor do cliente e o custo de o adquirir; fica <strong>verde quando ≥ 3:1</strong> (saudável).</li>
+<li><strong>Lead scoring</strong> — pontuação <strong>0–100</strong> de cada contacto (compras, <em>engagement</em>, loyalty, segmento) → <strong>Quente / Morno / Frio</strong>, com barras.</li>
+<li><strong>Insights de IA</strong> <em>(simulado)</em> — cartões com leituras automáticas dos KPIs e sugestões.</li>
 </ul>
 <h2 id="exportar">Exportar<a class="headerlink" href="#exportar" title="Permanent link">&para;</a></h2>
-<p>Há um botão para <strong>imprimir o relatório de Analytics</strong> (KPIs, funil e top clientes), respeitando o período selecionado.</p>
+<p>Botão <strong>Imprimir relatório</strong> (no callout) → gera um PDF com <strong>KPIs</strong> (e comparação, se ativa), <strong>funil</strong> e <strong>top clientes</strong>, respeitando o período.</p>
+<div class="admonition tip">
+<p class="admonition-title">Balões pedagógicos</p>
+<p>Vários indicadores têm o ícone <strong>ⓘ</strong> com a definição do conceito e a página dos slides (conversão, ticket, churn, funil, LTV, CAC, lead scoring).</p>
+</div>
 <div class="admonition note">
-<p class="admonition-title">Dashboard</p>
-<p>O <strong>Dashboard</strong> (módulo Principal) dá a visão rápida do dia: KPIs, receita, pipeline e atalhos. O <strong>Analytics</strong> é a análise aprofundada.</p>
+<p class="admonition-title">Dashboard vs Analytics</p>
+<p>O <strong>Dashboard</strong> dá a visão rápida do dia; o <strong>Analytics</strong> é a análise aprofundada com comparações e exportação.</p>
 </div>
 
 
