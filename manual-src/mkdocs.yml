@@ -85,7 +85,9 @@ nav:
       - Visão geral dos módulos: modulos/index.md
       - Dashboard & Agenda: modulos/dashboard-agenda.md
       - Empresas & Contactos: modulos/empresas-contactos.md
+      - Produtos: modulos/produtos.md
       - Propostas: modulos/propostas.md
+      - Modelos de Proposta: modulos/modelos.md
       - Campanhas & Email: modulos/campanhas-email.md
       - Analytics: modulos/analytics.md
   - RGPD & Pedagogia: rgpd.md

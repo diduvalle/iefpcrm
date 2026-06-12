@@ -38,7 +38,9 @@ O IEFP CRM cobre todo o ciclo de um CRM real. Esta secção vai crescer com uma 
 
 - [Dashboard & Agenda](dashboard-agenda.md)
 - [Empresas & Contactos](empresas-contactos.md)
+- [Produtos](produtos.md) — catálogo e IVA por região
 - [Propostas](propostas.md) — Kanban, modelos e PDF
+- [Modelos de Proposta](modelos.md) — construtor por blocos
 - [Campanhas & Email](campanhas-email.md)
 - [Analytics](analytics.md) — KPIs, funil, CAC/LTV
 - [RGPD & Pedagogia](../rgpd.md)
