@@ -2523,13 +2523,22 @@ function renderRevisao(p,nome){
     <div class="grid cols-4" style="gap:10px;margin-bottom:14px">${kpi('Empresas',emp.length)}${kpi('Clientes',cli.length)}${kpi('Propostas',prop.length)}${kpi('Campanhas',(p.campanhas||[]).length)}</div>
     <h3 style="font-size:.95rem;margin:6px 0 8px">Clientes (${cli.length})</h3>
     <div class="table-wrap" style="max-height:210px;overflow:auto;margin-bottom:14px"><table><thead><tr><th>Nome</th><th>Empresa</th><th>Email</th><th>Segmento</th></tr></thead><tbody>${cli.slice(0,150).map(c=>`<tr><td>${esc(((c.nome||'')+' '+(c.apelido||'')).trim())}</td><td>${esc(c.empresa||'—')}</td><td>${esc(c.email||'—')}</td><td>${esc(c.segmento||'—')}</td></tr>`).join('')||`<tr><td colspan="4" class="muted" style="padding:10px">Sem clientes.</td></tr>`}</tbody></table></div>
-    <h3 style="font-size:.95rem;margin:6px 0 8px">Propostas (${prop.length})</h3>
-    <div class="table-wrap" style="max-height:210px;overflow:auto"><table><thead><tr><th>Número</th><th>Título</th><th>Cliente</th><th>Estado</th></tr></thead><tbody>${prop.slice(0,150).map(pr=>`<tr><td>${esc(pr.numero||'—')}</td><td>${esc(pr.titulo||'—')}</td><td>${esc(cn(pr.clienteId))}</td><td>${esc(pr.estado||'—')}</td></tr>`).join('')||`<tr><td colspan="4" class="muted" style="padding:10px">Sem propostas.</td></tr>`}</tbody></table></div>
+    <h3 style="font-size:.95rem;margin:6px 0 8px">Propostas (${prop.length}) <span class="muted" style="font-weight:500;font-size:.78rem">— "PDF" regenera o documento a partir do trabalho entregue</span></h3>
+    <div class="table-wrap" style="max-height:210px;overflow:auto"><table><thead><tr><th>Número</th><th>Título</th><th>Cliente</th><th>Estado</th><th></th></tr></thead><tbody>${prop.slice(0,150).map(pr=>`<tr><td>${esc(pr.numero||'—')}</td><td>${esc(pr.titulo||'—')}</td><td>${esc(cn(pr.clienteId))}</td><td>${esc(pr.estado||'—')}</td><td class="t-right"><button class="btn-sec btn-xs" type="button" data-act="entrega-prop-pdf" data-pid="${esc(pr.id||'')}">${ic('download',12)} PDF</button></td></tr>`).join('')||`<tr><td colspan="5" class="muted" style="padding:10px">Sem propostas.</td></tr>`}</tbody></table></div>
     <div class="toolbar" style="margin-top:14px"><button class="btn-sec btn-sm" type="button" data-act="entrega-baixar-atual">${ic('download',15)} Descarregar trabalho completo (.json)</button></div>`;
   $('#modalBack').classList.add('open');
 }
 function openRevisao(id,nome){ toast('A carregar entrega…','','info'); supaObterSubmissao(id).then(p=>renderRevisao(p,nome)).catch(e=>toast('Erro ao carregar',supaMsg(e),'err')); }
 function revisarFicheiro(file){ if(!file) return; const r=new FileReader(); r.onload=e=>{ try{ const p=JSON.parse(e.target.result); if(typeof p!=='object'||p===null) throw 0; renderRevisao(p,(file.name||'ficheiro').replace(/\.json$/i,'')); }catch(err){ toast('Ficheiro inválido','Não parece um .json de trabalho válido','err'); } }; r.readAsText(file); }
+// Gera o PDF de uma proposta DA ENTREGA (troca o state temporariamente). O HTML
+// é construído de forma síncrona em printProposal, por isso o swap é seguro.
+function printEntregaProp(propId){
+  if(!revisaoPayload||!propId) return;
+  const bak=state;
+  try{ state=revisaoPayload; printProposal(propId); }
+  catch(e){ toast('Não foi possível gerar o PDF',String(e&&e.message||e),'err'); }
+  finally{ state=bak; }
+}
 function rosterAdd(){
   const f=$('#rosterAddForm'); if(!f) return;
   const g=n=>((f.querySelector('[name="'+n+'"]')||{}).value||'').trim();
@@ -3547,6 +3556,7 @@ document.addEventListener('click', e=>{
     case 'entrega-rever': openRevisao(el.dataset.id, el.dataset.nome); break;
     case 'entrega-baixar': downloadEntrega(el.dataset.id, el.dataset.nome); break;
     case 'entrega-baixar-atual': if(revisaoPayload) baixarJSON(revisaoPayload,'trabalho-'+revisaoNome+'.json'); break;
+    case 'entrega-prop-pdf': printEntregaProp(el.dataset.pid); break;
     case 'export-base': exportBase(); break;
     case 'reload-base': reloadBase(); break;
     case 'save-share': { $$('[data-share]').forEach(el2=>{ state.settings[el2.dataset.share]=el2.value.trim(); }); save(); render(); toast('Guardado','Base e entregas configuradas'); } break;
