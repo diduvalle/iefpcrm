@@ -70,31 +70,31 @@ extra:
 
 nav:
   - Início: index.md
-  - Primeiros passos:
-      - Sou Formador: primeiros-passos/formador.md
-      - Sou Formando: primeiros-passos/formando.md
-  - Tutoriais guiados:
-      - Do zero à 1.ª proposta: tutoriais/primeira-proposta.md
-      - Montar a turma (10 min): tutoriais/montar-turma.md
-  - Para o Formador:
-      - Gerir a turma: formador/gerir-turma.md
-      - Entrega & validação: formador/entregas.md
-      - Email & Marca: formador/email-marca.md
-  - Para o Formando:
-      - Trabalhar no CRM: formando/trabalhar.md
-      - Submeter o trabalho: formando/submeter.md
-      - Recuperar a password: formando/recuperar.md
-  - Funcionalidades:
-      - Visão geral dos módulos: modulos/index.md
-      - Dashboard & Agenda: modulos/dashboard-agenda.md
-      - Empresas & Contactos: modulos/empresas-contactos.md
-      - Produtos: modulos/produtos.md
-      - Propostas: modulos/propostas.md
-      - Modelos de Proposta: modulos/modelos.md
-      - Campanhas & Email: modulos/campanhas-email.md
-      - Analytics: modulos/analytics.md
-      - Alertas: modulos/alertas.md
-      - Definições: modulos/definicoes.md
-  - RGPD & Pedagogia: rgpd.md
-  - FAQ: faq.md
-  - Glossário: glossario.md
+  - 1. Primeiros passos:
+      - 1.1 Sou Formador: primeiros-passos/formador.md
+      - 1.2 Sou Formando: primeiros-passos/formando.md
+  - 2. Tutoriais guiados:
+      - 2.1 Do zero à 1.ª proposta: tutoriais/primeira-proposta.md
+      - 2.2 Montar a turma (10 min): tutoriais/montar-turma.md
+  - 3. Para o Formador:
+      - 3.1 Gerir a turma: formador/gerir-turma.md
+      - 3.2 Entrega & validação: formador/entregas.md
+      - 3.3 Email & Marca: formador/email-marca.md
+  - 4. Para o Formando:
+      - 4.1 Trabalhar no CRM: formando/trabalhar.md
+      - 4.2 Submeter o trabalho: formando/submeter.md
+      - 4.3 Recuperar a password: formando/recuperar.md
+  - 5. Funcionalidades:
+      - 5.0 Visão geral: modulos/index.md
+      - 5.1 Dashboard & Agenda: modulos/dashboard-agenda.md
+      - 5.2 Empresas & Contactos: modulos/empresas-contactos.md
+      - 5.3 Produtos: modulos/produtos.md
+      - 5.4 Propostas: modulos/propostas.md
+      - 5.5 Modelos de Proposta: modulos/modelos.md
+      - 5.6 Campanhas & Email: modulos/campanhas-email.md
+      - 5.7 Analytics: modulos/analytics.md
+      - 5.8 Alertas: modulos/alertas.md
+      - 5.9 Definições: modulos/definicoes.md
+  - 6. RGPD & Pedagogia: rgpd.md
+  - 7. FAQ: faq.md
+  - 8. Glossário: glossario.md
