@@ -85,6 +85,23 @@
 /* Sidebar à esquerda mais "app": títulos de secção em maiúsculas discretas */
 .md-nav__title { letter-spacing: .03em; }
 
+/* Rodapé de navegação consistente (override main.html) */
+.iefp-foot-sep { margin: 2.4em 0 1.1em; border: 0; border-top: 1px solid var(--md-default-fg-color--lightest); }
+.iefp-foot { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 1.6em; }
+.iefp-foot-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 14px; border: 1px solid var(--md-default-fg-color--lighter);
+  border-radius: 10px; font-size: .82rem; font-weight: 600;
+  color: var(--md-default-fg-color) !important; text-decoration: none !important;
+  transition: border-color .15s, background .15s, color .15s;
+}
+.iefp-foot-btn:hover { border-color: var(--iefp-g600); background: var(--iefp-g50); color: var(--iefp-g800) !important; }
+[data-md-color-scheme="slate"] .iefp-foot-btn:hover { background: rgba(0,166,81,.12); color: var(--iefp-g600) !important; }
+.iefp-foot-btn svg {
+  width: 17px; height: 17px; flex: none;
+  fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+
 /* Cartões de menu (estilo do manual de referência): ícone verde de marca */
 .md-typeset .grid.cards svg.icon { color: var(--iefp-g600); width: 26px; height: 26px; margin-bottom: 4px; }
 .md-typeset .grid.cards > ul > li,

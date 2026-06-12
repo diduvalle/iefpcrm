@@ -61,3 +61,23 @@ Tanto em **Contactos** como em **Produtos** há **Importar** + **Modelo**:
 
 !!! note "Pedagogia (UFCD 10868)"
     Praticas a modelação de dados de um CRM real (entidade vs pessoa), a **qualidade de dados** (validação de NIF/NIPC), a **segmentação** e o **loyalty** — base da análise de clientes.
+
+## Relacionado
+
+<div class="grid cards" markdown>
+
+-   <svg class="icon" viewBox="0 0 24 24"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg> __Produtos__
+
+    ---
+    Cria o catálogo antes de fazer propostas a estes clientes.
+
+    [:octicons-arrow-right-24: Abrir](produtos.md)
+
+-   <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg> __Propostas__
+
+    ---
+    Cria propostas para os contactos que registaste.
+
+    [:octicons-arrow-right-24: Abrir](propostas.md)
+
+</div>

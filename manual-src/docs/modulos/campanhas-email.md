@@ -58,3 +58,23 @@ Taxa de **abertura** e **cliques** por envio e agregadas.
 
 !!! warning "Envio real vs simulado · rastreio"
     Os **formandos** enviam sempre em **simulado** (seguro). As métricas de abertura/clique no ambiente pedagógico são **simuladas** — a app explica que o rastreio real exige pixel + servidor.
+
+## Relacionado
+
+<div class="grid cards" markdown>
+
+-   <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2M16 3.1A4 4 0 0 1 16 11M21 21v-2a4 4 0 0 0-3-3.8"/></svg> __Contactos__
+
+    ---
+    A base de clientes que vais segmentar nas campanhas.
+
+    [:octicons-arrow-right-24: Abrir](empresas-contactos.md)
+
+-   <svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg> __Analytics__
+
+    ---
+    Mede o impacto das campanhas (aberturas, cliques, conversão).
+
+    [:octicons-arrow-right-24: Abrir](analytics.md)
+
+</div>

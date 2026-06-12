@@ -69,3 +69,30 @@ Cada proposta guarda **quem criou/alterou e quando** — visível no rodapé do 
 
 !!! note "Permissões"
     Os **formandos** criam e exportam propostas. Valores financeiros podem estar ocultos (🔒) para papéis configurados sem acesso financeiro, sem bloquear o trabalho no editor.
+
+## Relacionado
+
+<div class="grid cards" markdown>
+
+-   <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg> __Modelos de Proposta__
+
+    ---
+    Desenha o aspeto do PDF (blocos, logótipo, condições).
+
+    [:octicons-arrow-right-24: Abrir](modelos.md)
+
+-   <svg class="icon" viewBox="0 0 24 24"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg> __Produtos__
+
+    ---
+    O catálogo que alimenta as linhas da proposta.
+
+    [:octicons-arrow-right-24: Abrir](produtos.md)
+
+-   <svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg> __Analytics__
+
+    ---
+    Vê as tuas propostas refletidas nos KPIs e no funil.
+
+    [:octicons-arrow-right-24: Abrir](analytics.md)
+
+</div>
