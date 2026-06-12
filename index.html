@@ -465,6 +465,11 @@ td .cell-sub{font-size:.78rem;color:var(--muted)}
 .login-turma-line{display:flex;align-items:center;gap:7px;font-size:.82rem;color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:9px 12px;margin-bottom:18px}
 .login-turma-line strong{color:var(--text)}
 .login-turma-line .lt-sep{color:var(--muted2)}
+.recovery-box{display:flex;flex-direction:column;gap:4px;background:var(--g50);border:1px solid var(--g200,var(--border));border-radius:12px;padding:14px 16px;margin:4px 0}
+.recovery-box .rb-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--g700)}
+.recovery-box .rb-code{font-family:"Courier New",monospace;font-size:1.34rem;font-weight:800;letter-spacing:.08em;color:var(--g900,var(--text));user-select:all}
+.recovery-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.recovery-out{font-family:"Courier New",monospace;font-weight:800;font-size:1rem;letter-spacing:.06em;color:var(--g700);background:var(--g50);border:1px solid var(--border);border-radius:8px;padding:5px 10px;user-select:all}
 .login-recent{margin-top:14px}
 .lr-label{display:block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted2);margin-bottom:7px}
 .lr-chips{display:flex;flex-wrap:wrap;gap:7px}
@@ -1198,6 +1203,7 @@ const SUPA_ERR={
   SESSAO_INVALIDA:'Sessão expirada. Inicie sessão novamente.',
   SEM_PERMISSAO:'Sem permissão para esta ação.',
   PASSWORD_ATUAL_ERRADA:'A palavra-passe atual está incorreta.',
+  RECOVERY_INVALIDO:'Utilizador ou código de recuperação incorretos.',
   TURMA_SEM_UTILIZADORES:'Essa turma ainda não tem utilizadores.',
   DADOS_EM_FALTA:'Preencha todos os campos obrigatórios.'};
 function supaMsg(e){ const m=(e&&e.message)||String(e); return SUPA_ERR[m]||m; }
@@ -2422,6 +2428,8 @@ async function supaAddFormando(p){ return await supaRpc('criar_formando',{p_toke
 async function supaRemove(id){ return await supaRpc('remover_utilizador',{p_token:supaToken(),p_user_id:id}); }
 async function supaResetPwd(id,pwd){ return await supaRpc('redefinir_password',{p_token:supaToken(),p_user_id:id,p_nova_password:pwd}); }
 async function supaMudarMinhaPwd(atual,nova){ return await supaRpc('mudar_minha_password',{p_token:supaToken(),p_atual:atual,p_nova:nova}); }
+async function supaRecuperar(codigo,username,recovery,nova){ return await supaRpc('recuperar_password',{p_codigo:codigo,p_username:username,p_recovery:recovery,p_nova:nova}); }
+async function supaGerarRecovery(){ return await supaRpc('gerar_recovery',{p_token:supaToken()}); }
 function slugUser(nome,apelido){ return (String(nome||'')+'.'+String(apelido||'')).normalize('NFD').toLowerCase().replace(/[^a-z0-9.]+/g,'').replace(/^\.+|\.+$/g,'')||'formando'; }
 function turmaUsersCardHTML(){
   return `<div class="card card-pad">
@@ -2800,6 +2808,9 @@ function openProfile(){
       <div class="field"><label>Nova palavra-passe</label><input name="password" type="password" placeholder="••••••••" autocomplete="new-password"></div>`:`<div class="field"><label>Nova palavra-passe</label><input name="password" type="password" placeholder="Deixe em branco para manter a atual" autocomplete="new-password"></div>`}
       <div class="field"><label>Utilizador (login)</label><input value="${esc(u.username||'')}" readonly style="background:var(--surface3);color:var(--muted);cursor:not-allowed"></div>
       <div class="field"><label>Papel</label><input value="${esc(u.papel||'')}" readonly style="background:var(--surface3);color:var(--muted);cursor:not-allowed"></div>
+      ${(TURMA&&supaToken()&&u.papel&&u.papel!=='Formando')?`<div class="field full"><label>Código de recuperação</label>
+        <div class="recovery-row"><button type="button" class="btn-sec btn-sm" data-act="gen-recovery">Gerar novo código</button><code id="recoveryCodeOut" class="recovery-out" style="display:none"></code></div>
+        <span class="hint">Permite recuperar a sua palavra-passe sozinho se a esquecer. Gerar um novo invalida o anterior — guarde-o num local seguro.</span></div>`:''}
       <div class="field full">
         <label>Assinatura de email</label>
         <div class="sig-toolbar">
@@ -3303,6 +3314,11 @@ document.addEventListener('click', e=>{
     case 'enter-turma': submitEnterTurma(); break;
     case 'enter-recent': if(el.dataset.codigo) location.href=location.pathname+'?t='+el.dataset.codigo; break;
     case 'trocar-turma': location.href=location.pathname; break;
+    case 'goto-created': if(createdInfo){ const c=createdInfo.codigo; createdInfo=null; location.href=location.pathname+'?t='+c; } break;
+    case 'show-recover': turmaRecover=true; renderLogin(); break;
+    case 'hide-recover': turmaRecover=false; renderLogin(); break;
+    case 'dorecover': submitRecover(); break;
+    case 'gen-recovery': genRecovery(); break;
     case 'rootlogin': submitRootLogin(); break;
     case 'root-open': rootOpenTurma(el.dataset.codigo); break;
     case 'rootlogout': rootLogout(); break;
@@ -3543,7 +3559,7 @@ function globalSearch(q){
   box.innerHTML=out.length?out.map(o=>`<div class="sr-item" data-act="search-go" data-kind="${o.k}" data-id="${o.id}">${ic(o.i,15)}<div class="grow"><strong>${esc(o.t)}</strong><span>${esc(o.s||'')}</span></div></div>`).join(''):'<div class="sr-item" style="color:var(--muted2);cursor:default">Sem resultados</div>';
 }
 document.addEventListener('keydown', e=>{
-  if(e.target.closest('#loginForm')&&e.key==='Enter'){ e.preventDefault(); if(TURMA){ submitLogin(); } else if(loginMode==='criarturma'){ submitCriarTurma(); } else if(loginMode==='root'){ submitRootLogin(); } else { submitEnterTurma(); } return; }
+  if(e.target.closest('#loginForm')&&e.key==='Enter'){ e.preventDefault(); if(TURMA){ if(turmaRecover) submitRecover(); else submitLogin(); } else if(loginMode==='criarturma'){ submitCriarTurma(); } else if(loginMode==='root'){ submitRootLogin(); } else { submitEnterTurma(); } return; }
   if(e.key==='Escape'){ if($('#previewBack').classList.contains('open')){ closePreview(); return; } $('#notifPanel')?.classList.remove('open'); closeModal(); closeDrawer(); $('#app').classList.remove('nav-open'); document.body.classList.remove('present'); const sb=$('#searchResults'); if(sb){sb.innerHTML='';sb.style.display='none';} }
   if(e.target.id==='globalSearch'&&e.key==='Enter'){
     const q=e.target.value.trim().toLowerCase();
@@ -3816,6 +3832,8 @@ function submitPortalDsar(){
 
 /* ---------- Ecrã de login ---------- */
 let loginMode='login';
+let createdInfo=null;     // {codigo, recovery} após criar turma → mostra o código 1x
+let turmaRecover=false;   // modo "recuperar password" dentro de uma turma
 // Atalhos para turmas já usadas neste dispositivo (só aparecem se existirem).
 function recentChipsHTML(){
   const r=recentTurmas(); if(!r.length) return '';
@@ -3840,7 +3858,27 @@ function renderLogin(){
   const inTurma=!!TURMA;
   const mode=inTurma?'login':loginMode;     // Principal: 'login'(hub) | 'criarturma' | 'root'
   let body;
-  if(inTurma){
+  if(createdInfo){
+    // Turma criada → mostra o CÓDIGO DE RECUPERAÇÃO uma única vez.
+    body=`<h2 class="login-h">Turma criada ✓</h2>
+      <p class="login-sub">Guarde o seu <strong>código de recuperação</strong> — é a única forma de recuperar a palavra-passe sozinho se a esquecer.</p>
+      <div class="recovery-box"><span class="rb-label">Código de recuperação</span><span class="rb-code">${esc(createdInfo.recovery||'—')}</span></div>
+      <div class="callout warn" style="margin:14px 0">${ic('alert',16)}<div class="ctxt">Não voltará a ser mostrado. Anote-o num local seguro. Sem ele, só o suporte poderá repor a sua palavra-passe.</div></div>
+      <button type="button" class="btn login-btn" data-act="goto-created">Entrar na turma ${esc(createdInfo.codigo)}</button>`;
+  } else if(inTurma && turmaRecover){
+    // Recuperar palavra-passe na turma (formador, com o código).
+    body=`<h2 class="login-h">Recuperar palavra-passe</h2>
+      <p class="login-sub">Para formadores. Use o seu código de recuperação.</p>
+      <div class="login-turma-line">${ic('building',14)} Turma <strong>${esc(TURMA)}</strong></div>
+      <form id="loginForm" onsubmit="return false">
+        <div class="field"><label>Utilizador</label><input name="username" autocomplete="username" placeholder="o seu utilizador"></div>
+        <div class="field"><label>Código de recuperação</label><input name="recovery" placeholder="XXXX-XXXX-XXXX" autocomplete="off"></div>
+        <div class="field"><label>Nova palavra-passe</label><input name="password" type="password" autocomplete="new-password" placeholder="••••••••"></div>
+        <button type="button" class="btn login-btn" data-act="dorecover">Redefinir e entrar</button>
+      </form>
+      <div id="loginErr" class="login-err"></div>
+      <div class="login-foot"><a class="login-portal" data-act="hide-recover" style="cursor:pointer">← Voltar ao início de sessão</a></div>`;
+  } else if(inTurma){
     body=`<h2 class="login-h">Bem-vindo</h2>
       <p class="login-sub">Inicie sessão na sua turma.</p>
       <div class="login-turma-line">${ic('building',14)} Turma <strong>${esc(TURMA)}</strong> <span class="lt-sep">·</span> <a data-act="trocar-turma" class="login-portal" style="cursor:pointer">trocar</a></div>
@@ -3850,7 +3888,7 @@ function renderLogin(){
         <button type="button" class="btn login-btn" data-act="login">Entrar</button>
       </form>
       <div id="loginErr" class="login-err"></div>
-      <div class="login-foot"><a class="login-portal" href="#portal">Portal do Titular (RGPD) →</a></div>`;
+      <div class="login-foot"><a class="login-portal" data-act="show-recover" style="cursor:pointer">Esqueci-me da palavra-passe</a><span class="login-dot">·</span><a class="login-portal" href="#portal">Portal do Titular</a></div>`;
   } else if(mode==='criarturma'){
     body=`<h2 class="login-h">Criar nova turma</h2>
       <p class="login-sub">Apenas formadores IEFP. Valide o seu email institucional.</p>
@@ -3911,7 +3949,7 @@ function renderLogin(){
       <a class="login-credit" href="https://www.linkedin.com/in/ldvale/" target="_blank" rel="noopener noreferrer">${ic('linkedin',14)} Created by Diogo du Valle</a>
     </div>
   </div>`;
-  const fname=mode==='criarturma'?'email':mode==='root'?'rootpass':(inTurma?'username':'codigo');
+  const fname=createdInfo?null:mode==='criarturma'?'email':mode==='root'?'rootpass':(inTurma?'username':'codigo');
   if(fname) setTimeout(()=>{ const el=$('#login [name="'+fname+'"]'); if(el&&el.focus) el.focus(); },50);
   startI18n();
 }
@@ -3926,7 +3964,8 @@ function submitCriarTurma(){
   supaCriarTurma(p).then(data=>{
     try{ localStorage.setItem('iefp-supa::'+p.codigo, JSON.stringify({token:data.token,user:data.user})); }catch(e){}
     rememberTurma(p.codigo,p.nomeTurma);
-    location.href=location.pathname+'?t='+p.codigo;
+    if(data.recovery){ createdInfo={codigo:p.codigo, recovery:data.recovery}; renderLogin(); }  // mostra o código 1x
+    else { location.href=location.pathname+'?t='+p.codigo; }                                    // SQL antigo → entra direto
   }).catch(e=>{ if(err) err.textContent=supaMsg(e); const b=$('#loginForm [data-act="criarturma"]'); if(b){ b.disabled=false; b.textContent='Criar turma e entrar'; } });
 }
 function submitLogin(){
@@ -3943,6 +3982,27 @@ function submitLogin(){
   const r=doLogin(username,password);
   if(r.ok){ location.hash='#'+firstAllowedView(); render(); toast('Sessão iniciada',`Bem-vindo, ${r.user.nome}`); }
   else if(e) e.textContent=r.msg;
+}
+// Recuperar password na turma com o código de recuperação (e entrar).
+function submitRecover(){
+  const f=$('#loginForm'); if(!f) return; const err=$('#loginErr'); if(err) err.textContent='';
+  const g=n=>((f.querySelector('[name="'+n+'"]')||{}).value||'').trim();
+  const username=g('username'), recovery=g('recovery'), nova=(f.querySelector('[name="password"]')||{}).value||'';
+  if(!username||!recovery||!nova){ if(err) err.textContent='Preencha utilizador, código e nova palavra-passe.'; return; }
+  const btn=f.querySelector('[data-act="dorecover"]'); if(btn){ btn.disabled=true; btn.textContent='A redefinir…'; }
+  supaRecuperar(TURMA,username,recovery,nova)
+    .then(()=>supaLogin(username,nova))
+    .then(u=>{ turmaRecover=false; location.hash='#'+firstAllowedView(); render(); toast('Palavra-passe redefinida',`Bem-vindo, ${u.nome}`); })
+    .catch(e=>{ if(err) err.textContent=supaMsg(e); const b=$('#loginForm [data-act="dorecover"]'); if(b){ b.disabled=false; b.textContent='Redefinir e entrar'; } });
+}
+// Formador gera/renova o código de recuperação a partir do perfil.
+function genRecovery(){
+  const btn=$('[data-act="gen-recovery"]'); if(btn){ btn.disabled=true; }
+  supaGerarRecovery().then(d=>{
+    const out=$('#recoveryCodeOut'); if(out){ out.textContent=d&&d.code||'—'; out.style.display='block'; }
+    toast('Código gerado','Guarde-o — o código anterior deixou de ser válido');
+    if(btn){ btn.disabled=false; }
+  }).catch(e=>{ toast('Não foi possível gerar o código',supaMsg(e),'err'); if(btn){ btn.disabled=false; } });
 }
 
 /* ---------- Wizard: gerar campanha a partir de persona ---------- */

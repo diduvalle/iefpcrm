@@ -74,12 +74,24 @@ language sql security definer set search_path = public as $$
 $$;
 
 -- Criar TURMA (gate: email de formador IEFP) + conta do formador.
+-- Código de recuperação do formador (hash; o texto só é mostrado 1x ao formador).
+alter table public.utilizadores add column if not exists recovery_hash text;
+
+-- Gera um código legível tipo A1B2-C3D4-E5F6 (gen_random_uuid é core do Postgres).
+create or replace function public._novo_recovery_code()
+returns text language sql as $$
+  select upper(
+    substr(replace(gen_random_uuid()::text,'-',''),1,4)||'-'||
+    substr(replace(gen_random_uuid()::text,'-',''),1,4)||'-'||
+    substr(replace(gen_random_uuid()::text,'-',''),1,4));
+$$;
+
 create or replace function public.criar_turma(
   p_codigo text, p_email text, p_username text, p_password text,
   p_nome text, p_apelido text default '', p_nome_turma text default null
 ) returns json
 language plpgsql security definer set search_path = public, extensions as $$
-declare v_turma uuid; v_user uuid; v_token uuid; v_email text;
+declare v_turma uuid; v_user uuid; v_token uuid; v_email text; v_recovery text;
 begin
   v_email := lower(trim(p_email));
   -- GATE: email IEFP de formador (forNNNN@formacao.iefp.pt) OU admin autorizado.
@@ -102,9 +114,11 @@ begin
 
   -- O formador que CRIA a turma é o Administrador exclusivo dessa turma.
   -- (Co-formadores adicionados depois ficam 'Formador'; ver criar_formando.)
-  insert into utilizadores(turma_id, username, nome, apelido, email, papel, pass_hash)
+  v_recovery := _novo_recovery_code();
+  insert into utilizadores(turma_id, username, nome, apelido, email, papel, pass_hash, recovery_hash)
     values (v_turma, lower(trim(p_username)), p_nome, p_apelido, v_email,
-            'Administrador', extensions.crypt(p_password, extensions.gen_salt('bf')))
+            'Administrador', extensions.crypt(p_password, extensions.gen_salt('bf')),
+            extensions.crypt(v_recovery, extensions.gen_salt('bf')))
     returning id into v_user;
 
   insert into sessoes(user_id) values (v_user) returning token into v_token;
@@ -112,6 +126,7 @@ begin
   return json_build_object(
     'token', v_token,
     'turma', json_build_object('codigo', p_codigo),
+    'recovery', v_recovery,    -- mostrado UMA vez ao formador; só fica o hash na BD
     'user',  json_build_object('id', v_user, 'username', lower(trim(p_username)),
              'nome', p_nome, 'apelido', p_apelido, 'papel', 'Administrador'));
 end $$;
@@ -250,6 +265,44 @@ begin
   return json_build_object('ok', true);
 end $$;
 
+-- RECUPERAÇÃO (pré-login): o utilizador define nova password com o seu CÓDIGO.
+-- Só funciona para contas que tenham recovery_hash (o formador, por criar_turma
+-- ou por gerar_recovery). Os formandos não têm → continuam a pedir ao formador.
+create or replace function public.recuperar_password(
+  p_codigo text, p_username text, p_recovery text, p_nova text
+) returns json
+language plpgsql security definer set search_path = public, extensions as $$
+declare v_turma uuid; r public.utilizadores;
+begin
+  if coalesce(p_nova,'') = '' then raise exception 'DADOS_EM_FALTA'; end if;
+  select id into v_turma from turmas where codigo = p_codigo;
+  if v_turma is null then raise exception 'TURMA_NAO_EXISTE'; end if;
+  select * into r from utilizadores
+    where turma_id = v_turma and lower(username) = lower(trim(p_username));
+  if r.id is null or r.recovery_hash is null
+     or r.recovery_hash <> extensions.crypt(p_recovery, r.recovery_hash) then
+    raise exception 'RECOVERY_INVALIDO';
+  end if;
+  update utilizadores set pass_hash = extensions.crypt(p_nova, extensions.gen_salt('bf'))
+    where id = r.id;
+  return json_build_object('ok', true);
+end $$;
+
+-- O formador (logado) gera/renova o seu código de recuperação (mostrado 1x).
+-- Invalida o anterior. Só Formador/Administrador (formandos pedem ao formador).
+create or replace function public.gerar_recovery(p_token uuid)
+returns json language plpgsql security definer set search_path = public, extensions as $$
+declare caller public.utilizadores; v_code text;
+begin
+  select * into caller from _user_from_token(p_token);
+  if caller.id is null then raise exception 'SESSAO_INVALIDA'; end if;
+  if caller.papel not in ('Formador','Administrador') then raise exception 'SEM_PERMISSAO'; end if;
+  v_code := _novo_recovery_code();
+  update utilizadores set recovery_hash = extensions.crypt(v_code, extensions.gen_salt('bf'))
+    where id = caller.id;
+  return json_build_object('code', v_code);
+end $$;
+
 -- =====================================================================
 --  ROOT / SUPORTE  (acesso global à IDENTIDADE — Fase 3)
 -- ---------------------------------------------------------------------
@@ -340,8 +393,9 @@ $$;
 -- Permissões: o anon só pode EXECUTAR as funções públicas.
 -- (O helper interno fica vedado.)
 -- ---------------------------------------------------------------------
-revoke all on function public._user_from_token(uuid) from public, anon, authenticated;
+revoke all on function public._user_from_token(uuid)  from public, anon, authenticated;
 revoke all on function public._is_root(uuid)          from public, anon, authenticated;
+revoke all on function public._novo_recovery_code()   from public, anon, authenticated;
 
 grant execute on function public.criar_turma(text,text,text,text,text,text,text) to anon, authenticated;
 grant execute on function public.login(text,text,text)                            to anon, authenticated;
@@ -352,6 +406,8 @@ grant execute on function public.criar_formando(uuid,text,text,text,text,text,te
 grant execute on function public.redefinir_password(uuid,uuid,text)               to anon, authenticated;
 grant execute on function public.remover_utilizador(uuid,uuid)                    to anon, authenticated;
 grant execute on function public.mudar_minha_password(uuid,text,text)             to anon, authenticated;
+grant execute on function public.recuperar_password(text,text,text,text)          to anon, authenticated;
+grant execute on function public.gerar_recovery(uuid)                             to anon, authenticated;
 grant execute on function public.logout(uuid)                                     to anon, authenticated;
 grant execute on function public.login_root(text)                                 to anon, authenticated;
 grant execute on function public.listar_turmas(uuid)                              to anon, authenticated;
