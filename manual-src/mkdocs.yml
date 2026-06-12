@@ -73,6 +73,9 @@ nav:
   - Primeiros passos:
       - Sou Formador: primeiros-passos/formador.md
       - Sou Formando: primeiros-passos/formando.md
+  - Tutoriais guiados:
+      - Do zero à 1.ª proposta: tutoriais/primeira-proposta.md
+      - Montar a turma (10 min): tutoriais/montar-turma.md
   - Para o Formador:
       - Gerir a turma: formador/gerir-turma.md
       - Entrega & validação: formador/entregas.md
