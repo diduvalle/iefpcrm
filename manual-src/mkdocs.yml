@@ -77,7 +77,12 @@ nav:
       - 2.1 Do zero à 1.ª proposta: tutoriais/primeira-proposta.md
       - 2.2 Montar a turma (10 min): tutoriais/montar-turma.md
   - 3. Para o Formador:
-      - 3.1 Gerir a turma: formador/gerir-turma.md
+      - 3.1 Gerir a turma:
+          - formador/gerir-turma/index.md
+          - 3.1.1 Importar (Excel): formador/gerir-turma/importar.md
+          - 3.1.2 Adicionar à mão: formador/gerir-turma/adicionar.md
+          - 3.1.3 Repor palavra-passe: formador/gerir-turma/repor-password.md
+          - 3.1.4 Remover formando: formador/gerir-turma/remover.md
       - 3.2 Entrega & validação: formador/entregas.md
       - 3.3 Email & Marca: formador/email-marca.md
   - 4. Para o Formando:
@@ -102,6 +107,12 @@ nav:
       - 5.7 Analytics: modulos/analytics.md
       - 5.8 Alertas: modulos/alertas.md
       - 5.9 Definições: modulos/definicoes.md
-  - 6. RGPD & Pedagogia: rgpd.md
+  - 6. RGPD & Pedagogia:
+      - rgpd/index.md
+      - 6.1 Consentimentos: rgpd/consentimentos.md
+      - 6.2 Pedidos (DSAR): rgpd/pedidos.md
+      - 6.3 RoPA: rgpd/ropa.md
+      - 6.4 Violações de dados: rgpd/violacoes.md
+      - 6.5 Portal do Titular: rgpd/portal.md
   - 7. FAQ: faq.md
   - 8. Glossário: glossario.md

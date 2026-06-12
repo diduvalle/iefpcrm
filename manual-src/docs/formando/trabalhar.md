@@ -19,7 +19,7 @@ O teu espaço tem vários **módulos**, na barra lateral. Aqui está o que cada 
 
 ## Conformidade
 
-- **RGPD** — consentimentos, pedidos de titular, RoPA, violações. Vê **[RGPD & Pedagogia](../rgpd.md)**.
+- **RGPD** — consentimentos, pedidos de titular, RoPA, violações. Vê **[RGPD & Pedagogia](../rgpd/index.md)**.
 
 ## Dicas
 

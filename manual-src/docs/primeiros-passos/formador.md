@@ -25,7 +25,7 @@ Dentro da turma, vai a **Definições → Formandos da turma**. Tens duas vias:
 - **Importação em massa (Excel/CSV)** — descarrega o **Modelo**, preenche e importa. Mostra-te uma **pré-visualização** com os erros marcados antes de gravar.
 - **Individual** — preenche o formulário e clica *Adicionar à turma*.
 
-:octicons-arrow-right-24: Detalhe completo em **[Gerir a turma](../formador/gerir-turma.md)**.
+:octicons-arrow-right-24: Detalhe completo em **[Gerir a turma](../formador/gerir-turma/index.md)**.
 
 ## 3. Partilhar o acesso
 
@@ -44,6 +44,6 @@ Cada formando abre o link e entra com o **seu utilizador e palavra-passe**.
 
 ### A seguir
 
-- [Gerir a turma](../formador/gerir-turma.md) — importar, acessos, repor passwords
+- [Gerir a turma](../formador/gerir-turma/index.md) — importar, acessos, repor passwords
 - [Entrega & validação](../formador/entregas.md) — rever e avaliar trabalhos
 - [Email & Marca](../formador/email-marca.md) — modo de envio e *white-label*

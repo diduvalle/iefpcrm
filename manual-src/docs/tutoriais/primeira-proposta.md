@@ -93,5 +93,5 @@
 ## A seguir
 
 - Aprofunda cada ecrã em **[Funcionalidades](../modulos/index.md)**.
-- Explora o **[RGPD](../rgpd.md)** (consentimentos, pedidos de titular).
+- Explora o **[RGPD](../rgpd/index.md)** (consentimentos, pedidos de titular).
 - Vê os **[Analytics](../modulos/analytics.md)** com a tua proposta já contabilizada.
