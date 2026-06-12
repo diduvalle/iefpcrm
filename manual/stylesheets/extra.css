@@ -1,5 +1,5 @@
 /* ===========================================================
-   IEFP CRM — Manual · palete sincronizada com a app
+   IEFP CRM — Manual · palete + UI sincronizados com a app
    (mesma ramp verde do index.html, para parecer uma extensão)
    =========================================================== */
 
@@ -18,42 +18,251 @@
   --md-accent-bg-color--light:      rgba(255,255,255,.7);
 }
 
-/* Ramp da app (para usos pontuais) */
+/* Ramp da app */
 :root {
   --iefp-g900:#005a32; --iefp-g800:#006B3C; --iefp-g700:#00894b;
   --iefp-g600:#00A651; --iefp-g100:#E8F5EE; --iefp-g50:#f3faf5;
   --iefp-accent:#7AC143;
+  --iefp-shadow: 0 1px 2px rgba(16,40,28,.05);
+  --iefp-shadow-lg: 0 14px 34px rgba(0,107,60,.14);
   --md-text-font: "Inter";
 }
 
-/* Links e realces verdes */
-.md-typeset a { color: var(--iefp-g700); }
-.md-typeset a:hover { color: var(--iefp-g600); }
+/* ===========================================================
+   1. Tipografia — maior, mais respirada, mais legível
+   =========================================================== */
+.md-typeset {
+  font-size: .84rem;
+  line-height: 1.74;
+  color: #243a30;
+}
+[data-md-color-scheme="slate"] .md-typeset { color: #d7e4dd; }
 
-/* Cabeçalho com o verde escuro da sidebar da app */
-.md-header { background: linear-gradient(90deg, var(--iefp-g900), #04492c); }
-.md-tabs   { background: var(--iefp-g900); }
-
-/* Logótipo um pouco maior e nítido */
-.md-header__button.md-logo img { height: 30px; width: auto; }
-
-/* Cantos suaves como na app */
-.md-typeset .admonition,
-.md-typeset details,
-.md-typeset pre > code { border-radius: 10px; }
-
-/* Botões/badges "cartão" verdes para a capa */
-.md-typeset .grid.cards > :is(ul,ol) > li,
-.md-typeset .grid > .card {
-  border-radius: 12px;
+/* Largura de conteúdo um pouco mais generosa */
+@media screen and (min-width: 76.25em) {
+  .md-grid { max-width: 65rem; }
 }
 
-/* Tabela de conteúdos e títulos com o verde da marca */
-.md-typeset h1, .md-typeset h2 { color: var(--iefp-g900); letter-spacing: -.01em; }
-[data-md-color-scheme="slate"] .md-typeset h1,
-[data-md-color-scheme="slate"] .md-typeset h2 { color: var(--iefp-g600); }
+.md-typeset p { margin: 0 0 1em; }
+.md-typeset ul, .md-typeset ol { margin-bottom: 1em; }
+.md-typeset li { margin-bottom: .35em; }
 
-/* Ícones de linha (SVG inline) herdam a cor do texto — monocromáticos */
+/* Títulos com escala forte e marca verde */
+.md-typeset h1 {
+  font-size: 2.15rem; font-weight: 800; line-height: 1.12;
+  letter-spacing: -.02em; margin: 0 0 .7rem;
+  color: var(--iefp-g900);
+}
+.md-typeset h2 {
+  font-size: 1.5rem; font-weight: 750; line-height: 1.2;
+  letter-spacing: -.01em; margin: 2.6rem 0 1rem;
+  padding-bottom: .35rem; border-bottom: 2px solid var(--iefp-g100);
+  color: var(--iefp-g800);
+}
+.md-typeset h3 { font-size: 1.18rem; font-weight: 700; margin-top: 1.8rem; color: var(--iefp-g900); }
+.md-typeset h4 { font-size: 1.02rem; font-weight: 700; }
+[data-md-color-scheme="slate"] .md-typeset h1,
+[data-md-color-scheme="slate"] .md-typeset h3,
+[data-md-color-scheme="slate"] .md-typeset h4 { color: #e7f3ec; }
+[data-md-color-scheme="slate"] .md-typeset h2 { color: var(--iefp-g600); border-bottom-color: rgba(0,166,81,.25); }
+
+/* Parágrafo de entrada (logo a seguir ao H1) — destaque suave */
+.md-typeset h1 + p {
+  font-size: 1.06rem; line-height: 1.6; font-weight: 400;
+  color: var(--md-default-fg-color--light);
+}
+
+/* Links */
+.md-typeset a { color: var(--iefp-g700); text-decoration: none; font-weight: 500; }
+.md-typeset a:hover { color: var(--iefp-g600); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ===========================================================
+   2. Cabeçalho / navegação
+   =========================================================== */
+.md-header { background: linear-gradient(90deg, var(--iefp-g900), #04492c); box-shadow: 0 2px 10px rgba(0,0,0,.12); }
+.md-tabs   { background: var(--iefp-g900); }
+.md-header__button.md-logo img { height: 32px; width: auto; }
+.md-header__title { font-weight: 700; }
+
+/* Pesquisa — input mais visível e arredondado */
+.md-search__form { border-radius: 12px; height: 2.3rem; box-shadow: none; }
+.md-search__input { font-size: .82rem; }
+.md-search__input::placeholder { color: rgba(255,255,255,.75); }
+[data-md-toggle="search"]:checked ~ .md-header .md-search__form { border-radius: 12px 12px 0 0; }
+.md-search__output { border-radius: 0 0 12px 12px; }
+
+/* Sidebar à esquerda — itens com aspeto "app" */
+.md-nav { font-size: .76rem; }
+.md-nav__title { letter-spacing: .04em; text-transform: uppercase; font-size: .68rem; color: var(--md-default-fg-color--light); }
+.md-nav__link:hover { color: var(--iefp-g600); }
+@media screen and (min-width: 76.25em) {
+  .md-sidebar--primary .md-nav__list .md-nav__link {
+    border-radius: 8px; padding: .32rem .55rem; margin: 1px 0;
+    transition: background .14s, color .14s;
+  }
+  .md-sidebar--primary .md-nav__link:hover { background: var(--iefp-g50); }
+  .md-sidebar--primary .md-nav__link--active {
+    background: var(--iefp-g100); color: var(--iefp-g800); font-weight: 700;
+  }
+  [data-md-color-scheme="slate"] .md-sidebar--primary .md-nav__link:hover { background: rgba(0,166,81,.10); }
+  [data-md-color-scheme="slate"] .md-sidebar--primary .md-nav__link--active { background: rgba(0,166,81,.16); color: var(--iefp-g600); }
+}
+
+/* TOC à direita: marcador ativo verde */
+.md-nav--secondary .md-nav__link--active { color: var(--iefp-g700); font-weight: 700; }
+
+/* ===========================================================
+   3. Cartões de menu (grid cards) — o destaque das landings
+   =========================================================== */
+.md-typeset .grid.cards { gap: 1rem; margin: 1.2rem 0; }
+.md-typeset .grid.cards > ul { gap: 1rem; }
+.md-typeset .grid.cards > ul > li,
+.md-typeset .grid > .card {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 16px;
+  padding: 1.4rem 1.4rem 1.2rem;
+  background: linear-gradient(180deg, #ffffff, #fbfdfb);
+  box-shadow: var(--iefp-shadow);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+[data-md-color-scheme="slate"] .md-typeset .grid.cards > ul > li {
+  background: linear-gradient(180deg, #15231c, #111c16);
+  border-color: rgba(255,255,255,.07);
+}
+.md-typeset .grid.cards > ul > li:hover,
+.md-typeset .grid > .card:hover {
+  transform: translateY(-4px);
+  border-color: var(--iefp-g600);
+  box-shadow: var(--iefp-shadow-lg);
+}
+
+/* Ícone do cartão = "badge" quadrado com fundo verde-claro */
+.md-typeset .grid.cards svg.icon {
+  display: inline-flex; box-sizing: border-box;
+  width: 48px; height: 48px; padding: 11px;
+  border-radius: 14px;
+  background: var(--iefp-g100); color: var(--iefp-g700);
+  margin: 0 0 .7rem; vertical-align: top;
+  stroke-width: 2;
+  transition: background .18s ease, color .18s ease, transform .18s ease;
+}
+.md-typeset .grid.cards > ul > li:hover svg.icon {
+  background: var(--iefp-g600); color: #fff; transform: scale(1.05);
+}
+.md-typeset .grid.cards strong {
+  display: block; font-size: 1.06rem; font-weight: 750;
+  color: var(--iefp-g900); margin-bottom: .1rem;
+}
+[data-md-color-scheme="slate"] .md-typeset .grid.cards strong { color: #e7f3ec; }
+.md-typeset .grid.cards hr {
+  margin: .7rem 0; border: 0; border-top: 1px solid var(--md-default-fg-color--lightest);
+}
+.md-typeset .grid.cards p { font-size: .8rem; line-height: 1.55; color: var(--md-default-fg-color--light); }
+/* Link de ação ("Abrir →") em destaque */
+.md-typeset .grid.cards li > p:last-child > a {
+  display: inline-flex; align-items: center; gap: .35rem;
+  font-weight: 700; color: var(--iefp-g700);
+}
+.md-typeset .grid.cards li > p:last-child > a:hover { color: var(--iefp-g600); text-decoration: none; gap: .55rem; }
+
+/* ===========================================================
+   4. Admonitions / details — caixas suaves e arredondadas
+   =========================================================== */
+.md-typeset .admonition,
+.md-typeset details {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-left-width: 4px;
+  border-radius: 12px;
+  box-shadow: var(--iefp-shadow);
+  font-size: .8rem;
+}
+.md-typeset .admonition-title,
+.md-typeset summary { font-weight: 700; letter-spacing: -.005em; padding-top: .55rem; padding-bottom: .55rem; }
+.md-typeset .admonition > :last-child { margin-bottom: .6rem; }
+
+/* note/info em verde de marca (em vez do azul default) */
+.md-typeset .admonition.note, .md-typeset details.note,
+.md-typeset .admonition.info, .md-typeset details.info,
+.md-typeset .admonition.abstract, .md-typeset details.abstract {
+  border-left-color: var(--iefp-g600);
+}
+.md-typeset .note > .admonition-title, .md-typeset .info > .admonition-title,
+.md-typeset .abstract > .admonition-title,
+.md-typeset .note > summary, .md-typeset .info > summary, .md-typeset .abstract > summary {
+  background: var(--iefp-g50);
+}
+[data-md-color-scheme="slate"] .md-typeset .note > .admonition-title,
+[data-md-color-scheme="slate"] .md-typeset .info > .admonition-title { background: rgba(0,166,81,.10); }
+.md-typeset .note > .admonition-title::before, .md-typeset .info > .admonition-title::before,
+.md-typeset .abstract > .admonition-title::before { background-color: var(--iefp-g700); }
+
+/* tip em verde-claro */
+.md-typeset .admonition.tip, .md-typeset details.tip { border-left-color: var(--iefp-accent); }
+.md-typeset .tip > .admonition-title, .md-typeset .tip > summary { background: rgba(122,193,67,.12); }
+
+/* ===========================================================
+   5. Tabelas — cabeçalho verde, zebra, cantos suaves
+   =========================================================== */
+.md-typeset table:not([class]) {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 12px; overflow: hidden;
+  box-shadow: var(--iefp-shadow);
+  font-size: .78rem;
+}
+.md-typeset table:not([class]) th {
+  background: var(--iefp-g800); color: #fff;
+  font-weight: 700; border: 0; padding: .7em 1em;
+}
+.md-typeset table:not([class]) td { border: 0; border-top: 1px solid var(--md-default-fg-color--lightest); padding: .6em 1em; }
+.md-typeset table:not([class]) tbody tr:nth-child(even),
+.md-typeset table:not([class]) tr:nth-child(even) { background: var(--iefp-g50); }
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) tr:nth-child(even) { background: rgba(0,166,81,.06); }
+.md-typeset table:not([class]) tr:hover { background: var(--iefp-g100); }
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) tr:hover { background: rgba(0,166,81,.12); }
+
+/* ===========================================================
+   6. Código — chips inline verdes, blocos arredondados
+   =========================================================== */
+.md-typeset code {
+  background: var(--iefp-g50); color: var(--iefp-g800);
+  border: 1px solid var(--iefp-g100); border-radius: 6px;
+  padding: .12em .4em; font-size: .82em;
+}
+[data-md-color-scheme="slate"] .md-typeset code {
+  background: rgba(0,166,81,.10); color: #8fe0b3; border-color: rgba(0,166,81,.2);
+}
+.md-typeset pre > code { border-radius: 12px; padding: 1em 1.1em; border: 0; }
+.md-typeset .highlight { border-radius: 12px; box-shadow: var(--iefp-shadow); }
+
+/* ===========================================================
+   7. Botões Material (.md-button) — caso usados nas páginas
+   =========================================================== */
+.md-typeset .md-button {
+  border-radius: 10px; font-weight: 700; padding: .55em 1.2em;
+  border-width: 2px; transition: transform .12s, box-shadow .15s;
+}
+.md-typeset .md-button:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,107,60,.18); }
+.md-typeset .md-button--primary {
+  background: var(--iefp-g700); border-color: var(--iefp-g700); color: #fff;
+}
+.md-typeset .md-button--primary:hover { background: var(--iefp-g800); border-color: var(--iefp-g800); }
+
+/* Citações */
+.md-typeset blockquote {
+  border-left: 4px solid var(--iefp-g600); border-radius: 0 10px 10px 0;
+  background: var(--iefp-g50); color: var(--md-default-fg-color--light);
+}
+[data-md-color-scheme="slate"] .md-typeset blockquote { background: rgba(0,166,81,.07); }
+
+/* Imagens (screenshots) com moldura suave */
+.md-typeset img:not(.twemoji):not(.emojione) {
+  border-radius: 12px; box-shadow: 0 4px 18px rgba(16,40,28,.12);
+  border: 1px solid var(--md-default-fg-color--lightest);
+}
+
+/* ===========================================================
+   8. Ícones de linha (SVG inline) — monocromáticos
+   =========================================================== */
 .md-typeset .lucide svg,
 .md-typeset svg.icon {
   width: 1.15em; height: 1.15em;
@@ -62,16 +271,18 @@
   stroke-linecap: round; stroke-linejoin: round;
 }
 
-/* Modo escuro: fundo coerente, primário mais claro para contraste */
+/* Modo escuro: fundo coerente */
 [data-md-color-scheme="slate"] {
   --md-primary-fg-color: #00A651;
   --md-default-bg-color:  #0e1a15;
 }
 
-/* Rodapé discreto */
+/* Rodapé "meta" do Material */
 .md-footer-meta { background: #04492c; }
 
-/* --- Ícones de admonição IGUAIS aos da app (estilo de linha) --- */
+/* ===========================================================
+   9. Ícones de admonição IGUAIS aos da app (estilo de linha)
+   =========================================================== */
 :root {
   --md-admonition-icon--note:    url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>');
   --md-admonition-icon--info:    url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>');
@@ -82,30 +293,49 @@
   --md-admonition-icon--danger:  url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>');
 }
 
-/* Sidebar à esquerda mais "app": títulos de secção em maiúsculas discretas */
-.md-nav__title { letter-spacing: .03em; }
-
-/* Rodapé de navegação consistente (override main.html) */
-.iefp-foot-sep { margin: 2.4em 0 1.1em; border: 0; border-top: 1px solid var(--md-default-fg-color--lightest); }
-.iefp-foot { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 1.6em; }
+/* ===========================================================
+   10. Rodapé de navegação consistente (override main.html)
+   =========================================================== */
+.iefp-foot-sep { margin: 3em 0 1.3em; border: 0; border-top: 1px solid var(--md-default-fg-color--lightest); }
+.iefp-foot { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 1rem; }
 .iefp-foot-btn {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 9px 14px; border: 1px solid var(--md-default-fg-color--lighter);
-  border-radius: 10px; font-size: .82rem; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 11px 18px; border: 1.5px solid var(--md-default-fg-color--lighter);
+  border-radius: 12px; font-size: .82rem; font-weight: 600;
   color: var(--md-default-fg-color) !important; text-decoration: none !important;
-  transition: border-color .15s, background .15s, color .15s;
+  background: var(--md-default-bg-color);
+  transition: border-color .15s, background .15s, color .15s, transform .12s, box-shadow .15s;
 }
-.iefp-foot-btn:hover { border-color: var(--iefp-g600); background: var(--iefp-g50); color: var(--iefp-g800) !important; }
+.iefp-foot-btn:hover {
+  border-color: var(--iefp-g600); background: var(--iefp-g50); color: var(--iefp-g800) !important;
+  transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,107,60,.12);
+}
 [data-md-color-scheme="slate"] .iefp-foot-btn:hover { background: rgba(0,166,81,.12); color: var(--iefp-g600) !important; }
 .iefp-foot-btn svg {
-  width: 17px; height: 17px; flex: none;
+  width: 18px; height: 18px; flex: none;
   fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
 }
+/* Botão de ação principal (Abrir a plataforma) preenchido */
+.iefp-foot-cta {
+  background: var(--iefp-g700) !important; border-color: var(--iefp-g700) !important;
+  color: #fff !important; box-shadow: 0 4px 12px rgba(0,107,60,.22);
+}
+.iefp-foot-cta:hover {
+  background: var(--iefp-g800) !important; border-color: var(--iefp-g800) !important;
+  color: #fff !important;
+}
 
-/* Cartões de menu (estilo do manual de referência): ícone verde de marca */
-.md-typeset .grid.cards svg.icon { color: var(--iefp-g600); width: 26px; height: 26px; margin-bottom: 4px; }
-.md-typeset .grid.cards > ul > li,
-.md-typeset .grid.cards > ol > li { transition: border-color .15s, box-shadow .15s; }
-.md-typeset .grid.cards > ul > li:hover,
-.md-typeset .grid.cards > ol > li:hover { border-color: var(--iefp-g600); box-shadow: 0 2px 12px rgba(0,107,60,.10); }
-
+/* Linha de crédito (Created by + LinkedIn) */
+.iefp-credit {
+  font-size: .76rem; color: var(--md-default-fg-color--light);
+  margin: .2rem 0 2.4rem; display: flex; align-items: center; gap: .4rem;
+}
+.iefp-credit a {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-weight: 700; color: var(--iefp-g700) !important; text-decoration: none;
+}
+.iefp-credit a:hover { color: var(--iefp-g600) !important; }
+.iefp-credit svg {
+  width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
+}
