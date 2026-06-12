@@ -2449,12 +2449,12 @@ function turmaUsersCardHTML(){
     <div class="section-head" style="margin-bottom:14px"><div><h3>Formandos da turma ${esc(TURMA)}</h3><div class="sub">Acessos geridos centralmente (online), ligados a esta turma.</div></div></div>
     <div class="callout info" style="margin-bottom:14px">${ic('alert',16)}<div class="ctxt"><strong>Como funciona — leia antes de usar</strong><br>
       1. Os acessos dos formandos vivem <strong>online</strong> e estão ligados a <strong>esta</strong> turma (${esc(TURMA)}).<br>
-      2. Partilhe o link <code>?t=${esc(TURMA)}</code> com a turma. Cada formando abre-o, <strong>escolhe o seu nome</strong> na lista e entra com a palavra-passe.<br>
+      2. Partilhe o link <code>?t=${esc(TURMA)}</code> com a turma. Cada formando abre-o e entra com o <strong>seu utilizador e palavra-passe</strong>.<br>
       3. Cada formando <strong>só acede a esta turma</strong> — nunca a outra — e tem a <strong>sua própria sandbox</strong>: os dados de trabalho ficam no computador dele e não se misturam com os dos colegas.<br>
-      4. <strong>Importação em massa:</strong> descarregue o <strong>Modelo</strong>, preencha no Excel (nome, apelido, email), defina a <strong>palavra-passe inicial</strong> e clique <strong>Importar lista</strong>. Pode sempre ajustar, adicionar ou remover individualmente em baixo.</div></div>
+      4. <strong>Importação em massa:</strong> descarregue o <strong>Modelo</strong>, preencha no Excel (obrigatórios: <strong>nome, apelido, email, utilizador, palavra-passe</strong>) e clique <strong>Importar lista</strong> → mostro uma <strong>pré-visualização</strong> com os erros marcados e só importo as linhas válidas. (Se deixar a palavra-passe vazia no ficheiro, uso a "inicial" em baixo.)</div></div>
     <div class="toolbar" style="margin-bottom:12px;align-items:flex-end;gap:10px;flex-wrap:wrap">
       <button class="btn-sec" data-act="users-template">${ic('download',16)} Modelo Excel/CSV</button>
-      <div class="field" style="margin:0"><label style="font-size:.72rem">Palavra-passe inicial (importação)</label><input id="rosterInitPwd" value="iefp2026" style="width:220px"></div>
+      <div class="field" style="margin:0"><label style="font-size:.72rem">Palavra-passe inicial (se vazia no ficheiro)</label><input id="rosterInitPwd" value="iefp2026" style="width:240px"></div>
       <button class="btn-sec" data-act="import-roster">${ic('upload',16)} Importar lista</button>
     </div>
     <input type="file" id="importRosterFile" accept=".csv,text/csv" style="display:none">
@@ -2555,31 +2555,62 @@ function rosterAdd(){
     toast('Adicionado à turma',username); ['nome','apelido','email','username','password'].forEach(n=>{const el=f.querySelector('[name="'+n+'"]'); if(el) el.value='';}); renderTurmaRoster(); reset();
   }).catch(e=>{ toast('Erro',supaMsg(e),'err'); reset(); });
 }
+let importDraft=null;
 function importTurmaCSV(file){
-  const initPwd=(($('#rosterInitPwd')||{}).value||'').trim()||'iefp2026';
+  const initPwd=(($('#rosterInitPwd')||{}).value||'').trim();   // fallback opcional p/ password
   const r=new FileReader();
-  r.onload=async e=>{
+  r.onload=e=>{
     let rows; try{ rows=parseCSV(e.target.result); }catch(err){ toast('Erro no ficheiro','Verifique o formato','err'); return; }
     if(!rows||rows.length<2){ toast('Ficheiro vazio','Use o modelo e preencha pelo menos uma linha','warn'); return; }
     const head=rows[0].map(h=>h.trim().toLowerCase()); const idx=n=>head.indexOf(n);
     const c={nome:idx('nome'),apelido:idx('apelido'),email:idx('email'),username:idx('username'),password:idx('password'),papel:idx('papel')};
-    if(c.nome<0){ toast('Ficheiro inválido','Falta a coluna "nome"','err'); return; }
-    toast('A importar…','Aguarde um momento',''); let ok=0,fail=0; const errs=[];
-    for(const cols of rows.slice(1)){
-      const g=k=>c[k]>=0?(cols[c[k]]||'').trim():'';
-      const nome=g('nome'); if(!nome) continue;
-      const apelido=g('apelido'), email=g('email'); let username=g('username'); let password=g('password'); let papel=g('papel')||'Formando';
-      if(papel!=='Formador'&&papel!=='Formando') papel='Formando';
-      if(!username) username=slugUser(nome,apelido);
-      if(!password) password=initPwd;
-      try{ await supaAddFormando({username,password,nome,apelido,email,papel}); ok++; }
-      catch(err){ fail++; errs.push(username+': '+supaMsg(err)); }
-    }
-    renderTurmaRoster();
-    toast('Importação concluída',`${ok} criado(s)${fail?` · ${fail} falhou(aram)`:''}`,fail?'warn':'ok');
-    if(errs.length) console.warn('Erros de importação:',errs);
+    if(c.nome<0||c.apelido<0||c.email<0){ toast('Cabeçalho inválido','Precisa das colunas nome, apelido e email (use o Modelo)','err'); return; }
+    toast('A validar…','','');
+    supaRoster().then(roster=>{
+      const existing=new Set((roster||[]).map(u=>(u.username||'').toLowerCase()));
+      const seen=new Set();
+      importDraft=rows.slice(1).filter(cols=>cols.some(v=>(v||'').trim())).map((cols,i)=>{
+        const g=k=>c[k]>=0?(cols[c[k]]||'').trim():'';
+        const nome=g('nome'), apelido=g('apelido'), email=g('email');
+        const username=g('username').toLowerCase(); let password=g('password'); let papel=g('papel')||'Formando';
+        if(papel!=='Formador'&&papel!=='Formando') papel='Formando';
+        if(!password && initPwd) password=initPwd;
+        const errs=[];
+        if(!nome) errs.push('nome');
+        if(!apelido) errs.push('apelido');
+        if(!email) errs.push('email em falta'); else if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) errs.push('email inválido');
+        if(!username) errs.push('utilizador');
+        if(!password) errs.push('palavra-passe');
+        if(username){ if(seen.has(username)) errs.push('repetido no ficheiro'); else seen.add(username); if(existing.has(username)) errs.push('já existe na turma'); }
+        return {i:i+2, nome, apelido, email, username, password, papel, errs};
+      });
+      openImportPreview();
+    }).catch(err=>{ toast('Não foi possível validar',supaMsg(err),'err'); });
   };
   r.readAsText(file);
+}
+function openImportPreview(){
+  const rows=importDraft||[]; const valid=rows.filter(r=>!r.errs.length); const invalid=rows.filter(r=>r.errs.length);
+  editing={type:'__import'};
+  $('#modalTitle').textContent='Pré-visualizar importação';
+  $('#modalSub').textContent=`${rows.length} linha(s) · ${valid.length} válida(s) · ${invalid.length} com erro`;
+  $('#modal').classList.add('wide'); $('#modalDelete').style.display='none';
+  { const sv=$('[data-act="modal-save"]'); if(sv){ sv.style.display=''; sv.disabled=!valid.length; sv.textContent=valid.length?`Importar ${valid.length} válido(s)`:'Sem linhas válidas'; } }
+  $('#modalForm').innerHTML=`
+    <div class="callout ${invalid.length?'warn':'info'}" style="margin-bottom:14px">${ic('alert',16)}<div class="ctxt">${invalid.length?`<strong>${invalid.length} linha(s) com erro</strong> não serão importadas — corrija o ficheiro e volte a importar, ou importe só as válidas.`:`Tudo válido — ${valid.length} formando(s) prontos a importar.`} Obrigatórios: nome, apelido, email, utilizador, palavra-passe.</div></div>
+    <div class="table-wrap" style="max-height:340px;overflow:auto"><table><thead><tr><th>Lin.</th><th>Nome</th><th>Email</th><th>Utilizador</th><th>Papel</th><th>Estado</th></tr></thead><tbody>${rows.map(r=>`<tr style="${r.errs.length?'background:rgba(220,53,69,.06)':''}"><td class="muted">${r.i}</td><td>${esc((r.nome+' '+r.apelido).trim())||'—'}</td><td>${esc(r.email||'—')}</td><td>${esc(r.username||'—')}</td><td>${esc(r.papel)}</td><td>${r.errs.length?`<span class="pill red">${esc(r.errs.join(' · '))}</span>`:`<span class="pill green">OK</span>`}</td></tr>`).join('')}</tbody></table></div>`;
+  $('#modalBack').classList.add('open');
+}
+function confirmImport(){
+  const valid=(importDraft||[]).filter(r=>!r.errs.length); if(!valid.length){ closeModal(); return; }
+  const sv=$('[data-act="modal-save"]'); if(sv){ sv.disabled=true; sv.textContent='A importar…'; }
+  (async()=>{
+    let ok=0,fail=0; const errs=[];
+    for(const r of valid){ try{ await supaAddFormando({username:r.username,password:r.password,nome:r.nome,apelido:r.apelido,email:r.email,papel:r.papel}); ok++; } catch(e){ fail++; errs.push(r.username+': '+supaMsg(e)); } }
+    importDraft=null; closeModal(); renderTurmaRoster();
+    toast('Importação concluída',`${ok} criado(s)${fail?` · ${fail} falhou(aram)`:''}`,fail?'warn':'ok');
+    if(errs.length) console.warn('Erros de importação:',errs);
+  })();
 }
 
 /* ---------- DEFINIÇÕES ---------- */
@@ -2929,6 +2960,7 @@ function saveModal(){
   if(editing&&editing.type==='__send') return doSendEmail(false);
   if(editing&&editing.type==='__submitwork') return sendSubmitWork();
   if(editing&&editing.type==='__revisao') return closeModal();
+  if(editing&&editing.type==='__import') return confirmImport();
   if(editing&&editing.type==='__auto') return saveAuto();
   if(editing&&editing.type==='__group') return saveGroup();
   if(editing&&editing.type==='proposta') return savePropModal();
