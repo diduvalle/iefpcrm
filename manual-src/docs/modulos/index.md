@@ -43,6 +43,8 @@ O IEFP CRM cobre todo o ciclo de um CRM real. Esta secção vai crescer com uma 
 - [Modelos de Proposta](modelos.md) — construtor por blocos
 - [Campanhas & Email](campanhas-email.md)
 - [Analytics](analytics.md) — KPIs, funil, CAC/LTV
+- [Alertas](alertas.md) — avisos e atividade
+- [Definições](definicoes.md) — configuração do sistema
 - [RGPD & Pedagogia](../rgpd.md)
 
 !!! note "Screenshots a caminho"

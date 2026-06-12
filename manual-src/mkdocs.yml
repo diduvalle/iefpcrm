@@ -90,6 +90,8 @@ nav:
       - Modelos de Proposta: modulos/modelos.md
       - Campanhas & Email: modulos/campanhas-email.md
       - Analytics: modulos/analytics.md
+      - Alertas: modulos/alertas.md
+      - Definições: modulos/definicoes.md
   - RGPD & Pedagogia: rgpd.md
   - FAQ: faq.md
   - Glossário: glossario.md
