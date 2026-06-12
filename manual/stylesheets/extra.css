@@ -1,0 +1,72 @@
+/* ===========================================================
+   IEFP CRM — Manual · palete sincronizada com a app
+   (mesma ramp verde do index.html, para parecer uma extensão)
+   =========================================================== */
+
+/* --- Cor primária (verde IEFP) --- */
+[data-md-color-primary="custom"] {
+  --md-primary-fg-color:        #006B3C;
+  --md-primary-fg-color--light: #00A651;
+  --md-primary-fg-color--dark:  #005a32;
+  --md-primary-bg-color:        #ffffff;
+  --md-primary-bg-color--light: rgba(255,255,255,.7);
+}
+[data-md-color-accent="custom"] {
+  --md-accent-fg-color:             #00894b;
+  --md-accent-fg-color--transparent: rgba(0,137,75,.1);
+  --md-accent-bg-color:             #ffffff;
+  --md-accent-bg-color--light:      rgba(255,255,255,.7);
+}
+
+/* Ramp da app (para usos pontuais) */
+:root {
+  --iefp-g900:#005a32; --iefp-g800:#006B3C; --iefp-g700:#00894b;
+  --iefp-g600:#00A651; --iefp-g100:#E8F5EE; --iefp-g50:#f3faf5;
+  --iefp-accent:#7AC143;
+  --md-text-font: "Inter";
+}
+
+/* Links e realces verdes */
+.md-typeset a { color: var(--iefp-g700); }
+.md-typeset a:hover { color: var(--iefp-g600); }
+
+/* Cabeçalho com o verde escuro da sidebar da app */
+.md-header { background: linear-gradient(90deg, var(--iefp-g900), #04492c); }
+.md-tabs   { background: var(--iefp-g900); }
+
+/* Logótipo um pouco maior e nítido */
+.md-header__button.md-logo img { height: 30px; width: auto; }
+
+/* Cantos suaves como na app */
+.md-typeset .admonition,
+.md-typeset details,
+.md-typeset pre > code { border-radius: 10px; }
+
+/* Botões/badges "cartão" verdes para a capa */
+.md-typeset .grid.cards > :is(ul,ol) > li,
+.md-typeset .grid > .card {
+  border-radius: 12px;
+}
+
+/* Tabela de conteúdos e títulos com o verde da marca */
+.md-typeset h1, .md-typeset h2 { color: var(--iefp-g900); letter-spacing: -.01em; }
+[data-md-color-scheme="slate"] .md-typeset h1,
+[data-md-color-scheme="slate"] .md-typeset h2 { color: var(--iefp-g600); }
+
+/* Ícones de linha (SVG inline) herdam a cor do texto — monocromáticos */
+.md-typeset .lucide svg,
+.md-typeset svg.icon {
+  width: 1.15em; height: 1.15em;
+  vertical-align: -.18em;
+  fill: none; stroke: currentColor; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* Modo escuro: fundo coerente, primário mais claro para contraste */
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #00A651;
+  --md-default-bg-color:  #0e1a15;
+}
+
+/* Rodapé discreto */
+.md-footer-meta { background: #04492c; }
