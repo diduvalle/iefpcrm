@@ -85,3 +85,10 @@
 /* Sidebar à esquerda mais "app": títulos de secção em maiúsculas discretas */
 .md-nav__title { letter-spacing: .03em; }
 
+/* Cartões de menu (estilo do manual de referência): ícone verde de marca */
+.md-typeset .grid.cards svg.icon { color: var(--iefp-g600); width: 26px; height: 26px; margin-bottom: 4px; }
+.md-typeset .grid.cards > ul > li,
+.md-typeset .grid.cards > ol > li { transition: border-color .15s, box-shadow .15s; }
+.md-typeset .grid.cards > ul > li:hover,
+.md-typeset .grid.cards > ol > li:hover { border-color: var(--iefp-g600); box-shadow: 0 2px 12px rgba(0,107,60,.10); }
+
