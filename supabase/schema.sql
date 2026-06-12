@@ -389,6 +389,87 @@ returns json language sql security definer set search_path = public as $$
   select json_build_object('ok', true);
 $$;
 
+-- =====================================================================
+--  ENTREGAS DE TRABALHO (submissoes) — formando → formador
+--  O JSON do trabalho viaja por aqui (EmailJS não anexa ficheiros).
+-- =====================================================================
+create table if not exists public.submissoes (
+  id         uuid primary key default gen_random_uuid(),
+  turma_id   uuid not null references public.turmas(id) on delete cascade,
+  user_id    uuid not null references public.utilizadores(id) on delete cascade,
+  nome       text not null,
+  username   text not null,
+  mensagem   text default '',
+  payload    jsonb not null,            -- snapshot do trabalho (state do CRM)
+  criado_em  timestamptz not null default now()
+);
+create index if not exists ix_subm_turma on public.submissoes(turma_id);
+create index if not exists ix_subm_user  on public.submissoes(user_id);
+alter table public.submissoes enable row level security;
+
+-- LIMITE de envios por formando (contado AQUI, no servidor).
+-- (Para mudar o máximo, altera o 2 nas duas funções abaixo.)
+create or replace function public.submeter_trabalho(p_token uuid, p_mensagem text, p_payload jsonb)
+returns json language plpgsql security definer set search_path = public as $$
+declare caller public.utilizadores; n int;
+begin
+  select * into caller from _user_from_token(p_token);
+  if caller.id is null then raise exception 'SESSAO_INVALIDA'; end if;
+  select count(*) into n from submissoes where user_id = caller.id;
+  if n >= 2 then raise exception 'LIMITE_ENVIOS'; end if;
+  insert into submissoes(turma_id, user_id, nome, username, mensagem, payload)
+    values (caller.turma_id, caller.id,
+            trim(coalesce(caller.nome,'')||' '||coalesce(caller.apelido,'')), caller.username,
+            coalesce(p_mensagem,''), p_payload);
+  return json_build_object('ok', true, 'enviados', n+1, 'limite', 2);
+end $$;
+
+-- Quantos envios já fez (para mostrar X/2 antes de submeter).
+create or replace function public.meus_envios(p_token uuid)
+returns json language plpgsql security definer set search_path = public as $$
+declare caller public.utilizadores; n int;
+begin
+  select * into caller from _user_from_token(p_token);
+  if caller.id is null then raise exception 'SESSAO_INVALIDA'; end if;
+  select count(*) into n from submissoes where user_id = caller.id;
+  return json_build_object('enviados', n, 'limite', 2);
+end $$;
+
+-- Formador lista as entregas da sua turma (SEM o payload — leve).
+create or replace function public.listar_submissoes(p_token uuid)
+returns table(id uuid, nome text, username text, mensagem text, criado_em timestamptz)
+language plpgsql security definer set search_path = public as $$
+declare caller public.utilizadores;
+begin
+  select * into caller from _user_from_token(p_token);
+  if caller.id is null then raise exception 'SESSAO_INVALIDA'; end if;
+  if caller.papel not in ('Formador','Administrador') then raise exception 'SEM_PERMISSAO'; end if;
+  return query select s.id, s.nome, s.username, s.mensagem, s.criado_em
+    from submissoes s where s.turma_id = caller.turma_id order by s.criado_em desc;
+end $$;
+
+-- Formador obtém o payload de uma entrega (para rever/validar).
+create or replace function public.obter_submissao(p_token uuid, p_id uuid)
+returns jsonb language plpgsql security definer set search_path = public as $$
+declare caller public.utilizadores; v jsonb;
+begin
+  select * into caller from _user_from_token(p_token);
+  if caller.id is null then raise exception 'SESSAO_INVALIDA'; end if;
+  if caller.papel not in ('Formador','Administrador') then raise exception 'SEM_PERMISSAO'; end if;
+  select payload into v from submissoes where id = p_id and turma_id = caller.turma_id;
+  if v is null then raise exception 'NAO_ENCONTRADO'; end if;
+  return v;
+end $$;
+
+-- Email do formador da turma (para destinatário/reply-to da submissão). Público.
+create or replace function public.turma_formador(p_codigo text)
+returns json language sql security definer set search_path = public as $$
+  select json_build_object('email', t.criado_por,
+           'nome', (select trim(u.nome||' '||coalesce(u.apelido,'')) from public.utilizadores u
+                    where u.turma_id = t.id and u.papel = 'Administrador' order by u.criado_em limit 1))
+  from public.turmas t where t.codigo = p_codigo;
+$$;
+
 -- ---------------------------------------------------------------------
 -- Permissões: o anon só pode EXECUTAR as funções públicas.
 -- (O helper interno fica vedado.)
@@ -413,6 +494,11 @@ grant execute on function public.login_root(text)                               
 grant execute on function public.listar_turmas(uuid)                              to anon, authenticated;
 grant execute on function public.root_abrir_turma(uuid,text)                      to anon, authenticated;
 grant execute on function public.logout_root(uuid)                                to anon, authenticated;
+grant execute on function public.submeter_trabalho(uuid,text,jsonb)               to anon, authenticated;
+grant execute on function public.meus_envios(uuid)                                to anon, authenticated;
+grant execute on function public.listar_submissoes(uuid)                          to anon, authenticated;
+grant execute on function public.obter_submissao(uuid,uuid)                       to anon, authenticated;
+grant execute on function public.turma_formador(text)                             to anon, authenticated;
 -- NOTA: set_root_password NÃO recebe grant (corre-se no SQL Editor como owner).
 
 -- =====================================================================

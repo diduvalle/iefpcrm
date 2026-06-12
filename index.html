@@ -1205,6 +1205,8 @@ const SUPA_ERR={
   SEM_PERMISSAO:'Sem permissão para esta ação.',
   PASSWORD_ATUAL_ERRADA:'A palavra-passe atual está incorreta.',
   RECOVERY_INVALIDO:'Utilizador ou código de recuperação incorretos.',
+  LIMITE_ENVIOS:'Atingiu o limite de 2 entregas. Fale com o formador se precisar de outra.',
+  NAO_ENCONTRADO:'Entrega não encontrada.',
   TURMA_SEM_UTILIZADORES:'Essa turma ainda não tem utilizadores.',
   DADOS_EM_FALTA:'Preencha todos os campos obrigatórios.'};
 function supaMsg(e){ const m=(e&&e.message)||String(e); return SUPA_ERR[m]||m; }
@@ -2431,6 +2433,11 @@ async function supaResetPwd(id,pwd){ return await supaRpc('redefinir_password',{
 async function supaMudarMinhaPwd(atual,nova){ return await supaRpc('mudar_minha_password',{p_token:supaToken(),p_atual:atual,p_nova:nova}); }
 async function supaRecuperar(codigo,username,recovery,nova){ return await supaRpc('recuperar_password',{p_codigo:codigo,p_username:username,p_recovery:recovery,p_nova:nova}); }
 async function supaGerarRecovery(){ return await supaRpc('gerar_recovery',{p_token:supaToken()}); }
+async function supaSubmeter(mensagem,payload){ return await supaRpc('submeter_trabalho',{p_token:supaToken(),p_mensagem:mensagem||'',p_payload:payload}); }
+async function supaMeusEnvios(){ return await supaRpc('meus_envios',{p_token:supaToken()}); }
+async function supaTurmaFormador(codigo){ return await supaRpc('turma_formador',{p_codigo:codigo}); }
+async function supaListarSubmissoes(){ return await supaRpc('listar_submissoes',{p_token:supaToken()}); }
+async function supaObterSubmissao(id){ return await supaRpc('obter_submissao',{p_token:supaToken(),p_id:id}); }
 function slugUser(nome,apelido){ return (String(nome||'')+'.'+String(apelido||'')).normalize('NFD').toLowerCase().replace(/[^a-z0-9.]+/g,'').replace(/^\.+|\.+$/g,'')||'formando'; }
 function turmaUsersCardHTML(){
   return `<div class="card card-pad">
@@ -2472,6 +2479,51 @@ function renderTurmaRoster(){
       <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="roster-pwd" data-id="${u.id}" data-nome="${esc(u.username)}">Repor palavra-passe</button>${me&&me.id===u.id?`<span class="btn-xs" style="color:var(--muted2)" title="A sua conta">${ic('lock',13)}</span>`:`<button class="btn-danger btn-xs" data-act="roster-del" data-id="${u.id}" data-nome="${esc(((u.nome||'')+' '+(u.apelido||'')).trim())}">✕</button>`}</div></td></tr>`).join('');
     box.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Nome</th><th>Utilizador</th><th>Email</th><th>Papel</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="5" class="muted" style="padding:14px">Ainda sem utilizadores nesta turma. Adicione um formando ou importe a lista.</td></tr>`}</tbody></table></div><div class="muted" style="font-size:.76rem;margin-top:8px">${list.length} utilizador(es) · turma ${esc(TURMA)}</div>`;
   }).catch(e=>{ box.innerHTML=`<div class="callout warn" style="margin:0">${ic('alert',16)}<div class="ctxt">${esc(supaMsg(e))}</div></div>`; });
+}
+/* ---------- Entrega & validação de trabalhos (formador) ---------- */
+let revisaoPayload=null, revisaoNome='';
+function entregasCardHTML(){
+  return `<div class="card card-pad">
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Entrega & validação de trabalhos</h3><div class="sub">Trabalhos submetidos pelos formandos desta turma.</div></div><button class="btn-sec btn-sm" data-act="entregas-reload">Atualizar</button></div>
+    <div class="callout info" style="margin-bottom:14px">${ic('alert',16)}<div class="ctxt">Cada formando pode submeter até <strong>2 entregas</strong>. Clique em <strong>Rever</strong> para ver o trabalho que o formando criou (clientes, propostas, etc.), ou descarregue o <strong>.json</strong>.</div></div>
+    <div id="entregasBox"><div class="muted" style="padding:10px">A carregar…</div></div>
+  </div>`;
+}
+function renderEntregas(){
+  const box=$('#entregasBox'); if(!box) return;
+  supaListarSubmissoes().then(list=>{
+    list=list||[];
+    const rows=list.map(s=>`<tr>
+      <td class="cell-main">${esc(s.nome||s.username)}<div class="cell-sub">${esc(s.username)}</div></td>
+      <td>${esc(dPT(s.criado_em))}</td>
+      <td class="muted" style="max-width:280px">${esc((s.mensagem||'').slice(0,100))||'—'}</td>
+      <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="entrega-rever" data-id="${s.id}" data-nome="${esc(s.nome||s.username)}">Rever</button><button class="btn-sec btn-xs" data-act="entrega-baixar" data-id="${s.id}" data-nome="${esc(s.username||'aluno')}">.json</button></div></td></tr>`).join('');
+    box.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Formando</th><th>Data</th><th>Mensagem</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="4" class="muted" style="padding:14px">Ainda não há entregas nesta turma.</td></tr>`}</tbody></table></div><div class="muted" style="font-size:.76rem;margin-top:8px">${list.length} entrega(s)</div>`;
+  }).catch(e=>{ box.innerHTML=`<div class="callout warn" style="margin:0">${ic('alert',16)}<div class="ctxt">${esc(supaMsg(e))}</div></div>`; });
+}
+function baixarJSON(obj,fname){ const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=fname; a.click(); URL.revokeObjectURL(a.href); }
+function downloadEntrega(id,nome){ supaObterSubmissao(id).then(p=>baixarJSON(p,'trabalho-'+(nome||'aluno')+'.json')).catch(e=>toast('Erro',supaMsg(e),'err')); }
+function openRevisao(id,nome){
+  toast('A carregar entrega…','','info');
+  supaObterSubmissao(id).then(p=>{
+    revisaoPayload=p; revisaoNome=nome||'aluno';
+    editing={type:'__revisao'};
+    $('#modalTitle').textContent='Rever entrega — '+(nome||'');
+    $('#modalSub').textContent='Apenas leitura — não altera os teus dados';
+    $('#modal').classList.add('wide');
+    $('#modalDelete').style.display='none';
+    { const sv=$('[data-act="modal-save"]'); if(sv){ sv.style.display=''; sv.disabled=false; sv.textContent='Fechar'; } }
+    const cli=(p.clientes||[]), prop=(p.propostas||[]), emp=(p.empresas||[]);
+    const cn=cid=>{ const c=cli.find(x=>x.id===cid); return c?((c.nome||'')+' '+(c.apelido||'')).trim():'—'; };
+    $('#modalForm').innerHTML=`
+      <div class="grid cols-4" style="gap:10px;margin-bottom:14px">${kpi('Empresas',emp.length)}${kpi('Clientes',cli.length)}${kpi('Propostas',prop.length)}${kpi('Campanhas',(p.campanhas||[]).length)}</div>
+      <h3 style="font-size:.95rem;margin:6px 0 8px">Clientes (${cli.length})</h3>
+      <div class="table-wrap" style="max-height:210px;overflow:auto;margin-bottom:14px"><table><thead><tr><th>Nome</th><th>Empresa</th><th>Email</th><th>Segmento</th></tr></thead><tbody>${cli.slice(0,150).map(c=>`<tr><td>${esc(((c.nome||'')+' '+(c.apelido||'')).trim())}</td><td>${esc(c.empresa||'—')}</td><td>${esc(c.email||'—')}</td><td>${esc(c.segmento||'—')}</td></tr>`).join('')||`<tr><td colspan="4" class="muted" style="padding:10px">Sem clientes.</td></tr>`}</tbody></table></div>
+      <h3 style="font-size:.95rem;margin:6px 0 8px">Propostas (${prop.length})</h3>
+      <div class="table-wrap" style="max-height:210px;overflow:auto"><table><thead><tr><th>Número</th><th>Título</th><th>Cliente</th><th>Estado</th></tr></thead><tbody>${prop.slice(0,150).map(pr=>`<tr><td>${esc(pr.numero||'—')}</td><td>${esc(pr.titulo||'—')}</td><td>${esc(cn(pr.clienteId))}</td><td>${esc(pr.estado||'—')}</td></tr>`).join('')||`<tr><td colspan="4" class="muted" style="padding:10px">Sem propostas.</td></tr>`}</tbody></table></div>
+      <div class="toolbar" style="margin-top:14px"><button class="btn-sec btn-sm" type="button" data-act="entrega-baixar-atual">${ic('download',15)} Descarregar trabalho completo (.json)</button></div>`;
+    $('#modalBack').classList.add('open');
+  }).catch(e=>toast('Erro ao carregar',supaMsg(e),'err'));
 }
 function rosterAdd(){
   const f=$('#rosterAddForm'); if(!f) return;
@@ -2570,7 +2622,7 @@ views.definicoes = () => {
     </div>
     <div class="callout info" style="margin-top:14px">${ic('alert',16)}<div class="ctxt">Fluxo para crescer a base: atualiza os exemplos → <strong>Exportar base</strong> → substitui o <strong>base.json</strong> no repositório (GitHub). Quem abrir a app pela 1.ª vez recebe a base; quem já a tem clica em <strong>Recarregar base online</strong>.</div></div>
   </div>
-  ${TURMA?turmaUsersCardHTML():`<div class="card card-pad">
+  ${TURMA?(turmaUsersCardHTML()+entregasCardHTML()):`<div class="card card-pad">
     <div class="section-head" style="margin-bottom:16px">
       <div><h3>Utilizadores</h3><div class="sub">Acessos com utilizador e palavra-passe. Importe os formandos em massa (Excel/CSV) — ficam ativos como Formando — ou crie um a um.</div></div>
       <div class="toolbar"><button class="btn-sec" data-act="users-template">${ic('download',16)} Modelo</button><button class="btn-sec" data-act="import-users">${ic('upload',16)} Importar</button><button class="btn" data-act="new" data-type="utilizador">+ Utilizador</button></div>
@@ -2859,6 +2911,7 @@ function saveModal(){
   if(editing&&editing.type==='__wizard') return wizardGenerate();
   if(editing&&editing.type==='__send') return doSendEmail(false);
   if(editing&&editing.type==='__submitwork') return sendSubmitWork();
+  if(editing&&editing.type==='__revisao') return closeModal();
   if(editing&&editing.type==='__auto') return saveAuto();
   if(editing&&editing.type==='__group') return saveGroup();
   if(editing&&editing.type==='proposta') return savePropModal();
@@ -3208,49 +3261,59 @@ function resumoTrabalho(){
     `• RGPD — consentimentos: ${(s.consentimentos||[]).length} · pedidos de titular: ${(s.pedidos||[]).length}`
   ].join('\n');
 }
-// Modal: o formando submete o trabalho por email, a partir do CRM
+// Modal: o formando submete o trabalho (guardado no Supabase) a partir do CRM
+let submitEnvios=null;  // {enviados,limite} carregado ao abrir
 function openSubmitWork(){
   const u=currentUser(); if(!u) return;
+  if(!TURMA||!supaToken()){ toast('Indisponível','A submissão só funciona dentro de uma turma','warn'); return; }
+  submitEnvios=null;
   editing={type:'__submitwork'};
   $('#modalTitle').textContent='Submeter o meu trabalho';
   $('#modalSub').textContent=`${u.nome||''} ${u.apelido||''}${TURMA?' · Turma '+TURMA:''}`.trim();
   $('#modal').classList.add('wide');
   $('#modalDelete').style.display='none';
-  { const sv=$('[data-act="modal-save"]'); if(sv) sv.textContent='Enviar ao formador'; }
+  { const sv=$('[data-act="modal-save"]'); if(sv){ sv.disabled=false; sv.textContent='Submeter trabalho'; } }
   const temSig=hasSignature(u);
   const assunto=`Entrega de trabalho — ${(u.nome||'')} ${(u.apelido||'')}`.trim()+(TURMA?` (Turma ${TURMA})`:'');
   $('#modalForm').innerHTML=`
-    <div class="callout info" style="margin-bottom:14px">${ic('send',16)}<div class="ctxt">Envia o teu trabalho ao formador <strong>a partir do CRM</strong>. O email leva a tua mensagem, um <strong>resumo do trabalho</strong> e a tua <strong>assinatura</strong>. As respostas do formador vêm para o teu email.</div></div>
+    <div class="callout info" style="margin-bottom:14px">${ic('send',16)}<div class="ctxt">Submete o teu trabalho ao formador <strong>a partir do CRM</strong>. O trabalho (snapshot) é entregue e o formador recebe um aviso. Tens no máximo <strong>2 entregas</strong>.</div></div>
+    <div id="swEnvios" class="callout" style="margin-bottom:14px;background:var(--surface3);border-color:var(--border)">${ic('send',16)}<div class="ctxt">A verificar as tuas entregas…</div></div>
     ${temSig?'':`<div class="callout warn" style="margin-bottom:14px">${ic('alert',16)}<div class="ctxt"><strong>Falta a tua assinatura.</strong> É obrigatória para submeter (autentica a autoria). <a data-act="profile" style="cursor:pointer;text-decoration:underline">Adicionar assinatura no perfil →</a></div></div>`}
     <div class="form-grid">
-      <div class="field"><label>Email do formador *</label><input name="swto" type="email" placeholder="email do formador"></div>
-      <div class="field"><label>O meu email (para resposta)</label><input value="${esc(u.email||'')}" readonly style="background:var(--surface3);color:var(--muted)"></div>
+      <div class="field"><label>O meu email</label><input value="${esc(u.email||'')}" readonly style="background:var(--surface3);color:var(--muted)" placeholder="(sem email no registo)"></div>
+      <div class="field"><label>Email do formador *</label><input name="swto" type="email" placeholder="a carregar…"></div>
       <div class="field full"><label>Assunto</label><input name="swsubject" value="${esc(assunto)}"></div>
-      <div class="field full"><label>Mensagem para o formador *</label><textarea name="swmsg" rows="5" placeholder="Escreve uma mensagem (ex.: o que fizeste, dúvidas, notas)…"></textarea></div>
+      <div class="field full"><label>Mensagem para o formador <span class="muted" style="font-weight:500">(opcional)</span></label><textarea name="swmsg" rows="4" placeholder="Escreve uma nota (opcional)…"></textarea></div>
     </div>
-    <div class="toolbar" style="margin:4px 0 10px"><button class="btn-sec btn-sm" type="button" data-act="download-trabalho">${ic('download',15)} Descarregar o trabalho completo (.json)</button></div>
-    ${temSig?`<div class="muted" style="font-size:.8rem;font-weight:700;margin:8px 0 6px">${ic('check',14)} A tua assinatura (vai no fim do email)</div><div style="border:1px solid var(--border);border-radius:10px;padding:12px;background:var(--surface)">${currentSigHTML(null,null)}</div>`:''}`;
+    <div class="callout green" style="margin:6px 0 12px">${ic('check',16)}<div class="ctxt"><strong>Trabalho pronto a enviar</strong> — o snapshot do teu CRM (clientes, propostas, etc.) segue com a entrega.</div></div>
+    ${temSig?`<div class="muted" style="font-size:.8rem;font-weight:700;margin:4px 0 6px">${ic('check',14)} A tua assinatura</div><div style="border:1px solid var(--border);border-radius:10px;padding:12px;background:var(--surface)">${currentSigHTML(null,null)}</div>`:''}`;
   $('#modalBack').classList.add('open');
+  // contagem de envios (servidor) + email do formador
+  supaMeusEnvios().then(d=>{ submitEnvios=d; const el=$('#swEnvios'); if(!el) return; const cheio=d.enviados>=d.limite;
+    el.className='callout '+(cheio?'warn':'info'); el.innerHTML=`${ic(cheio?'alert':'send',16)}<div class="ctxt">${cheio?`<strong>Limite atingido</strong> — já fizeste ${d.enviados}/${d.limite} entregas; não podes submeter mais.`:`Entregas: <strong>${d.enviados}/${d.limite}</strong>. Esta será a tua ${d.enviados+1}.ª.`}</div>`;
+    if(cheio){ const sv=$('[data-act="modal-save"]'); if(sv){ sv.disabled=true; sv.textContent='Limite atingido'; } }
+  }).catch(e=>{ const el=$('#swEnvios'); if(el) el.innerHTML=`${ic('alert',16)}<div class="ctxt">${esc(supaMsg(e))}</div>`; });
+  supaTurmaFormador(TURMA).then(d=>{ const i=$('#modalForm [name="swto"]'); if(i){ if(d&&d.email&&!i.value) i.value=d.email; i.placeholder='email do formador'; } }).catch(()=>{ const i=$('#modalForm [name="swto"]'); if(i) i.placeholder='email do formador'; });
 }
 function sendSubmitWork(){
   const u=currentUser(); if(!u){ closeModal(); return; }
+  if(submitEnvios && submitEnvios.enviados>=submitEnvios.limite){ toast('Limite atingido','Já usou as 2 entregas','warn'); return; }
   const f=$('#modalForm'); if(!f) return;
   const g=n=>String((f.querySelector('[name="'+n+'"]')||{}).value||'').trim();
   const to=g('swto'), subject=g('swsubject')||'Entrega de trabalho', msg=g('swmsg');
   if(!hasSignature(u)){ toast('Assinatura obrigatória','Adicione a assinatura no seu perfil para submeter','warn'); openProfile(); return; }
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)){ toast('Email do formador inválido','Confirme o endereço','warn'); return; }
-  if(!msg){ toast('Escreva uma mensagem','Diga ao formador o que está a entregar','warn'); return; }
-  const sigT=sigHtmlToText(u.assinatura);
-  const body=`${msg}\n\n———\nRESUMO DO TRABALHO\n${resumoTrabalho()}\n\nEntregue por: ${(u.nome||'')} ${(u.apelido||'')}${TURMA?' · Turma '+TURMA:''} · ${todayISO()}\n\n${sigT}`;
-  const fromName=(`${(u.nome||'').trim()} ${(u.apelido||'').trim()}`.trim()||u.username||'Formando')+' (IEFP CRM)';
-  if(!emailjsActive()){
-    try{ window.location.href=`mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`; }catch(e){}
-    closeModal(); toast('Email aberto no seu programa','Anexe o ficheiro do trabalho e envie','info'); return;
-  }
-  closeModal(); toast('A enviar trabalho…','via EmailJS','info');
-  sendViaEmailJS({toEmail:to,toName:'Formador',subject,message:body,fromName,replyTo:u.email||''})
-    .then(()=>toast('Trabalho enviado',`Para ${to}`))
-    .catch(err=>toast('Falha no envio',String(err&&(err.text||err.message)||err),'err'));
+  const sv=$('[data-act="modal-save"]'); if(sv){ sv.disabled=true; sv.textContent='A submeter…'; }
+  supaSubmeter(msg, state).then(res=>{
+    closeModal();
+    toast('Trabalho submetido',`Entrega ${res.enviados}/${res.limite} registada`);
+    if(emailjsActive()){
+      const sigT=sigHtmlToText(u.assinatura);
+      const body=`${msg||'(sem mensagem)'}\n\n———\nRESUMO DO TRABALHO\n${resumoTrabalho()}\n\nEntrega ${res.enviados}/${res.limite} · ${(u.nome||'')} ${(u.apelido||'')}${TURMA?' · Turma '+TURMA:''} · ${todayISO()}\n\n${sigT}`;
+      const fromName=(`${(u.nome||'').trim()} ${(u.apelido||'').trim()}`.trim()||u.username||'Formando')+' (IEFP CRM)';
+      sendViaEmailJS({toEmail:to,toName:'Formador',subject,message:body,fromName,replyTo:u.email||''}).catch(()=>{});
+    }
+  }).catch(e=>{ const sv2=$('[data-act="modal-save"]'); if(sv2){ sv2.disabled=false; sv2.textContent='Submeter trabalho'; } toast('Não foi possível submeter',supaMsg(e),'err'); });
 }
 
 /* =========================================================================
@@ -3319,7 +3382,7 @@ function render(){
   $('#breadcrumb').textContent='IEFP CRM · '+(crumbs[v]||'');
   const fn=views[v]||views.dashboard;
   $('#content').innerHTML=`<section class="view active">${fn()}</section>`;
-  if(TURMA && v==='definicoes') renderTurmaRoster();
+  if(TURMA && v==='definicoes'){ renderTurmaRoster(); renderEntregas(); }
   startI18n();
 }
 
@@ -3454,6 +3517,10 @@ document.addEventListener('click', e=>{
     case 'gen': gerarExemplos(+el.dataset.n||0, +el.dataset.p||0, +el.dataset.e||0); break;
     case 'submit-work': openSubmitWork(); break;
     case 'download-trabalho': submitWork(); break;
+    case 'entregas-reload': renderEntregas(); break;
+    case 'entrega-rever': openRevisao(el.dataset.id, el.dataset.nome); break;
+    case 'entrega-baixar': downloadEntrega(el.dataset.id, el.dataset.nome); break;
+    case 'entrega-baixar-atual': if(revisaoPayload) baixarJSON(revisaoPayload,'trabalho-'+revisaoNome+'.json'); break;
     case 'export-base': exportBase(); break;
     case 'reload-base': reloadBase(); break;
     case 'save-share': { $$('[data-share]').forEach(el2=>{ state.settings[el2.dataset.share]=el2.value.trim(); }); save(); render(); toast('Guardado','Base e entregas configuradas'); } break;
