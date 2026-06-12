@@ -136,6 +136,12 @@ begin
             'apelido', r.apelido, 'email', r.email, 'papel', r.papel));
 end $$;
 
+-- Verifica se uma turma existe (para validar o número ANTES de entrar no login).
+create or replace function public.turma_existe(p_codigo text)
+returns boolean language sql security definer set search_path = public as $$
+  select exists (select 1 from public.turmas where codigo = p_codigo);
+$$;
+
 -- Lista PÚBLICA para o dropdown de login (só username/nome/papel; sem hash).
 create or replace function public.listar_utilizadores_publico(p_codigo text)
 returns table(username text, nome text, apelido text, papel text)
@@ -244,21 +250,6 @@ begin
   return json_build_object('ok', true);
 end $$;
 
--- ---------------------------------------------------------------------
--- Permissões: o anon só pode EXECUTAR as funções públicas.
--- (O helper interno fica vedado.)
--- ---------------------------------------------------------------------
-revoke all on function public._user_from_token(uuid) from public, anon, authenticated;
-
-grant execute on function public.criar_turma(text,text,text,text,text,text,text) to anon, authenticated;
-grant execute on function public.login(text,text,text)                            to anon, authenticated;
-grant execute on function public.listar_utilizadores_publico(text)                to anon, authenticated;
-grant execute on function public.listar_utilizadores(uuid)                        to anon, authenticated;
-grant execute on function public.criar_formando(uuid,text,text,text,text,text,text) to anon, authenticated;
-grant execute on function public.redefinir_password(uuid,uuid,text)               to anon, authenticated;
-grant execute on function public.remover_utilizador(uuid,uuid)                    to anon, authenticated;
-grant execute on function public.logout(uuid)                                     to anon, authenticated;
-
 -- =====================================================================
 --  ROOT / SUPORTE  (acesso global à IDENTIDADE — Fase 3)
 -- ---------------------------------------------------------------------
@@ -354,6 +345,7 @@ revoke all on function public._is_root(uuid)          from public, anon, authent
 
 grant execute on function public.criar_turma(text,text,text,text,text,text,text) to anon, authenticated;
 grant execute on function public.login(text,text,text)                            to anon, authenticated;
+grant execute on function public.turma_existe(text)                               to anon, authenticated;
 grant execute on function public.listar_utilizadores_publico(text)                to anon, authenticated;
 grant execute on function public.listar_utilizadores(uuid)                        to anon, authenticated;
 grant execute on function public.criar_formando(uuid,text,text,text,text,text,text) to anon, authenticated;

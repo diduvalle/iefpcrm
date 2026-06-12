@@ -3829,7 +3829,12 @@ function submitEnterTurma(){
   if(low==='root'||low==='suporte'){ loginMode='root'; renderLogin(); return; }   // suporte
   const d=raw.replace(/\D/g,'');
   if(d.length!==8){ if(err) err.textContent='O número da turma tem de ter exatamente 8 dígitos.'; return; }
-  location.href=location.pathname+'?t='+d;
+  const go=()=>{ location.href=location.pathname+'?t='+d; };
+  const btn=f.querySelector('[data-act="enter-turma"]'); if(btn){ btn.disabled=true; btn.textContent='A verificar…'; }
+  supaRpc('turma_existe',{p_codigo:d}).then(existe=>{
+    if(existe!==false){ go(); }   // existe (true) ou resposta inesperada → avança
+    else { if(err) err.textContent='Turma '+d+' não encontrada. Confirme o número com o formador.'; if(btn){ btn.disabled=false; btn.textContent='Entrar'; } }
+  }).catch(()=>{ go(); });        // função ainda não criada / rede → não bloquear (cai no login normal)
 }
 function renderLogin(){
   const inTurma=!!TURMA;
