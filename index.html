@@ -164,7 +164,7 @@ a{text-decoration:none;color:inherit}
 .picked{display:flex;align-items:center;gap:11px;padding:9px 12px;border:1px solid var(--g300);background:var(--g50);border-radius:10px}
 .scroll-list{max-height:360px;overflow-y:auto;padding-right:4px}
 .sig-toolbar{display:flex;flex-wrap:wrap;gap:5px;align-items:center;padding:7px 8px;border:1px solid var(--border);border-bottom:0;border-radius:10px 10px 0 0;background:var(--surface2)}
-.sig-toolbar select{height:32px;width:auto;min-width:96px;max-width:140px;flex:0 0 auto;padding:0 8px;font-size:.78rem;line-height:1.2;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text)}
+.field .sig-toolbar select{height:34px;width:auto;min-width:104px;max-width:150px;flex:0 0 auto;padding:0 10px;font-size:.82rem;line-height:1.15;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text)}
 .sig-tb{height:30px;min-width:30px;padding:0 7px;display:inline-grid;place-items:center;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);cursor:pointer;font-size:.92rem;font-weight:700}
 .sig-tb:hover{border-color:var(--g500);background:var(--g50)}
 .sig-editor{min-height:120px;max-height:240px;overflow-y:auto;border:1px solid var(--border);border-radius:0 0 10px 10px;padding:12px 14px;background:var(--surface);color:var(--text);outline:none}
@@ -219,6 +219,11 @@ a{text-decoration:none;color:inherit}
 .section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .section-head h3{font-size:1.04rem;font-weight:800}
 .section-head .sub{color:var(--muted);font-size:.84rem;margin-top:2px;font-weight:500}
+.collapsible-card > .section-head{cursor:pointer;position:relative;padding-right:30px;user-select:none}
+.collapsible-card > .section-head::after{content:'';position:absolute;right:8px;top:7px;width:9px;height:9px;border-right:2px solid var(--muted2);border-bottom:2px solid var(--muted2);transform:rotate(45deg);transition:transform .18s}
+.collapsible-card.collapsed > .section-head::after{transform:rotate(-45deg);top:11px}
+.collapsible-card.collapsed > .section-head{margin-bottom:0!important}
+.collapsible-card.collapsed > *:not(.section-head){display:none!important}
 .toolbar{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
 .muted{color:var(--muted)}
 .grid{display:grid;gap:16px}
@@ -2484,8 +2489,9 @@ function renderTurmaRoster(){
 let revisaoPayload=null, revisaoNome='';
 function entregasCardHTML(){
   return `<div class="card card-pad">
-    <div class="section-head" style="margin-bottom:14px"><div><h3>Entrega & validação de trabalhos</h3><div class="sub">Trabalhos submetidos pelos formandos desta turma.</div></div><button class="btn-sec btn-sm" data-act="entregas-reload">Atualizar</button></div>
-    <div class="callout info" style="margin-bottom:14px">${ic('alert',16)}<div class="ctxt">Cada formando pode submeter até <strong>2 entregas</strong>. Clique em <strong>Rever</strong> para ver o trabalho que o formando criou (clientes, propostas, etc.), ou descarregue o <strong>.json</strong>.</div></div>
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Entrega & validação de trabalhos</h3><div class="sub">Trabalhos submetidos pelos formandos desta turma.</div></div><div class="toolbar" style="gap:8px"><button class="btn-sec btn-sm" data-act="entrega-upload">${ic('upload',15)} Carregar .json</button><button class="btn-sec btn-sm" data-act="entregas-reload">Atualizar</button></div></div>
+    <input type="file" id="entregaFile" accept=".json,application/json" style="display:none">
+    <div class="callout info" style="margin-bottom:14px">${ic('alert',16)}<div class="ctxt">Cada formando pode submeter até <strong>2 entregas</strong> (chegam aqui automaticamente). Clique em <strong>Rever</strong> para ver o trabalho que o formando criou, ou <strong>Carregar .json</strong> para validar um ficheiro recebido por fora.</div></div>
     <div id="entregasBox"><div class="muted" style="padding:10px">A carregar…</div></div>
   </div>`;
 }
@@ -2503,28 +2509,27 @@ function renderEntregas(){
 }
 function baixarJSON(obj,fname){ const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=fname; a.click(); URL.revokeObjectURL(a.href); }
 function downloadEntrega(id,nome){ supaObterSubmissao(id).then(p=>baixarJSON(p,'trabalho-'+(nome||'aluno')+'.json')).catch(e=>toast('Erro',supaMsg(e),'err')); }
-function openRevisao(id,nome){
-  toast('A carregar entrega…','','info');
-  supaObterSubmissao(id).then(p=>{
-    revisaoPayload=p; revisaoNome=nome||'aluno';
-    editing={type:'__revisao'};
-    $('#modalTitle').textContent='Rever entrega — '+(nome||'');
-    $('#modalSub').textContent='Apenas leitura — não altera os teus dados';
-    $('#modal').classList.add('wide');
-    $('#modalDelete').style.display='none';
-    { const sv=$('[data-act="modal-save"]'); if(sv){ sv.style.display=''; sv.disabled=false; sv.textContent='Fechar'; } }
-    const cli=(p.clientes||[]), prop=(p.propostas||[]), emp=(p.empresas||[]);
-    const cn=cid=>{ const c=cli.find(x=>x.id===cid); return c?((c.nome||'')+' '+(c.apelido||'')).trim():'—'; };
-    $('#modalForm').innerHTML=`
-      <div class="grid cols-4" style="gap:10px;margin-bottom:14px">${kpi('Empresas',emp.length)}${kpi('Clientes',cli.length)}${kpi('Propostas',prop.length)}${kpi('Campanhas',(p.campanhas||[]).length)}</div>
-      <h3 style="font-size:.95rem;margin:6px 0 8px">Clientes (${cli.length})</h3>
-      <div class="table-wrap" style="max-height:210px;overflow:auto;margin-bottom:14px"><table><thead><tr><th>Nome</th><th>Empresa</th><th>Email</th><th>Segmento</th></tr></thead><tbody>${cli.slice(0,150).map(c=>`<tr><td>${esc(((c.nome||'')+' '+(c.apelido||'')).trim())}</td><td>${esc(c.empresa||'—')}</td><td>${esc(c.email||'—')}</td><td>${esc(c.segmento||'—')}</td></tr>`).join('')||`<tr><td colspan="4" class="muted" style="padding:10px">Sem clientes.</td></tr>`}</tbody></table></div>
-      <h3 style="font-size:.95rem;margin:6px 0 8px">Propostas (${prop.length})</h3>
-      <div class="table-wrap" style="max-height:210px;overflow:auto"><table><thead><tr><th>Número</th><th>Título</th><th>Cliente</th><th>Estado</th></tr></thead><tbody>${prop.slice(0,150).map(pr=>`<tr><td>${esc(pr.numero||'—')}</td><td>${esc(pr.titulo||'—')}</td><td>${esc(cn(pr.clienteId))}</td><td>${esc(pr.estado||'—')}</td></tr>`).join('')||`<tr><td colspan="4" class="muted" style="padding:10px">Sem propostas.</td></tr>`}</tbody></table></div>
-      <div class="toolbar" style="margin-top:14px"><button class="btn-sec btn-sm" type="button" data-act="entrega-baixar-atual">${ic('download',15)} Descarregar trabalho completo (.json)</button></div>`;
-    $('#modalBack').classList.add('open');
-  }).catch(e=>toast('Erro ao carregar',supaMsg(e),'err'));
+function renderRevisao(p,nome){
+  p=p||{}; revisaoPayload=p; revisaoNome=nome||'aluno';
+  editing={type:'__revisao'};
+  $('#modalTitle').textContent='Rever entrega — '+(nome||'');
+  $('#modalSub').textContent='Apenas leitura — não altera os teus dados';
+  $('#modal').classList.add('wide');
+  $('#modalDelete').style.display='none';
+  { const sv=$('[data-act="modal-save"]'); if(sv){ sv.style.display=''; sv.disabled=false; sv.textContent='Fechar'; } }
+  const cli=(p.clientes||[]), prop=(p.propostas||[]), emp=(p.empresas||[]);
+  const cn=cid=>{ const c=cli.find(x=>x.id===cid); return c?((c.nome||'')+' '+(c.apelido||'')).trim():'—'; };
+  $('#modalForm').innerHTML=`
+    <div class="grid cols-4" style="gap:10px;margin-bottom:14px">${kpi('Empresas',emp.length)}${kpi('Clientes',cli.length)}${kpi('Propostas',prop.length)}${kpi('Campanhas',(p.campanhas||[]).length)}</div>
+    <h3 style="font-size:.95rem;margin:6px 0 8px">Clientes (${cli.length})</h3>
+    <div class="table-wrap" style="max-height:210px;overflow:auto;margin-bottom:14px"><table><thead><tr><th>Nome</th><th>Empresa</th><th>Email</th><th>Segmento</th></tr></thead><tbody>${cli.slice(0,150).map(c=>`<tr><td>${esc(((c.nome||'')+' '+(c.apelido||'')).trim())}</td><td>${esc(c.empresa||'—')}</td><td>${esc(c.email||'—')}</td><td>${esc(c.segmento||'—')}</td></tr>`).join('')||`<tr><td colspan="4" class="muted" style="padding:10px">Sem clientes.</td></tr>`}</tbody></table></div>
+    <h3 style="font-size:.95rem;margin:6px 0 8px">Propostas (${prop.length})</h3>
+    <div class="table-wrap" style="max-height:210px;overflow:auto"><table><thead><tr><th>Número</th><th>Título</th><th>Cliente</th><th>Estado</th></tr></thead><tbody>${prop.slice(0,150).map(pr=>`<tr><td>${esc(pr.numero||'—')}</td><td>${esc(pr.titulo||'—')}</td><td>${esc(cn(pr.clienteId))}</td><td>${esc(pr.estado||'—')}</td></tr>`).join('')||`<tr><td colspan="4" class="muted" style="padding:10px">Sem propostas.</td></tr>`}</tbody></table></div>
+    <div class="toolbar" style="margin-top:14px"><button class="btn-sec btn-sm" type="button" data-act="entrega-baixar-atual">${ic('download',15)} Descarregar trabalho completo (.json)</button></div>`;
+  $('#modalBack').classList.add('open');
 }
+function openRevisao(id,nome){ toast('A carregar entrega…','','info'); supaObterSubmissao(id).then(p=>renderRevisao(p,nome)).catch(e=>toast('Erro ao carregar',supaMsg(e),'err')); }
+function revisarFicheiro(file){ if(!file) return; const r=new FileReader(); r.onload=e=>{ try{ const p=JSON.parse(e.target.result); if(typeof p!=='object'||p===null) throw 0; renderRevisao(p,(file.name||'ficheiro').replace(/\.json$/i,'')); }catch(err){ toast('Ficheiro inválido','Não parece um .json de trabalho válido','err'); } }; r.readAsText(file); }
 function rosterAdd(){
   const f=$('#rosterAddForm'); if(!f) return;
   const g=n=>((f.querySelector('[name="'+n+'"]')||{}).value||'').trim();
@@ -3383,7 +3388,27 @@ function render(){
   const fn=views[v]||views.dashboard;
   $('#content').innerHTML=`<section class="view active">${fn()}</section>`;
   if(TURMA && v==='definicoes'){ renderTurmaRoster(); renderEntregas(); }
+  if(v==='definicoes') makeDefCollapsible();
   startI18n();
+}
+/* ---------- Cards colapsáveis nas Definições ---------- */
+let defCollapsed=(()=>{ try{ return new Set(JSON.parse(localStorage.getItem('iefp-def-collapsed')||'[]')); }catch(e){ return new Set(); } })();
+function saveDefCollapsed(){ try{ localStorage.setItem('iefp-def-collapsed', JSON.stringify([...defCollapsed])); }catch(e){} }
+function makeDefCollapsible(){
+  const sec=$('#content .view'); if(!sec) return;
+  const firstRun = localStorage.getItem('iefp-def-collapsed')===null;
+  const cards=[...sec.querySelectorAll(':scope > .card.card-pad')].filter(c=>c.querySelector(':scope > .section-head'));
+  cards.forEach((card,i)=>{
+    const head=card.querySelector(':scope > .section-head');
+    card.classList.add('collapsible-card');
+    const h3=head.querySelector('h3');
+    const key=((h3?h3.textContent:head.textContent)||'').trim().slice(0,48)||('card'+i);
+    card.dataset.ckey=key;
+    if(firstRun) defCollapsed.add(key);              // 1.ª visita → tudo recolhido (página compacta)
+    if(defCollapsed.has(key)) card.classList.add('collapsed');
+    head.addEventListener('click',e=>{ if(e.target.closest('button,a,input,select,textarea,label')) return; const k=card.dataset.ckey; card.classList.toggle('collapsed'); if(card.classList.contains('collapsed')) defCollapsed.add(k); else defCollapsed.delete(k); saveDefCollapsed(); });
+  });
+  if(firstRun) saveDefCollapsed();
 }
 
 function applyTheme(t){ document.documentElement.setAttribute('data-theme',t); localStorage.setItem('iefp-theme',t); $('#themeBtn').innerHTML=ic(t==='dark'?'sun':'moon',18); }
@@ -3518,6 +3543,7 @@ document.addEventListener('click', e=>{
     case 'submit-work': openSubmitWork(); break;
     case 'download-trabalho': submitWork(); break;
     case 'entregas-reload': renderEntregas(); break;
+    case 'entrega-upload': { const fi=$('#entregaFile'); if(fi){ fi.onchange=()=>{ const file=fi.files&&fi.files[0]; if(file) revisarFicheiro(file); fi.value=''; }; fi.click(); } } break;
     case 'entrega-rever': openRevisao(el.dataset.id, el.dataset.nome); break;
     case 'entrega-baixar': downloadEntrega(el.dataset.id, el.dataset.nome); break;
     case 'entrega-baixar-atual': if(revisaoPayload) baixarJSON(revisaoPayload,'trabalho-'+revisaoNome+'.json'); break;
