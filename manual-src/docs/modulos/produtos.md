@@ -31,4 +31,4 @@ Botão **Importar** → descarrega o **modelo** (colunas `nome;familia;subfamili
     O artigo guarda o **tipo de taxa** (Normal/Intermédia/Reduzida). Ao usá-lo numa proposta, o IVA ajusta-se à **região do cliente** (Continente 23/13/6, Madeira 22/12/5, Açores 16/9/4).
 
 !!! note "Ligação às propostas"
-    Nas propostas, as linhas escolhem-se **deste catálogo** — descrição, preço e IVA preenchem-se sozinhos. Vê **[Propostas](propostas.md)**.
+    Nas propostas, as linhas escolhem-se **deste catálogo** — descrição, preço e IVA preenchem-se sozinhos. Vê **[Propostas](propostas/index.md)**.

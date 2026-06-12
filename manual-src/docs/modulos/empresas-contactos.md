@@ -78,6 +78,6 @@ Tanto em **Contactos** como em **Produtos** há **Importar** + **Modelo**:
     ---
     Cria propostas para os contactos que registaste.
 
-    [:octicons-arrow-right-24: Abrir](propostas.md)
+    [:octicons-arrow-right-24: Abrir](propostas/index.md)
 
 </div>

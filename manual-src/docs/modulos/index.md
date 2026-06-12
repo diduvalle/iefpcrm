@@ -30,7 +30,7 @@ O IEFP CRM cobre todo o ciclo de um CRM real. Acede a cada menu pelos cartões a
     ---
     Pipeline Kanban, modelos por blocos e PDF A4.
 
-    [:octicons-arrow-right-24: Saber mais](propostas.md)
+    [:octicons-arrow-right-24: Saber mais](propostas/index.md)
 
 -   <svg class="icon" viewBox="0 0 24 24" width="24" height="24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg> __Modelos de Proposta__
 
