@@ -597,6 +597,7 @@ body.present #presentExit{display:inline-flex;align-items:center;gap:6px;positio
           <span class="notif-badge" id="notifBadge" style="display:none">0</span>
           <div class="notif-panel" id="notifPanel"></div>
         </div>
+        <button class="icon-btn" data-act="help" title="Ajuda — abrir o manual deste ecrã"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></svg></button>
         <button class="icon-btn" data-act="present" title="Modo de apresentação (ecrã limpo)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
         <button class="icon-btn lang-btn" data-act="lang" title="Idioma / Language" id="langBtn">PT</button>
         <button class="icon-btn" data-act="theme" title="Tema claro/escuro" id="themeBtn"></button>
@@ -3456,6 +3457,16 @@ function makeDefCollapsible(){
   if(firstRun) saveDefCollapsed();
 }
 
+/* ---------- Ajuda contextual: abre a página do manual deste ecrã ---------- */
+const HELP_BASE='https://iefpcrm.cr0x.org/manual/';
+const HELP_MAP={
+  dashboard:'modulos/dashboard-agenda/', agenda:'modulos/dashboard-agenda/',
+  empresas:'modulos/empresas-contactos/', clientes:'modulos/empresas-contactos/',
+  produtos:'modulos/produtos/', propostas:'modulos/propostas/', modelos:'modulos/modelos/',
+  campanhas:'modulos/campanhas-email/', email:'modulos/campanhas-email/', comunicacao:'modulos/campanhas-email/',
+  analytics:'modulos/analytics/', rgpd:'rgpd/', alertas:'modulos/alertas/', definicoes:'modulos/definicoes/'
+};
+function openHelp(){ try{ const v=currentView(); window.open(HELP_BASE+(HELP_MAP[v]||''),'_blank','noopener'); }catch(e){ window.open(HELP_BASE,'_blank','noopener'); } }
 function applyTheme(t){ document.documentElement.setAttribute('data-theme',t); localStorage.setItem('iefp-theme',t); $('#themeBtn').innerHTML=ic(t==='dark'?'sun':'moon',18); }
 /* ---------- Marca & Aparência (white-label) ---------- */
 function brandCfg(){ return state.settings.brand||{}; }
@@ -3512,6 +3523,7 @@ document.addEventListener('click', e=>{
     case 'rootlogin': submitRootLogin(); break;
     case 'root-open': rootOpenTurma(el.dataset.codigo); break;
     case 'rootlogout': rootLogout(); break;
+    case 'help': openHelp(); break;
     case 'lang': { setLang(getLang()==='en'?'pt':'en'); const _lb=$('#langBtn'); if(_lb) _lb.textContent=(getLang()==='en')?'EN':'PT'; } break;
     case 'page': { const np=+el.dataset.p; if(np>=1){ _pages[el.dataset.key]=np; render(); const tw=$('.table-wrap'); if(tw) tw.scrollIntoView({block:'nearest'}); } } break;
     case 'logout': if(confirm('Terminar sessão?')) doLogout(); break;
