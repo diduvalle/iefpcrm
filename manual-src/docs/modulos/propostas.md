@@ -1,34 +1,71 @@
 # Propostas
 
-O coração comercial do CRM: do *lead* à proposta ganha, com **Kanban**, **modelos por blocos** e **exportação em PDF A4**.
+O coração comercial do CRM: do *lead* à proposta ganha, com **pipeline Kanban**, **modelos por blocos** e **exportação em PDF A4**. Esta página explica o ecrã **botão a botão**.
 
-## Pipeline em Kanban
+## O ecrã de Propostas
 
-As propostas organizam-se por **estado**, em colunas que podes arrastar:
+No topo:
 
-`Lead → Qualificação → Negociação → Ganha / Perdida`
+- **Filtro temporal** — limita as propostas a um período (Tudo / 30 dias / Trimestre / Este mês / Este ano, ou datas De–Até). Tudo na página respeita este filtro.
+- **KPIs** — número de propostas, valor do pipeline, taxa de conversão e ticket médio (os valores podem aparecer com 🔒 para papéis sem permissão financeira).
+- **Vista Lista / Kanban** e o botão **+ Proposta**.
 
-- Arrasta um cartão entre colunas para mudar o estado.
-- Ao marcar **Perdida**, a app pede o **motivo da perda** (para análise depois em *Analytics*).
-- Propostas **Ganha/Perdida** ficam bloqueadas (só leitura) — há um botão **Reabrir**.
+## O pipeline (Kanban)
 
-## Criar uma proposta
+As propostas estão em colunas por **estado**:
 
-1. Botão **+ Proposta**.
-2. Escolhe o **cliente** e adiciona **linhas** a partir do **catálogo de produtos** (descrição, preço e IVA preenchem-se sozinhos).
-3. O **IVA ajusta-se à região** do cliente (Continente / Madeira / Açores).
-4. O **desconto de loyalty** do cliente aplica-se automaticamente ao total.
+`Lead → Qualificação → Negociação → Ganha → Perdida`
 
-!!! tip "Numeração automática"
-    Cada proposta recebe um número `PROP-{ano}-{sequência}`, que reinicia a cada ano.
+- **Arrastar** um cartão entre colunas muda o estado (e regista quem/quando).
+- Cada coluna mostra o **total** ao fundo.
+- Ao largar em **Perdida**, a app pede o **motivo da perda** (ver abaixo).
+- Propostas **Ganha/Perdida** ficam **bloqueadas** (linhas só leitura) — usa **Reabrir** para voltar a Negociação.
 
-## Modelos de proposta (construtor por blocos)
+## Criar / editar uma proposta — campo a campo
 
-No módulo **Modelos** desenhas o aspeto do documento por **blocos** (cabeçalho, texto, imagem, cliente, cotação, totais, condições, assinatura). Cada proposta usa um modelo.
+Clica **+ Proposta** (ou num cartão para editar). O modal tem:
 
-## Exportar em PDF
+### Cabeçalho
+- **Número** — automático (`PROP-{ano}-{nº}`), só leitura.
+- **Cliente** — escolhe da lista de contactos. Define o **IVA por região** e o **desconto de loyalty**.
+- **Título** — nome da proposta.
+- **Validade** — data até à qual é válida.
+- **Estado** — Lead / Qualificação / Negociação / Ganha / Perdida.
 
-Na proposta, **Descarregar PDF** gera um documento **A4** pronto a imprimir/guardar — com o teu modelo, logótipo e dados do cliente.
+### Linhas (artigos)
+Cada linha:
 
-!!! note "Pré-visualizar e enviar"
-    Na barra da proposta tens **Pré-visualizar**, **Descarregar PDF** e **Enviar por email** (com o PDF como referência no texto).
+- **Artigo** — escolhido do **catálogo** (agrupado por família › subfamília). Ao escolher, preenche **descrição** (travada), **preço** e **IVA**.
+- **Quantidade**.
+- **IVA** — ajusta-se à **região do cliente**; se uma linha tiver IVA de outra região, aparece um aviso com **“Corrigir para {região}”**.
+- **➕** adiciona linha, **🗑️** remove.
+
+!!! warning "Linhas têm de vir do catálogo"
+    Não há descrição livre: cada linha aponta para um **produto** (garante consistência de preços). Cria primeiro os artigos em **[Produtos](produtos.md)**.
+
+### Totais
+Calculados automaticamente: **subtotal**, **desconto de loyalty** (do nível do cliente), **IVA** (recalculado proporcionalmente) e **total**.
+
+### Motivo da perda *(só quando Estado = Perdida)*
+- **Motivo** — Preço / Concorrência / Timing / Sem orçamento / Sem resposta / Necessidade mudou / Funcionalidades / Outro.
+- **Nota** livre. Alimenta a **Análise de perdas** em [Analytics](analytics.md).
+
+### Rodapé do modal — barra de ações
+- **Pré-visualizar** — abre a folha como vai sair no PDF.
+- **Descarregar PDF** — gera o documento A4 (ver abaixo).
+- **Enviar por email** — abre a janela de envio com o template e o PDF como referência.
+- **Guardar**.
+
+## Exportar em PDF (A4)
+
+**Descarregar PDF** abre a janela de impressão do browser → escolhe **Guardar como PDF**. O documento usa o **modelo** da proposta (cabeçalho, logótipo, cotação, totais, condições, assinatura) e os **dados do cliente**. O rodapé fica fixo no fundo da página.
+
+!!! tip "Modelo de proposta"
+    O aspeto do PDF define-se em **[Modelos de Proposta](modelos.md)** (construtor por blocos). Cada proposta pode usar um modelo diferente.
+
+## Auditoria
+
+Cada proposta guarda **quem criou/alterou e quando** — visível no rodapé do modal.
+
+!!! note "Permissões"
+    Os **formandos** criam e exportam propostas. Valores financeiros podem estar ocultos (🔒) para papéis configurados sem acesso financeiro, sem bloquear o trabalho no editor.
