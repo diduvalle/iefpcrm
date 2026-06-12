@@ -1,0 +1,44 @@
+name: Build manual
+
+# Constrói o site do manual (MkDocs Material) na nuvem e publica o
+# resultado em /manual, servido por GitHub Pages em iefpcrm.cr0x.org/manual.
+# Não é preciso Python na máquina local — só editar markdown em manual-src/ e fazer push.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "manual-src/**"
+      - ".github/workflows/manual.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Instalar MkDocs Material
+        run: pip install "mkdocs-material>=9.5"
+
+      - name: Construir o manual (-> /manual)
+        run: mkdocs build --strict --config-file manual-src/mkdocs.yml
+
+      - name: Publicar /manual no repositório
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add manual
+          if git diff --staged --quiet; then
+            echo "Sem alterações no manual."
+          else
+            git commit -m "build: manual [skip ci]"
+            git push
+          fi

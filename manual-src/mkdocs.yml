@@ -1,0 +1,91 @@
+site_name: IEFP CRM — Manual
+site_url: https://iefpcrm.cr0x.org/manual/
+site_description: Manual da plataforma IEFP CRM — guia para formadores e formandos das UFCD 10868 e 10870.
+site_author: Diogo du Valle
+copyright: IEFP CRM · Plataforma de Formação
+
+docs_dir: docs
+site_dir: ../manual
+
+theme:
+  name: material
+  language: pt-BR
+  logo: assets/logo.png
+  favicon: assets/favicon.png
+  icon:
+    repo: octicons/mark-github-16
+  font:
+    text: Inter
+    code: JetBrains Mono
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tooltips
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: Mudar para modo escuro
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunny
+        name: Mudar para modo claro
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - footnotes
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - toc:
+      permalink: true
+      title: Nesta página
+
+extra:
+  social:
+    - icon: octicons/globe-16
+      link: https://iefpcrm.cr0x.org
+      name: Abrir a plataforma
+
+nav:
+  - Início: index.md
+  - Primeiros passos:
+      - Sou Formador: primeiros-passos/formador.md
+      - Sou Formando: primeiros-passos/formando.md
+  - Para o Formador:
+      - Gerir a turma: formador/gerir-turma.md
+      - Entrega & validação: formador/entregas.md
+      - Email & Marca: formador/email-marca.md
+      - Suporte (root): formador/suporte.md
+  - Para o Formando:
+      - Trabalhar no CRM: formando/trabalhar.md
+      - Submeter o trabalho: formando/submeter.md
+      - Recuperar a password: formando/recuperar.md
+  - Funcionalidades:
+      - Visão geral dos módulos: modulos/index.md
+  - RGPD & Pedagogia: rgpd.md
+  - FAQ: faq.md
+  - Glossário: glossario.md
