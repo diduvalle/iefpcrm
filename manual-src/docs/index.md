@@ -4,9 +4,18 @@ hide:
   - toc
 ---
 
+<div class="iefp-hero" markdown>
+
 # Manual do IEFP CRM
 
 Bem-vindo ao manual da **plataforma IEFP CRM** — a ferramenta pedagógica de **CRM** e **Proteção de Dados (RGPD)** das UFCD **10868 — CRM Analytics** e **10870 — Administração de CRM**.
+
+<div class="iefp-hero-actions">
+<a class="hb-solid" href="https://iefpcrm.cr0x.org" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"/></svg>Abrir a plataforma</a>
+<a class="hb-out" href="tutoriais/primeira-proposta/"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4z"/></svg>Tutorial: a 1.ª proposta</a>
+</div>
+
+</div>
 
 Aqui encontras tudo o que precisas, organizado em **duas vertentes**. Escolhe o teu caminho:
 
