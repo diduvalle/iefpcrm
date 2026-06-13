@@ -3,9 +3,7 @@ site_url: https://iefpcrm.cr0x.org/manual/
 site_description: Manual da plataforma IEFP CRM — guia para formadores e formandos das UFCD 10868 e 10870.
 site_author: Diogo du Valle
 copyright: >
-  IEFP CRM · Plataforma de Formação · Criado por
-  <a class="iefp-credit-link" href="https://www.linkedin.com/in/ldvale/" target="_blank" rel="noopener">Diogo du Valle
-  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+  IEFP CRM · Plataforma de Formação<span class="iefp-sep"> · </span><a class="made-by" href="https://www.linkedin.com/in/ldvale/" target="_blank" rel="noopener" title="LinkedIn — Diogo du Valle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg><span>Created by Diogo du Valle</span></a>
 
 docs_dir: docs
 site_dir: ../manual
