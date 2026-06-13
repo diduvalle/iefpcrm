@@ -1,5 +1,9 @@
 # Produtos
 
+![Catálogo de produtos](../assets/screens/produtos.png)
+
+*O catálogo por família, subfamília e artigo.*
+
 O catálogo que alimenta as **linhas das propostas**. Está organizado em três níveis: **Família → Subfamília → Artigo**.
 
 ## A estrutura

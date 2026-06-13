@@ -1,5 +1,9 @@
 # Campanhas & Email
 
+![Campanhas & Email](../assets/screens/campanhas.png)
+
+*Planeamento de campanhas e comunicação por email.*
+
 Dois menus: **Campanhas** (planeamento de marketing) e **Email/Comunicação** (envio e acompanhamento).
 
 ---

@@ -1,5 +1,9 @@
 # Modelos de Proposta
 
+![Construtor de modelos](../assets/screens/modelos.png)
+
+*O construtor de modelos de proposta, por blocos.*
+
 O **construtor por blocos** que define o aspeto do PDF da proposta. Cada proposta usa um modelo; podes ter vários (ex.: um simples, um institucional).
 
 ## O editor

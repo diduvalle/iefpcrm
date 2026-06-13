@@ -1,5 +1,9 @@
 # Campaigns & Email
 
+![Campaigns & Email](../assets/screens/campanhas.png)
+
+*Campaign planning and email communication.*
+
 Two menus: **Campaigns** (marketing planning) and **Email/Communication** (sending and follow-up).
 
 ---

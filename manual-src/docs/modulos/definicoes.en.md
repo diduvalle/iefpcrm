@@ -1,5 +1,9 @@
 # Settings
 
+![Settings](../assets/screens/definicoes.png)
+
+*Settings, with collapsible cards (several admin-only).*
+
 The **system configuration** (System group). The cards are **collapsible** — click the title to open/close; on the first visit they are collapsed to keep the page compact. Several cards are **administrators only** (*Admin* badge).
 
 ## Available cards

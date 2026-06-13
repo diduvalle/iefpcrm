@@ -24,7 +24,7 @@
     The company appears in the list. Click it to see the **360º view** (no contacts yet for now).
 
 !!! note "📷 Screenshot"
-    *(Capture `empresas.png` — the company form filled in.)*
+    ![Creating a company](../assets/screens/empresas.png)
 
 ---
 

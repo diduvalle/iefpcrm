@@ -1,5 +1,9 @@
 # Products
 
+![Product catalog](../assets/screens/produtos.png)
+
+*The catalog by family, subfamily and item.*
+
 The catalog that feeds the **proposal lines**. It is organized into three levels: **Family → Subfamily → Item**.
 
 ## The structure

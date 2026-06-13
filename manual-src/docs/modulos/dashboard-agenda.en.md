@@ -24,6 +24,10 @@ The first page after you log in — the **business overview**. Everything respec
 
 ## Calendar
 
+![Calendar — schedule and tasks](../assets/screens/agenda.png)
+
+*The Calendar: monthly/weekly schedule and tasks linked to clients.*
+
 Calendar and **tasks** associated with customers.
 
 ### Views

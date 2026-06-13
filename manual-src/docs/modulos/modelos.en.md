@@ -1,5 +1,9 @@
 # Proposal Templates
 
+![Template builder](../assets/screens/modelos.png)
+
+*The block-based proposal template builder.*
+
 The **block builder** that defines how the proposal PDF looks. Each proposal uses a template; you can have several (e.g.: a simple one, an institutional one).
 
 ## The editor

@@ -24,6 +24,10 @@ A primeira página depois de entrares — a **visão geral** do negócio. Tudo r
 
 ## Agenda
 
+![Agenda — calendário e tarefas](../assets/screens/agenda.png)
+
+*A Agenda: calendário mensal/semanal e tarefas ligadas a clientes.*
+
 Calendário e **tarefas** associadas a clientes.
 
 ### Vistas

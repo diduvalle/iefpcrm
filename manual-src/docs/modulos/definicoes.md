@@ -1,5 +1,9 @@
 # Definições
 
+![Definições](../assets/screens/definicoes.png)
+
+*As Definições, com cartões colapsáveis (vários só de administrador).*
+
 A **configuração do sistema** (grupo Sistema). Os cartões são **colapsáveis** — clica no título para abrir/fechar; na primeira visita estão recolhidos para a página ficar compacta. Vários cartões são **só para administradores** (selo *Admin*).
 
 ## Cartões disponíveis
