@@ -1,6 +1,6 @@
 /* ===========================================================
-   IEFP CRM — Manual · palete + UI sincronizados com a app
-   (mesma ramp verde do index.html, para parecer uma extensão)
+   IEFP CRM — Manual · design system 1:1 com a app
+   (tokens, sombras, raios, sidebar, cards e tabelas do index.html)
    =========================================================== */
 
 /* --- Cor primária (verde IEFP) --- */
@@ -18,250 +18,367 @@
   --md-accent-bg-color--light:      rgba(255,255,255,.7);
 }
 
-/* Ramp da app */
+/* --- Tokens da app (copiados do index.html) --- */
 :root {
   --iefp-g900:#005a32; --iefp-g800:#006B3C; --iefp-g700:#00894b;
-  --iefp-g600:#00A651; --iefp-g100:#E8F5EE; --iefp-g50:#f3faf5;
+  --iefp-g600:#00A651; --iefp-g400:#3cba6f; --iefp-g300:#8dd3a6;
+  --iefp-g100:#E8F5EE; --iefp-g50:#f3faf5;
   --iefp-accent:#7AC143;
-  --iefp-shadow: 0 1px 2px rgba(16,40,28,.05);
-  --iefp-shadow-lg: 0 14px 34px rgba(0,107,60,.14);
+  --iefp-bg:#eef2f0; --iefp-surface:#ffffff; --iefp-surface2:#f5f9f6; --iefp-surface3:#eef4f0;
+  --iefp-border:#dbe6df; --iefp-text:#15302a; --iefp-muted:#5f746b; --iefp-muted2:#86978d;
+  --iefp-shadow:0 1px 2px rgba(0,60,33,.04),0 4px 14px rgba(0,60,33,.06);
+  --iefp-shadow-lg:0 18px 48px rgba(0,60,33,.16);
+  --iefp-r:12px; --iefp-rl:18px; --iefp-rs:9px;
   --md-text-font: "Inter";
 }
+[data-md-color-scheme="slate"] {
+  --iefp-bg:#0d1411; --iefp-surface:#141d18; --iefp-surface2:#19241e; --iefp-surface3:#1f2c24;
+  --iefp-border:#26392f; --iefp-text:#e7f3ec; --iefp-muted:#9fb6a9; --iefp-muted2:#6f8377;
+  --iefp-g100:#16271d; --iefp-g50:#13201a;
+  --iefp-shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
+  --iefp-shadow-lg:0 24px 60px rgba(0,0,0,.55);
+  --md-primary-fg-color: #00A651;
+  --md-default-bg-color: var(--iefp-bg);
+  --md-default-fg-color: var(--iefp-text);
+}
 
 /* ===========================================================
-   1. Tipografia — maior, mais respirada, mais legível
+   1. Canvas da app: fundo cinza-esverdeado + conteúdo em card
    =========================================================== */
-.md-typeset {
-  font-size: .84rem;
-  line-height: 1.74;
-  color: #243a30;
-}
-[data-md-color-scheme="slate"] .md-typeset { color: #d7e4dd; }
+[data-md-color-scheme="default"] { --md-default-bg-color: var(--iefp-bg); }
+.md-main { background: var(--iefp-bg); }
 
-/* Largura de conteúdo um pouco mais generosa */
-@media screen and (min-width: 76.25em) {
-  .md-grid { max-width: 65rem; }
+.md-content {
+  background: var(--iefp-surface);
+  border: 1px solid var(--iefp-border);
+  border-radius: var(--iefp-rl);
+  box-shadow: var(--iefp-shadow);
+  margin: 1.1rem .4rem 2rem;
+  animation: iefp-fade .26s ease;
 }
-
-.md-typeset p { margin: 0 0 1em; }
-.md-typeset ul, .md-typeset ol { margin-bottom: 1em; }
-.md-typeset li { margin-bottom: .35em; }
-
-/* Títulos com escala forte e marca verde */
-.md-typeset h1 {
-  font-size: 2.15rem; font-weight: 800; line-height: 1.12;
-  letter-spacing: -.02em; margin: 0 0 .7rem;
-  color: var(--iefp-g900);
+.md-content__inner { padding: 1.1rem 1.6rem 1.4rem; margin: 0; }
+.md-content__inner::before { display: none; }
+@media screen and (max-width: 44.984375em) {
+  .md-content { margin: .6rem .35rem 1.4rem; }
+  .md-content__inner { padding: .9rem 1rem 1.2rem; }
 }
-.md-typeset h2 {
-  font-size: 1.5rem; font-weight: 750; line-height: 1.2;
-  letter-spacing: -.01em; margin: 2.6rem 0 1rem;
-  padding-bottom: .35rem; border-bottom: 2px solid var(--iefp-g100);
-  color: var(--iefp-g800);
-}
-.md-typeset h3 { font-size: 1.18rem; font-weight: 700; margin-top: 1.8rem; color: var(--iefp-g900); }
-.md-typeset h4 { font-size: 1.02rem; font-weight: 700; }
-[data-md-color-scheme="slate"] .md-typeset h1,
-[data-md-color-scheme="slate"] .md-typeset h3,
-[data-md-color-scheme="slate"] .md-typeset h4 { color: #e7f3ec; }
-[data-md-color-scheme="slate"] .md-typeset h2 { color: var(--iefp-g600); border-bottom-color: rgba(0,166,81,.25); }
+@keyframes iefp-fade { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
 
-/* Parágrafo de entrada (logo a seguir ao H1) — destaque suave */
-.md-typeset h1 + p {
-  font-size: 1.06rem; line-height: 1.6; font-weight: 400;
-  color: var(--md-default-fg-color--light);
-}
+/* Largura de leitura confortável */
+@media screen and (min-width: 76.25em) { .md-grid { max-width: 68rem; } }
 
-/* Links */
-.md-typeset a { color: var(--iefp-g700); text-decoration: none; font-weight: 500; }
-.md-typeset a:hover { color: var(--iefp-g600); text-decoration: underline; text-underline-offset: 3px; }
+/* Scrollbars como na app */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--iefp-border); border-radius: 20px; border: 2px solid var(--iefp-bg); }
+::-webkit-scrollbar-thumb:hover { background: var(--iefp-muted2); }
+::selection { background: rgba(0,166,81,.22); }
 
 /* ===========================================================
-   2. Cabeçalho / navegação
+   2. Header claro com blur (como o .header da app)
    =========================================================== */
-.md-header { background: linear-gradient(90deg, var(--iefp-g900), #04492c); box-shadow: 0 2px 10px rgba(0,0,0,.12); }
-.md-tabs   { background: var(--iefp-g900); }
-.md-header__button.md-logo img { height: 32px; width: auto; }
-.md-header__title { font-weight: 700; }
+.md-header {
+  background: color-mix(in srgb, var(--iefp-surface) 86%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: var(--iefp-text);
+  border-bottom: 1px solid var(--iefp-border);
+  box-shadow: none;
+}
+.md-header[data-md-state="shadow"],
+.md-header--shadow { box-shadow: 0 4px 14px rgba(0,60,33,.07); }
+.md-header__title { font-weight: 800; font-size: .85rem; color: var(--iefp-text); }
+.md-header__button { color: var(--iefp-text); }
+.md-header__button:hover { color: var(--iefp-g700); opacity: 1; }
+.md-header__button.md-logo { padding: .2rem; }
+.md-header__button.md-logo img { height: 34px; width: auto; }
 
-/* Pesquisa — input mais visível e arredondado */
-.md-search__form { border-radius: 12px; height: 2.3rem; box-shadow: none; }
-.md-search__input { font-size: .82rem; }
-.md-search__input::placeholder { color: rgba(255,255,255,.75); }
-[data-md-toggle="search"]:checked ~ .md-header .md-search__form { border-radius: 12px 12px 0 0; }
-.md-search__output { border-radius: 0 0 12px 12px; }
+/* Pesquisa do header = .search-inp da app */
+.md-search__form {
+  background: var(--iefp-surface2);
+  border: 1px solid var(--iefp-border);
+  border-radius: var(--iefp-rs);
+  height: 1.9rem;
+  box-shadow: none;
+  transition: border .14s, box-shadow .14s;
+}
+.md-search__form:hover { background: var(--iefp-surface2); border-color: var(--iefp-g300); }
+[data-md-toggle="search"]:checked ~ .md-header .md-search__form {
+  background: var(--iefp-surface);
+  border-color: var(--iefp-g400);
+  box-shadow: 0 0 0 3px rgba(0,166,81,.14);
+  border-radius: var(--iefp-rs) var(--iefp-rs) 0 0;
+}
+.md-search__input { font-size: .74rem; color: var(--iefp-text); }
+.md-search__input::placeholder { color: var(--iefp-muted2); }
+.md-search__input + .md-search__icon { color: var(--iefp-muted); }
+.md-search__output { border-radius: 0 0 var(--iefp-rs) var(--iefp-rs); box-shadow: var(--iefp-shadow-lg); }
+.md-search-result__meta { background: var(--iefp-surface2); color: var(--iefp-muted); }
 
-/* Sidebar à esquerda — itens com aspeto "app" */
-.md-nav { font-size: .76rem; }
-.md-nav__title { letter-spacing: .04em; text-transform: uppercase; font-size: .68rem; color: var(--md-default-fg-color--light); }
-.md-nav__link:hover { color: var(--iefp-g600); }
+/* ===========================================================
+   3. Sidebar esquerda = painel verde-escuro da app
+   =========================================================== */
 @media screen and (min-width: 76.25em) {
-  .md-sidebar--primary .md-nav__list .md-nav__link {
-    border-radius: 8px; padding: .32rem .55rem; margin: 1px 0;
+  .md-sidebar--primary .md-sidebar__scrollwrap {
+    background: linear-gradient(180deg, var(--iefp-g900), #04492c 60%, #033c24);
+    border-radius: var(--iefp-rl);
+    margin: 1.1rem 0 1.4rem .2rem;
+    padding: .55rem .45rem;
+    box-shadow: var(--iefp-shadow);
+    scrollbar-color: rgba(255,255,255,.25) transparent;
+  }
+  .md-sidebar--primary .md-sidebar__scrollwrap::-webkit-scrollbar { width: 6px; }
+  .md-sidebar--primary .md-sidebar__scrollwrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); border: 0; }
+
+  /* Grupos (1. Primeiros passos, …) = .nav-group da app */
+  .md-sidebar--primary .md-nav__item--section > .md-nav__link,
+  .md-sidebar--primary .md-nav__title {
+    font-size: .56rem; text-transform: uppercase; letter-spacing: .12em;
+    color: rgba(255,255,255,.5) !important; font-weight: 700;
+    padding: .6rem .55rem .15rem; background: transparent; box-shadow: none;
+  }
+  .md-sidebar--primary .md-nav__title .md-logo { display: none; }
+
+  /* Links = .nav-link da app */
+  .md-sidebar--primary .md-nav__link {
+    color: rgba(255,255,255,.85);
+    border-radius: 10px;
+    padding: .34rem .55rem;
+    margin: 1px 0;
+    font-weight: 600;
+    font-size: .7rem;
+    position: relative;
     transition: background .14s, color .14s;
   }
-  .md-sidebar--primary .md-nav__link:hover { background: var(--iefp-g50); }
-  .md-sidebar--primary .md-nav__link--active {
-    background: var(--iefp-g100); color: var(--iefp-g800); font-weight: 700;
+  .md-sidebar--primary .md-nav__link:hover { background: rgba(255,255,255,.1); color: #fff; }
+  .md-sidebar--primary .md-nav__link--active,
+  .md-sidebar--primary .md-nav__link[aria-current="page"] {
+    background: rgba(255,255,255,.16); color: #fff; font-weight: 700;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
   }
-  [data-md-color-scheme="slate"] .md-sidebar--primary .md-nav__link:hover { background: rgba(0,166,81,.10); }
-  [data-md-color-scheme="slate"] .md-sidebar--primary .md-nav__link--active { background: rgba(0,166,81,.16); color: var(--iefp-g600); }
+  .md-sidebar--primary .md-nav__item:not(.md-nav__item--section) > .md-nav__link--active::before {
+    content: ""; position: absolute; left: -0.45rem; top: 50%; transform: translateY(-50%);
+    width: 4px; height: 20px; background: var(--iefp-accent); border-radius: 0 4px 4px 0;
+  }
+  .md-sidebar--primary .md-nav__icon,
+  .md-sidebar--primary .md-nav__link::after { color: rgba(255,255,255,.6); }
 }
 
-/* TOC à direita: marcador ativo verde */
+/* TOC à direita */
+.md-nav--secondary .md-nav__title {
+  font-size: .58rem; text-transform: uppercase; letter-spacing: .1em;
+  color: var(--iefp-muted); font-weight: 700; background: transparent; box-shadow: none;
+}
+.md-nav--secondary { font-size: .68rem; }
+.md-nav--secondary .md-nav__link { color: var(--iefp-muted); }
+.md-nav--secondary .md-nav__link:hover { color: var(--iefp-g600); }
 .md-nav--secondary .md-nav__link--active { color: var(--iefp-g700); font-weight: 700; }
 
 /* ===========================================================
-   3. Cartões de menu (grid cards) — o destaque das landings
+   4. Tipografia (escala da app)
    =========================================================== */
-.md-typeset .grid.cards { gap: 1rem; margin: 1.2rem 0; }
-.md-typeset .grid.cards > ul { gap: 1rem; }
+.md-typeset { font-size: .8rem; line-height: 1.7; color: var(--iefp-text); }
+.md-typeset p { margin: 0 0 1em; }
+.md-typeset ul, .md-typeset ol { margin-bottom: 1em; }
+.md-typeset li { margin-bottom: .3em; }
+
+.md-typeset h1 {
+  font-size: 1.7rem; font-weight: 800; line-height: 1.15;
+  letter-spacing: -.02em; margin: 0 0 .6rem; color: var(--iefp-g900);
+}
+.md-typeset h2 {
+  font-size: 1.22rem; font-weight: 800; line-height: 1.25;
+  letter-spacing: -.01em; margin: 2.2rem 0 .9rem;
+  padding-bottom: .3rem; border-bottom: 2px solid var(--iefp-g100);
+  color: var(--iefp-g800);
+}
+.md-typeset h3 { font-size: .98rem; font-weight: 750; margin-top: 1.7rem; color: var(--iefp-text); }
+.md-typeset h4 { font-size: .85rem; font-weight: 700; }
+[data-md-color-scheme="slate"] .md-typeset h1 { color: #e7f3ec; }
+[data-md-color-scheme="slate"] .md-typeset h2 { color: var(--iefp-g600); border-bottom-color: rgba(0,166,81,.22); }
+
+/* Parágrafo de entrada */
+.md-typeset h1 + p { font-size: .92rem; line-height: 1.6; color: var(--iefp-muted); }
+
+/* Links */
+.md-typeset a { color: var(--iefp-g700); font-weight: 600; }
+.md-typeset a:hover { color: var(--iefp-g600); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ===========================================================
+   5. Cartões de menu (grid cards) = .card + .kpi da app
+   =========================================================== */
+.md-typeset .grid.cards { gap: .8rem; margin: 1.1rem 0; }
+.md-typeset .grid.cards > ul { gap: .8rem; }
 .md-typeset .grid.cards > ul > li,
 .md-typeset .grid > .card {
-  border: 1px solid var(--md-default-fg-color--lightest);
-  border-radius: 16px;
-  padding: 1.4rem 1.4rem 1.2rem;
-  background: linear-gradient(180deg, #ffffff, #fbfdfb);
+  border: 1px solid var(--iefp-border);
+  border-radius: var(--iefp-rl);
+  padding: 1.15rem 1.2rem 1rem;
+  background: var(--iefp-surface);
   box-shadow: var(--iefp-shadow);
   transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
 }
-[data-md-color-scheme="slate"] .md-typeset .grid.cards > ul > li {
-  background: linear-gradient(180deg, #15231c, #111c16);
-  border-color: rgba(255,255,255,.07);
-}
 .md-typeset .grid.cards > ul > li:hover,
 .md-typeset .grid > .card:hover {
-  transform: translateY(-4px);
-  border-color: var(--iefp-g600);
-  box-shadow: var(--iefp-shadow-lg);
+  transform: translateY(-3px);
+  border-color: var(--iefp-g400);
+  box-shadow: 0 16px 40px rgba(0,107,60,.16);
 }
 
-/* Ícone do cartão = "badge" quadrado com fundo verde-claro */
+/* Ícone do cartão = .kpi-ic / .mini-item .ic da app */
 .md-typeset .grid.cards svg.icon {
   display: inline-flex; box-sizing: border-box;
-  width: 48px; height: 48px; padding: 11px;
-  border-radius: 14px;
+  width: 40px; height: 40px; padding: 9px;
+  border-radius: 10px;
   background: var(--iefp-g100); color: var(--iefp-g700);
-  margin: 0 0 .7rem; vertical-align: top;
+  margin: 0 0 .55rem; vertical-align: top;
   stroke-width: 2;
-  transition: background .18s ease, color .18s ease, transform .18s ease;
+  transition: background .18s ease, color .18s ease;
 }
-.md-typeset .grid.cards > ul > li:hover svg.icon {
-  background: var(--iefp-g600); color: #fff; transform: scale(1.05);
-}
+.md-typeset .grid.cards > ul > li:hover svg.icon { background: var(--iefp-g600); color: #fff; }
 .md-typeset .grid.cards strong {
-  display: block; font-size: 1.06rem; font-weight: 750;
-  color: var(--iefp-g900); margin-bottom: .1rem;
+  display: block; font-size: .92rem; font-weight: 800;
+  color: var(--iefp-text); margin-bottom: .05rem;
 }
-[data-md-color-scheme="slate"] .md-typeset .grid.cards strong { color: #e7f3ec; }
-.md-typeset .grid.cards hr {
-  margin: .7rem 0; border: 0; border-top: 1px solid var(--md-default-fg-color--lightest);
-}
-.md-typeset .grid.cards p { font-size: .8rem; line-height: 1.55; color: var(--md-default-fg-color--light); }
-/* Link de ação ("Abrir →") em destaque */
+.md-typeset .grid.cards hr { margin: .6rem 0; border: 0; border-top: 1px solid var(--iefp-border); }
+.md-typeset .grid.cards p { font-size: .72rem; line-height: 1.55; color: var(--iefp-muted); }
 .md-typeset .grid.cards li > p:last-child > a {
-  display: inline-flex; align-items: center; gap: .35rem;
-  font-weight: 700; color: var(--iefp-g700);
+  display: inline-flex; align-items: center; gap: .3rem;
+  font-weight: 700; font-size: .74rem; color: var(--iefp-g700);
 }
-.md-typeset .grid.cards li > p:last-child > a:hover { color: var(--iefp-g600); text-decoration: none; gap: .55rem; }
+.md-typeset .grid.cards li > p:last-child > a:hover { color: var(--iefp-g600); text-decoration: none; gap: .5rem; }
 
 /* ===========================================================
-   4. Admonitions / details — caixas suaves e arredondadas
+   6. Hero da homepage (gradiente da app)
+   =========================================================== */
+.iefp-hero {
+  position: relative; overflow: hidden;
+  border-radius: var(--iefp-rl);
+  padding: 1.6rem 1.7rem 1.5rem;
+  margin: .2rem 0 1.4rem;
+  background: linear-gradient(125deg, var(--iefp-g800), var(--iefp-g600) 55%, var(--iefp-g400));
+  color: #fff;
+  box-shadow: 0 16px 40px rgba(0,107,60,.24);
+}
+.iefp-hero::after {
+  content: ""; position: absolute; right: -60px; top: -60px;
+  width: 280px; height: 280px;
+  background: radial-gradient(circle, rgba(255,255,255,.16), transparent 70%);
+  pointer-events: none;
+}
+.md-typeset .iefp-hero h1 { color: #fff; margin: 0 0 .35rem; font-size: 1.65rem; }
+.md-typeset .iefp-hero p { color: rgba(255,255,255,.9); max-width: 56ch; margin: 0; font-size: .82rem; position: relative; }
+.iefp-hero-actions { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: 1rem; position: relative; }
+.md-typeset .iefp-hero-actions a {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 15px; border-radius: 10px; font-weight: 700; font-size: .74rem;
+  text-decoration: none !important; transition: transform .08s, background .15s;
+}
+.md-typeset .iefp-hero-actions a:active { transform: translateY(1px); }
+.md-typeset .iefp-hero-actions .hb-solid { background: #fff; color: var(--iefp-g800); }
+.md-typeset .iefp-hero-actions .hb-solid:hover { background: #f0f0f0; color: var(--iefp-g900); }
+.md-typeset .iefp-hero-actions .hb-out {
+  background: rgba(255,255,255,.16); color: #fff; border: 1px solid rgba(255,255,255,.45);
+}
+.md-typeset .iefp-hero-actions .hb-out:hover { background: rgba(255,255,255,.28); color: #fff; }
+.iefp-hero-actions svg {
+  width: 16px; height: 16px; fill: none; stroke: currentColor;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none;
+}
+
+/* ===========================================================
+   7. Admonitions = callouts da app
    =========================================================== */
 .md-typeset .admonition,
 .md-typeset details {
-  border: 1px solid var(--md-default-fg-color--lightest);
+  border: 1px solid var(--iefp-border);
   border-left-width: 4px;
-  border-radius: 12px;
+  border-radius: var(--iefp-r);
   box-shadow: var(--iefp-shadow);
-  font-size: .8rem;
+  font-size: .74rem;
+  background: var(--iefp-surface);
 }
 .md-typeset .admonition-title,
-.md-typeset summary { font-weight: 700; letter-spacing: -.005em; padding-top: .55rem; padding-bottom: .55rem; }
-.md-typeset .admonition > :last-child { margin-bottom: .6rem; }
+.md-typeset summary { font-weight: 700; padding-top: .5rem; padding-bottom: .5rem; }
+.md-typeset .admonition > :last-child { margin-bottom: .55rem; }
 
-/* note/info em verde de marca (em vez do azul default) */
-.md-typeset .admonition.note, .md-typeset details.note,
-.md-typeset .admonition.info, .md-typeset details.info,
-.md-typeset .admonition.abstract, .md-typeset details.abstract {
-  border-left-color: var(--iefp-g600);
-}
-.md-typeset .note > .admonition-title, .md-typeset .info > .admonition-title,
-.md-typeset .abstract > .admonition-title,
-.md-typeset .note > summary, .md-typeset .info > summary, .md-typeset .abstract > summary {
-  background: var(--iefp-g50);
-}
-[data-md-color-scheme="slate"] .md-typeset .note > .admonition-title,
-[data-md-color-scheme="slate"] .md-typeset .info > .admonition-title { background: rgba(0,166,81,.10); }
-.md-typeset .note > .admonition-title::before, .md-typeset .info > .admonition-title::before,
-.md-typeset .abstract > .admonition-title::before { background-color: var(--iefp-g700); }
-
-/* tip em verde-claro */
-.md-typeset .admonition.tip, .md-typeset details.tip { border-left-color: var(--iefp-accent); }
-.md-typeset .tip > .admonition-title, .md-typeset .tip > summary { background: rgba(122,193,67,.12); }
+.md-typeset :is(.admonition, details):is(.note, .info, .abstract) { border-left-color: var(--iefp-g600); }
+.md-typeset :is(.note, .info, .abstract) > :is(.admonition-title, summary) { background: var(--iefp-g50); }
+.md-typeset :is(.note, .info, .abstract) > :is(.admonition-title, summary)::before { background-color: var(--iefp-g700); }
+.md-typeset :is(.admonition, details).tip { border-left-color: var(--iefp-accent); }
+.md-typeset .tip > :is(.admonition-title, summary) { background: rgba(122,193,67,.12); }
+.md-typeset :is(.admonition, details).warning { border-left-color: #d97706; }
+.md-typeset .warning > :is(.admonition-title, summary) { background: #fef3e2; }
+[data-md-color-scheme="slate"] .md-typeset .warning > :is(.admonition-title, summary) { background: #3a2c12; }
 
 /* ===========================================================
-   5. Tabelas — cabeçalho verde, zebra, cantos suaves
+   8. Tabelas = .table-wrap da app (header discreto uppercase)
    =========================================================== */
 .md-typeset table:not([class]) {
-  border: 1px solid var(--md-default-fg-color--lightest);
-  border-radius: 12px; overflow: hidden;
+  border: 1px solid var(--iefp-border);
+  border-radius: var(--iefp-r); overflow: hidden;
   box-shadow: var(--iefp-shadow);
-  font-size: .78rem;
+  font-size: .74rem;
+  background: var(--iefp-surface);
 }
 .md-typeset table:not([class]) th {
-  background: var(--iefp-g800); color: #fff;
-  font-weight: 700; border: 0; padding: .7em 1em;
+  background: var(--iefp-surface2); color: var(--iefp-muted);
+  font-size: .62rem; text-transform: uppercase; letter-spacing: .04em;
+  font-weight: 700; border: 0; padding: .65em 1.1em;
 }
-.md-typeset table:not([class]) td { border: 0; border-top: 1px solid var(--md-default-fg-color--lightest); padding: .6em 1em; }
-.md-typeset table:not([class]) tbody tr:nth-child(even),
-.md-typeset table:not([class]) tr:nth-child(even) { background: var(--iefp-g50); }
-[data-md-color-scheme="slate"] .md-typeset table:not([class]) tr:nth-child(even) { background: rgba(0,166,81,.06); }
-.md-typeset table:not([class]) tr:hover { background: var(--iefp-g100); }
-[data-md-color-scheme="slate"] .md-typeset table:not([class]) tr:hover { background: rgba(0,166,81,.12); }
+.md-typeset table:not([class]) td {
+  border: 0; border-top: 1px solid var(--iefp-border); padding: .7em 1.1em;
+}
+.md-typeset table:not([class]) tbody tr { transition: background .12s; }
+.md-typeset table:not([class]) tbody tr:hover { background: var(--iefp-surface2); }
 
 /* ===========================================================
-   6. Código — chips inline verdes, blocos arredondados
+   9. Código
    =========================================================== */
 .md-typeset code {
   background: var(--iefp-g50); color: var(--iefp-g800);
   border: 1px solid var(--iefp-g100); border-radius: 6px;
-  padding: .12em .4em; font-size: .82em;
+  padding: .1em .38em; font-size: .82em;
 }
 [data-md-color-scheme="slate"] .md-typeset code {
   background: rgba(0,166,81,.10); color: #8fe0b3; border-color: rgba(0,166,81,.2);
 }
-.md-typeset pre > code { border-radius: 12px; padding: 1em 1.1em; border: 0; }
-.md-typeset .highlight { border-radius: 12px; box-shadow: var(--iefp-shadow); }
-
-/* ===========================================================
-   7. Botões Material (.md-button) — caso usados nas páginas
-   =========================================================== */
-.md-typeset .md-button {
-  border-radius: 10px; font-weight: 700; padding: .55em 1.2em;
-  border-width: 2px; transition: transform .12s, box-shadow .15s;
-}
-.md-typeset .md-button:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,107,60,.18); }
-.md-typeset .md-button--primary {
-  background: var(--iefp-g700); border-color: var(--iefp-g700); color: #fff;
-}
-.md-typeset .md-button--primary:hover { background: var(--iefp-g800); border-color: var(--iefp-g800); }
+.md-typeset pre > code { border-radius: var(--iefp-r); padding: 1em 1.1em; border: 0; }
+.md-typeset .highlight { border-radius: var(--iefp-r); box-shadow: var(--iefp-shadow); }
 
 /* Citações */
 .md-typeset blockquote {
-  border-left: 4px solid var(--iefp-g600); border-radius: 0 10px 10px 0;
-  background: var(--iefp-g50); color: var(--md-default-fg-color--light);
+  border-left: 4px solid var(--iefp-g600); border-radius: 0 var(--iefp-rs) var(--iefp-rs) 0;
+  background: var(--iefp-g50); color: var(--iefp-muted);
 }
-[data-md-color-scheme="slate"] .md-typeset blockquote { background: rgba(0,166,81,.07); }
 
-/* Imagens (screenshots) com moldura suave */
+/* Imagens (screenshots) */
 .md-typeset img:not(.twemoji):not(.emojione) {
-  border-radius: 12px; box-shadow: 0 4px 18px rgba(16,40,28,.12);
-  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: var(--iefp-r);
+  border: 1px solid var(--iefp-border);
+  box-shadow: var(--iefp-shadow);
 }
+
+/* Botões Material */
+.md-typeset .md-button {
+  border-radius: 10px; font-weight: 700; padding: .5em 1.1em; border-width: 1px;
+  transition: transform .08s, background .15s, box-shadow .15s;
+}
+.md-typeset .md-button:active { transform: translateY(1px); }
+.md-typeset .md-button--primary {
+  background: var(--iefp-g600); border-color: var(--iefp-g600); color: #fff;
+  box-shadow: 0 2px 8px rgba(0,166,81,.28);
+}
+.md-typeset .md-button--primary:hover { background: var(--iefp-g700); border-color: var(--iefp-g700); }
+
+/* Botão "voltar ao topo" */
+.md-top {
+  background: var(--iefp-surface); color: var(--iefp-text);
+  border: 1px solid var(--iefp-border); box-shadow: var(--iefp-shadow);
+}
+.md-top:hover { background: var(--iefp-g600); color: #fff; }
 
 /* ===========================================================
-   8. Ícones de linha (SVG inline) — monocromáticos
+   10. Ícones de linha (SVG inline) — monocromáticos
    =========================================================== */
 .md-typeset .lucide svg,
 .md-typeset svg.icon {
@@ -271,17 +388,15 @@
   stroke-linecap: round; stroke-linejoin: round;
 }
 
-/* Modo escuro: fundo coerente */
-[data-md-color-scheme="slate"] {
-  --md-primary-fg-color: #00A651;
-  --md-default-bg-color:  #0e1a15;
-}
-
 /* Rodapé "meta" do Material */
+.md-footer { background: var(--iefp-g900); }
 .md-footer-meta { background: #04492c; }
+.md-footer__inner { padding-top: .6rem; padding-bottom: .6rem; }
+.md-footer__link { color: rgba(255,255,255,.85); }
+.md-footer__link:hover { color: #fff; }
 
 /* ===========================================================
-   9. Ícones de admonição IGUAIS aos da app (estilo de linha)
+   11. Ícones de admonição IGUAIS aos da app (estilo de linha)
    =========================================================== */
 :root {
   --md-admonition-icon--note:    url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>');
@@ -294,48 +409,42 @@
 }
 
 /* ===========================================================
-   10. Rodapé de navegação consistente (override main.html)
+   12. Rodapé de navegação consistente (override main.html)
    =========================================================== */
-.iefp-foot-sep { margin: 3em 0 1.3em; border: 0; border-top: 1px solid var(--md-default-fg-color--lightest); }
-.iefp-foot { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 1rem; }
+.iefp-foot-sep { margin: 2.6em 0 1.2em; border: 0; border-top: 1px solid var(--iefp-border); }
+.iefp-foot { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: .9rem; }
 .iefp-foot-btn {
-  display: inline-flex; align-items: center; gap: 9px;
-  padding: 11px 18px; border: 1.5px solid var(--md-default-fg-color--lighter);
-  border-radius: 12px; font-size: .82rem; font-weight: 600;
-  color: var(--md-default-fg-color) !important; text-decoration: none !important;
-  background: var(--md-default-bg-color);
-  transition: border-color .15s, background .15s, color .15s, transform .12s, box-shadow .15s;
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 14px; border: 1px solid var(--iefp-border);
+  border-radius: 10px; font-size: .72rem; font-weight: 700;
+  color: var(--iefp-text) !important; text-decoration: none !important;
+  background: var(--iefp-surface);
+  transition: transform .08s, background .15s, border-color .15s, color .15s;
 }
-.iefp-foot-btn:hover {
-  border-color: var(--iefp-g600); background: var(--iefp-g50); color: var(--iefp-g800) !important;
-  transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,107,60,.12);
-}
-[data-md-color-scheme="slate"] .iefp-foot-btn:hover { background: rgba(0,166,81,.12); color: var(--iefp-g600) !important; }
+.iefp-foot-btn:active { transform: translateY(1px); }
+.iefp-foot-btn:hover { background: var(--iefp-surface2); border-color: var(--iefp-g300); color: var(--iefp-text) !important; }
 .iefp-foot-btn svg {
-  width: 18px; height: 18px; flex: none;
+  width: 17px; height: 17px; flex: none;
   fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
 }
-/* Botão de ação principal (Abrir a plataforma) preenchido */
+/* CTA = .btn da app (verde com glow) */
 .iefp-foot-cta {
-  background: var(--iefp-g700) !important; border-color: var(--iefp-g700) !important;
-  color: #fff !important; box-shadow: 0 4px 12px rgba(0,107,60,.22);
+  background: var(--iefp-g600) !important; border-color: transparent !important;
+  color: #fff !important; box-shadow: 0 2px 8px rgba(0,166,81,.28);
 }
-.iefp-foot-cta:hover {
-  background: var(--iefp-g800) !important; border-color: var(--iefp-g800) !important;
-  color: #fff !important;
-}
+.iefp-foot-cta:hover { background: var(--iefp-g700) !important; color: #fff !important; }
 
-/* Linha de crédito (Created by + LinkedIn) */
+/* Linha de crédito (= .made-by da app) */
 .iefp-credit {
-  font-size: .76rem; color: var(--md-default-fg-color--light);
-  margin: .2rem 0 2.4rem; display: flex; align-items: center; gap: .4rem;
+  font-size: .68rem; color: var(--iefp-muted);
+  margin: 0 0 2rem; display: flex; align-items: center; gap: .35rem; font-weight: 600;
 }
 .iefp-credit a {
   display: inline-flex; align-items: center; gap: 6px;
-  font-weight: 700; color: var(--iefp-g700) !important; text-decoration: none;
+  font-weight: 700; color: var(--iefp-g700) !important; text-decoration: none !important;
 }
 .iefp-credit a:hover { color: var(--iefp-g600) !important; }
 .iefp-credit svg {
-  width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2;
+  width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2;
   stroke-linecap: round; stroke-linejoin: round;
 }
