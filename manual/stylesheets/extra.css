@@ -167,11 +167,25 @@
   }
   .md-sidebar--primary .md-nav__title .md-logo { display: none; }
 
-  /* Labels da navbar nunca cortados (ex.: palavra longa "FUNCIONALIDADES") */
-  .md-sidebar--primary .md-nav__link { overflow-wrap: anywhere; }
-  .md-sidebar--primary .md-nav__link .md-ellipsis {
-    white-space: normal; overflow: visible; text-overflow: clip;
+  /* Labels da navbar nunca cortados (sem ellipsis "...") */
+  .md-sidebar--primary .md-nav__link .md-ellipsis { overflow: visible; text-overflow: clip; }
+  /* Títulos de grupo numa só linha — palavra longa ("FUNCIONALIDADES") não parte */
+  .md-sidebar--primary .md-nav__item--section > .md-nav__link .md-ellipsis { white-space: nowrap; }
+
+  /* Secções de topo COM página-índice (Funcionalidades, RGPD): o Material mete
+     um <a> dentro do contentor → padding a dobrar (ficavam mais altas).
+     Tira o padding do contentor e dá ao link-índice o MESMO estilo de grupo. */
+  .md-sidebar--primary .md-nav__item--section > .md-nav__container { padding: 0; align-items: center; }
+  .md-sidebar--primary .md-nav__item--section > .md-nav__container > a.md-nav__link {
+    font-size: .56rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 700;
+    color: rgba(255,255,255,.5) !important;
+    padding: .6rem .55rem .15rem; margin: 0; border-radius: 0;
   }
+  .md-sidebar--primary .md-nav__item--section > .md-nav__container > a.md-nav__link:hover {
+    background: transparent; color: rgba(255,255,255,.82) !important;
+  }
+  /* o chevron do contentor de topo é redundante (secções já expandidas) */
+  .md-sidebar--primary .md-nav__item--section > .md-nav__container > label.md-nav__link { display: none; }
 
   /* Links = .nav-link da app */
   .md-sidebar--primary .md-nav__link {
