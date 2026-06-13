@@ -434,17 +434,18 @@
 }
 .iefp-foot-cta:hover { background: var(--iefp-g700) !important; color: #fff !important; }
 
-/* Crédito no rodapé escuro (= .made-by da app) */
-.md-copyright { color: rgba(255,255,255,.6); font-size: .62rem; font-weight: 600; }
-.md-copyright__highlight { color: rgba(255,255,255,.6); }
-.md-copyright .iefp-credit-link {
-  display: inline-flex; align-items: center; gap: 5px; vertical-align: -2px;
-  font-weight: 700; color: var(--iefp-accent); text-decoration: none;
-  transition: color .14s;
+/* Crédito no rodapé escuro = .made-by da app (mesmo look e ordem) */
+.md-copyright { color: rgba(255,255,255,.55); font-size: .72rem; font-weight: 600; }
+.md-copyright__highlight { color: rgba(255,255,255,.55); }
+.md-copyright .iefp-sep { opacity: .5; }
+.md-copyright .made-by {
+  display: inline-flex; align-items: center; gap: 6px; vertical-align: -2px;
+  font-size: .72rem; font-weight: 600; color: rgba(255,255,255,.55);
+  text-decoration: none; transition: color .14s;
 }
-.md-copyright .iefp-credit-link:hover { color: #fff; }
-.md-copyright .iefp-credit-link svg {
-  width: 14px; height: 14px; flex: none;
+.md-copyright .made-by:hover { color: #fff; }
+.md-copyright .made-by svg {
+  width: 14px; height: 14px; flex: 0 0 auto; opacity: .85;
   fill: none; stroke: currentColor; stroke-width: 2;
   stroke-linecap: round; stroke-linejoin: round;
 }
