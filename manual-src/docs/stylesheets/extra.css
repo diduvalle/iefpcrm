@@ -434,17 +434,17 @@
 }
 .iefp-foot-cta:hover { background: var(--iefp-g700) !important; color: #fff !important; }
 
-/* Linha de crédito (= .made-by da app) */
-.iefp-credit {
-  font-size: .68rem; color: var(--iefp-muted);
-  margin: 0 0 2rem; display: flex; align-items: center; gap: .35rem; font-weight: 600;
+/* Crédito no rodapé escuro (= .made-by da app) */
+.md-copyright { color: rgba(255,255,255,.6); font-size: .62rem; font-weight: 600; }
+.md-copyright__highlight { color: rgba(255,255,255,.6); }
+.md-copyright .iefp-credit-link {
+  display: inline-flex; align-items: center; gap: 5px; vertical-align: -2px;
+  font-weight: 700; color: var(--iefp-accent); text-decoration: none;
+  transition: color .14s;
 }
-.iefp-credit a {
-  display: inline-flex; align-items: center; gap: 6px;
-  font-weight: 700; color: var(--iefp-g700) !important; text-decoration: none !important;
-}
-.iefp-credit a:hover { color: var(--iefp-g600) !important; }
-.iefp-credit svg {
-  width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2;
+.md-copyright .iefp-credit-link:hover { color: #fff; }
+.md-copyright .iefp-credit-link svg {
+  width: 14px; height: 14px; flex: none;
+  fill: none; stroke: currentColor; stroke-width: 2;
   stroke-linecap: round; stroke-linejoin: round;
 }
