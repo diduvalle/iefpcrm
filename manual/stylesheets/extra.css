@@ -187,6 +187,20 @@
   /* o chevron do contentor de topo é redundante (secções já expandidas) */
   .md-sidebar--primary .md-nav__item--section > .md-nav__container > label.md-nav__link { display: none; }
 
+  /* Contentores de índice ANINHADOS (3.1 Gerir a turma, 5.4 Propostas):
+     tirar o padding do contentor p/ o <a> interno alinhar com os irmãos
+     e não somar altura (evita a linha órfã e a altura a mais). */
+  .md-sidebar--primary .md-nav__link.md-nav__container { padding: 0; }
+  .md-sidebar--primary .md-nav__item--nested:not(.md-nav__item--section)
+    > .md-nav__container > a.md-nav__link { flex: 1 1 auto; }
+
+  /* Indentar o 3.º nível (sub-itens de 3.1, 5.4…) com guia subtil */
+  .md-sidebar--primary .md-nav__item--nested:not(.md-nav__item--section)
+    > .md-nav > .md-nav__list {
+    margin-left: .55rem; padding-left: .4rem;
+    border-left: 1px solid rgba(255,255,255,.14);
+  }
+
   /* Links = .nav-link da app */
   .md-sidebar--primary .md-nav__link {
     color: rgba(255,255,255,.85);
