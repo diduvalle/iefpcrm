@@ -161,11 +161,17 @@
   /* Grupos (1. Primeiros passos, …) = .nav-group da app */
   .md-sidebar--primary .md-nav__item--section > .md-nav__link,
   .md-sidebar--primary .md-nav__title {
-    font-size: .56rem; text-transform: uppercase; letter-spacing: .12em;
+    font-size: .56rem; text-transform: uppercase; letter-spacing: .06em;
     color: rgba(255,255,255,.5) !important; font-weight: 700;
     padding: .6rem .55rem .15rem; background: transparent; box-shadow: none;
   }
   .md-sidebar--primary .md-nav__title .md-logo { display: none; }
+
+  /* Labels da navbar nunca cortados (ex.: palavra longa "FUNCIONALIDADES") */
+  .md-sidebar--primary .md-nav__link { overflow-wrap: anywhere; }
+  .md-sidebar--primary .md-nav__link .md-ellipsis {
+    white-space: normal; overflow: visible; text-overflow: clip;
+  }
 
   /* Links = .nav-link da app */
   .md-sidebar--primary .md-nav__link {
