@@ -25,8 +25,8 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Instalar MkDocs Material
-        run: pip install "mkdocs-material>=9.5"
+      - name: Instalar MkDocs Material + i18n
+        run: pip install "mkdocs-material>=9.5" "mkdocs-static-i18n>=1.2"
 
       - name: Construir o manual (-> /manual)
         run: mkdocs build --strict --config-file manual-src/mkdocs.yml

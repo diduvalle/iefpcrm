@@ -46,6 +46,71 @@ theme:
 extra_css:
   - stylesheets/extra.css
 
+# IMPORTANTE: site bilingue (PT por defeito + /en/). Qualquer alteração ao
+# conteúdo tem de ser feita NOS DOIS idiomas: foo.md (PT) e foo.en.md (EN).
+plugins:
+  - search
+  - i18n:
+      docs_structure: suffix
+      fallback_to_default: true
+      reconfigure_material: true
+      reconfigure_search: true
+      languages:
+        - locale: pt
+          name: Português
+          default: true
+          build: true
+        - locale: en
+          name: English
+          build: true
+          site_name: "IEFP CRM — Manual"
+          site_description: "Manual of the IEFP CRM platform — guide for trainers and trainees (UFCD 10868 and 10870)."
+          nav_translations:
+            "Início": "Home"
+            "1. Primeiros passos": "1. Getting started"
+            "1.1 Sou Formador": "1.1 I'm a Trainer"
+            "1.2 Sou Formando": "1.2 I'm a Trainee"
+            "2. Tutoriais guiados": "2. Guided tutorials"
+            "2.1 Do zero à 1.ª proposta": "2.1 From zero to your first proposal"
+            "2.2 Montar a turma (10 min)": "2.2 Set up your class (10 min)"
+            "3. Para o Formador": "3. For the Trainer"
+            "3.1 Gerir a turma": "3.1 Manage the class"
+            "3.1.1 Importar (Excel)": "3.1.1 Import (Excel)"
+            "3.1.2 Adicionar à mão": "3.1.2 Add manually"
+            "3.1.3 Repor palavra-passe": "3.1.3 Reset password"
+            "3.1.4 Remover formando": "3.1.4 Remove trainee"
+            "3.2 Entrega & validação": "3.2 Submission & validation"
+            "3.3 Email & Marca": "3.3 Email & Branding"
+            "4. Para o Formando": "4. For the Trainee"
+            "4.1 Trabalhar no CRM": "4.1 Working in the CRM"
+            "4.2 Submeter o trabalho": "4.2 Submit your work"
+            "4.3 Recuperar a password": "4.3 Recover your password"
+            "5. Funcionalidades": "5. Features"
+            "5.0 Visão geral": "5.0 Overview"
+            "5.1 Dashboard & Agenda": "5.1 Dashboard & Calendar"
+            "5.2 Empresas & Contactos": "5.2 Companies & Contacts"
+            "5.3 Produtos": "5.3 Products"
+            "5.4 Propostas": "5.4 Proposals"
+            "5.4.1 Criar a proposta": "5.4.1 Create the proposal"
+            "5.4.2 Linhas & catálogo": "5.4.2 Lines & catalogue"
+            "5.4.3 Pipeline (Kanban)": "5.4.3 Pipeline (Kanban)"
+            "5.4.4 Exportar PDF": "5.4.4 Export PDF"
+            "5.4.5 Enviar por email": "5.4.5 Send by email"
+            "5.4.6 Motivo de perda": "5.4.6 Loss reason"
+            "5.5 Modelos de Proposta": "5.5 Proposal Templates"
+            "5.6 Campanhas & Email": "5.6 Campaigns & Email"
+            "5.7 Analytics": "5.7 Analytics"
+            "5.8 Alertas": "5.8 Alerts"
+            "5.9 Definições": "5.9 Settings"
+            "6. RGPD & Pedagogia": "6. GDPR & Pedagogy"
+            "6.1 Consentimentos": "6.1 Consents"
+            "6.2 Pedidos (DSAR)": "6.2 Requests (DSAR)"
+            "6.3 RoPA": "6.3 RoPA"
+            "6.4 Violações de dados": "6.4 Data breaches"
+            "6.5 Portal do Titular": "6.5 Data Subject Portal"
+            "7. FAQ": "7. FAQ"
+            "8. Glossário": "8. Glossary"
+
 markdown_extensions:
   - admonition
   - attr_list
@@ -61,7 +126,6 @@ markdown_extensions:
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - toc:
       permalink: true
-      title: Nesta página
 
 extra:
   social:
