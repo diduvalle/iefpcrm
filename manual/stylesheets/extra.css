@@ -92,6 +92,35 @@
 .md-header__button.md-logo { padding: .2rem; }
 .md-header__button.md-logo img { height: 34px; width: auto; }
 
+/* Seletor de idioma (alternate) = .lang-btn / .icon-btn da app */
+.md-header__option { margin-left: .1rem; }
+.md-header .md-select > .md-header__button.md-icon {
+  width: auto; height: 32px; padding: 0 11px; margin: 0;
+  display: inline-flex; align-items: center; gap: 6px;
+  border-radius: 10px; border: 1px solid var(--iefp-border);
+  background: var(--iefp-surface); color: var(--iefp-g700);
+  font-weight: 800; font-size: .72rem; letter-spacing: .04em; opacity: 1;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.md-header .md-select > .md-header__button.md-icon:hover {
+  background: var(--iefp-surface2); border-color: var(--iefp-g300); color: var(--iefp-g700);
+}
+.md-header .md-select > .md-header__button.md-icon svg { width: 16px; height: 16px; }
+/* Etiqueta "PT/EN" depois do globo (igual ao toggle da app) */
+.md-header .md-select > .md-header__button.md-icon::after {
+  content: "PT/EN"; font: inherit; color: inherit;
+}
+/* Dropdown de idiomas */
+.md-header .md-select__inner {
+  border-radius: 10px; box-shadow: var(--iefp-shadow-lg);
+  background: var(--iefp-surface); border: 1px solid var(--iefp-border); overflow: hidden;
+}
+.md-header .md-select__list { background: var(--iefp-surface); }
+.md-header .md-select__link {
+  color: var(--iefp-text); font-size: .76rem; font-weight: 600;
+}
+.md-header .md-select__link:hover { background: var(--iefp-g50); color: var(--iefp-g700); }
+
 /* Pesquisa do header = .search-inp da app */
 .md-search__form {
   background: var(--iefp-surface2);

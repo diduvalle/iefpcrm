@@ -1,12 +1,12 @@
 
 <!doctype html>
-<html lang="pt" class="no-js">
+<html lang="en" class="no-js">
   <head>
     
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Manual da plataforma IEFP CRM — guia para formadores e formandos das UFCD 10868 e 10870.">
+        <meta name="description" content="Manual of the IEFP CRM platform — guide for trainers and trainees (UFCD 10868 and 10870).">
       
       
         <meta name="author" content="Diogo du Valle">
@@ -15,6 +15,10 @@
       
       
       
+        
+          <link rel="alternate" href="/manual/tutoriais/primeira-proposta/" hreflang="pt">
+        
+          <link rel="alternate" href="/manual/en/tutoriais/primeira-proposta/" hreflang="en">
         
       
       
@@ -86,8 +90,8 @@
   
 
 <header class="md-header md-header--shadow" data-md-component="header">
-  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
-    <a href="/manual/." title="IEFP CRM — Manual" class="md-header__button md-logo" aria-label="IEFP CRM — Manual" data-md-component="logo">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="/manual/en/" title="IEFP CRM — Manual" class="md-header__button md-logo" aria-label="IEFP CRM — Manual" data-md-component="logo">
       
   <img src="/manual/assets/logo.png" alt="logo">
 
@@ -143,6 +147,32 @@
       <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
     
     
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Select language">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="/manual/tutoriais/primeira-proposta/" hreflang="pt" class="md-select__link">
+              Português
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="/manual/en/tutoriais/primeira-proposta/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
     
       
       
@@ -154,16 +184,16 @@
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
       <label class="md-search__icon md-icon" for="__search">
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
       </label>
-      <nav class="md-search__options" aria-label="Pesquisar">
+      <nav class="md-search__options" aria-label="Search">
         
-        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
           
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
         </button>
@@ -176,7 +206,7 @@
       <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
-            Inicializando busca
+            Initializing search
           </div>
           <ol class="md-search-result__list" role="presentation"></ol>
         </div>
@@ -210,9 +240,9 @@
 
 
 
-<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="/manual/." title="IEFP CRM — Manual" class="md-nav__button md-logo" aria-label="IEFP CRM — Manual" data-md-component="logo">
+    <a href="/manual/en/" title="IEFP CRM — Manual" class="md-nav__button md-logo" aria-label="IEFP CRM — Manual" data-md-component="logo">
       
   <img src="/manual/assets/logo.png" alt="logo">
 
@@ -229,14 +259,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/." class="md-nav__link">
+      <a href="/manual/en/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Início
+    Home
   
 
     
@@ -287,7 +317,7 @@
   <span class="md-ellipsis">
     
   
-    1. Primeiros passos
+    1. Getting started
   
 
     
@@ -303,7 +333,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    1. Primeiros passos
+    1. Getting started
   
 
           </label>
@@ -316,14 +346,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/primeiros-passos/formador/" class="md-nav__link">
+      <a href="/manual/en/primeiros-passos/formador/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    1.1 Sou Formador
+    1.1 I'm a Trainer
   
 
     
@@ -344,14 +374,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/primeiros-passos/formando/" class="md-nav__link">
+      <a href="/manual/en/primeiros-passos/formando/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    1.2 Sou Formando
+    1.2 I'm a Trainee
   
 
     
@@ -410,7 +440,7 @@
   <span class="md-ellipsis">
     
   
-    2. Tutoriais guiados
+    2. Guided tutorials
   
 
     
@@ -426,7 +456,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    2. Tutoriais guiados
+    2. Guided tutorials
   
 
           </label>
@@ -439,14 +469,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/tutoriais/primeira-proposta/" class="md-nav__link">
+      <a href="/manual/en/tutoriais/primeira-proposta/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    2.1 Do zero à 1.ª proposta
+    2.1 From zero to your first proposal
   
 
     
@@ -467,14 +497,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/tutoriais/montar-turma/" class="md-nav__link">
+      <a href="/manual/en/tutoriais/montar-turma/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    2.2 Montar a turma (10 min)
+    2.2 Set up your class (10 min)
   
 
     
@@ -535,7 +565,7 @@
   <span class="md-ellipsis">
     
   
-    3. Para o Formador
+    3. For the Trainer
   
 
     
@@ -551,7 +581,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    3. Para o Formador
+    3. For the Trainer
   
 
           </label>
@@ -594,14 +624,14 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="/manual/formador/gerir-turma/" class="md-nav__link ">
+            <a href="/manual/en/formador/gerir-turma/" class="md-nav__link ">
               
   
   
   <span class="md-ellipsis">
     
   
-    3.1 Gerir a turma
+    3.1 Manage the class
   
 
     
@@ -623,7 +653,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    3.1 Gerir a turma
+    3.1 Manage the class
   
 
           </label>
@@ -638,14 +668,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/formador/gerir-turma/importar/" class="md-nav__link">
+      <a href="/manual/en/formador/gerir-turma/importar/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    3.1.1 Importar (Excel)
+    3.1.1 Import (Excel)
   
 
     
@@ -666,14 +696,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/formador/gerir-turma/adicionar/" class="md-nav__link">
+      <a href="/manual/en/formador/gerir-turma/adicionar/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    3.1.2 Adicionar à mão
+    3.1.2 Add manually
   
 
     
@@ -694,14 +724,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/formador/gerir-turma/repor-password/" class="md-nav__link">
+      <a href="/manual/en/formador/gerir-turma/repor-password/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    3.1.3 Repor palavra-passe
+    3.1.3 Reset password
   
 
     
@@ -722,14 +752,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/formador/gerir-turma/remover/" class="md-nav__link">
+      <a href="/manual/en/formador/gerir-turma/remover/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    3.1.4 Remover formando
+    3.1.4 Remove trainee
   
 
     
@@ -758,14 +788,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/formador/entregas/" class="md-nav__link">
+      <a href="/manual/en/formador/entregas/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    3.2 Entrega & validação
+    3.2 Submission & validation
   
 
     
@@ -786,14 +816,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/formador/email-marca/" class="md-nav__link">
+      <a href="/manual/en/formador/email-marca/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    3.3 Email & Marca
+    3.3 Email & Branding
   
 
     
@@ -854,7 +884,7 @@
   <span class="md-ellipsis">
     
   
-    4. Para o Formando
+    4. For the Trainee
   
 
     
@@ -870,7 +900,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    4. Para o Formando
+    4. For the Trainee
   
 
           </label>
@@ -883,14 +913,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/formando/trabalhar/" class="md-nav__link">
+      <a href="/manual/en/formando/trabalhar/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    4.1 Trabalhar no CRM
+    4.1 Working in the CRM
   
 
     
@@ -911,14 +941,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/formando/submeter/" class="md-nav__link">
+      <a href="/manual/en/formando/submeter/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    4.2 Submeter o trabalho
+    4.2 Submit your work
   
 
     
@@ -939,14 +969,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/formando/recuperar/" class="md-nav__link">
+      <a href="/manual/en/formando/recuperar/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    4.3 Recuperar a password
+    4.3 Recover your password
   
 
     
@@ -1017,14 +1047,14 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="/manual/modulos/" class="md-nav__link ">
+            <a href="/manual/en/modulos/" class="md-nav__link ">
               
   
   
   <span class="md-ellipsis">
     
   
-    5. Funcionalidades
+    5. Features
   
 
     
@@ -1046,7 +1076,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    5. Funcionalidades
+    5. Features
   
 
           </label>
@@ -1061,14 +1091,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/modulos/dashboard-agenda/" class="md-nav__link">
+      <a href="/manual/en/modulos/dashboard-agenda/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    5.1 Dashboard & Agenda
+    5.1 Dashboard & Calendar
   
 
     
@@ -1089,14 +1119,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/modulos/empresas-contactos/" class="md-nav__link">
+      <a href="/manual/en/modulos/empresas-contactos/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    5.2 Empresas & Contactos
+    5.2 Companies & Contacts
   
 
     
@@ -1117,14 +1147,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/modulos/produtos/" class="md-nav__link">
+      <a href="/manual/en/modulos/produtos/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    5.3 Produtos
+    5.3 Products
   
 
     
@@ -1179,14 +1209,14 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="/manual/modulos/propostas/" class="md-nav__link ">
+            <a href="/manual/en/modulos/propostas/" class="md-nav__link ">
               
   
   
   <span class="md-ellipsis">
     
   
-    5.4 Propostas
+    5.4 Proposals
   
 
     
@@ -1208,7 +1238,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    5.4 Propostas
+    5.4 Proposals
   
 
           </label>
@@ -1223,14 +1253,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/modulos/propostas/criar/" class="md-nav__link">
+      <a href="/manual/en/modulos/propostas/criar/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    5.4.1 Criar a proposta
+    5.4.1 Create the proposal
   
 
     
@@ -1251,14 +1281,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/modulos/propostas/linhas/" class="md-nav__link">
+      <a href="/manual/en/modulos/propostas/linhas/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    5.4.2 Linhas & catálogo
+    5.4.2 Lines & catalogue
   
 
     
@@ -1279,7 +1309,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/modulos/propostas/pipeline/" class="md-nav__link">
+      <a href="/manual/en/modulos/propostas/pipeline/" class="md-nav__link">
         
   
   
@@ -1307,14 +1337,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/modulos/propostas/pdf/" class="md-nav__link">
+      <a href="/manual/en/modulos/propostas/pdf/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    5.4.4 Exportar PDF
+    5.4.4 Export PDF
   
 
     
@@ -1335,14 +1365,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/modulos/propostas/email/" class="md-nav__link">
+      <a href="/manual/en/modulos/propostas/email/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    5.4.5 Enviar por email
+    5.4.5 Send by email
   
 
     
@@ -1363,14 +1393,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/modulos/propostas/perda/" class="md-nav__link">
+      <a href="/manual/en/modulos/propostas/perda/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    5.4.6 Motivo de perda
+    5.4.6 Loss reason
   
 
     
@@ -1399,14 +1429,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/modulos/modelos/" class="md-nav__link">
+      <a href="/manual/en/modulos/modelos/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    5.5 Modelos de Proposta
+    5.5 Proposal Templates
   
 
     
@@ -1427,14 +1457,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/modulos/campanhas-email/" class="md-nav__link">
+      <a href="/manual/en/modulos/campanhas-email/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    5.6 Campanhas & Email
+    5.6 Campaigns & Email
   
 
     
@@ -1455,7 +1485,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/modulos/analytics/" class="md-nav__link">
+      <a href="/manual/en/modulos/analytics/" class="md-nav__link">
         
   
   
@@ -1483,14 +1513,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/modulos/alertas/" class="md-nav__link">
+      <a href="/manual/en/modulos/alertas/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    5.8 Alertas
+    5.8 Alerts
   
 
     
@@ -1511,14 +1541,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/modulos/definicoes/" class="md-nav__link">
+      <a href="/manual/en/modulos/definicoes/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    5.9 Definições
+    5.9 Settings
   
 
     
@@ -1581,14 +1611,14 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="/manual/rgpd/" class="md-nav__link ">
+            <a href="/manual/en/rgpd/" class="md-nav__link ">
               
   
   
   <span class="md-ellipsis">
     
   
-    6. RGPD & Pedagogia
+    6. GDPR & Pedagogy
   
 
     
@@ -1610,7 +1640,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    6. RGPD & Pedagogia
+    6. GDPR & Pedagogy
   
 
           </label>
@@ -1625,14 +1655,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/rgpd/consentimentos/" class="md-nav__link">
+      <a href="/manual/en/rgpd/consentimentos/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    6.1 Consentimentos
+    6.1 Consents
   
 
     
@@ -1653,14 +1683,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/rgpd/pedidos/" class="md-nav__link">
+      <a href="/manual/en/rgpd/pedidos/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    6.2 Pedidos (DSAR)
+    6.2 Requests (DSAR)
   
 
     
@@ -1681,7 +1711,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/rgpd/ropa/" class="md-nav__link">
+      <a href="/manual/en/rgpd/ropa/" class="md-nav__link">
         
   
   
@@ -1709,14 +1739,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/rgpd/violacoes/" class="md-nav__link">
+      <a href="/manual/en/rgpd/violacoes/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    6.4 Violações de dados
+    6.4 Data breaches
   
 
     
@@ -1737,14 +1767,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/rgpd/portal/" class="md-nav__link">
+      <a href="/manual/en/rgpd/portal/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    6.5 Portal do Titular
+    6.5 Data Subject Portal
   
 
     
@@ -1772,7 +1802,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/faq/" class="md-nav__link">
+      <a href="/manual/en/faq/" class="md-nav__link">
         
   
   
@@ -1799,14 +1829,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/manual/glossario/" class="md-nav__link">
+      <a href="/manual/en/glossario/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    8. Glossário
+    8. Glossary
   
 
     
@@ -1832,9 +1862,7 @@
                   <div class="md-sidebar__inner">
                     
 
-  
-
-<nav class="md-nav md-nav--secondary" aria-label="Nesta página">
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
   
@@ -1862,7 +1890,7 @@
           <button type="button" class="md-top md-icon" data-md-component="top" hidden>
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
-  Voltar para o topo
+  Back to top
 </button>
         
       </main>
@@ -1914,7 +1942,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "/manual/", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips", "toc.follow"], "search": "/manual/assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "/manual/", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips", "toc.follow"], "search": "/manual/assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="/manual/assets/javascripts/bundle.79ae519e.min.js"></script>
