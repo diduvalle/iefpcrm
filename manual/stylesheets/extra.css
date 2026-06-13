@@ -167,6 +167,25 @@
   }
   .md-sidebar--primary .md-nav__title .md-logo { display: none; }
 
+  /* O título "IEFP CRM — Manual" é redundante no desktop (já está no cabeçalho)
+     e, sendo sticky+transparente, arrastava por cima dos itens no scroll. */
+  .md-sidebar--primary .md-nav--primary > .md-nav__title { display: none; }
+
+  /* Itens de topo SEM filhos (Início, 7. FAQ, 8. Glossário) = mesmo estilo
+     de grupo das secções 1–6, para a navbar ficar uniforme. */
+  .md-sidebar--primary .md-nav--primary > .md-nav__list
+    > .md-nav__item:not(.md-nav__item--nested):not(.md-nav__item--section)
+    > .md-nav__link {
+    font-size: .56rem; text-transform: uppercase; letter-spacing: .06em;
+    font-weight: 700; color: rgba(255,255,255,.5);
+    padding: .6rem .55rem .15rem;
+  }
+  .md-sidebar--primary .md-nav--primary > .md-nav__list
+    > .md-nav__item:not(.md-nav__item--nested):not(.md-nav__item--section)
+    > .md-nav__link:hover {
+    background: transparent; color: rgba(255,255,255,.82);
+  }
+
   /* Labels da navbar nunca cortados (sem ellipsis "...") */
   .md-sidebar--primary .md-nav__link .md-ellipsis { overflow: visible; text-overflow: clip; }
   /* Títulos de grupo numa só linha — palavra longa ("FUNCIONALIDADES") não parte */
