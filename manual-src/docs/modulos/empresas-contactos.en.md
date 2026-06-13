@@ -2,6 +2,10 @@
 
 Professional **Account / Contact** model (B2B): **Companies** are the legal entities; **Contacts** are the people linked to those companies. They are two separate menus in the sidebar.
 
+![Contacts list with 360º view](../assets/screens/clientes.png)
+
+*The Contacts tab — full record and 360º view of each client.*
+
 ---
 
 ## Companies

@@ -4,6 +4,10 @@ Proposals are organised by **status**, in columns you can drag.
 
 `Lead → Qualification → Negotiation → Won → Lost`
 
+![Proposals pipeline (Kanban)](../../assets/screens/propostas.png)
+
+*Each proposal is a card; drag between columns to change status.*
+
 ## How it works
 
 - **Dragging** a card between columns changes the status (records who and when).

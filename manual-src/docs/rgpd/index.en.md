@@ -2,6 +2,10 @@
 
 The **GDPR** module is the core of the UFCD **10870 — CRM Administration** (data protection). Everything respects the **date filter** and there is a **printable compliance report**.
 
+![GDPR module — consents](../assets/screens/rgpd.png)
+
+*Consents, data subject requests, RoPA and breaches — in a single module.*
+
 ## Module areas
 
 <div class="grid cards" markdown>

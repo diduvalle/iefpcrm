@@ -4,6 +4,10 @@ As propostas organizam-se por **estado**, em colunas que podes arrastar.
 
 `Lead → Qualificação → Negociação → Ganha → Perdida`
 
+![Pipeline de propostas em Kanban](../../assets/screens/propostas.png)
+
+*Cada proposta é um cartão; arrasta entre colunas para mudar de estado.*
+
 ## Como funciona
 
 - **Arrastar** um cartão entre colunas muda o estado (regista quem e quando).

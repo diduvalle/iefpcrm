@@ -1,5 +1,9 @@
 # Dashboard & Calendar
 
+![The IEFP CRM Dashboard](../assets/screens/dashboard.png)
+
+*Overview: period KPIs, recent proposals and pipeline by status.*
+
 ## Dashboard
 
 The first page after you log in — the **business overview**. Everything respects the **date filter** at the top (All / 30 days / Quarter / This month / This year / dates).

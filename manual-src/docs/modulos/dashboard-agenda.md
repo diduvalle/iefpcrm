@@ -1,5 +1,9 @@
 # Dashboard & Agenda
 
+![O Dashboard do IEFP CRM](../assets/screens/dashboard.png)
+
+*Vista geral: KPIs do período, propostas recentes e pipeline por estado.*
+
 ## Dashboard
 
 A primeira página depois de entrares — a **visão geral** do negócio. Tudo respeita o **filtro temporal** no topo (Tudo / 30 dias / Trimestre / Este mês / Este ano / datas).

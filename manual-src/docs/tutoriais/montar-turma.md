@@ -19,7 +19,7 @@
     Aparece **uma vez** — anota-o. É a tua forma de recuperar a palavra-passe.
 
 !!! note "📷 Screenshot"
-    *(Captura `hub.png` — o ecrã inicial com “Sou formador”.)*
+    ![Ecrã inicial — criar turma](../assets/screens/hub.png)
 
 ---
 

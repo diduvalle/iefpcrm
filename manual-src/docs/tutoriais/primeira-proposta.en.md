@@ -65,7 +65,7 @@
     If the customer’s region doesn’t match the line’s VAT, **“Correct to {region}”** appears — click it to align.
 
 !!! note "📷 Screenshot"
-    *(Capture `proposta-kanban.png` — the proposal in the pipeline.)*
+    ![The proposal in the pipeline](../assets/screens/propostas.png)
 
 ---
 

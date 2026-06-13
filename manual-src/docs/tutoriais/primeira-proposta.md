@@ -65,7 +65,7 @@
     Se a região do cliente não bater certo com o IVA da linha, aparece **“Corrigir para {região}”** — clica para alinhar.
 
 !!! note "📷 Screenshot"
-    *(Captura `proposta-kanban.png` — a proposta no pipeline.)*
+    ![A proposta no pipeline](../assets/screens/propostas.png)
 
 ---
 

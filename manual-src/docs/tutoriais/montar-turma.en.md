@@ -19,7 +19,7 @@
     It appears **once** — write it down. It is your way to recover the password.
 
 !!! note "📷 Screenshot"
-    *(Capture `hub.png` — the home screen with “I’m a trainer”.)*
+    ![Home screen — create a class](../assets/screens/hub.png)
 
 ---
 
