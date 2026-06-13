@@ -313,6 +313,8 @@
   width: 16px; height: 16px; fill: none; stroke: currentColor;
   stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none;
 }
+/* Sem âncora ¶ (permalink) no título do hero — ali não é uma secção navegável */
+.md-typeset .iefp-hero .headerlink { display: none; }
 
 /* ===========================================================
    7. Admonitions = callouts da app
