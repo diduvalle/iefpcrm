@@ -542,3 +542,26 @@
   fill: none; stroke: currentColor; stroke-width: 2;
   stroke-linecap: round; stroke-linejoin: round;
 }
+
+/* ===========================================================
+   13. Acessibilidade
+   =========================================================== */
+/* Foco visível por teclado (navegação acessível) */
+.md-typeset a:focus-visible,
+.iefp-foot-btn:focus-visible,
+.iefp-hero-actions a:focus-visible,
+.md-copyright .made-by:focus-visible,
+.md-nav__link:focus-visible {
+  outline: 2px solid var(--iefp-g600);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+/* Respeitar "reduzir movimento" do sistema */
+@media (prefers-reduced-motion: reduce) {
+  .md-content { animation: none; }
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
