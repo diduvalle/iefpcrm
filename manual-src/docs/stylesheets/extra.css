@@ -95,21 +95,22 @@
 /* Seletor de idioma (alternate) = .lang-btn / .icon-btn da app */
 .md-header__option { margin-left: .1rem; }
 .md-header .md-select > .md-header__button.md-icon {
-  width: auto; height: 32px; padding: 0 11px; margin: 0;
-  display: inline-flex; align-items: center; gap: 6px;
+  width: auto; min-width: 40px; height: 34px; padding: 0 12px; margin: 0;
+  display: inline-flex; align-items: center; justify-content: center;
   border-radius: 10px; border: 1px solid var(--iefp-border);
   background: var(--iefp-surface); color: var(--iefp-g700);
-  font-weight: 800; font-size: .72rem; letter-spacing: .04em; opacity: 1;
+  font-weight: 800; font-size: .78rem; letter-spacing: .04em; opacity: 1;
   transition: background .15s, border-color .15s, color .15s;
 }
 .md-header .md-select > .md-header__button.md-icon:hover {
   background: var(--iefp-surface2); border-color: var(--iefp-g300); color: var(--iefp-g700);
 }
-.md-header .md-select > .md-header__button.md-icon svg { width: 16px; height: 16px; }
-/* Etiqueta "PT/EN" depois do globo (igual ao toggle da app) */
-.md-header .md-select > .md-header__button.md-icon::after {
-  content: "PT/EN"; font: inherit; color: inherit;
-}
+/* sem globo — igual ao botão PT/EN da app (só texto verde) */
+.md-header .md-select > .md-header__button.md-icon svg { display: none; }
+/* mostra o idioma ATUAL (como o toggle da app): PT nas páginas PT, EN nas EN */
+.md-header .md-select > .md-header__button.md-icon::after { content: "PT/EN"; font: inherit; color: inherit; }
+html[lang^="pt"] .md-header .md-select > .md-header__button.md-icon::after { content: "PT"; }
+html[lang^="en"] .md-header .md-select > .md-header__button.md-icon::after { content: "EN"; }
 /* Dropdown de idiomas */
 .md-header .md-select__inner {
   border-radius: 10px; box-shadow: var(--iefp-shadow-lg);

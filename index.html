@@ -98,6 +98,8 @@ a{text-decoration:none;color:inherit}
 .made-by svg{opacity:.85;flex:0 0 auto}
 .legal-link{display:block;margin-top:6px;color:inherit;opacity:.55;font-size:.7rem;text-decoration:underline;text-underline-offset:2px;text-align:center}
 .legal-link:hover{opacity:.95}
+.login-card{position:relative}
+.login-lang{position:absolute;top:14px;right:14px;width:auto;min-width:42px;height:34px;padding:0 12px;font-weight:800;font-size:.8rem;z-index:2}
 .app.nav-collapsed .made-by span{display:none}
 .app.nav-collapsed .legal-link{display:none}
 .submit-work{width:100%;justify-content:center;margin-top:9px;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18);color:#fff}
@@ -872,6 +874,19 @@ const I18N_EN = {
   // Login
   'Bem-vindo':'Welcome','Inicie sessão para continuar.':'Sign in to continue.','Utilizador':'Username','Palavra-passe':'Password',
   'o seu utilizador':'your username','Portal do Titular (RGPD) →':'Data Subject Portal (GDPR) →',
+  /* --- Ecrã de login (PT→EN) --- */
+  'Indique o número da sua turma para entrar.':'Enter your class number to sign in.',
+  'Número da turma':'Class number','ou':'or','Sou formador — criar nova turma':"I'm a trainer — create a new class",
+  'Recentes neste dispositivo':'Recent on this device','Inicie sessão na sua turma.':'Sign in to your class.',
+  'Esqueci-me da palavra-passe':'Forgot my password','Portal do Titular':'Data Subject Portal','trocar':'switch',
+  'Criar nova turma':'Create a new class','Apenas formadores IEFP. Valide o seu email institucional.':'IEFP trainers only. Verify your institutional email.',
+  'Email de formador IEFP *':'IEFP trainer email *','Nome *':'First name *','Apelido':'Surname',
+  'Número da turma — 8 dígitos *':'Class number — 8 digits *','Nome da turma (opcional)':'Class name (optional)',
+  'Utilizador *':'Username *','Palavra-passe *':'Password *','Criar turma e entrar':'Create class and enter',
+  '← Voltar ao início de sessão':'← Back to sign in','Suporte':'Support',
+  'Recuperar palavra-passe':'Reset password','Para formadores. Use o seu código de recuperação.':'For trainers. Use your recovery code.',
+  'Código de recuperação':'Recovery code','Nova palavra-passe':'New password','Redefinir e entrar':'Reset and enter',
+  'Aviso legal':'Legal notice','Plataforma de Formação':'Training Platform',
   'Relação com o Cliente, na prática.':'Customer Relationship, in practice.',
   'Ambiente pedagógico das UFCD 10868 — CRM Analytics e 10870 — Administração de CRM.':'Learning environment for the UFCD 10868 — CRM Analytics and 10870 — CRM Administration courses.',
   // Campos / etiquetas frequentes
@@ -4153,6 +4168,7 @@ function renderLogin(){
   <div class="login-bg" aria-hidden="true"></div>
   <div class="login-panel">
     <div class="login-card">
+      <button type="button" class="icon-btn lang-btn login-lang" data-act="lang" title="Idioma / Language">${getLang()==='en'?'EN':'PT'}</button>
       <div class="login-brand">
         <div class="brand-logo"><img src="${esc(logoURL())}" alt="logo"></div>
         <div><h1>${esc(brandName())}</h1><p>Plataforma de Formação</p></div>
