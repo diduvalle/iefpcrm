@@ -96,7 +96,10 @@ a{text-decoration:none;color:inherit}
 .made-by{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:9px;font-size:.72rem;color:rgba(255,255,255,.55);font-weight:600;text-decoration:none;transition:color .14s}
 .made-by:hover{color:#fff}
 .made-by svg{opacity:.85;flex:0 0 auto}
+.legal-link{display:block;margin-top:6px;color:inherit;opacity:.55;font-size:.7rem;text-decoration:underline;text-underline-offset:2px;text-align:center}
+.legal-link:hover{opacity:.95}
 .app.nav-collapsed .made-by span{display:none}
+.app.nav-collapsed .legal-link{display:none}
 .submit-work{width:100%;justify-content:center;margin-top:9px;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18);color:#fff}
 .submit-work:hover{background:rgba(255,255,255,.18)}
 .app.nav-collapsed .submit-work span{display:none}
@@ -3387,7 +3390,7 @@ function buildNav(){
   const u=currentUser();
   const foot=$('.nav-foot');
   if(foot){
-    const credit=`${TURMA?`<div class="turma-chip" title="Ambiente isolado desta turma">${ic('building',12)} Turma: ${esc(TURMA)}</div>`:''}<a href="https://www.linkedin.com/in/ldvale/" target="_blank" rel="noopener noreferrer" class="made-by" title="LinkedIn — Diogo du Valle">${ic('linkedin',14)}<span>Created by Diogo du Valle</span></a>`;
+    const credit=`${TURMA?`<div class="turma-chip" title="Ambiente isolado desta turma">${ic('building',12)} Turma: ${esc(TURMA)}</div>`:''}<a href="https://www.linkedin.com/in/ldvale/" target="_blank" rel="noopener noreferrer" class="made-by" title="LinkedIn — Diogo du Valle">${ic('linkedin',14)}<span>Created by Diogo du Valle</span></a><a class="legal-link" href="https://iefpcrm.cr0x.org/manual/aviso-legal/" target="_blank" rel="noopener">Aviso legal</a>`;
     if(u){
       const submitBtn=(u.papel==='Formando')?`<button class="btn-sec btn-sm submit-work" data-act="submit-work" title="Enviar o meu trabalho ao formador">${ic('upload',15)}<span>Submeter o meu trabalho</span></button>`:'';
       foot.innerHTML=`<div class="profile"><div class="profile-id" data-act="profile" title="Editar o meu perfil" style="display:flex;align-items:center;gap:11px;flex:1;min-width:0;cursor:pointer">${avatarHTML(u,36)}<div class="profile-txt"><strong>${esc(u.nome)} ${esc(u.apelido||'')}</strong><span>${esc(u.papel)}</span></div></div><button class="icon-btn" data-act="logout" title="Terminar sessão" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18);color:#fff;width:34px;height:34px">${ic('logout',16)}</button></div>${submitBtn}${credit}`;
@@ -4156,6 +4159,7 @@ function renderLogin(){
       </div>
       ${body}
       <a class="login-credit" href="https://www.linkedin.com/in/ldvale/" target="_blank" rel="noopener noreferrer">${ic('linkedin',14)} Created by Diogo du Valle</a>
+      <a class="legal-link" href="https://iefpcrm.cr0x.org/manual/aviso-legal/" target="_blank" rel="noopener">Aviso legal</a>
     </div>
   </div>`;
   const fname=createdInfo?null:mode==='criarturma'?'email':mode==='root'?'rootpass':(inTurma?'username':'codigo');

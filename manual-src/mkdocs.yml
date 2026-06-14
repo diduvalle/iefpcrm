@@ -110,6 +110,7 @@ plugins:
             "6.5 Portal do Titular": "6.5 Data Subject Portal"
             "7. FAQ": "7. FAQ"
             "8. Glossário": "8. Glossary"
+            "9. Aviso legal": "9. Legal notice"
   - glightbox:
       touchNavigation: true
       loop: false
@@ -188,3 +189,4 @@ nav:
       - 6.5 Portal do Titular: rgpd/portal.md
   - 7. FAQ: faq.md
   - 8. Glossário: glossario.md
+  - 9. Aviso legal: aviso-legal.md
