@@ -7,7 +7,18 @@
     if (!root || !window.QUIZ || !Array.isArray(window.QUIZ)) return;
     var EN = (document.documentElement.lang || 'pt').slice(0,2) === 'en';
     var T = function (pt, en) { return EN ? en : pt; };
-    var Q = window.QUIZ, answered = 0, score = 0;
+
+    // Baralhar a cada abertura: ordem das perguntas + ordem das opções.
+    function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+    var Q = shuffle(window.QUIZ.map(function (it) {
+      var opts = it.opts.map(function (txt, idx) { return { txt: txt, ok: idx === it.correct }; });
+      shuffle(opts);
+      return { q: it.q, opts: opts.map(function (o) { return o.txt; }), correct: opts.map(function (o) { return o.ok; }).indexOf(true), exp: it.exp };
+    }));
+    // Opcional: a página pode definir window.QUIZ_COUNT para mostrar só N perguntas aleatórias.
+    if (window.QUIZ_COUNT && window.QUIZ_COUNT < Q.length) Q = Q.slice(0, window.QUIZ_COUNT);
+
+    var answered = 0, score = 0;
 
     var bar = document.createElement('div');
     bar.className = 'quiz-bar';
