@@ -8,6 +8,13 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://iefpcrm.cr0x.org/manual/en/"/>
     </url>
     <url>
+        <loc>https://iefpcrm.cr0x.org/manual/aviso-legal/</loc>
+        <lastmod>2026-06-14</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://iefpcrm.cr0x.org/manual/aviso-legal/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://iefpcrm.cr0x.org/manual/en/aviso-legal/"/>
+    </url>
+    <url>
         <loc>https://iefpcrm.cr0x.org/manual/faq/</loc>
         <lastmod>2026-06-14</lastmod>
         <changefreq>daily</changefreq>
@@ -279,6 +286,13 @@
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://iefpcrm.cr0x.org/manual/en/"/>
         <xhtml:link rel="alternate" hreflang="pt" href="https://iefpcrm.cr0x.org/manual/"/>
+    </url>
+    <url>
+        <loc>https://iefpcrm.cr0x.org/manual/en/aviso-legal/</loc>
+        <lastmod>2026-06-14</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://iefpcrm.cr0x.org/manual/en/aviso-legal/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://iefpcrm.cr0x.org/manual/aviso-legal/"/>
     </url>
     <url>
         <loc>https://iefpcrm.cr0x.org/manual/en/faq/</loc>
