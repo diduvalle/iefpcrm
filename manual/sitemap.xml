@@ -29,6 +29,20 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://iefpcrm.cr0x.org/manual/en/glossario/"/>
     </url>
     <url>
+        <loc>https://iefpcrm.cr0x.org/manual/quiz/</loc>
+        <lastmod>2026-06-14</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://iefpcrm.cr0x.org/manual/quiz/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://iefpcrm.cr0x.org/manual/en/quiz/"/>
+    </url>
+    <url>
+        <loc>https://iefpcrm.cr0x.org/manual/videos/</loc>
+        <lastmod>2026-06-14</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://iefpcrm.cr0x.org/manual/videos/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://iefpcrm.cr0x.org/manual/en/videos/"/>
+    </url>
+    <url>
         <loc>https://iefpcrm.cr0x.org/manual/formador/email-marca/</loc>
         <lastmod>2026-06-14</lastmod>
         <changefreq>daily</changefreq>
@@ -307,6 +321,20 @@
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://iefpcrm.cr0x.org/manual/en/glossario/"/>
         <xhtml:link rel="alternate" hreflang="pt" href="https://iefpcrm.cr0x.org/manual/glossario/"/>
+    </url>
+    <url>
+        <loc>https://iefpcrm.cr0x.org/manual/en/quiz/</loc>
+        <lastmod>2026-06-14</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://iefpcrm.cr0x.org/manual/en/quiz/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://iefpcrm.cr0x.org/manual/quiz/"/>
+    </url>
+    <url>
+        <loc>https://iefpcrm.cr0x.org/manual/en/videos/</loc>
+        <lastmod>2026-06-14</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://iefpcrm.cr0x.org/manual/en/videos/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://iefpcrm.cr0x.org/manual/videos/"/>
     </url>
     <url>
         <loc>https://iefpcrm.cr0x.org/manual/en/formador/email-marca/</loc>
