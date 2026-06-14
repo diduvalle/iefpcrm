@@ -1,0 +1,13 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:04.371
+To set up the class, you import trainees from an Excel file.
+
+00:00:04.371 --> 00:00:07.576
+Before saving, the platform shows a preview:
+
+00:00:07.576 --> 00:00:11.729
+each row appears valid or in red, with the error flagged.
+
+00:00:11.729 --> 00:00:14.060
+Only the valid ones are created.
