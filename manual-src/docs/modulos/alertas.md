@@ -1,5 +1,9 @@
 # Alertas
 
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/alertas.png"><source src="/manual/assets/videos/alertas-pt.webm" type="video/webm"><source src="/manual/assets/videos/alertas-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/alertas-pt.vtt" srclang="pt" label="Português" default></video>
+
+*A Central de Alertas reúne o que precisa de atenção, num só sítio.*
+
 O centro de **avisos** e o **histórico de atividade** (grupo Sistema). Há também o **sino** no topo, com um *badge* com o número de alertas ativos.
 
 ## Alertas ativos

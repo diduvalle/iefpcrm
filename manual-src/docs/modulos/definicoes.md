@@ -1,6 +1,6 @@
 # Definições
 
-![Definições](../assets/screens/definicoes.png)
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/definicoes.png"><source src="/manual/assets/videos/definicoes-pt.webm" type="video/webm"><source src="/manual/assets/videos/definicoes-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/definicoes-pt.vtt" srclang="pt" label="Português" default></video>
 
 *As Definições, com cartões colapsáveis (vários só de administrador).*
 

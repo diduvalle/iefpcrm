@@ -1,6 +1,6 @@
 # Products
 
-![Product catalog](../assets/screens/produtos.png)
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/produtos.png"><source src="/manual/assets/videos/produtos-en.webm" type="video/webm"><source src="/manual/assets/videos/produtos-en.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/produtos-en.vtt" srclang="en" label="English" default></video>
 
 *The catalog by family, subfamily and item.*
 

@@ -1,6 +1,6 @@
 # Campanhas & Email
 
-![Campanhas & Email](../assets/screens/campanhas.png)
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/campanhas.png"><source src="/manual/assets/videos/campanhas-pt.webm" type="video/webm"><source src="/manual/assets/videos/campanhas-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/campanhas-pt.vtt" srclang="pt" label="Português" default></video>
 
 *Planeamento de campanhas e comunicação por email.*
 

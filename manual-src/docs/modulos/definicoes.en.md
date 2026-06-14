@@ -1,6 +1,6 @@
 # Settings
 
-![Settings](../assets/screens/definicoes.png)
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/definicoes.png"><source src="/manual/assets/videos/definicoes-en.webm" type="video/webm"><source src="/manual/assets/videos/definicoes-en.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/definicoes-en.vtt" srclang="en" label="English" default></video>
 
 *Settings, with collapsible cards (several admin-only).*
 

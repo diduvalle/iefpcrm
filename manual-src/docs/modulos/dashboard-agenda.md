@@ -1,6 +1,6 @@
 # Dashboard & Agenda
 
-<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/dashboard.png"><source src="/manual/assets/videos/dashboard-pt.webm" type="video/webm"><source src="/manual/assets/videos/dashboard-pt.mp4" type="video/mp4"></video>
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/dashboard.png"><source src="/manual/assets/videos/dashboard-pt.webm" type="video/webm"><source src="/manual/assets/videos/dashboard-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/dashboard-pt.vtt" srclang="pt" label="Português" default></video>
 
 *Vista geral: KPIs do período, propostas recentes e pipeline por estado.*
 

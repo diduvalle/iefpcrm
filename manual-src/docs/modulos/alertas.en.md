@@ -1,5 +1,9 @@
 # Alerts
 
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/alertas.png"><source src="/manual/assets/videos/alertas-en.webm" type="video/webm"><source src="/manual/assets/videos/alertas-en.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/alertas-en.vtt" srclang="en" label="English" default></video>
+
+*The Alerts hub brings together everything that needs attention, in one place.*
+
 The **warnings** center and the **activity history** (System group). There is also the **bell** at the top, with a *badge* showing the number of active alerts.
 
 ## Active alerts

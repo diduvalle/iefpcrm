@@ -1,6 +1,6 @@
 # Proposal Templates
 
-![Template builder](../assets/screens/modelos.png)
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/modelos.png"><source src="/manual/assets/videos/modelos-en.webm" type="video/webm"><source src="/manual/assets/videos/modelos-en.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/modelos-en.vtt" srclang="en" label="English" default></video>
 
 *The block-based proposal template builder.*
 

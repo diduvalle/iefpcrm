@@ -4,7 +4,7 @@ As propostas organizam-se por **estado**, em colunas que podes arrastar.
 
 `Lead → Qualificação → Negociação → Ganha → Perdida`
 
-<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/propostas.png"><source src="/manual/assets/videos/propostas-pt.webm" type="video/webm"><source src="/manual/assets/videos/propostas-pt.mp4" type="video/mp4"></video>
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/propostas.png"><source src="/manual/assets/videos/propostas-pt.webm" type="video/webm"><source src="/manual/assets/videos/propostas-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/propostas-pt.vtt" srclang="pt" label="Português" default></video>
 
 *Cada proposta é um cartão; arrasta entre colunas para mudar de estado.*
 
