@@ -110,6 +110,13 @@ plugins:
             "6.5 Portal do Titular": "6.5 Data Subject Portal"
             "7. FAQ": "7. FAQ"
             "8. Glossário": "8. Glossary"
+  - glightbox:
+      touchNavigation: true
+      loop: false
+      effect: zoom
+      zoomable: true
+      draggable: true
+      auto_caption: true
 
 markdown_extensions:
   - admonition
