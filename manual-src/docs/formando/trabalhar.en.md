@@ -26,5 +26,5 @@ Your workspace has several **modules**, in the sidebar. Here's what each one doe
 !!! tip "Experiment without fear"
     You're in **your** *sandbox*. Create, edit and delete freely — nothing affects your colleagues. To restore the sample data, there's a button in **Settings → Data & backup**.
 
-!!! tip "Pedagogical balloons"
-    Notice the **ⓘ** icons next to various titles — they explain the concept and point to the slide page in the UFCD.
+!!! tip "Learning tooltips"
+    Notice the **ⓘ** icons next to various titles — they explain the concept and point to the relevant UFCD slides.

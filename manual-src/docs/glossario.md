@@ -7,9 +7,9 @@
 | **Administrador** | O formador que cria a turma; gere acessos, entregas e definições. |
 | **Formando** | Utilizador que trabalha na sua *sandbox* e submete o trabalho. |
 | **Entrega** | *Snapshot* do trabalho do formando, submetido ao formador (máx. 2). |
-| **Código de recuperação** | Código mostrado uma vez ao criar a turma; recupera a password do formador. |
+| **Código de recuperação** | Código mostrado uma vez ao criar a turma; recupera a palavra-passe do formador. |
 | **Modelo de proposta** | Estrutura por blocos que define o aspeto do PDF da proposta. |
-| **Pipeline** | Conjunto de propostas por estado (Kanban): Lead → Negociação → Ganha/Perdida. |
+| **Pipeline** | Conjunto de propostas por estado (Kanban): Lead → Qualificação → Negociação → Ganha → Perdida. |
 | **RoPA** | Registo das Atividades de Tratamento (RGPD). |
 | **DSAR** | Pedido de exercício de direitos do titular dos dados. |
 | **Loyalty** | Nível de fidelização do cliente (Bronze/Prata/Ouro), com desconto associado. |

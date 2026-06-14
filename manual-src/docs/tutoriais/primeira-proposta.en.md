@@ -21,7 +21,7 @@
 5. **Save**.
 
 !!! success "Result"
-    The company appears in the list. Click it to see the **360º view** (no contacts yet for now).
+    The company appears in the list. Click it to see the **360° view** (no contacts yet for now).
 
 !!! note "📷 Screenshot"
     ![Creating a company](../assets/screens/empresas.png)

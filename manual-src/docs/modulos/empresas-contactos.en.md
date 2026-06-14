@@ -4,7 +4,7 @@ Professional **Account / Contact** model (B2B): **Companies** are the legal enti
 
 <video class="iefp-video" controls preload="none" poster="/manual/assets/screens/clientes.png"><source src="/manual/assets/videos/contactos-en.mp4" type="video/mp4"></video>
 
-*The Contacts tab — full record and 360º view of each client.*
+*The Contacts tab — full record and 360° view of each client.*
 
 ---
 

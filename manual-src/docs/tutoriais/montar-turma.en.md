@@ -42,8 +42,8 @@
 !!! success "Result"
     The trainees appear in the list, ready to enter.
 
-!!! note "📷 Screenshot"
-    *(Capture `import-preview.png` — the preview table.)*
+!!! tip "Preview"
+    Before saving, you see a table with each row marked **✓ valid** or in **red** (missing field, invalid or duplicate email). Only the valid rows are imported.
 
 ---
 

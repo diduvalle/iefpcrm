@@ -42,8 +42,8 @@
 !!! success "Resultado"
     Os formandos aparecem na lista, prontos a entrar.
 
-!!! note "📷 Screenshot"
-    *(Captura `import-preview.png` — a tabela de pré-visualização.)*
+!!! tip "Pré-visualização"
+    Antes de gravar, vês uma tabela com cada linha marcada **✓ válida** ou a **vermelho** (campo em falta, email inválido ou repetido). Só as válidas são importadas.
 
 ---
 

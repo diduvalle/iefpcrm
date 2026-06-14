@@ -1,6 +1,6 @@
 # Adicionar um formando individual
 
-Para criar um acesso a um, sem o ficheiro de importação.
+Para criar um acesso de cada vez, sem o ficheiro de importação.
 
 ## Passo a passo
 

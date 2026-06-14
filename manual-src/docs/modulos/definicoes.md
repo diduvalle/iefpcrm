@@ -36,7 +36,7 @@ Atalho para o construtor de modelos. → [Modelos de Proposta](modelos.md).
 
 Numa turma, as Definições ganham dois cartões centrais:
 
-- **Formandos da turma** — gestão de acessos (importar, individual, repor password). → [Gerir a turma](../formador/gerir-turma/index.md).
+- **Formandos da turma** — gestão de acessos (importar, individual, repor palavra-passe). → [Gerir a turma](../formador/gerir-turma/index.md).
 - **Entrega & validação de trabalhos** — receber e avaliar entregas. → [Entrega & validação](../formador/entregas.md).
 
 !!! note "Quem vê as Definições"

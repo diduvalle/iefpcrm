@@ -4,7 +4,7 @@ Quando um formando submete o trabalho, ele aparece-te em **Definições → Entr
 
 ## Ver as entregas
 
-A box lista as entregas da turma: **formando**, **data** e **mensagem**. Cada formando pode entregar até **2 vezes**.
+A lista mostra as entregas da turma: **formando**, **data** e **mensagem**. Cada formando pode entregar até **2 vezes**.
 
 - **Atualizar** — recarrega a lista.
 - **Carregar .json** — opcional, para validar um ficheiro de trabalho que tenhas recebido por fora.

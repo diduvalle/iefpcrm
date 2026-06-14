@@ -13,7 +13,7 @@ The fastest route for a whole class.
     | `apelido` | ✅ | |
     | `email` | ✅ | The trainee's **IEFP** email (appears in submissions) |
     | `username` | ✅ | The login (e.g.: `joao.silva`) |
-    | `password` | ✅ | Can be left empty → uses the *initial password* |
+    | `password` | — | Can be left empty → uses the *initial password* |
     | `papel` | — | `Formando` (default) or `Formador` |
 
 3. **Import list** → choose the file.

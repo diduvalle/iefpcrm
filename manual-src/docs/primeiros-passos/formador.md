@@ -44,6 +44,6 @@ Cada formando abre o link e entra com o **seu utilizador e palavra-passe**.
 
 ### A seguir
 
-- [Gerir a turma](../formador/gerir-turma/index.md) — importar, acessos, repor passwords
+- [Gerir a turma](../formador/gerir-turma/index.md) — importar, acessos, repor palavras-passe
 - [Entrega & validação](../formador/entregas.md) — rever e avaliar trabalhos
 - [Email & Marca](../formador/email-marca.md) — modo de envio e *white-label*

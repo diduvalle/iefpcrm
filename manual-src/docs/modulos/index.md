@@ -76,5 +76,5 @@ O IEFP CRM cobre todo o ciclo de um CRM real. Acede a cada menu pelos cartões a
 
 </div>
 
-!!! question "Precisa de ajuda?"
+!!! question "Precisas de ajuda?"
     Tens dúvidas? Vê as **[Perguntas Frequentes](../faq.md)** ou volta ao **[Início](../index.md)**.

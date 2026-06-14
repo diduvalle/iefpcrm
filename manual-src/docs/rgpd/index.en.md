@@ -54,5 +54,5 @@ The **GDPR** module is the core of the UFCD **10870 — CRM Administration** (da
 | **10868 — CRM Analytics** | Dashboard, Analytics, Campaigns, segmentation, funnel, CAC/LTV |
 | **10870 — CRM Administration** | GDPR (consents, DSAR, RoPA, breaches), users and permissions |
 
-!!! info "Pedagogical tooltips"
+!!! info "Learning tooltips"
     Throughout the app, the **ⓘ** icon brings up the definition of the concept (consent, data subject, breach, RoPA…) and the **reference to the slide page**.

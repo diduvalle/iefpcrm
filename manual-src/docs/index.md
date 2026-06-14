@@ -56,7 +56,7 @@ Aqui encontras tudo o que precisas, organizado em **duas vertentes**. Escolhe o 
 |---|---|---|
 | **Primeiros passos** | Ambos | O essencial para arrancar em minutos |
 | **Para o Formador** | Formador | Gerir turma, entregas, email e marca |
-| **Para o Formando** | Formando | Trabalhar no CRM, recuperar password, submeter |
+| **Para o Formando** | Formando | Trabalhar no CRM, recuperar palavra-passe, submeter |
 | **Funcionalidades** | Ambos | Cada módulo explicado em detalhe |
 | **RGPD & Pedagogia** | Ambos | Ligação às UFCD 10868 e 10870 |
 | **FAQ · Glossário** | Ambos | Dúvidas comuns e termos |

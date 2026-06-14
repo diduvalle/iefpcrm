@@ -16,7 +16,7 @@ O **RoPA** (*Records of Processing Activities*, art.º 30.º do RGPD) lista **o 
 2. **+ Atividade** → preenche os campos.
 3. **Guardar** — entra no **relatório de conformidade**.
 
-!!! info "Porquê é obrigatório"
+!!! info "Porque é obrigatório"
     O RoPA é o **mapa do tratamento de dados**. É o primeiro documento que uma autoridade de controlo pede numa auditoria.
 
 ➡️ A seguir: **[Violações de dados](violacoes.md)** · voltar a **[RGPD](index.md)**.

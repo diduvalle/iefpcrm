@@ -21,14 +21,14 @@ Tudo o que toca aos **acessos dos formandos** está em **Definições → Forman
 -   <svg class="icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M19 8v6M22 11h-6"/></svg> __Adicionar individual__
 
     ---
-    Criar um formando a um.
+    Criar um formando de cada vez.
 
     [:octicons-arrow-right-24: Abrir](adicionar.md)
 
 -   <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> __Repor palavra-passe__
 
     ---
-    Quando um formando se esquece da password.
+    Quando um formando se esquece da palavra-passe.
 
     [:octicons-arrow-right-24: Abrir](repor-password.md)
 

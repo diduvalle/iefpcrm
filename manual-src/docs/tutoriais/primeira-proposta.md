@@ -21,7 +21,7 @@
 5. **Guardar**.
 
 !!! success "Resultado"
-    A empresa aparece na lista. Clica nela para veres a **ficha 360º** (por agora sem contactos).
+    A empresa aparece na lista. Clica nela para veres a **ficha 360°** (por agora sem contactos).
 
 !!! note "📷 Screenshot"
     ![Criar uma empresa](../assets/screens/empresas.png)

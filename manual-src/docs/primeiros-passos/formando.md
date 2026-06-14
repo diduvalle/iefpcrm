@@ -29,7 +29,7 @@ A navegação está à esquerda, por grupos (Principal, Marketing & Análise, Co
 3. **Guardar alterações**.
 
 !!! question "Esqueceste-te da palavra-passe?"
-    Vê **[Recuperar a password](../formando/recuperar.md)** — podes pedir ao formador para a repor.
+    Vê **[Recuperar a palavra-passe](../formando/recuperar.md)** — podes pedir ao formador para a repor.
 
 ## 4. Submeter o trabalho
 
@@ -43,4 +43,4 @@ Quando terminares o exercício, clica em **“Submeter o meu trabalho”** (em b
 
 - [Trabalhar no CRM](../formando/trabalhar.md) — os módulos explicados
 - [Submeter o trabalho](../formando/submeter.md) — como entregar
-- [Recuperar a password](../formando/recuperar.md)
+- [Recuperar a palavra-passe](../formando/recuperar.md)

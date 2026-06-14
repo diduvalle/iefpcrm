@@ -4,7 +4,7 @@ Modelo profissional **Account / Contact** (B2B): as **Empresas** são as entidad
 
 <video class="iefp-video" controls preload="none" poster="/manual/assets/screens/clientes.png"><source src="/manual/assets/videos/contactos-pt.mp4" type="video/mp4"></video>
 
-*O separador Contactos — ficha completa e visão 360º de cada cliente.*
+*O separador Contactos — ficha completa e visão 360° de cada cliente.*
 
 ---
 
@@ -13,7 +13,7 @@ Modelo profissional **Account / Contact** (B2B): as **Empresas** são as entidad
 ### O ecrã
 - **Filtro temporal** + **KPIs** (nº de empresas, valor associado).
 - **Pesquisa**, **paginação** e o botão **+ Empresa**.
-- Clica numa **linha** para abrir a **ficha 360º**.
+- Clica numa **linha** para abrir a **ficha 360°**.
 
 ### Criar / editar — campo a campo
 - **Nome** (razão social) *obrigatório*.
@@ -24,7 +24,7 @@ Modelo profissional **Account / Contact** (B2B): as **Empresas** são as entidad
 - **Região** — Continente / Madeira / Açores (influencia o IVA das propostas dos seus contactos).
 - **Website**, **Telefone**, **Email**, **Notas**.
 
-### Ficha 360º
+### Ficha 360°
 Mostra os **dados fiscais**, a **lista de contactos** da empresa e um resumo de **propostas / ganhas / valor**.
 
 ---
@@ -34,7 +34,7 @@ Mostra os **dados fiscais**, a **lista de contactos** da empresa e um resumo de 
 As pessoas (os antigos "clientes").
 
 ### O ecrã
-Igual ao das empresas: filtro temporal, KPIs (nº de contactos, valor médio — pode aparecer 🔒), pesquisa, paginação, **+ Contacto**. Clica numa linha → **ficha 360º**.
+Igual ao das empresas: filtro temporal, KPIs (nº de contactos, valor médio — pode aparecer 🔒), pesquisa, paginação, **+ Contacto**. Clica numa linha → **ficha 360°**.
 
 ### Criar / editar — campo a campo
 - **Nome** e **Apelido** *(nome obrigatório)*.
@@ -47,7 +47,7 @@ Igual ao das empresas: filtro temporal, KPIs (nº de contactos, valor médio —
 - **Loyalty** — Bronze / Prata / Ouro (recalcula-se pelo volume de compras; dá **desconto** nas propostas).
 - **Notas**.
 
-### Ficha 360º
+### Ficha 360°
 Dados completos, **nível de loyalty**, **propostas** do contacto e histórico.
 
 ---
