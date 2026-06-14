@@ -2,7 +2,7 @@
 
 The **KPIs & Dashboards** module — the focus of UFCD **10868**. Everything respects the **date filter** and lets you **compare with the previous period**.
 
-![Analytics — funnel and KPIs](../assets/screens/analytics.png)
+<video class="iefp-video" controls preload="none" poster="/manual/assets/screens/analytics.png"><source src="/manual/assets/videos/analytics-en.mp4" type="video/mp4"></video>
 
 *Sales funnel, conversion, average ticket, churn and top clients (UFCD 10868).*
 

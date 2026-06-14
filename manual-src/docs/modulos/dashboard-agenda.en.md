@@ -1,6 +1,6 @@
 # Dashboard & Calendar
 
-![The IEFP CRM Dashboard](../assets/screens/dashboard.png)
+<video class="iefp-video" controls preload="none" poster="/manual/assets/screens/dashboard.png"><source src="/manual/assets/videos/dashboard-en.mp4" type="video/mp4"></video>
 
 *Overview: period KPIs, recent proposals and pipeline by status.*
 

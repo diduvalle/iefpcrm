@@ -1,6 +1,6 @@
 # Dashboard & Agenda
 
-![O Dashboard do IEFP CRM](../assets/screens/dashboard.png)
+<video class="iefp-video" controls preload="none" poster="/manual/assets/screens/dashboard.png"><source src="/manual/assets/videos/dashboard-pt.mp4" type="video/mp4"></video>
 
 *Vista geral: KPIs do período, propostas recentes e pipeline por estado.*
 
