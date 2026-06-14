@@ -2,7 +2,7 @@
 
 Modelo profissional **Account / Contact** (B2B): as **Empresas** são as entidades legais; os **Contactos** são as pessoas ligadas a essas empresas. São dois menus distintos na barra lateral.
 
-<video class="iefp-video" controls preload="none" poster="/manual/assets/screens/clientes.png"><source src="/manual/assets/videos/contactos-pt.mp4" type="video/mp4"></video>
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/clientes.png"><source src="/manual/assets/videos/contactos-pt.mp4" type="video/mp4"></video>
 
 *O separador Contactos — ficha completa e visão 360° de cada cliente.*
 

@@ -444,7 +444,8 @@
 
 /* Vídeos de demonstração (mesma moldura das imagens) */
 .md-typeset .iefp-video {
-  width: 100%; display: block;
+  width: 100%; height: auto; display: block;
+  aspect-ratio: 16 / 10;          /* reserva o espaço (1440×900) — evita o leitor colapsado */
   border-radius: var(--iefp-r);
   border: 1px solid var(--iefp-border);
   box-shadow: var(--iefp-shadow);

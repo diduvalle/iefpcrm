@@ -2,7 +2,7 @@
 
 O módulo **RGPD** é o núcleo da UFCD **10870 — Administração de CRM** (proteção de dados). Tudo respeita o **filtro temporal** e há um **relatório de conformidade imprimível**.
 
-<video class="iefp-video" controls preload="none" poster="/manual/assets/screens/rgpd.png"><source src="/manual/assets/videos/rgpd-pt.mp4" type="video/mp4"></video>
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/rgpd.png"><source src="/manual/assets/videos/rgpd-pt.mp4" type="video/mp4"></video>
 
 *Consentimentos, pedidos de titular, RoPA e violações — num só módulo.*
 
