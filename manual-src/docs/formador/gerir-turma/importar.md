@@ -1,5 +1,9 @@
 # Importar formandos (Excel/CSV)
 
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/importar.png"><source src="/manual/assets/videos/importar-pt.webm" type="video/webm"><source src="/manual/assets/videos/importar-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/importar-pt.vtt" srclang="pt" label="Português" default></video>
+
+*Importar formandos com pré-visualização e validação.*
+
 A via mais rápida para uma turma inteira.
 
 ## Passo a passo

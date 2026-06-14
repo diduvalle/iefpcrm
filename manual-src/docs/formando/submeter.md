@@ -1,5 +1,9 @@
 # Submeter o meu trabalho
 
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/submeter.png"><source src="/manual/assets/videos/submeter-pt.webm" type="video/webm"><source src="/manual/assets/videos/submeter-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/submeter-pt.vtt" srclang="pt" label="Português" default></video>
+
+*Submeter o trabalho ao formador, com assinatura.*
+
 Quando terminares o exercício, entregas tudo a partir do próprio CRM.
 
 ## Antes de submeter: a assinatura

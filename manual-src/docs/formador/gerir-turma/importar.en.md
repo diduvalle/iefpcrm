@@ -1,5 +1,9 @@
 # Importing trainees (Excel/CSV)
 
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/importar.png"><source src="/manual/assets/videos/importar-en.webm" type="video/webm"><source src="/manual/assets/videos/importar-en.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/importar-en.vtt" srclang="en" label="English" default></video>
+
+*Importing trainees with preview and validation.*
+
 The fastest route for a whole class.
 
 ## Step by step

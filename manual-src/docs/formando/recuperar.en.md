@@ -1,5 +1,9 @@
 # Recover my password
 
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/recuperar.png"><source src="/manual/assets/videos/recuperar-en.webm" type="video/webm"><source src="/manual/assets/videos/recuperar-en.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/recuperar-en.vtt" srclang="en" label="English" default></video>
+
+*Recovering the password with the recovery code.*
+
 ## If you know the current one (change it)
 
 1. Click on **your name** (bottom-left corner) → **My profile**.

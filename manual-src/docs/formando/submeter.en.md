@@ -1,5 +1,9 @@
 # Submit my work
 
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/submeter.png"><source src="/manual/assets/videos/submeter-en.webm" type="video/webm"><source src="/manual/assets/videos/submeter-en.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/submeter-en.vtt" srclang="en" label="English" default></video>
+
+*Submitting your work to the trainer, with a signature.*
+
 When you finish the exercise, you hand everything in from within the CRM itself.
 
 ## Before submitting: the signature

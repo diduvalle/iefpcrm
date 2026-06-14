@@ -1,5 +1,9 @@
 # Recuperar a minha palavra-passe
 
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/recuperar.png"><source src="/manual/assets/videos/recuperar-pt.webm" type="video/webm"><source src="/manual/assets/videos/recuperar-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/recuperar-pt.vtt" srclang="pt" label="Português" default></video>
+
+*Recuperar a palavra-passe com o código de recuperação.*
+
 ## Se sabes a atual (mudar)
 
 1. Clica no **teu nome** (canto inferior esquerdo) → **O meu perfil**.
