@@ -46,6 +46,9 @@ theme:
 extra_css:
   - stylesheets/extra.css
 
+extra_javascript:
+  - assets/js/quiz.js
+
 # IMPORTANTE: site bilingue (PT por defeito + /en/). Qualquer alteração ao
 # conteúdo tem de ser feita NOS DOIS idiomas: foo.md (PT) e foo.en.md (EN).
 plugins:
@@ -67,6 +70,8 @@ plugins:
           site_description: "Manual of the IEFP CRM platform — guide for trainers and trainees (UFCD 10868 and 10870)."
           nav_translations:
             "Início": "Home"
+            "Vídeos": "Videos"
+            "Autoavaliação": "Self-assessment"
             "1. Primeiros passos": "1. Getting started"
             "1.1 Sou Formador": "1.1 I'm a Trainer"
             "1.2 Sou Formando": "1.2 I'm a Trainee"
@@ -143,6 +148,8 @@ extra:
 
 nav:
   - Início: index.md
+  - Vídeos: videos.md
+  - Autoavaliação: quiz.md
   - 1. Primeiros passos:
       - 1.1 Sou Formador: primeiros-passos/formador.md
       - 1.2 Sou Formando: primeiros-passos/formando.md
