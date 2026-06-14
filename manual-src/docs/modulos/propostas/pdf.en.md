@@ -1,5 +1,9 @@
 # Export PDF
 
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/pdf.png"><source src="/manual/assets/videos/pdf-en.webm" type="video/webm"><source src="/manual/assets/videos/pdf-en.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/pdf-en.vtt" srclang="en" label="English" default></video>
+
+*Preview and save the proposal as PDF.*
+
 Generate the **A4** document, ready to print or save.
 
 ## Step by step

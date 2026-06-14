@@ -1,5 +1,9 @@
 # Criar a proposta
 
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/criar-proposta.png"><source src="/manual/assets/videos/criar-proposta-pt.webm" type="video/webm"><source src="/manual/assets/videos/criar-proposta-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/criar-proposta-pt.vtt" srclang="pt" label="Português" default></video>
+
+*Criar uma proposta, do cliente aos totais.*
+
 Clica **+ Proposta** (ou num cartão existente para editar). O modal abre com o cabeçalho da proposta.
 
 ## Campo a campo

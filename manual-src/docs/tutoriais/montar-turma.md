@@ -18,8 +18,9 @@
 !!! warning "Guarda o código de recuperação"
     Aparece **uma vez** — anota-o. É a tua forma de recuperar a palavra-passe.
 
-!!! note "📷 Screenshot"
-    ![Ecrã inicial — criar turma](../assets/screens/hub.png)
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/hub.png"><source src="/manual/assets/videos/montar-turma-pt.webm" type="video/webm"><source src="/manual/assets/videos/montar-turma-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/montar-turma-pt.vtt" srclang="pt" label="Português" default></video>
+
+*Criar a turma a partir do ecrã inicial.*
 
 ---
 

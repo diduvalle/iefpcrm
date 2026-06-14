@@ -1,5 +1,9 @@
 # Exportar PDF
 
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/pdf.png"><source src="/manual/assets/videos/pdf-pt.webm" type="video/webm"><source src="/manual/assets/videos/pdf-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/pdf-pt.vtt" srclang="pt" label="Português" default></video>
+
+*Pré-visualizar e guardar a proposta em PDF.*
+
 Gera o documento **A4** pronto a imprimir ou guardar.
 
 ## Passo a passo

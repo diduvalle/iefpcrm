@@ -18,8 +18,9 @@
 !!! warning "Save the recovery code"
     It appears **once** — write it down. It is your way to recover the password.
 
-!!! note "📷 Screenshot"
-    ![Home screen — create a class](../assets/screens/hub.png)
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/hub.png"><source src="/manual/assets/videos/montar-turma-en.webm" type="video/webm"><source src="/manual/assets/videos/montar-turma-en.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/montar-turma-en.vtt" srclang="en" label="English" default></video>
+
+*Create the class from the home screen.*
 
 ---
 

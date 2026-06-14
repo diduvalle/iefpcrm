@@ -1,5 +1,9 @@
 # Create the proposal
 
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/criar-proposta.png"><source src="/manual/assets/videos/criar-proposta-en.webm" type="video/webm"><source src="/manual/assets/videos/criar-proposta-en.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/criar-proposta-en.vtt" srclang="en" label="English" default></video>
+
+*Creating a proposal, from client to totals.*
+
 Click **+ Proposal** (or an existing card to edit). The modal opens with the proposal header.
 
 ## Field by field

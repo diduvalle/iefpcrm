@@ -17,6 +17,10 @@ Bem-vindo ao manual da **plataforma IEFP CRM** — a ferramenta pedagógica de *
 
 </div>
 
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/dashboard.png"><source src="/manual/assets/videos/resumo-pt.webm" type="video/webm"><source src="/manual/assets/videos/resumo-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/resumo-pt.vtt" srclang="pt" label="Português" default></video>
+
+*Vista geral do IEFP CRM em ~1 minuto.*
+
 Aqui encontras tudo o que precisas, organizado em **duas vertentes**. Escolhe o teu caminho:
 
 <div class="grid cards" markdown>
