@@ -442,6 +442,15 @@
   box-shadow: var(--iefp-shadow);
 }
 
+/* Vídeos de demonstração (mesma moldura das imagens) */
+.md-typeset .iefp-video {
+  width: 100%; display: block;
+  border-radius: var(--iefp-r);
+  border: 1px solid var(--iefp-border);
+  box-shadow: var(--iefp-shadow);
+  background: #000;
+}
+
 /* Botões Material */
 .md-typeset .md-button {
   border-radius: 10px; font-weight: 700; padding: .5em 1.1em; border-width: 1px;
