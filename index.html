@@ -291,10 +291,14 @@ td .cell-sub{font-size:.78rem;color:var(--muted)}
 /* ---------- BADGES / PILLS ---------- */
 .pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:.74rem;font-weight:700;line-height:1.4;border:1px solid transparent}
 .pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.9}
-.pill.green{background:var(--g100);color:var(--g700)}
-.pill.blue{background:var(--info-bg);color:var(--info)}
-.pill.amber{background:var(--warn-bg);color:var(--warn)}
-.pill.red{background:var(--danger-bg);color:var(--danger)}
+.pill.green{background:var(--g100);color:#005a32}
+.pill.blue{background:var(--info-bg);color:#1d4ed8}
+.pill.amber{background:var(--warn-bg);color:#92400e}
+.pill.red{background:var(--danger-bg);color:#b91c1c}
+[data-theme="dark"] .pill.green{color:#79d4a2}
+[data-theme="dark"] .pill.blue{color:#9db8fb}
+[data-theme="dark"] .pill.amber{color:#fbbf24}
+[data-theme="dark"] .pill.red{color:#f8a4a4}
 .pill.grey{background:var(--surface3);color:var(--muted)}
 .pill.purple{background:#f0e9fb;color:#7c3aed}
 [data-theme="dark"] .pill.purple{background:#241a3a;color:#b794f6}
@@ -581,7 +585,7 @@ body.present #presentExit{display:inline-flex;align-items:center;gap:6px;positio
     </div>
     <div class="nav-search">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input id="globalSearch" type="search" placeholder="Pesquisar…" autocomplete="off">
+      <input id="globalSearch" type="search" placeholder="Pesquisar…" autocomplete="off" aria-label="Pesquisar">
     </div>
     <div id="searchResults" class="search-results" style="display:none"></div>
     <nav class="nav" id="nav"></nav>
@@ -1751,8 +1755,8 @@ function dateBar(scope, extra){
     <div class="toolbar" style="justify-content:space-between;gap:14px;align-items:flex-end">
       <div class="tabs">${presets.map(p=>`<button class="tab ${r.preset===p[0]?'active':''}" data-dpreset="${scope}:${p[0]}">${p[1]}</button>`).join('')}</div>
       <div class="toolbar" style="align-items:flex-end;gap:8px">
-        <div class="field"><label style="font-size:.72rem">De</label><input type="date" data-drange="${scope}:from" value="${r.from}" style="padding:7px 10px"></div>
-        <div class="field"><label style="font-size:.72rem">Até</label><input type="date" data-drange="${scope}:to" value="${r.to}" style="padding:7px 10px"></div>
+        <div class="field"><label style="font-size:.72rem">De</label><input type="date" data-drange="${scope}:from" value="${r.from}" style="padding:7px 10px" aria-label="Data inicial"></div>
+        <div class="field"><label style="font-size:.72rem">Até</label><input type="date" data-drange="${scope}:to" value="${r.to}" style="padding:7px 10px" aria-label="Data final"></div>
         ${(r.from||r.to)?`<button class="btn-ghost btn-sm" data-dclear="${scope}">Limpar</button>`:''}
       </div>
     </div>
