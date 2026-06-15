@@ -4479,5 +4479,14 @@ document.addEventListener('drop',e=>{
 
 })();
 </script>
+<script>
+/* Analítica de primeira-parte (sem cookies, sem dados pessoais, sem terceiros). Falha em silêncio. */
+(function(){try{
+  var U='https://qgfzbyhfyqvmmmdiqycu.supabase.co',K='sb_publishable_atlEEoeN4-CWY8mD7KQNsw_m1cXjdIE';
+  var dev=(function(){try{return matchMedia('(max-width:760px)').matches?'mobile':'desktop';}catch(e){return '';}})();
+  var ref=(function(){try{return new URL(document.referrer).host;}catch(e){return '';}})();
+  fetch(U+'/rest/v1/site_views',{method:'POST',keepalive:true,headers:{'apikey':K,'Authorization':'Bearer '+K,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({site:'app',kind:'open',path:'/',ref:ref,device:dev})}).catch(function(){});
+}catch(e){}})();
+</script>
 </body>
 </html>

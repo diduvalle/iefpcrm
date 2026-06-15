@@ -48,6 +48,7 @@ extra_css:
 
 extra_javascript:
   - assets/js/quiz.js
+  - assets/js/analytics.js
 
 # IMPORTANTE: site bilingue (PT por defeito + /en/). Qualquer alteração ao
 # conteúdo tem de ser feita NOS DOIS idiomas: foo.md (PT) e foo.en.md (EN).

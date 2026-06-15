@@ -12,6 +12,10 @@
 - All data shown in the application (clients, companies, proposals, etc.) is **fictional**, created only for demonstration and practice. It does not correspond to real people or entities.
 - The application is intended for **training purposes** and is provided **"as is"**, without warranties of any kind.
 
+## Analytics
+
+- To understand usage, we record **anonymous, aggregated statistics** (page visited, language, device type, videos played). We **do not use cookies**, **do not collect personal data**, and do not share with third parties — the data stays within the project's own infrastructure.
+
 ## Rights and contact
 
 - Rights over trademarks, logos and other identified elements belong to their respective owners.

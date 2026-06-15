@@ -12,6 +12,10 @@ O **IEFP CRM** é um projeto **pedagógico, independente e sem fins lucrativos**
 - Todos os dados apresentados na aplicação (clientes, empresas, propostas, etc.) são **fictícios**, criados apenas para demonstração e prática. Não correspondem a pessoas ou entidades reais.
 - A aplicação destina-se a **fins formativos** e é fornecida **"tal como está"**, sem garantias de qualquer tipo.
 
+## Analítica
+
+- Para perceber a utilização, registamos **estatísticas anónimas e agregadas** (página visitada, idioma, tipo de dispositivo, vídeos vistos). **Não usamos cookies**, **não recolhemos dados pessoais** nem partilhamos com terceiros — os dados ficam na infraestrutura do próprio projeto.
+
 ## Direitos e contacto
 
 - Os direitos sobre marcas, logótipos e demais elementos identificados pertencem aos respetivos titulares.
