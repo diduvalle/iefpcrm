@@ -15,6 +15,10 @@ create table if not exists public.site_views (
   device  text                                    -- 'mobile' | 'desktop'
 );
 
+-- Fuso horário IANA (ex.: Europe/Lisbon) — derivado no browser, sem IP.
+-- Usado para o mapa-mundo de acessos por país (aproximação por fuso, sem geo-IP).
+alter table public.site_views add column if not exists tz text;
+
 create index if not exists site_views_ts_idx   on public.site_views (ts);
 create index if not exists site_views_path_idx on public.site_views (path);
 create index if not exists site_views_kind_idx on public.site_views (kind);
@@ -52,8 +56,12 @@ as $$
                              count(*) filter (where site='manual' and kind='pageview') m,
                              count(*) filter (where site='app'    and kind='open')     a
                       from site_views
-                      where kind in ('pageview','open') and ts > now() - interval '14 days'
+                      where kind in ('pageview','open') and ts > now() - interval '90 days'
                       group by 1) t),
+    'paises', (select coalesce(json_agg(json_build_object('tz', tz, 'n', n) order by n desc), '[]'::json)
+               from (select tz, count(*) n from site_views
+                     where kind in ('pageview','open') and coalesce(tz,'')<>''
+                     group by 1) t),
     'top_paginas', (select coalesce(json_agg(json_build_object('path', path, 'n', n) order by n desc), '[]'::json)
                     from (select path, count(*) n from site_views
                           where site='manual' and kind='pageview' and coalesce(path,'')<>''

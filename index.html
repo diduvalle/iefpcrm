@@ -286,6 +286,14 @@ a{text-decoration:none;color:inherit}
 .an-chip{display:flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;background:var(--surface2,var(--surface));border:1px solid var(--border);font-size:.8rem;font-weight:600}
 .an-chip strong{color:var(--g700)}
 [data-theme="dark"] .an-chip strong{color:var(--g400)}
+.an-pills{display:inline-flex;gap:4px;background:var(--surface2,var(--surface));border:1px solid var(--border);border-radius:999px;padding:3px}
+.an-pill{border:0;background:none;cursor:pointer;font:inherit;font-size:.72rem;font-weight:700;color:var(--muted);padding:3px 10px;border-radius:999px;line-height:1.4}
+.an-pill.on{background:var(--g600);color:#fff}
+.an-map{width:100%;border:1px solid var(--border);border-radius:var(--r);background:var(--surface2,var(--surface));overflow:hidden}
+.an-map-svg{display:block;width:100%;height:auto}
+.an-land{fill:var(--g100,#e6f4ec);stroke:var(--border);stroke-width:.5}
+[data-theme="dark"] .an-land{fill:#1f2a24;stroke:#2c3a32}
+.an-bubble{fill:var(--g500,#22a05a);fill-opacity:.55;stroke:var(--g700,#00803d);stroke-width:.8}
 
 /* ---------- HERO ---------- */
 .hero{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;padding:26px;border-radius:var(--rl);background:linear-gradient(125deg,var(--g800),var(--g600) 55%,var(--g400));color:#fff;position:relative;overflow:hidden;box-shadow:0 16px 40px rgba(0,107,60,.24)}
@@ -602,6 +610,7 @@ body.present .content{max-width:1320px}
 body.present #presentExit{display:inline-flex;align-items:center;gap:6px;position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:210;background:var(--g700);color:#fff;border:0;border-radius:30px;padding:10px 20px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-lg)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="worldmap.js"></script>
 </head>
 <body>
 <div class="toast-wrap" id="toasts"></div>
@@ -3522,6 +3531,51 @@ function anSplit(obj, map){
   const ent=Object.entries(obj||{}).filter(([k])=>k!=='?'); const tot=ent.reduce((a,[,v])=>a+v,0)||1;
   return ent.length? ent.sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="an-chip"><span>${esc(map[k]||k)}</span><strong>${Math.round(v/tot*100)}%</strong><span class="muted">(${v})</span></div>`).join('') : '<span class="muted">—</span>';
 }
+let anData=null, anDays=14;
+function anFlag(cc){ return /^[A-Z]{2}$/.test(cc)? cc.replace(/./g,c=>String.fromCodePoint(0x1F1E6+c.charCodeAt(0)-65)) : '🏳️'; }
+function anCountryName(cc){ try{ return new Intl.DisplayNames([getLang()==='en'?'en':'pt'],{type:'region'}).of(cc)||cc; }catch(e){ return cc; } }
+function anWorldMap(paises){
+  const W=window.IEFP_WORLD;
+  if(!W){ return '<div class="muted" style="padding:6px 2px">Mapa indisponível.</div>'; }
+  const byCC={}; let unknown=0;
+  (paises||[]).forEach(p=>{ const cc=W.tz[p.tz]; if(cc){ byCC[cc]=(byCC[cc]||0)+p.n; } else { unknown+=p.n; } });
+  const entries=Object.entries(byCC).sort((a,b)=>b[1]-a[1]);
+  if(!entries.length){ return '<div class="muted" style="padding:6px 2px">Ainda sem dados de país (o fuso horário é registado a partir de agora).</div>'; }
+  const max=Math.max(...entries.map(e=>e[1])); const [VW,VH]=W.vb;
+  const bubbles=entries.map(([cc,n])=>{ const xy=W.cc[cc]; if(!xy)return ''; const r=(3+Math.sqrt(n/max)*15).toFixed(1); return `<circle cx="${xy[0]}" cy="${xy[1]}" r="${r}" class="an-bubble"><title>${esc(anCountryName(cc))}: ${n}</title></circle>`; }).join('');
+  const top=entries.slice(0,8).map(([cc,n])=>`<div class="an-chip"><span>${anFlag(cc)} ${esc(anCountryName(cc))}</span><strong>${n}</strong></div>`).join('');
+  const unk= unknown? `<div class="an-chip"><span>🏳️ Desconhecido</span><strong>${unknown}</strong></div>` : '';
+  return `<div class="an-map"><svg viewBox="0 0 ${VW} ${VH}" preserveAspectRatio="xMidYMid meet" class="an-map-svg" role="img" aria-label="Mapa de acessos por país"><path d="${W.path}" class="an-land"/>${bubbles}</svg></div><div class="an-chips" style="margin-top:10px">${top}${unk}</div>`;
+}
+function anPaint(){
+  const box=$('#siteAnalytics'); if(!box||!anData) return; const d=anData;
+  const dias=(d.por_dia||[]).slice(-anDays); const maxDia=Math.max(1,...dias.map(x=>(x.m||0)+(x.a||0)));
+  const fmtDia=s=>{ const p=String(s).split('-'); return p.length===3?(p[2]+'/'+p[1]):s; };
+  const barras = dias.length? `<div class="an-days">${dias.map(x=>{const hm=Math.round((x.m||0)/maxDia*100), ha=Math.round((x.a||0)/maxDia*100); return `<div class="an-day" title="${fmtDia(x.d)} · manual ${x.m||0} · app ${x.a||0}"><div class="an-day-bars"><div class="an-day-fill s-man" style="height:${hm}%"></div><div class="an-day-fill s-app" style="height:${ha}%"></div></div><span class="an-day-lbl">${fmtDia(x.d)}</span></div>`;}).join('')}</div>` : '<div class="muted" style="padding:6px 2px">Sem visitas neste período.</div>';
+  const periods=[7,14,30,90].map(n=>`<button class="an-pill${n===anDays?' on':''}" data-act="an-days" data-d="${n}">${n}d</button>`).join('');
+  box.innerHTML=`
+    <div class="an-kpis">
+      <div class="an-kpi"><span class="an-kpi-n">${d.manual_visitas||0}</span><span class="an-kpi-l">Manual · visitas</span></div>
+      <div class="an-kpi"><span class="an-kpi-n">${d.app_aberturas||0}</span><span class="an-kpi-l">App · aberturas</span></div>
+      <div class="an-kpi"><span class="an-kpi-n">${d.video_plays||0}</span><span class="an-kpi-l">Vídeos · plays</span></div>
+      <div class="an-kpi"><span class="an-kpi-n">${d.total||0}</span><span class="an-kpi-l">Total registos</span></div>
+    </div>
+    <div class="an-block">
+      <div class="an-h">Visitas por dia <span style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><span class="an-legend"><i class="s-man"></i>Manual <i class="s-app"></i>App</span><span class="an-pills">${periods}</span></span></div>
+      ${barras}
+    </div>
+    <div class="an-cols">
+      <div class="an-block"><div class="an-h">Top páginas do manual</div>${anList(d.top_paginas||[], i=>prettyPath(i.path))}</div>
+      <div class="an-block"><div class="an-h">Top vídeos</div>${anList(d.top_videos||[], i=>prettyVideo(i.label))}</div>
+    </div>
+    <div class="an-block"><div class="an-h">Acessos por país <span class="muted" style="font-weight:600;font-size:.7rem">aprox. por fuso horário</span></div>${anWorldMap(d.paises)}</div>
+    <div class="an-cols">
+      <div class="an-block"><div class="an-h">Dispositivo</div><div class="an-chips">${anSplit(d.dispositivo,{desktop:'Computador',mobile:'Telemóvel'})}</div></div>
+      <div class="an-block"><div class="an-h">Idioma</div><div class="an-chips">${anSplit(d.idioma,{pt:'Português',en:'English'})}</div></div>
+    </div>
+    <div class="an-block"><div class="an-h">Origem do tráfego</div>${anList(d.origem||[], i=>i.ref==='(direto)'?'Acesso direto':i.ref)}</div>
+  `;
+}
 async function renderSiteAnalytics(){
   const box=$('#siteAnalytics'); if(!box) return;
   let d;
@@ -3532,30 +3586,7 @@ async function renderSiteAnalytics(){
     return;
   }
   if(!d){ box.innerHTML='<div class="muted" style="padding:6px 2px">Sem ligação ao Supabase.</div>'; return; }
-  const dias=(d.por_dia||[]); const maxDia=Math.max(1,...dias.map(x=>(x.m||0)+(x.a||0)));
-  const fmtDia=s=>{ const p=String(s).split('-'); return p.length===3?(p[2]+'/'+p[1]):s; };
-  const barras = dias.length? `<div class="an-days">${dias.map(x=>{const t=(x.m||0)+(x.a||0); const hm=Math.round((x.m||0)/maxDia*100), ha=Math.round((x.a||0)/maxDia*100); return `<div class="an-day" title="${fmtDia(x.d)} · manual ${x.m||0} · app ${x.a||0}"><div class="an-day-bars"><div class="an-day-fill s-man" style="height:${hm}%"></div><div class="an-day-fill s-app" style="height:${ha}%"></div></div><span class="an-day-lbl">${fmtDia(x.d)}</span></div>`;}).join('')}</div>` : '<div class="muted" style="padding:6px 2px">Ainda sem visitas registadas nos últimos 14 dias.</div>';
-  box.innerHTML=`
-    <div class="an-kpis">
-      <div class="an-kpi"><span class="an-kpi-n">${d.manual_visitas||0}</span><span class="an-kpi-l">Manual · visitas</span></div>
-      <div class="an-kpi"><span class="an-kpi-n">${d.app_aberturas||0}</span><span class="an-kpi-l">App · aberturas</span></div>
-      <div class="an-kpi"><span class="an-kpi-n">${d.video_plays||0}</span><span class="an-kpi-l">Vídeos · plays</span></div>
-      <div class="an-kpi"><span class="an-kpi-n">${d.total||0}</span><span class="an-kpi-l">Total registos</span></div>
-    </div>
-    <div class="an-block">
-      <div class="an-h">Últimos 14 dias <span class="an-legend"><i class="s-man"></i>Manual <i class="s-app"></i>App</span></div>
-      ${barras}
-    </div>
-    <div class="an-cols">
-      <div class="an-block"><div class="an-h">Top páginas do manual</div>${anList(d.top_paginas||[], i=>prettyPath(i.path))}</div>
-      <div class="an-block"><div class="an-h">Top vídeos</div>${anList(d.top_videos||[], i=>prettyVideo(i.label))}</div>
-    </div>
-    <div class="an-cols">
-      <div class="an-block"><div class="an-h">Dispositivo</div><div class="an-chips">${anSplit(d.dispositivo,{desktop:'Computador',mobile:'Telemóvel'})}</div></div>
-      <div class="an-block"><div class="an-h">Idioma</div><div class="an-chips">${anSplit(d.idioma,{pt:'Português',en:'English'})}</div></div>
-    </div>
-    <div class="an-block"><div class="an-h">Origem do tráfego</div>${anList(d.origem||[], i=>i.ref==='(direto)'?'Acesso direto':i.ref)}</div>
-  `;
+  anData=d; anPaint();
 }
 /* ---------- Cards colapsáveis nas Definições ---------- */
 let defCollapsed=(()=>{ try{ return new Set(JSON.parse(localStorage.getItem('iefp-def-collapsed')||'[]')); }catch(e){ return new Set(); } })();
@@ -3721,6 +3752,7 @@ document.addEventListener('click', e=>{
     case 'download-trabalho': submitWork(); break;
     case 'entregas-reload': renderEntregas(); break;
     case 'reload-analytics': { const b=$('#siteAnalytics'); if(b) b.innerHTML='<div class="muted" style="padding:6px 2px">A atualizar…</div>'; renderSiteAnalytics(); } break;
+    case 'an-days': anDays=+el.dataset.d||14; anPaint(); break;
     case 'entrega-upload': { const fi=$('#entregaFile'); if(fi){ fi.onchange=()=>{ const file=fi.files&&fi.files[0]; if(file) revisarFicheiro(file); fi.value=''; }; fi.click(); } } break;
     case 'entrega-rever': openRevisao(el.dataset.id, el.dataset.nome); break;
     case 'entrega-baixar': downloadEntrega(el.dataset.id, el.dataset.nome); break;
@@ -4579,7 +4611,8 @@ document.addEventListener('drop',e=>{
   var U='https://qgfzbyhfyqvmmmdiqycu.supabase.co',K='sb_publishable_atlEEoeN4-CWY8mD7KQNsw_m1cXjdIE';
   var dev=(function(){try{return matchMedia('(max-width:760px)').matches?'mobile':'desktop';}catch(e){return '';}})();
   var ref=(function(){try{return new URL(document.referrer).host;}catch(e){return '';}})();
-  fetch(U+'/rest/v1/site_views',{method:'POST',keepalive:true,headers:{'apikey':K,'Authorization':'Bearer '+K,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({site:'app',kind:'open',path:'/',ref:ref,device:dev})}).catch(function(){});
+  var tz=(function(){try{return Intl.DateTimeFormat().resolvedOptions().timeZone||'';}catch(e){return '';}})();
+  fetch(U+'/rest/v1/site_views',{method:'POST',keepalive:true,headers:{'apikey':K,'Authorization':'Bearer '+K,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({site:'app',kind:'open',path:'/',ref:ref,device:dev,tz:tz})}).catch(function(){});
 }catch(e){}})();
 </script>
 </body>
