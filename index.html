@@ -308,6 +308,18 @@ a{text-decoration:none;color:inherit}
 .root-danger{margin-top:12px;padding:10px 12px;border:1px solid var(--danger,#dc2626);border-radius:10px;background:rgba(220,38,38,.05)}
 [data-theme="dark"] .root-danger{background:rgba(220,38,38,.1)}
 
+/* Consola de Suporte (ecrã inteiro) */
+.root-console{width:100%;min-height:100vh;max-height:100vh;background:var(--bg);display:flex;flex-direction:column;gap:14px;padding:20px clamp(16px,5vw,48px);box-sizing:border-box;position:relative;z-index:1;overflow:hidden}
+.rc-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;flex:none}
+.rc-brand{display:flex;align-items:center;gap:12px;min-width:0}
+.rc-brand h1{font-size:1.25rem;font-weight:800;line-height:1.1}
+.rc-brand p{font-size:.76rem;color:var(--muted)}
+.rc-brand .brand-logo{width:42px;height:42px;flex:none}
+.rc-actions{display:flex;align-items:center;gap:8px;flex:none}
+.rc-body{flex:1;min-height:0;overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.06)}
+.rc-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.74rem;flex-wrap:wrap;flex:none}
+.root-console .root-cards{max-height:none}
+
 /* ---------- HERO ---------- */
 .hero{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;padding:26px;border-radius:var(--rl);background:linear-gradient(125deg,var(--g800),var(--g600) 55%,var(--g400));color:#fff;position:relative;overflow:hidden;box-shadow:0 16px 40px rgba(0,107,60,.24)}
 .hero::after{content:"";position:absolute;right:-60px;top:-60px;width:280px;height:280px;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%);pointer-events:none}
@@ -1370,8 +1382,8 @@ function rootOpenTurma(codigo){
 }
 function rootLogout(){ if(rootSession&&supa()) supaRpc('logout_root',{p_token:rootSession}).catch(()=>{}); try{sessionStorage.removeItem('iefp-root-tok');}catch(_){} rootSession=null; rootTurmas=[]; loginMode='login'; renderLogin(); }
 
-/* ---------- Painel de SUPORTE (root) nas Definições ---------- */
-let rootResumo=null, rootRows=[];
+/* ---------- Painel de SUPORTE (root) — Definições e Consola ---------- */
+let rootResumo=null, rootRows=[], rootBoxSel='#rootPanel';
 function rootFmtDate(t){ if(!t) return '—'; try{ return new Date(t).toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'}); }catch(e){ return '—'; } }
 function rootFmtName(t){ return ((t.formador_nome||'')+' '+(t.formador_apelido||'')).trim(); }
 function rootRowHTML(t){
@@ -1404,7 +1416,7 @@ function rootRowHTML(t){
   </div>`;
 }
 function rootPaint(filter){
-  const box=$('#rootPanel'); if(!box) return;
+  const box=$(rootBoxSel); if(!box) return;
   const f=(filter||'').trim().toLowerCase();
   const match=t=> !f || (t.codigo||'').includes(f) || (t.nome||'').toLowerCase().includes(f)
       || (t.formador_email||t.criado_por||'').toLowerCase().includes(f) || rootFmtName(t).toLowerCase().includes(f);
@@ -1420,8 +1432,9 @@ function rootPaint(filter){
     <div class="root-cards">${rows.map(rootRowHTML).join('')||'<div class="muted" style="padding:10px">Sem turmas.</div>'}</div>`;
   const si=$('#rootSearch'); if(si){ si.oninput=()=>rootPaint(si.value); if((filter||'').length){ si.focus(); try{si.setSelectionRange(filter.length,filter.length);}catch(e){} } }
 }
-async function renderRootPanel(){
-  const box=$('#rootPanel'); if(!box) return;
+async function renderRootPanel(sel){
+  if(sel) rootBoxSel=sel;
+  const box=$(rootBoxSel); if(!box) return;
   try{
     const [resumo,turmas]=await Promise.all([ supaRpc('root_resumo',{p_token:rootSession}), supaRpc('root_turmas',{p_token:rootSession}) ]);
     rootResumo=resumo; rootRows=turmas||[]; rootPaint('');
@@ -3618,7 +3631,7 @@ function render(){
   if(TURMA && v==='definicoes'){ renderTurmaRoster(); renderEntregas(); }
   if(v==='definicoes') makeDefCollapsible();
   if(v==='definicoes' && isAdmin()) renderSiteAnalytics();
-  if(v==='definicoes' && rootSession) renderRootPanel();
+  if(v==='definicoes' && rootSession) renderRootPanel('#rootPanel');
   startI18n();
 }
 /* ---------- Mini-painel de analítica do site (Definições) ---------- */
@@ -3863,8 +3876,7 @@ document.addEventListener('click', e=>{
     case 'entregas-reload': renderEntregas(); break;
     case 'reload-analytics': { const b=$('#siteAnalytics'); if(b) b.innerHTML='<div class="muted" style="padding:6px 2px">A atualizar…</div>'; renderSiteAnalytics(); } break;
     case 'an-days': anDays=+el.dataset.d||14; anPaint(); break;
-    case 'root-refresh': { const b=$('#rootPanel'); if(b) b.innerHTML='<div class="muted" style="padding:6px 2px">A atualizar…</div>'; renderRootPanel(); } break;
-    case 'root-open': rootOpenTurma(el.dataset.codigo); break;
+    case 'root-refresh': { const b=$(rootBoxSel); if(b) b.innerHTML='<div class="muted" style="padding:6px 2px">A atualizar…</div>'; renderRootPanel(); } break;
     case 'root-toggle': { const c=rootCardOf(el); if(c){ const ed=c.querySelector('.root-edit'); if(ed){ ed.hidden=!ed.hidden; el.textContent=ed.hidden?'Gerir':'Fechar'; } } } break;
     case 'root-save': rootSave(el); break;
     case 'root-recovery': rootRecovery(el); break;
@@ -4333,9 +4345,29 @@ function submitEnterTurma(){
     else { if(err) err.textContent='Turma '+d+' não encontrada. Confirme o número com o formador.'; if(btn){ btn.disabled=false; btn.textContent='Entrar'; } }
   }).catch(()=>{ go(); });        // função ainda não criada / rede → não bloquear (cai no login normal)
 }
+/* Consola de Suporte dedicada (ecrã inteiro) — quando há sessão root no Principal. */
+function renderRootConsole(){
+  $('#login').innerHTML=`
+  <div class="root-console">
+    <header class="rc-head">
+      <div class="rc-brand"><div class="brand-logo"><img src="${esc(logoURL())}" alt="logo"></div><div><h1>Consola de Suporte</h1><p>${esc(brandName())} · acesso root</p></div></div>
+      <div class="rc-actions">
+        <button type="button" class="icon-btn lang-btn" data-act="lang" title="Idioma / Language">${getLang()==='en'?'EN':'PT'}</button>
+        <button type="button" class="btn-sec btn-sm" data-act="root-refresh">Atualizar</button>
+        <button type="button" class="btn-ghost btn-sm" data-act="rootlogout">Terminar suporte</button>
+      </div>
+    </header>
+    <div class="rc-body"><div id="rootConsolePanel"><div class="muted" style="padding:10px">A carregar turmas…</div></div></div>
+    <div class="rc-foot"><span class="muted">Acesso de suporte — gestão de identidade (turmas e contas). Não toca nos dados de prática (locais).</span><a class="legal-link" href="https://iefpcrm.cr0x.org/manual/aviso-legal/" target="_blank" rel="noopener">Aviso legal</a></div>
+  </div>`;
+  renderRootPanel('#rootConsolePanel');
+  startI18n();
+}
 function renderLogin(){
   const inTurma=!!TURMA;
   const mode=inTurma?'login':loginMode;     // Principal: 'login'(hub) | 'criarturma' | 'root'
+  // Com sessão de suporte ativa e fora de uma turma, o Principal É a consola.
+  if(!inTurma && rootSession){ renderRootConsole(); return; }
   let body;
   if(createdInfo){
     // Turma criada → mostra o CÓDIGO DE RECUPERAÇÃO uma única vez.
