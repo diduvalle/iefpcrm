@@ -295,6 +295,19 @@ a{text-decoration:none;color:inherit}
 [data-theme="dark"] .an-land{fill:#1f2a24;stroke:#2c3a32}
 .an-bubble{fill:var(--g500,#22a05a);fill-opacity:.55;stroke:var(--g700,#00803d);stroke-width:.8}
 
+/* ---------- Painel de suporte (root) ---------- */
+.root-cards{display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow:auto}
+.root-card{border:1px solid var(--border);border-radius:var(--r);background:var(--surface2,var(--surface));overflow:hidden}
+.root-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px}
+.root-main{min-width:0;display:flex;flex-direction:column;gap:2px}
+.root-main strong{font-size:.92rem}
+.root-meta{font-size:.74rem;color:var(--muted);display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.root-act{display:flex;gap:6px;flex:none}
+.root-edit{padding:0 13px 13px;border-top:1px dashed var(--border)}
+.root-edit .form-grid{margin-top:12px}
+.root-danger{margin-top:12px;padding:10px 12px;border:1px solid var(--danger,#dc2626);border-radius:10px;background:rgba(220,38,38,.05)}
+[data-theme="dark"] .root-danger{background:rgba(220,38,38,.1)}
+
 /* ---------- HERO ---------- */
 .hero{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;padding:26px;border-radius:var(--rl);background:linear-gradient(125deg,var(--g800),var(--g600) 55%,var(--g400));color:#fff;position:relative;overflow:hidden;box-shadow:0 16px 40px rgba(0,107,60,.24)}
 .hero::after{content:"";position:absolute;right:-60px;top:-60px;width:280px;height:280px;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%);pointer-events:none}
@@ -1334,6 +1347,7 @@ function rememberTurma(codigo,nome){
    Entra-se pelo gesto escondido: no seletor de Turma → "Entrar por código…"
    → escrever "root". Token de root só em memória + localStorage temporário. */
 let rootSession=null, rootTurmas=[];
+try{ const _rt=sessionStorage.getItem('iefp-root-tok'); if(_rt) rootSession=_rt; }catch(e){}
 async function supaLoginRoot(pw){ return await supaRpc('login_root',{p_password:pw}); }
 async function supaListarTurmas(tok){ return await supaRpc('listar_turmas',{p_token:tok}); }
 async function supaRootAbrir(tok,codigo){ return await supaRpc('root_abrir_turma',{p_token:tok,p_codigo:codigo}); }
@@ -1342,7 +1356,7 @@ function submitRootLogin(){
   const pw=(f.querySelector('[name="rootpass"]')||{}).value||'';
   if(!pw){ if(err) err.textContent='Indique a palavra-passe de suporte.'; return; }
   const btn=f.querySelector('[data-act="rootlogin"]'); if(btn){ btn.disabled=true; btn.textContent='A entrar…'; }
-  supaLoginRoot(pw).then(d=>{ rootSession=d.token; return supaListarTurmas(d.token); })
+  supaLoginRoot(pw).then(d=>{ rootSession=d.token; try{sessionStorage.setItem('iefp-root-tok',d.token);}catch(_){} return supaListarTurmas(d.token); })
     .then(list=>{ rootTurmas=list||[]; renderLogin(); })
     .catch(e=>{ if(err) err.textContent=supaMsg(e); const b=$('#loginForm [data-act="rootlogin"]'); if(b){ b.disabled=false; b.textContent='Entrar como suporte'; } });
 }
@@ -1354,7 +1368,98 @@ function rootOpenTurma(codigo){
     location.href=location.pathname+'?t='+codigo;
   }).catch(e=>{ if(err) err.textContent=supaMsg(e); });
 }
-function rootLogout(){ if(rootSession&&supa()) supaRpc('logout_root',{p_token:rootSession}).catch(()=>{}); rootSession=null; rootTurmas=[]; loginMode='login'; renderLogin(); }
+function rootLogout(){ if(rootSession&&supa()) supaRpc('logout_root',{p_token:rootSession}).catch(()=>{}); try{sessionStorage.removeItem('iefp-root-tok');}catch(_){} rootSession=null; rootTurmas=[]; loginMode='login'; renderLogin(); }
+
+/* ---------- Painel de SUPORTE (root) nas Definições ---------- */
+let rootResumo=null, rootRows=[];
+function rootFmtDate(t){ if(!t) return '—'; try{ return new Date(t).toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'}); }catch(e){ return '—'; } }
+function rootFmtName(t){ return ((t.formador_nome||'')+' '+(t.formador_apelido||'')).trim(); }
+function rootRowHTML(t){
+  const nome=esc(t.nome||('Turma '+t.codigo));
+  const fnome=esc(rootFmtName(t)||'—');
+  const fmail=esc(t.formador_email||t.criado_por||'—');
+  const c=esc(t.codigo);
+  return `<div class="root-card" data-codigo="${c}">
+    <div class="root-row">
+      <div class="root-main"><strong>${nome}</strong><span class="root-meta">${c} · ${t.n_utilizadores} util. · criada ${rootFmtDate(t.criado_em)} · últ. atividade ${rootFmtDate(t.ultima_atividade)}</span><span class="root-meta">${ic('user',12)} ${fnome} · ${fmail}</span></div>
+      <div class="root-act"><button class="btn-ghost btn-sm" data-act="root-open" data-codigo="${c}">Abrir</button><button class="btn-sec btn-sm" data-act="root-toggle" data-codigo="${c}">Gerir</button></div>
+    </div>
+    <div class="root-edit" hidden>
+      <div class="form-grid">
+        <div class="field"><label>Nome da turma</label><input data-rf="nome" value="${nome}"></div>
+        <div class="field"><label>Formador — nome</label><input data-rf="fnome" value="${esc(t.formador_nome||'')}"></div>
+        <div class="field"><label>Formador — apelido</label><input data-rf="fapelido" value="${esc(t.formador_apelido||'')}"></div>
+        <div class="field"><label>Formador — email</label><input data-rf="femail" type="email" value="${esc(t.formador_email||t.criado_por||'')}"></div>
+      </div>
+      <div class="toolbar" style="margin-top:10px;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-sm" data-act="root-save" data-codigo="${c}">Guardar alterações</button>
+        <button class="btn-sec btn-sm" data-act="root-recovery" data-codigo="${c}">${ic('lock',15)} Repor acesso do formador</button>
+      </div>
+      <div class="root-reveal" hidden></div>
+      <div class="root-danger">
+        <div class="ctxt" style="font-size:.78rem"><strong>Apagar turma</strong> — remove utilizadores, sessões e entregas. Irreversível. Escreve <strong>${c}</strong> para confirmar:</div>
+        <div class="toolbar" style="margin-top:6px;gap:8px"><input data-rf="delcode" placeholder="${c}" style="max-width:170px" autocomplete="off"><button class="btn-danger btn-sm" data-act="root-del" data-codigo="${c}">Apagar turma</button></div>
+      </div>
+    </div>
+  </div>`;
+}
+function rootPaint(filter){
+  const box=$('#rootPanel'); if(!box) return;
+  const f=(filter||'').trim().toLowerCase();
+  const match=t=> !f || (t.codigo||'').includes(f) || (t.nome||'').toLowerCase().includes(f)
+      || (t.formador_email||t.criado_por||'').toLowerCase().includes(f) || rootFmtName(t).toLowerCase().includes(f);
+  const rows=rootRows.filter(match); const r=rootResumo||{};
+  box.innerHTML=`
+    <div class="an-kpis">
+      <div class="an-kpi"><span class="an-kpi-n">${r.turmas||0}</span><span class="an-kpi-l">Turmas</span></div>
+      <div class="an-kpi"><span class="an-kpi-n">${r.formadores||0}</span><span class="an-kpi-l">Formadores</span></div>
+      <div class="an-kpi"><span class="an-kpi-n">${r.formandos||0}</span><span class="an-kpi-l">Formandos</span></div>
+      <div class="an-kpi"><span class="an-kpi-n">${r.entregas||0}</span><span class="an-kpi-l">Entregas</span></div>
+    </div>
+    <div class="toolbar" style="margin:12px 0 10px;align-items:center"><div class="search-inp" style="flex:1;max-width:340px"><input id="rootSearch" placeholder="Pesquisar turma, código ou formador…" value="${esc(filter||'')}" autocomplete="off"></div><a class="legal-link" data-act="root-end" style="margin-left:auto;cursor:pointer">Terminar suporte</a></div>
+    <div class="root-cards">${rows.map(rootRowHTML).join('')||'<div class="muted" style="padding:10px">Sem turmas.</div>'}</div>`;
+  const si=$('#rootSearch'); if(si){ si.oninput=()=>rootPaint(si.value); if((filter||'').length){ si.focus(); try{si.setSelectionRange(filter.length,filter.length);}catch(e){} } }
+}
+async function renderRootPanel(){
+  const box=$('#rootPanel'); if(!box) return;
+  try{
+    const [resumo,turmas]=await Promise.all([ supaRpc('root_resumo',{p_token:rootSession}), supaRpc('root_turmas',{p_token:rootSession}) ]);
+    rootResumo=resumo; rootRows=turmas||[]; rootPaint('');
+  }catch(e){
+    box.innerHTML=`<div class="callout warn" style="margin:0">${ic('alert',16)}<div class="ctxt">Não foi possível carregar (${esc(supaMsg(e)||'')}). Se for a 1.ª vez, falta correr o <code>schema.sql</code> atualizado (novos RPCs <code>root_*</code>) no Supabase. Se a sessão de suporte expirou, volta a entrar como suporte.</div></div>`;
+  }
+}
+function rootCardOf(el){ return el.closest('.root-card'); }
+function rootEndSupport(){ if(rootSession&&supa()) supaRpc('logout_root',{p_token:rootSession}).catch(()=>{}); try{sessionStorage.removeItem('iefp-root-tok');}catch(_){} rootSession=null; toast('Suporte terminado','Sessão de root encerrada'); render(); }
+function rootSave(el){
+  const card=rootCardOf(el); if(!card) return; const cod=el.dataset.codigo;
+  const g=n=>{ const i=card.querySelector('[data-rf="'+n+'"]'); return i?i.value:''; };
+  el.disabled=true;
+  Promise.all([
+    supaRpc('root_renomear_turma',{p_token:rootSession,p_codigo:cod,p_nome:g('nome')}),
+    supaRpc('root_editar_formador',{p_token:rootSession,p_codigo:cod,p_nome:g('fnome'),p_apelido:g('fapelido'),p_email:g('femail')})
+  ]).then(()=>{ toast('Guardado','Turma '+cod+' atualizada'); renderRootPanel(); })
+   .catch(e=>{ toast('Erro',supaMsg(e),'err'); el.disabled=false; });
+}
+function rootRecovery(el){
+  const card=rootCardOf(el); if(!card) return; const cod=el.dataset.codigo;
+  if(!confirm('Gerar um NOVO código de recuperação para o formador da turma '+cod+'?\nO código anterior deixa de funcionar.')) return;
+  el.disabled=true;
+  supaRpc('root_recovery_formador',{p_token:rootSession,p_codigo:cod}).then(d=>{
+    const rv=card.querySelector('.root-reveal');
+    if(rv){ rv.hidden=false; rv.innerHTML=`<div class="callout info" style="margin:10px 0 0">${ic('lock',16)}<div class="ctxt">Novo código de recuperação (mostra-se <strong>uma vez</strong>): <code style="font-size:1rem;font-weight:800">${esc(d.code)}</code><br>Entrega-o ao formador para ele repor a password no ecrã de entrada.</div></div>`; }
+    el.disabled=false;
+  }).catch(e=>{ toast('Erro',supaMsg(e),'err'); el.disabled=false; });
+}
+function rootDelete(el){
+  const card=rootCardOf(el); if(!card) return; const cod=el.dataset.codigo;
+  const typed=(card.querySelector('[data-rf="delcode"]')||{}).value||'';
+  if(typed.trim()!==cod){ toast('Confirmação inválida','Escreve o código '+cod+' para apagar','warn'); return; }
+  if(!confirm('APAGAR definitivamente a turma '+cod+' e todos os seus dados (utilizadores, sessões, entregas)?\nEsta ação é irreversível.')) return;
+  el.disabled=true;
+  supaRpc('root_apagar_turma',{p_token:rootSession,p_codigo:cod}).then(()=>{ toast('Turma apagada',cod); renderRootPanel(); })
+   .catch(e=>{ toast('Erro',supaMsg(e),'err'); el.disabled=false; });
+}
 
 /* =========================================================================
    COMPONENTES UI
@@ -2689,6 +2794,10 @@ views.definicoes = () => {
   const s=state.settings;
   const pgu=paginate(state.utilizadores,'utilizadores');
   return `
+  ${rootSession?`<div class="card card-pad" id="rootPanelCard">
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Suporte — Gestão de turmas <span class="pill red" style="font-size:.66rem;vertical-align:middle">Root</span></h3><div class="sub">Acesso de suporte a <strong>todas</strong> as turmas. Ações sensíveis — usar com cuidado.</div></div><button class="btn-sec btn-sm" data-act="root-refresh">Atualizar</button></div>
+    <div id="rootPanel"><div class="muted" style="padding:6px 2px">A carregar turmas…</div></div>
+  </div>`:''}
   <div class="card card-pad">
       <div class="section-head" style="margin-bottom:16px"><div><h3>Entidade</h3><div class="sub">Dados usados em propostas e comunicações</div></div><button class="btn" data-act="save-settings">Guardar</button></div>
       <div class="form-grid">
@@ -3509,6 +3618,7 @@ function render(){
   if(TURMA && v==='definicoes'){ renderTurmaRoster(); renderEntregas(); }
   if(v==='definicoes') makeDefCollapsible();
   if(v==='definicoes' && isAdmin()) renderSiteAnalytics();
+  if(v==='definicoes' && rootSession) renderRootPanel();
   startI18n();
 }
 /* ---------- Mini-painel de analítica do site (Definições) ---------- */
@@ -3753,6 +3863,13 @@ document.addEventListener('click', e=>{
     case 'entregas-reload': renderEntregas(); break;
     case 'reload-analytics': { const b=$('#siteAnalytics'); if(b) b.innerHTML='<div class="muted" style="padding:6px 2px">A atualizar…</div>'; renderSiteAnalytics(); } break;
     case 'an-days': anDays=+el.dataset.d||14; anPaint(); break;
+    case 'root-refresh': { const b=$('#rootPanel'); if(b) b.innerHTML='<div class="muted" style="padding:6px 2px">A atualizar…</div>'; renderRootPanel(); } break;
+    case 'root-open': rootOpenTurma(el.dataset.codigo); break;
+    case 'root-toggle': { const c=rootCardOf(el); if(c){ const ed=c.querySelector('.root-edit'); if(ed){ ed.hidden=!ed.hidden; el.textContent=ed.hidden?'Gerir':'Fechar'; } } } break;
+    case 'root-save': rootSave(el); break;
+    case 'root-recovery': rootRecovery(el); break;
+    case 'root-del': rootDelete(el); break;
+    case 'root-end': rootEndSupport(); break;
     case 'entrega-upload': { const fi=$('#entregaFile'); if(fi){ fi.onchange=()=>{ const file=fi.files&&fi.files[0]; if(file) revisarFicheiro(file); fi.value=''; }; fi.click(); } } break;
     case 'entrega-rever': openRevisao(el.dataset.id, el.dataset.nome); break;
     case 'entrega-baixar': downloadEntrega(el.dataset.id, el.dataset.nome); break;

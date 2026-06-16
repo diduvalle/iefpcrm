@@ -389,6 +389,104 @@ returns json language sql security definer set search_path = public as $$
   select json_build_object('ok', true);
 $$;
 
+-- ---------------------------------------------------------------------
+-- GESTÃO de suporte (só root) — painel nas Definições da app.
+-- ---------------------------------------------------------------------
+
+-- Resumo global (totais).
+create or replace function public.root_resumo(p_token uuid)
+returns json language plpgsql security definer set search_path = public as $$
+begin
+  if not _is_root(p_token) then raise exception 'SEM_PERMISSAO'; end if;
+  return json_build_object(
+    'turmas',     (select count(*) from turmas),
+    'formadores', (select count(*) from utilizadores where papel in ('Administrador','Formador')),
+    'formandos',  (select count(*) from utilizadores where papel = 'Formando'),
+    'entregas',   (select count(*) from submissoes));
+end $$;
+
+-- Lista rica de turmas (com formador-admin + última atividade = último login).
+create or replace function public.root_turmas(p_token uuid)
+returns table(codigo text, nome text, criado_por text, criado_em timestamptz,
+              n_utilizadores bigint, ultima_atividade timestamptz,
+              formador_nome text, formador_apelido text, formador_email text)
+language plpgsql security definer set search_path = public as $$
+begin
+  if not _is_root(p_token) then raise exception 'SEM_PERMISSAO'; end if;
+  return query
+    select t.codigo, t.nome, t.criado_por, t.criado_em,
+           (select count(*) from utilizadores u where u.turma_id = t.id),
+           (select max(s.criado_em) from sessoes s join utilizadores u on u.id = s.user_id where u.turma_id = t.id),
+           a.nome, a.apelido, a.email
+    from turmas t
+    left join lateral (
+      select u.* from utilizadores u where u.turma_id = t.id
+      order by case u.papel when 'Administrador' then 0 when 'Formador' then 1 else 2 end, u.criado_em
+      limit 1
+    ) a on true
+    order by t.criado_em desc;
+end $$;
+
+-- Apagar turma (cascade: utilizadores, sessões, entregas).
+create or replace function public.root_apagar_turma(p_token uuid, p_codigo text)
+returns json language plpgsql security definer set search_path = public as $$
+declare n int;
+begin
+  if not _is_root(p_token) then raise exception 'SEM_PERMISSAO'; end if;
+  delete from turmas where codigo = p_codigo;
+  get diagnostics n = row_count;
+  if n = 0 then raise exception 'TURMA_NAO_EXISTE'; end if;
+  return json_build_object('ok', true);
+end $$;
+
+-- Renomear turma.
+create or replace function public.root_renomear_turma(p_token uuid, p_codigo text, p_nome text)
+returns json language plpgsql security definer set search_path = public as $$
+begin
+  if not _is_root(p_token) then raise exception 'SEM_PERMISSAO'; end if;
+  update turmas set nome = coalesce(nullif(trim(p_nome),''), 'Turma '||p_codigo) where codigo = p_codigo;
+  if not found then raise exception 'TURMA_NAO_EXISTE'; end if;
+  return json_build_object('ok', true);
+end $$;
+
+-- Editar o formador-administrador da turma (nome, apelido, email).
+-- Mantém coerente o destinatário das entregas (turmas.criado_por).
+create or replace function public.root_editar_formador(
+  p_token uuid, p_codigo text, p_nome text, p_apelido text, p_email text
+) returns json language plpgsql security definer set search_path = public as $$
+declare v_turma uuid; v_admin uuid; v_email text;
+begin
+  if not _is_root(p_token) then raise exception 'SEM_PERMISSAO'; end if;
+  select id into v_turma from turmas where codigo = p_codigo;
+  if v_turma is null then raise exception 'TURMA_NAO_EXISTE'; end if;
+  select id into v_admin from utilizadores where turma_id = v_turma
+    order by case papel when 'Administrador' then 0 when 'Formador' then 1 else 2 end, criado_em limit 1;
+  if v_admin is null then raise exception 'TURMA_SEM_UTILIZADORES'; end if;
+  v_email := lower(trim(coalesce(p_email,'')));
+  update utilizadores set nome    = coalesce(nullif(trim(p_nome),''), nome),
+                          apelido = coalesce(p_apelido, apelido),
+                          email   = v_email
+    where id = v_admin;
+  if v_email <> '' then update turmas set criado_por = v_email where id = v_turma; end if;
+  return json_build_object('ok', true);
+end $$;
+
+-- Repor acesso do formador: gera novo código de recuperação (mostrado 1x).
+create or replace function public.root_recovery_formador(p_token uuid, p_codigo text)
+returns json language plpgsql security definer set search_path = public, extensions as $$
+declare v_turma uuid; v_admin uuid; v_code text;
+begin
+  if not _is_root(p_token) then raise exception 'SEM_PERMISSAO'; end if;
+  select id into v_turma from turmas where codigo = p_codigo;
+  if v_turma is null then raise exception 'TURMA_NAO_EXISTE'; end if;
+  select id into v_admin from utilizadores where turma_id = v_turma
+    order by case papel when 'Administrador' then 0 when 'Formador' then 1 else 2 end, criado_em limit 1;
+  if v_admin is null then raise exception 'TURMA_SEM_UTILIZADORES'; end if;
+  v_code := _novo_recovery_code();
+  update utilizadores set recovery_hash = extensions.crypt(v_code, extensions.gen_salt('bf')) where id = v_admin;
+  return json_build_object('code', v_code);
+end $$;
+
 -- =====================================================================
 --  ENTREGAS DE TRABALHO (submissoes) — formando → formador
 --  O JSON do trabalho viaja por aqui (EmailJS não anexa ficheiros).
@@ -494,6 +592,12 @@ grant execute on function public.login_root(text)                               
 grant execute on function public.listar_turmas(uuid)                              to anon, authenticated;
 grant execute on function public.root_abrir_turma(uuid,text)                      to anon, authenticated;
 grant execute on function public.logout_root(uuid)                                to anon, authenticated;
+grant execute on function public.root_resumo(uuid)                                to anon, authenticated;
+grant execute on function public.root_turmas(uuid)                                to anon, authenticated;
+grant execute on function public.root_apagar_turma(uuid,text)                     to anon, authenticated;
+grant execute on function public.root_renomear_turma(uuid,text,text)              to anon, authenticated;
+grant execute on function public.root_editar_formador(uuid,text,text,text,text)   to anon, authenticated;
+grant execute on function public.root_recovery_formador(uuid,text)                to anon, authenticated;
 grant execute on function public.submeter_trabalho(uuid,text,jsonb)               to anon, authenticated;
 grant execute on function public.meus_envios(uuid)                                to anon, authenticated;
 grant execute on function public.listar_submissoes(uuid)                          to anon, authenticated;
