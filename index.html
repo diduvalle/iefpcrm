@@ -254,6 +254,39 @@ a{text-decoration:none;color:inherit}
 .barchart-labels{display:flex;gap:8px;padding:8px 2px 0;border-top:1px solid var(--border);margin-top:2px}
 .barchart-labels>div{flex:1;text-align:center;font-size:.72rem;font-weight:600;color:var(--muted)}
 
+/* ---------- Mini-painel de analítica (Definições) ---------- */
+.an-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+@media (max-width:680px){.an-kpis{grid-template-columns:repeat(2,1fr)}}
+.an-kpi{background:var(--surface2,var(--surface));border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.an-kpi-n{font-size:1.5rem;font-weight:800;color:var(--g700);line-height:1}
+[data-theme="dark"] .an-kpi-n{color:var(--g400)}
+.an-kpi-l{font-size:.74rem;font-weight:600;color:var(--muted)}
+.an-block{margin-top:14px}
+.an-cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:14px}
+@media (max-width:680px){.an-cols{grid-template-columns:1fr}}
+.an-h{font-size:.82rem;font-weight:800;color:var(--g900);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+[data-theme="dark"] .an-h{color:var(--text)}
+.an-row{position:relative;display:flex;align-items:center;gap:8px;padding:6px 9px;margin-bottom:5px;border-radius:8px;overflow:hidden;background:var(--surface2,var(--surface));border:1px solid var(--border)}
+.an-bar{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,rgba(0,166,81,.18),rgba(0,166,81,.06));z-index:0}
+.an-lbl{position:relative;z-index:1;flex:1;font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.an-n{position:relative;z-index:1;font-size:.8rem;font-weight:800;color:var(--g700)}
+[data-theme="dark"] .an-n{color:var(--g400)}
+.an-days{display:flex;align-items:flex-end;gap:6px;height:120px;padding:4px 2px 0}
+.an-day{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0;height:100%;justify-content:flex-end}
+.an-day-bars{display:flex;align-items:flex-end;gap:2px;height:100%;width:100%;justify-content:center}
+.an-day-fill{width:46%;max-width:14px;min-height:2px;border-radius:3px 3px 0 0}
+.an-day-fill.s-man{background:var(--g600)}
+.an-day-fill.s-app{background:var(--g300,#7fd3a6)}
+.an-day-lbl{font-size:.6rem;font-weight:600;color:var(--muted);white-space:nowrap}
+.an-legend{font-size:.68rem;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px}
+.an-legend i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-left:6px;flex:none}
+.an-legend i.s-man{background:var(--g600)}
+.an-legend i.s-app{background:var(--g300,#7fd3a6)}
+.an-chips{display:flex;flex-wrap:wrap;gap:8px}
+.an-chip{display:flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;background:var(--surface2,var(--surface));border:1px solid var(--border);font-size:.8rem;font-weight:600}
+.an-chip strong{color:var(--g700)}
+[data-theme="dark"] .an-chip strong{color:var(--g400)}
+
 /* ---------- HERO ---------- */
 .hero{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;padding:26px;border-radius:var(--rl);background:linear-gradient(125deg,var(--g800),var(--g600) 55%,var(--g400));color:#fff;position:relative;overflow:hidden;box-shadow:0 16px 40px rgba(0,107,60,.24)}
 .hero::after{content:"";position:absolute;right:-60px;top:-60px;width:280px;height:280px;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%);pointer-events:none}
@@ -2762,6 +2795,10 @@ views.definicoes = () => {
     </div>
     <div class="toolbar" style="margin-top:8px;align-items:center"><button class="btn" data-act="save-emailjs">Guardar configuração</button>${emailjsActive()?'<span class="pill green">Modo real ATIVO</span>':'<span class="pill grey">Simulado</span>'}</div>
     <div class="callout warn" style="margin-top:14px">${ic('alert',16)}<div class="ctxt">A <strong>Public Key</strong> fica visível no código do site — em <strong>EmailJS → Account → Security</strong> restrinja os domínios autorizados a <strong>iefpcrm.cr0x.org</strong>. No plano grátis <strong>não há anexo de PDF</strong> (a proposta vai como referência no texto). O template usa as variáveis: to_email, to_name, subject, message.</div></div>
+  </div>
+  <div class="card card-pad" id="siteAnalyticsCard">
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Analítica do site <span class="pill grey" style="font-size:.66rem;vertical-align:middle">Admin</span></h3><div class="sub">Visitas ao <strong>manual</strong> e aberturas da <strong>app</strong> — anónimo, sem cookies nem dados pessoais. <a class="legal-link" href="https://iefpcrm.cr0x.org/manual/aviso-legal/" target="_blank" rel="noopener">Como recolhemos</a>.</div></div><button class="btn-sec btn-sm" data-act="reload-analytics">Atualizar</button></div>
+    <div id="siteAnalytics"><div class="muted" style="padding:6px 2px">A carregar estatísticas…</div></div>
   </div>`:''}
   `;
 };
@@ -3462,7 +3499,63 @@ function render(){
   $('#content').innerHTML=`<section class="view active">${fn()}</section>`;
   if(TURMA && v==='definicoes'){ renderTurmaRoster(); renderEntregas(); }
   if(v==='definicoes') makeDefCollapsible();
+  if(v==='definicoes' && isAdmin()) renderSiteAnalytics();
   startI18n();
+}
+/* ---------- Mini-painel de analítica do site (Definições) ---------- */
+function prettyPath(p){
+  if(!p) return '(raiz)';
+  let s=String(p).replace(/^\/manual\/?/,'').replace(/\/$/,'').replace(/\.html$/,'');
+  if(!s||s==='index') return 'Manual — Início';
+  s=s.split('/').pop().replace(/-/g,' ');
+  return s.charAt(0).toUpperCase()+s.slice(1);
+}
+function prettyVideo(l){
+  if(!l) return '—';
+  return String(l).replace(/\.(webm|mp4)$/,'').replace(/-(pt|en)$/,'').replace(/-/g,' ').replace(/^\w/,c=>c.toUpperCase());
+}
+function anList(items, fmt){
+  const max=Math.max(1,...items.map(i=>i.n));
+  return items.length? items.map(i=>`<div class="an-row"><div class="an-bar" style="width:${Math.max(6,Math.round(i.n/max*100))}%"></div><span class="an-lbl">${esc(fmt(i))}</span><span class="an-n">${i.n}</span></div>`).join('') : '<div class="muted" style="padding:4px 2px">Sem dados ainda.</div>';
+}
+function anSplit(obj, map){
+  const ent=Object.entries(obj||{}).filter(([k])=>k!=='?'); const tot=ent.reduce((a,[,v])=>a+v,0)||1;
+  return ent.length? ent.sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="an-chip"><span>${esc(map[k]||k)}</span><strong>${Math.round(v/tot*100)}%</strong><span class="muted">(${v})</span></div>`).join('') : '<span class="muted">—</span>';
+}
+async function renderSiteAnalytics(){
+  const box=$('#siteAnalytics'); if(!box) return;
+  let d;
+  try{ d=await supaRpc('analytics_summary'); }
+  catch(e){
+    const m=supaMsg(e);
+    box.innerHTML=`<div class="callout warn" style="margin:0">${ic('alert',16)}<div class="ctxt">Ainda não foi possível carregar (${esc(m||'sem ligação')}). Se for a primeira vez, falta correr o <code>analytics_summary</code> no <strong>Supabase → SQL Editor</strong> (ficheiro <code>supabase/analytics.sql</code>).</div></div>`;
+    return;
+  }
+  if(!d){ box.innerHTML='<div class="muted" style="padding:6px 2px">Sem ligação ao Supabase.</div>'; return; }
+  const dias=(d.por_dia||[]); const maxDia=Math.max(1,...dias.map(x=>(x.m||0)+(x.a||0)));
+  const fmtDia=s=>{ const p=String(s).split('-'); return p.length===3?(p[2]+'/'+p[1]):s; };
+  const barras = dias.length? `<div class="an-days">${dias.map(x=>{const t=(x.m||0)+(x.a||0); const hm=Math.round((x.m||0)/maxDia*100), ha=Math.round((x.a||0)/maxDia*100); return `<div class="an-day" title="${fmtDia(x.d)} · manual ${x.m||0} · app ${x.a||0}"><div class="an-day-bars"><div class="an-day-fill s-man" style="height:${hm}%"></div><div class="an-day-fill s-app" style="height:${ha}%"></div></div><span class="an-day-lbl">${fmtDia(x.d)}</span></div>`;}).join('')}</div>` : '<div class="muted" style="padding:6px 2px">Ainda sem visitas registadas nos últimos 14 dias.</div>';
+  box.innerHTML=`
+    <div class="an-kpis">
+      <div class="an-kpi"><span class="an-kpi-n">${d.manual_visitas||0}</span><span class="an-kpi-l">Manual · visitas</span></div>
+      <div class="an-kpi"><span class="an-kpi-n">${d.app_aberturas||0}</span><span class="an-kpi-l">App · aberturas</span></div>
+      <div class="an-kpi"><span class="an-kpi-n">${d.video_plays||0}</span><span class="an-kpi-l">Vídeos · plays</span></div>
+      <div class="an-kpi"><span class="an-kpi-n">${d.total||0}</span><span class="an-kpi-l">Total registos</span></div>
+    </div>
+    <div class="an-block">
+      <div class="an-h">Últimos 14 dias <span class="an-legend"><i class="s-man"></i>Manual <i class="s-app"></i>App</span></div>
+      ${barras}
+    </div>
+    <div class="an-cols">
+      <div class="an-block"><div class="an-h">Top páginas do manual</div>${anList(d.top_paginas||[], i=>prettyPath(i.path))}</div>
+      <div class="an-block"><div class="an-h">Top vídeos</div>${anList(d.top_videos||[], i=>prettyVideo(i.label))}</div>
+    </div>
+    <div class="an-cols">
+      <div class="an-block"><div class="an-h">Dispositivo</div><div class="an-chips">${anSplit(d.dispositivo,{desktop:'Computador',mobile:'Telemóvel'})}</div></div>
+      <div class="an-block"><div class="an-h">Idioma</div><div class="an-chips">${anSplit(d.idioma,{pt:'Português',en:'English'})}</div></div>
+    </div>
+    <div class="an-block"><div class="an-h">Origem do tráfego</div>${anList(d.origem||[], i=>i.ref==='(direto)'?'Acesso direto':i.ref)}</div>
+  `;
 }
 /* ---------- Cards colapsáveis nas Definições ---------- */
 let defCollapsed=(()=>{ try{ return new Set(JSON.parse(localStorage.getItem('iefp-def-collapsed')||'[]')); }catch(e){ return new Set(); } })();
@@ -3627,6 +3720,7 @@ document.addEventListener('click', e=>{
     case 'submit-work': openSubmitWork(); break;
     case 'download-trabalho': submitWork(); break;
     case 'entregas-reload': renderEntregas(); break;
+    case 'reload-analytics': { const b=$('#siteAnalytics'); if(b) b.innerHTML='<div class="muted" style="padding:6px 2px">A atualizar…</div>'; renderSiteAnalytics(); } break;
     case 'entrega-upload': { const fi=$('#entregaFile'); if(fi){ fi.onchange=()=>{ const file=fi.files&&fi.files[0]; if(file) revisarFicheiro(file); fi.value=''; }; fi.click(); } } break;
     case 'entrega-rever': openRevisao(el.dataset.id, el.dataset.nome); break;
     case 'entrega-baixar': downloadEntrega(el.dataset.id, el.dataset.nome); break;
