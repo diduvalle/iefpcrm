@@ -17,7 +17,8 @@
     } catch (e) {}
   }
   var lang = (document.documentElement.lang || 'pt').slice(0, 2);
-  send({ site: 'manual', kind: 'pageview', path: location.pathname, ref: host(document.referrer), lang: lang, device: device() });
+  function tzone() { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { return ''; } }
+  send({ site: 'manual', kind: 'pageview', path: location.pathname, ref: host(document.referrer), lang: lang, device: device(), tz: tzone() });
   // "play" de vídeos (top vídeos)
   document.addEventListener('play', function (e) {
     var v = e.target;
