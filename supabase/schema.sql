@@ -406,10 +406,13 @@ begin
 end $$;
 
 -- Lista rica de turmas (com formador-admin + última atividade = último login).
+-- (drop necessário: o tipo de retorno mudou ao acrescentar formador_username.)
+drop function if exists public.root_turmas(uuid);
 create or replace function public.root_turmas(p_token uuid)
 returns table(codigo text, nome text, criado_por text, criado_em timestamptz,
               n_utilizadores bigint, ultima_atividade timestamptz,
-              formador_nome text, formador_apelido text, formador_email text)
+              formador_nome text, formador_apelido text, formador_email text,
+              formador_username text)
 language plpgsql security definer set search_path = public as $$
 begin
   if not _is_root(p_token) then raise exception 'SEM_PERMISSAO'; end if;
@@ -417,7 +420,7 @@ begin
     select t.codigo, t.nome, t.criado_por, t.criado_em,
            (select count(*) from utilizadores u where u.turma_id = t.id),
            (select max(s.criado_em) from sessoes s join utilizadores u on u.id = s.user_id where u.turma_id = t.id),
-           a.nome, a.apelido, a.email
+           a.nome, a.apelido, a.email, a.username
     from turmas t
     left join lateral (
       select u.* from utilizadores u where u.turma_id = t.id
@@ -474,17 +477,17 @@ end $$;
 -- Repor acesso do formador: gera novo código de recuperação (mostrado 1x).
 create or replace function public.root_recovery_formador(p_token uuid, p_codigo text)
 returns json language plpgsql security definer set search_path = public, extensions as $$
-declare v_turma uuid; v_admin uuid; v_code text;
+declare v_turma uuid; v_admin uuid; v_code text; v_uname text;
 begin
   if not _is_root(p_token) then raise exception 'SEM_PERMISSAO'; end if;
   select id into v_turma from turmas where codigo = p_codigo;
   if v_turma is null then raise exception 'TURMA_NAO_EXISTE'; end if;
-  select id into v_admin from utilizadores where turma_id = v_turma
+  select id, username into v_admin, v_uname from utilizadores where turma_id = v_turma
     order by case papel when 'Administrador' then 0 when 'Formador' then 1 else 2 end, criado_em limit 1;
   if v_admin is null then raise exception 'TURMA_SEM_UTILIZADORES'; end if;
   v_code := _novo_recovery_code();
   update utilizadores set recovery_hash = extensions.crypt(v_code, extensions.gen_salt('bf')) where id = v_admin;
-  return json_build_object('code', v_code);
+  return json_build_object('code', v_code, 'username', v_uname);
 end $$;
 
 -- =====================================================================

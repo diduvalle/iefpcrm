@@ -1390,15 +1390,17 @@ function rootRowHTML(t){
   const nome=esc(t.nome||('Turma '+t.codigo));
   const fnome=esc(rootFmtName(t)||'—');
   const fmail=esc(t.formador_email||t.criado_por||'—');
+  const uname=esc(t.formador_username||'');
   const c=esc(t.codigo);
   return `<div class="root-card" data-codigo="${c}">
     <div class="root-row">
-      <div class="root-main"><strong>${nome}</strong><span class="root-meta">${c} · ${t.n_utilizadores} util. · criada ${rootFmtDate(t.criado_em)} · últ. atividade ${rootFmtDate(t.ultima_atividade)}</span><span class="root-meta">${ic('user',12)} ${fnome} · ${fmail}</span></div>
+      <div class="root-main"><strong>${nome}</strong><span class="root-meta">${c} · ${t.n_utilizadores} util. · criada ${rootFmtDate(t.criado_em)} · últ. atividade ${rootFmtDate(t.ultima_atividade)}</span><span class="root-meta">${ic('user',12)} ${fnome} · ${uname?('<strong>@'+uname+'</strong> · '):''}${fmail}</span></div>
       <div class="root-act"><button class="btn-ghost btn-sm" data-act="root-open" data-codigo="${c}">Abrir</button><button class="btn-sec btn-sm" data-act="root-toggle" data-codigo="${c}">Gerir</button></div>
     </div>
     <div class="root-edit" hidden>
       <div class="form-grid">
         <div class="field"><label>Nome da turma</label><input data-rf="nome" value="${nome}"></div>
+        <div class="field"><label>Utilizador (login do formador) ${ic('lock',12)}</label><input value="${uname}" readonly title="O username de entrada do formador (não editável)" style="background:var(--surface3);color:var(--muted);cursor:not-allowed"></div>
         <div class="field"><label>Formador — nome</label><input data-rf="fnome" value="${esc(t.formador_nome||'')}"></div>
         <div class="field"><label>Formador — apelido</label><input data-rf="fapelido" value="${esc(t.formador_apelido||'')}"></div>
         <div class="field"><label>Formador — email</label><input data-rf="femail" type="email" value="${esc(t.formador_email||t.criado_por||'')}"></div>
@@ -1460,7 +1462,8 @@ function rootRecovery(el){
   el.disabled=true;
   supaRpc('root_recovery_formador',{p_token:rootSession,p_codigo:cod}).then(d=>{
     const rv=card.querySelector('.root-reveal');
-    if(rv){ rv.hidden=false; rv.innerHTML=`<div class="callout info" style="margin:10px 0 0">${ic('lock',16)}<div class="ctxt">Novo código de recuperação (mostra-se <strong>uma vez</strong>): <code style="font-size:1rem;font-weight:800">${esc(d.code)}</code><br>Entrega-o ao formador para ele repor a password no ecrã de entrada.</div></div>`; }
+    const uname=d.username||'(utilizador desconhecido)';
+    if(rv){ rv.hidden=false; rv.innerHTML=`<div class="callout info" style="margin:10px 0 0">${ic('lock',16)}<div class="ctxt"><strong>Dados para o formador repor a password</strong> (no ecrã de entrada → "Recuperar palavra-passe"). O código mostra-se <strong>uma vez</strong>:<br><br>• Turma: <code>${esc(cod)}</code><br>• Utilizador: <code>${esc(uname)}</code><br>• Código de recuperação: <code style="font-size:1rem;font-weight:800">${esc(d.code)}</code><br><br>Ele escolhe ali a nova palavra-passe.</div></div>`; }
     el.disabled=false;
   }).catch(e=>{ toast('Erro',supaMsg(e),'err'); el.disabled=false; });
 }
