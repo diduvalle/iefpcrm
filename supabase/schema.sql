@@ -474,6 +474,32 @@ begin
   return json_build_object('ok', true);
 end $$;
 
+-- ---------------------------------------------------------------------
+-- RECUPERAÇÃO POR EMAIL (self-service) — chamada SÓ pela Edge Function
+-- 'recuperar-email' (com a service_role). Gera um novo código e devolve-o
+-- (com utilizador/nome) à função, que o ENVIA por email (Resend). O código
+-- NUNCA é devolvido ao browser, por isso esta função NÃO tem grant ao anon.
+-- ---------------------------------------------------------------------
+create or replace function public.gerar_recovery_email(p_codigo text, p_email text)
+returns json language plpgsql security definer set search_path = public, extensions as $$
+declare v_turma uuid; r public.utilizadores; v_code text; v_email text;
+begin
+  v_email := lower(trim(coalesce(p_email,'')));
+  if v_email = '' then return json_build_object('ok', false); end if;
+  select id into v_turma from turmas where codigo = p_codigo;
+  if v_turma is null then return json_build_object('ok', false); end if;
+  -- formador/admin desta turma com este email (só estes têm recuperação por código)
+  select * into r from utilizadores
+    where turma_id = v_turma and papel in ('Administrador','Formador') and lower(email) = v_email
+    order by case papel when 'Administrador' then 0 else 1 end, criado_em limit 1;
+  if r.id is null then return json_build_object('ok', false); end if;
+  v_code := _novo_recovery_code();
+  update utilizadores set recovery_hash = extensions.crypt(v_code, extensions.gen_salt('bf')) where id = r.id;
+  return json_build_object('ok', true, 'username', r.username, 'nome', r.nome, 'email', r.email, 'code', v_code);
+end $$;
+revoke all on function public.gerar_recovery_email(text,text) from public, anon, authenticated;
+grant execute on function public.gerar_recovery_email(text,text) to service_role;
+
 -- Repor acesso do formador: gera novo código de recuperação (mostrado 1x).
 create or replace function public.root_recovery_formador(p_token uuid, p_codigo text)
 returns json language plpgsql security definer set search_path = public, extensions as $$
