@@ -35,7 +35,9 @@
   --border:#dbe6df;--text:#15302a;--muted:#5f746b;--muted2:#86978d;
   --danger:#dc2626;--danger-bg:#fdecec;--warn:#d97706;--warn-bg:#fef3e2;--info:#2563eb;--info-bg:#eaf1fe;--ok:#0f9d58;
   --shadow:0 1px 2px rgba(0,60,33,.04),0 4px 14px rgba(0,60,33,.06);
+  --shadow-md:0 2px 4px rgba(0,60,33,.06),0 10px 26px -10px rgba(0,60,33,.14);
   --shadow-lg:0 18px 48px rgba(0,60,33,.16);
+  --shadow-primary:inset 0 1px 0 rgba(255,255,255,.22),0 6px 16px -5px rgba(0,107,60,.5),0 2px 4px -1px rgba(0,90,50,.32);
   --r:12px;--rl:18px;--rs:9px;--sidebar:268px;--header:64px;
   --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,system-ui,sans-serif;
 }
@@ -44,7 +46,9 @@
   --border:#26392f;--text:#e7f3ec;--muted:#9fb6a9;--muted2:#6f8377;
   --danger:#f87171;--danger-bg:#3a1d1d;--warn:#fbbf24;--warn-bg:#3a2c12;--info:#93b4fb;--info-bg:#1c2740;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
+  --shadow-md:0 2px 4px rgba(0,0,0,.4),0 10px 26px -10px rgba(0,0,0,.5);
   --shadow-lg:0 24px 60px rgba(0,0,0,.55);
+  --shadow-primary:inset 0 1px 0 rgba(255,255,255,.1),0 6px 18px -5px rgba(0,40,22,.7),0 2px 4px -1px rgba(0,0,0,.4);
   --g100:#16271d;--g50:#13201a;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -142,8 +146,8 @@ a{text-decoration:none;color:inherit}
 /* ---------- BUTTONS ---------- */
 .btn,.btn-sec,.btn-ghost,.btn-danger,.icon-btn,.btn-out{border:1px solid transparent;border-radius:10px;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:transform .08s,background .15s,box-shadow .15s;white-space:nowrap}
 .btn:active,.btn-sec:active,.icon-btn:active,.btn-danger:active,.btn-ghost:active,.btn-out:active{transform:translateY(1px)}
-.btn{padding:9px 15px;background:var(--g600);color:#fff;box-shadow:0 2px 8px rgba(0,166,81,.28)}
-.btn:hover{background:var(--g700)}
+.btn{padding:9px 15px;background:linear-gradient(180deg,var(--g600),var(--g800));color:#fff;box-shadow:var(--shadow-primary)}
+.btn:hover{background:linear-gradient(180deg,var(--g700),var(--g900));transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 10px 22px -6px rgba(0,107,60,.55),0 3px 6px -2px rgba(0,90,50,.35)}
 .btn-sec{padding:9px 14px;background:var(--surface);border-color:var(--border);color:var(--text)}
 .btn-sec:hover{background:var(--surface2);border-color:var(--g300)}
 .btn-ghost{padding:8px 12px;background:transparent;border-color:transparent;color:var(--muted);font-weight:600}
@@ -224,7 +228,8 @@ a{text-decoration:none;color:inherit}
 .btn-xs{padding:4px 9px;font-size:.76rem;border-radius:7px;font-weight:600}
 
 /* ---------- CARDS ---------- */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);box-shadow:var(--shadow)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);box-shadow:var(--shadow);transition:box-shadow .16s ease}
+.card:hover{box-shadow:var(--shadow-md)}
 .card-pad{padding:20px}
 .section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .section-head h3{font-size:1.04rem;font-weight:800}
@@ -334,7 +339,8 @@ a{text-decoration:none;color:inherit}
 .hero-side .ring-wrap{display:flex;align-items:center;gap:14px}
 
 /* ---------- KPI ---------- */
-.kpi{padding:17px 18px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;gap:7px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.kpi{padding:17px 18px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;gap:7px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:transform .16s ease,box-shadow .16s ease}
+.kpi:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
 .kpi .kpi-ic{position:absolute;right:14px;top:14px;width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:var(--g100);color:var(--g700)}
 .kpi small{color:var(--muted);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.04em}
 .kpi strong{font-size:1.72rem;font-weight:800;line-height:1;color:var(--text)}
