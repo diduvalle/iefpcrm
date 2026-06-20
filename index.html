@@ -4538,7 +4538,9 @@ function submitRecoverEmail(){
     const e2=$('#loginErr'); if(e2){ e2.style.color='var(--ok)'; e2.textContent='Se o email corresponder ao formador desta turma, enviámos o utilizador e um novo código. Verifique a caixa de entrada (e o spam).'; }
     toast('Email enviado','Verifique a caixa de entrada do formador.');
   };
-  fetch(SUPA_URL+'/functions/v1/recuperar-email',{method:'POST',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json'},body:JSON.stringify({codigo:TURMA,email:email})})
+  /* Nome da Edge Function tal como está deployada no Supabase (o slug nao se
+     pode renomear; o codigo dentro dela e o de supabase/functions/recuperar-email). */
+  fetch(SUPA_URL+'/functions/v1/bright-processor',{method:'POST',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json'},body:JSON.stringify({codigo:TURMA,email:email})})
     .then(r=>{ if(!r.ok && r.status>=500) throw new Error('falha'); return r.json().catch(()=>({})); })
     .then(()=>done())
     .catch(()=>{ if(err) err.textContent='Não foi possível enviar agora. Tente novamente em instantes.'; const b=$('#loginForm [data-act="dorecover-email"]'); if(b){ b.disabled=false; b.textContent='Enviar instruções'; } });
