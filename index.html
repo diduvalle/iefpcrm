@@ -513,8 +513,16 @@ td .cell-sub{font-size:.78rem;color:var(--muted)}
   .app.nav-collapsed{grid-template-columns:1fr}
   .app.nav-collapsed .brand-txt,.app.nav-collapsed .nav-link .lbl,.app.nav-collapsed .nav-group{display:block}
   .menu-btn{display:inline-flex}
+  .header [data-act="toggle-nav"]{display:none}      /* recolher só faz sentido no desktop */
+  .header-l{gap:10px}
+  .header-l>div{min-width:0;overflow:hidden}          /* deixa o título truncar em vez de partir linha */
+  .header-l h2,.header-l .breadcrumb{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .header-r{gap:6px}
+  .header-r [data-act="help"],.header-r [data-act="present"]{display:none}   /* desktop-only em mobile */
+  .header-r [data-act="new"] .btn-label{display:none}                        /* "+ Novo" fica só-ícone */
+  .header-r [data-act="new"]{padding:9px 12px}
   .content{padding:16px}
-  .header{padding:0 14px}
+  .header{padding:0 14px;gap:10px}
   .scrim{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:85;display:none}
   .app.nav-open .scrim{display:block}
   .line-row,.line-head{grid-template-columns:1fr 1fr;gap:7px}
@@ -688,7 +696,7 @@ body.present #presentExit{display:inline-flex;align-items:center;gap:6px;positio
         <button class="icon-btn" data-act="present" title="Modo de apresentação (ecrã limpo)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
         <button class="icon-btn lang-btn" data-act="lang" title="Idioma / Language" id="langBtn">PT</button>
         <button class="icon-btn" data-act="theme" title="Tema claro/escuro" id="themeBtn"></button>
-        <button class="btn" data-act="new" data-type="cliente"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg> Novo</button>
+        <button class="btn" data-act="new" data-type="cliente"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg> <span class="btn-label">Novo</span></button>
       </div>
     </header>
     <div class="content" id="content"></div>
