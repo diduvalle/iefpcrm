@@ -1112,7 +1112,7 @@ function demoData(){
   const roles = {
     'Administrador':{modules:ALL_MOD.slice(),gestor:true},
     'Formador':{modules:ALL_MOD.slice(),gestor:true},
-    'Formando':{modules:ALL_MOD.filter(m=>m!=='definicoes'),gestor:false,ocultarFinanceiro:true},
+    'Formando':{modules:ALL_MOD.filter(m=>m!=='definicoes'),gestor:false,ocultarFinanceiro:true,feats:['entidade','gerador','loyalty','origens','brand']},
   };
   const propostaTemplates = [
     {id:'pt1',nome:'Clássico IEFP',cor:'#006B3C',criadoPor:'u1',criadoEm:'2026-01-05',blocks:[
@@ -1285,6 +1285,10 @@ function currentRole(){ const u=currentUser(); return u?(state.roles[u.papel]||{
 function isAdmin(){ if(!state.settings.requireLogin) return true; const u=currentUser(); return !!(u && u.papel==='Administrador'); }
 function can(mod){ if(!state.settings.requireLogin) return true; const r=currentRole(); return r?r.modules.includes(mod):false; }
 function isGestor(){ const r=currentRole(); return !!(r&&r.gestor); }
+/* Sub-permissões (sandbox): acesso a secções específicas das Definições sem dar o módulo completo. */
+const FEATS=[{k:'entidade',l:'Entidade'},{k:'gerador',l:'Gerador de dados'},{k:'loyalty',l:'Níveis de fidelização'},{k:'origens',l:'Origens de cliente'},{k:'brand',l:'Marca & Aparência'}];
+function canFeat(key){ if(!state.settings.requireLogin) return true; if(isAdmin()||can('definicoes')) return true; const r=currentRole(); return !!(r&&r.feats&&r.feats.includes(key)); }
+function hasAnyFeat(){ if(isAdmin()||can('definicoes')) return true; const r=currentRole(); return !!(r&&r.feats&&r.feats.length); }
 function doLogin(username,password){
   const u=state.utilizadores.find(x=>(x.username||'').toLowerCase()===String(username||'').trim().toLowerCase());
   if(!u||u.estado!=='Ativo') return {ok:false,msg:'Utilizador inválido ou inativo'};
@@ -2819,9 +2823,61 @@ function confirmImport(){
   })();
 }
 
+/* ---------- DEFINIÇÕES: secções reutilizáveis (admin + sandbox formando) ---------- */
+function secEntidade(s){ return `<div class="card card-pad">
+      <div class="section-head" style="margin-bottom:16px"><div><h3>Entidade</h3><div class="sub">Dados usados em propostas e comunicações</div></div><button class="btn" data-act="save-settings">Guardar</button></div>
+      <div class="form-grid">
+        <div class="field full"><label>Nome da entidade</label><input data-set="entidade" value="${esc(s.entidade)}"></div>
+        <div class="field"><label>NIF / NIPC</label><input data-set="nif" value="${esc(s.nif)}"></div>
+        <div class="field"><label>Telefone</label><input data-set="telefone" value="${esc(s.telefone)}"></div>
+        <div class="field"><label>Email</label><input data-set="email" value="${esc(s.email)}"></div>
+        <div class="field"><label>Cidade</label><input data-set="cidade" value="${esc(s.cidade)}"></div>
+        <div class="field full"><label>Encarregado de Proteção de Dados (EPD)</label><input data-set="epd" value="${esc(s.epd)}"></div>
+      </div>
+    </div>`; }
+function secGerador(){ return `<div class="card card-pad">
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Gerador de dados de exemplo</h3><div class="sub">Para a base académica crescer ao longo das formações sem criar tudo de raiz — gera empresas, contactos e propostas realistas.</div></div></div>
+    <div class="toolbar">
+      <button class="btn-sec" data-act="gen" data-e="6" data-n="0" data-p="0">${ic('building',16)} +6 empresas</button>
+      <button class="btn-sec" data-act="gen" data-e="0" data-n="10" data-p="0">${ic('users',16)} +10 contactos</button>
+      <button class="btn-sec" data-act="gen" data-e="0" data-n="0" data-p="12">${ic('doc',16)} +12 propostas</button>
+      <button class="btn" data-act="gen" data-e="8" data-n="15" data-p="20">✨ Gerar lote (8 empresas + 15 contactos + 20 propostas)</button>
+    </div>
+    <div class="callout info" style="margin-top:14px">${ic('alert',16)}<div class="ctxt">Os exemplos são <strong>acrescentados</strong> aos dados atuais. As propostas geradas usam o modelo oficial — para praticar, crie e aplique o <strong>seu</strong> modelo manualmente.</div></div>
+  </div>`; }
+function secLoyalty(){ return `<div class="card card-pad">
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Níveis de fidelização (Loyalty)</h3><div class="sub">Atribuídos automaticamente pelo volume de compras</div></div><button class="btn" data-act="new" data-type="loyalty">+ Nível</button></div>
+    <div class="table-wrap"><table><thead><tr><th>Nível</th><th class="t-right">Volume mínimo</th><th>Desconto</th><th>Estado</th><th></th></tr></thead><tbody>
+      ${state.loyalty.map(l=>`<tr><td class="cell-main">${esc(l.nome)}</td><td class="t-right">${fmt(l.minVolume)}</td><td>${esc(l.desconto)}%</td><td><span class="pill ${l.estado==='Ativo'?'green':'grey'}">${esc(l.estado)}</span></td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="loyalty" data-id="${l.id}">Editar</button><button class="btn-danger btn-xs" data-act="delete" data-type="loyalty" data-id="${l.id}">✕</button></div></td></tr>`).join('')}
+    </tbody></table></div>
+  </div>`; }
+function secOrigens(s){ return `<div class="card card-pad">
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Origens de cliente ${infoTip('origem')}</h3><div class="sub">Canais de aquisição disponíveis no campo "Origem" da ficha de cliente.</div></div></div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">${(s.origens||[]).map(o=>`<span class="chip" style="gap:8px">${esc(o)}<button data-act="del-origem" data-origem="${esc(o)}" style="border:0;background:none;cursor:pointer;color:var(--danger);font-weight:800;padding:0;line-height:1">✕</button></span>`).join('')||'<span class="muted">Sem origens</span>'}</div>
+    <div class="toolbar"><div class="search-inp" style="flex:1;max-width:320px"><input id="newOrigem" placeholder="Nova origem (ex.: Evento)…"></div><button class="btn-sec" data-act="add-origem">+ Adicionar</button></div>
+  </div>`; }
+function secBrand(s){ return `<div class="card card-pad">
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Marca & Aparência <span class="pill grey" style="font-size:.66rem;vertical-align:middle">Sandbox</span></h3><div class="sub">Personalize nome, cor, logótipo e fundo do login. ${isAdmin()?'Para replicar o CRM noutras utilizações (white-label).':'Fica só no seu navegador — personalize a sua empresa fictícia.'}</div></div></div>
+    <div class="form-grid">
+      <div class="field"><label>Nome do CRM</label><input data-brand="nome" value="${esc(s.brand.nome||'')}" placeholder="IEFP CRM"></div>
+      <div class="field"><label>Cor principal</label><div style="display:flex;gap:10px;align-items:center"><input type="color" data-brand="cor" value="${esc(s.brand.cor||'#006B3C')}" style="width:48px;height:38px;padding:2px;border:1px solid var(--border);border-radius:8px;background:var(--surface);cursor:pointer"><span class="muted" style="font-size:.8rem">${s.brand.cor?esc(s.brand.cor):'verde IEFP (predefinido)'}</span></div></div>
+      <div class="field"><label>Logótipo</label><div style="display:flex;gap:10px;align-items:center"><div class="brand-logo" style="width:44px;height:44px"><img src="${esc(logoURL())}" alt="" onerror="this.style.opacity=0"></div><label class="btn-sec btn-sm" style="cursor:pointer;margin:0">${ic('image',15)} Carregar<input type="file" accept="image/*" data-brandimg="logo" style="display:none"></label>${s.brand.logo?`<button class="btn-ghost btn-sm" data-act="brand-clear" data-k="logo">Repor</button>`:''}</div></div>
+      <div class="field"><label>Imagem de fundo do login</label><div style="display:flex;gap:10px;align-items:center"><label class="btn-sec btn-sm" style="cursor:pointer;margin:0">${ic('image',15)} Carregar<input type="file" accept="image/*" data-brandimg="loginBg" style="display:none"></label>${s.brand.loginBg?`<span class="pill green">definida</span><button class="btn-ghost btn-sm" data-act="brand-clear" data-k="loginBg">Repor</button>`:'<span class="muted" style="font-size:.8rem">usa background.jpg</span>'}</div></div>
+    </div>
+    <div class="toolbar" style="margin-top:10px"><button class="btn" data-act="save-brand">Aplicar marca</button><button class="btn-sec" data-act="brand-reset">Repor IEFP</button></div>
+  </div>`; }
+function defSandboxView(){ const s=state.settings; const secs=[];
+  if(canFeat('entidade')) secs.push(secEntidade(s));
+  if(canFeat('gerador')) secs.push(secGerador());
+  if(canFeat('loyalty')) secs.push(secLoyalty());
+  if(canFeat('origens')) secs.push(secOrigens(s));
+  if(canFeat('brand')) secs.push(secBrand(s));
+  return `<div class="card card-pad"><div class="section-head" style="margin-bottom:6px"><div><h3>${ic('settings',18)} Personalizar o meu ambiente</h3><div class="sub">Modo sandbox — todas as alterações ficam <strong>só neste navegador</strong>. Personalize a sua empresa fictícia e os exemplos para os exercícios.</div></div></div></div>`+(secs.join('')||`<div class="card card-pad"><div class="empty">Sem secções disponíveis.</div></div>`); }
+
 /* ---------- DEFINIÇÕES ---------- */
 views.definicoes = () => {
   const s=state.settings;
+  if(!(isAdmin()||can('definicoes'))) return defSandboxView();
   const pgu=paginate(state.utilizadores,'utilizadores');
   return `
   ${rootSession?`<div class="card card-pad" id="rootPanelCard">
@@ -2894,7 +2950,7 @@ views.definicoes = () => {
   <div class="card card-pad">
     <div class="section-head" style="margin-bottom:6px"><div><h3>Grupos de Utilizadores</h3><div class="sub">Crie grupos e marque os módulos a que cada um tem acesso. Aplica-se a todos os utilizadores do grupo.</div></div><button class="btn" data-act="new-group">${ic('users',16)} Novo grupo</button></div>
     <div class="table-wrap"><table><thead><tr><th>Grupo</th>${NAV_FLAT.map(m=>`<th class="t-center" style="font-size:.68rem">${esc(m.label)}</th>`).join('')}<th></th></tr></thead><tbody>
-      ${Object.keys(state.roles).map(rn=>{const r=state.roles[rn];return `<tr><td class="cell-main">${esc(rn)}${r.gestor?' <span class="tag">gestor</span>':''}</td>${NAV_FLAT.map(m=>`<td class="t-center"><input type="checkbox" data-perm="${esc(rn)}" data-mod="${m.id}" ${r.modules.includes(m.id)?'checked':''} style="width:17px;height:17px;accent-color:var(--g600);cursor:pointer"></td>`).join('')}<td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit-group" data-group="${esc(rn)}">Editar</button>${rn==='Administrador'?'':`<button class="btn-danger btn-xs" data-act="del-group" data-group="${esc(rn)}">✕</button>`}</div></td></tr>`;}).join('')}
+      ${Object.keys(state.roles).map(rn=>{const r=state.roles[rn];return `<tr><td class="cell-main">${esc(rn)}${r.gestor?' <span class="tag">gestor</span>':''}${(r.feats&&r.feats.length)?` <span class="pill green" style="font-size:.62rem" title="${esc(r.feats.map(k=>(FEATS.find(f=>f.k===k)||{}).l||k).join(', '))}">+${r.feats.length} sandbox</span>`:''}</td>${NAV_FLAT.map(m=>`<td class="t-center"><input type="checkbox" data-perm="${esc(rn)}" data-mod="${m.id}" ${r.modules.includes(m.id)?'checked':''} style="width:17px;height:17px;accent-color:var(--g600);cursor:pointer"></td>`).join('')}<td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit-group" data-group="${esc(rn)}">Editar</button>${rn==='Administrador'?'':`<button class="btn-danger btn-xs" data-act="del-group" data-group="${esc(rn)}">✕</button>`}</div></td></tr>`;}).join('')}
     </tbody></table></div>
     <p class="muted" style="font-size:.78rem;margin-top:10px">${ic('lock',14)} Nota pedagógica: autenticação simulada para fins de formação — não constitui segurança real (palavras-passe ficam no navegador).</p>
   </div>
@@ -3584,7 +3640,7 @@ function sendSubmitWork(){
    ========================================================================= */
 function buildNav(){
   $('#nav').innerHTML=NAV.map(g=>{
-    const items=g.items.filter(it=>can(it.id));
+    const items=g.items.filter(it=>can(it.id)||(it.id==='definicoes'&&hasAnyFeat()));
     if(!items.length) return '';
     return `<div class="nav-group">${g.g}</div>`+items.map(it=>{
       let badge='';
@@ -3635,7 +3691,7 @@ function render(){
   if(state.settings.requireLogin && !currentUser()){ appEl.style.display='none'; portalEl.style.display='none'; loginEl.style.display='flex'; renderLogin(); return; }
   loginEl.style.display='none';
   // Controlo de acesso por permissão
-  if(!can(v)){ const fv=firstAllowedView(); if(v!==fv){ location.hash='#'+fv; return; } v=fv; }
+  if(!can(v) && !(v==='definicoes'&&hasAnyFeat())){ const fv=firstAllowedView(); if(v!==fv){ location.hash='#'+fv; return; } v=fv; }
   recalcLoyalty();
   appEl.style.display=''; portalEl.style.display='none';
   buildNav(); updateNotifBadge();
@@ -3790,9 +3846,9 @@ document.addEventListener('click', e=>{
   const act=el.dataset.act, type=el.dataset.type, id=el.dataset.id;
   // botões com data-stop não propagam para a linha
   switch(act){
-    case 'new': openModal(type); break;
-    case 'edit': e.stopPropagation(); openModal(type,id); break;
-    case 'delete': e.stopPropagation(); deleteEntity(type,id); break;
+    case 'new': if(type==='loyalty'&&!canFeat('loyalty')){ toast('Sem permissão','','warn'); break; } openModal(type); break;
+    case 'edit': e.stopPropagation(); if(type==='loyalty'&&!canFeat('loyalty')){ toast('Sem permissão','','warn'); break; } openModal(type,id); break;
+    case 'delete': e.stopPropagation(); if(type==='loyalty'&&!canFeat('loyalty')){ toast('Sem permissão','','warn'); break; } deleteEntity(type,id); break;
     case 'open-client': if(!e.target.closest('[data-stop]')) openClient360(id); break;
     case 'open-empresa': if(!e.target.closest('[data-stop]')) openEmpresa360(id); break;
     case 'open-prop': openModal('proposta',id); break;
@@ -3867,7 +3923,7 @@ document.addEventListener('click', e=>{
     case 'task-done': { e.stopPropagation(); const t=(state.tarefas||[]).find(x=>x.id===id); if(t){ t.estado=t.estado==='Concluída'?'Pendente':'Concluída'; save(); render(); } } break;
     case 'close-preview': closePreview(); break;
     case 'del-line': syncDraftFromForm(); propDraft.linhas.splice(+el.dataset.i,1); if(!propDraft.linhas.length)propDraft.linhas.push({descricao:'',qtd:1,preco:0,iva:23}); renderPropForm(); break;
-    case 'save-settings': saveSettings(); break;
+    case 'save-settings': if(!canFeat('entidade')){ toast('Sem permissão','','warn'); break; } saveSettings(); break;
     case 'export': exportJSON(); break;
     case 'import': $('#importFile').click(); break;
     case 'reset': if(confirm('Repor todos os dados de demonstração? Perde as alterações atuais.')) resetDemo(); break;
@@ -3890,7 +3946,7 @@ document.addEventListener('click', e=>{
     case 'roster-add': rosterAdd(); break;
     case 'roster-del': { const nm=el.dataset.nome||''; if(confirm('Remover '+nm+' desta turma?\nO acesso deixa de funcionar (os dados locais do próprio computador não são afetados).')){ supaRemove(el.dataset.id).then(()=>{ toast('Removido',nm); renderTurmaRoster(); }).catch(er=>toast('Erro',supaMsg(er),'err')); } break; }
     case 'roster-pwd': { const p=prompt('Nova palavra-passe para "'+(el.dataset.nome||'')+'":'); if(p&&p.trim()){ supaResetPwd(el.dataset.id,p.trim()).then(()=>toast('Palavra-passe reposta',el.dataset.nome)).catch(er=>toast('Erro',supaMsg(er),'err')); } break; }
-    case 'gen': gerarExemplos(+el.dataset.n||0, +el.dataset.p||0, +el.dataset.e||0); break;
+    case 'gen': if(!canFeat('gerador')){ toast('Sem permissão','','warn'); break; } gerarExemplos(+el.dataset.n||0, +el.dataset.p||0, +el.dataset.e||0); break;
     case 'submit-work': openSubmitWork(); break;
     case 'download-trabalho': submitWork(); break;
     case 'entregas-reload': renderEntregas(); break;
@@ -3910,14 +3966,14 @@ document.addEventListener('click', e=>{
     case 'export-base': exportBase(); break;
     case 'reload-base': reloadBase(); break;
     case 'save-share': { $$('[data-share]').forEach(el2=>{ state.settings[el2.dataset.share]=el2.value.trim(); }); save(); render(); toast('Guardado','Base e entregas configuradas'); } break;
-    case 'save-brand': { if(!isAdmin()) break; $$('[data-brand]').forEach(el2=>{ state.settings.brand[el2.dataset.brand]=el2.value; }); save(); applyBrand(); render(); toast('Marca aplicada','Aparência atualizada'); } break;
-    case 'brand-clear': { if(!isAdmin()) break; state.settings.brand[el.dataset.k]=''; save(); applyBrand(); render(); toast('Reposto'); } break;
-    case 'brand-reset': { if(!isAdmin()) break; state.settings.brand={nome:'',cor:'',logo:'',loginBg:''}; save(); applyBrand(); render(); toast('Marca reposta','IEFP CRM'); } break;
+    case 'save-brand': { if(!canFeat('brand')) break; $$('[data-brand]').forEach(el2=>{ state.settings.brand[el2.dataset.brand]=el2.value; }); save(); applyBrand(); render(); toast('Marca aplicada','Aparência atualizada'); } break;
+    case 'brand-clear': { if(!canFeat('brand')) break; state.settings.brand[el.dataset.k]=''; save(); applyBrand(); render(); toast('Reposto'); } break;
+    case 'brand-reset': { if(!canFeat('brand')) break; state.settings.brand={nome:'',cor:'',logo:'',loginBg:''}; save(); applyBrand(); render(); toast('Marca reposta','IEFP CRM'); } break;
     case 'save-emailjs': { if(!isAdmin()){ toast('Sem permissão','Só administradores','warn'); break; } const at=$('[data-ejs="ativo"]'); state.settings.emailjs=Object.assign({}, EMAILJS_DEFAULT, {ativo: at?at.checked:true}); save(); render(); toast('Modo de envio guardado', emailjsActive()?'Envio real ATIVO':'Modo simulado'); } break;
     case 'test-emailjs': if(!isAdmin()){ toast('Sem permissão','Só administradores','warn'); break; } sendTestEmailJS(); break;
     case 'av-clear': { const hid=$('#modalForm [name="avatar"]'); if(hid) hid.value=''; const prev=$('#avPreview'); if(prev){ const fd=new FormData($('#modalForm')); prev.textContent=initialsOf({nome:fd.get('nome'),apelido:fd.get('apelido')}); } el.style.display='none'; } break;
-    case 'add-origem': { const v=($('#newOrigem')?.value||'').trim(); if(!v){ toast('Indique a origem','','warn'); break; } state.settings.origens=state.settings.origens||[]; if(state.settings.origens.some(o=>o.toLowerCase()===v.toLowerCase())){ toast('Já existe','','warn'); break; } state.settings.origens.push(v); save(); render(); toast('Origem adicionada',v); } break;
-    case 'del-origem': { const o=el.dataset.origem; state.settings.origens=(state.settings.origens||[]).filter(x=>x!==o); save(); render(); toast('Origem removida',o); } break;
+    case 'add-origem': { if(!canFeat('origens')){ toast('Sem permissão','','warn'); break; } const v=($('#newOrigem')?.value||'').trim(); if(!v){ toast('Indique a origem','','warn'); break; } state.settings.origens=state.settings.origens||[]; if(state.settings.origens.some(o=>o.toLowerCase()===v.toLowerCase())){ toast('Já existe','','warn'); break; } state.settings.origens.push(v); save(); render(); toast('Origem adicionada',v); } break;
+    case 'del-origem': { if(!canFeat('origens')){ toast('Sem permissão','','warn'); break; } const o=el.dataset.origem; state.settings.origens=(state.settings.origens||[]).filter(x=>x!==o); save(); render(); toast('Origem removida',o); } break;
     case 'email-new': openEmailEditor(); break;
     case 'email-edit': openEmailEditor(id); break;
     case 'email-del': e.stopPropagation(); delEmailTpl(id); break;
@@ -4016,6 +4072,9 @@ function openGroupModal(name){
       ${!isEdit?`<div class="field full"><label>Copiar permissões de</label><select name="gcopy"><option value="">— começar sem acessos —</option>${Object.keys(state.roles).map(r=>`<option value="${esc(r)}">${esc(r)}</option>`).join('')}</select></div>`:''}
       <div class="field full"><label style="cursor:pointer"><input type="checkbox" name="ggestor" ${role&&role.gestor?'checked':''} style="vertical-align:-2px;margin-right:8px;width:15px;height:15px;accent-color:var(--g600)">Gestor — vê todos os módulos e pode gerir o sistema</label></div>
       <div class="field full"><label style="cursor:pointer"><input type="checkbox" name="gocultar" ${role&&role.ocultarFinanceiro?'checked':''} style="vertical-align:-2px;margin-right:8px;width:15px;height:15px;accent-color:var(--g600)">Ocultar valores financeiros (€) — útil para formandos</label></div>
+      <div class="field full" style="border-top:1px solid var(--border);margin-top:2px;padding-top:12px"><label style="font-weight:800;font-size:.86rem">Permissões específicas (sandbox)</label><div class="sub" style="font-size:.78rem;margin:2px 0 9px">Dá acesso a secções das Definições <strong>sem</strong> ativar o módulo completo. Ideal para formandos personalizarem o ambiente — tudo o que alterarem fica só no navegador deles.</div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px 20px">${FEATS.map(ft=>`<label style="cursor:pointer;display:flex;align-items:center;gap:7px"><input type="checkbox" name="gfeat" value="${ft.k}" ${role&&role.feats&&role.feats.includes(ft.k)?'checked':''} style="width:15px;height:15px;accent-color:var(--g600)">${esc(ft.l)}</label>`).join('')}</div>
+      </div>
     </div>
     <div class="callout info" style="margin-top:4px">${ic('alert',16)}<div class="ctxt">Depois de guardar, ajuste os módulos exatos na tabela de permissões.</div></div>`;
   $('#modalBack').classList.add('open');
@@ -4025,17 +4084,18 @@ function saveGroup(){
   if(!nome){ toast('Falta o nome','Indique o nome do grupo','warn'); return; }
   const gestor=f.querySelector('[name="ggestor"]').checked;
   const ocultar=f.querySelector('[name="gocultar"]').checked;
+  const feats=[...f.querySelectorAll('[name="gfeat"]:checked')].map(c=>c.value);
   const orig=groupDraft&&groupDraft.orig;
   if(!orig && state.roles[nome]){ toast('Já existe','Esse grupo já existe','warn'); return; }
   if(orig){
     const role=state.roles[orig]||{modules:[]};
-    role.gestor=gestor; role.ocultarFinanceiro=ocultar; if(gestor) role.modules=NAV_FLAT.map(n=>n.id);
+    role.gestor=gestor; role.ocultarFinanceiro=ocultar; role.feats=feats; if(gestor) role.modules=NAV_FLAT.map(n=>n.id);
     if(nome!==orig){ delete state.roles[orig]; state.roles[nome]=role; state.utilizadores.forEach(u=>{ if(u.papel===orig) u.papel=nome; }); }
     else state.roles[nome]=role;
   } else {
     const copy=f.querySelector('[name="gcopy"]')?.value;
     const modules = gestor?NAV_FLAT.map(n=>n.id):(copy&&state.roles[copy]?state.roles[copy].modules.slice():[]);
-    state.roles[nome]={modules,gestor,ocultarFinanceiro:ocultar};
+    state.roles[nome]={modules,gestor,ocultarFinanceiro:ocultar,feats};
   }
   save(); editing=null; groupDraft=null; closeModal(); render(); toast('Grupo guardado',nome);
 }
@@ -4224,6 +4284,8 @@ const GN_SEG=['Micro','PME','PME','PME','Grande Empresa'];
 function gnRand(a){ return a[Math.floor(Math.random()*a.length)]; }
 function gnDate(){ return '2026-'+pad(1+Math.floor(Math.random()*6))+'-'+pad(1+Math.floor(Math.random()*28)); }
 function gnNIF(){ let d='5'; for(let i=0;i<7;i++) d+=Math.floor(Math.random()*10); let s=0; for(let i=0;i<8;i++) s+=Number(d[i])*(9-i); let c=11-(s%11); if(c>=10)c=0; return d+c; }
+/* Template "oficial" para propostas geradas — nunca um criado por formando (obriga-os a aplicar o seu manualmente). */
+function seedTplId(){ const t=(state.propostaTemplates||[]).find(x=>x.criadoPor==='u1'); return t?t.id:null; }
 function gerarExemplos(nCli,nProp,nEmp){
   nEmp=nEmp||0;
   const EMP_SUF=['Lda','SA','& Filhos','Consultores','Solutions','Group','Tech','Retalho','Serviços','Unipessoal'];
@@ -4244,7 +4306,7 @@ function gerarExemplos(nCli,nProp,nEmp){
     if(!state.clientes.length||!prods.length) break;
     const cli=gnRand(state.clientes); const nlin=1+Math.floor(Math.random()*3); const linhas=[];
     for(let j=0;j<nlin;j++){ const pr=gnRand(prods); linhas.push({produtoId:pr.id,descricao:pr.nome,qtd:1+Math.floor(Math.random()*6),preco:pr.preco,iva:ivaForRegion(pr.iva,cli.regiao||'Continente')}); }
-    state.propostas.push({id:uid('prop'),numero:nextProposalNumber(),titulo:gnRand(['Implementação CRM','Plano Analytics','Suporte Premium','Workshop de equipa','Conformidade RGPD','Licenciamento anual'])+' — '+cli.empresa,clienteId:cli.id,criada:gnDate(),validade:addDays(todayISO(),30),estado:gnRand(['Criada','Enviada','Negociação','Negociação','Ganha','Ganha','Perdida']),templateId:(state.propostaTemplates[0]&&state.propostaTemplates[0].id),linhas,criadoPor:(currentUser()?currentUser().id:null),criadoEm:gnDate(),alteradoEm:todayISO()});
+    state.propostas.push({id:uid('prop'),numero:nextProposalNumber(),titulo:gnRand(['Implementação CRM','Plano Analytics','Suporte Premium','Workshop de equipa','Conformidade RGPD','Licenciamento anual'])+' — '+cli.empresa,clienteId:cli.id,criada:gnDate(),validade:addDays(todayISO(),30),estado:gnRand(['Criada','Enviada','Negociação','Negociação','Ganha','Ganha','Perdida']),templateId:seedTplId(),linhas,criadoPor:(currentUser()?currentUser().id:null),criadoEm:gnDate(),alteradoEm:todayISO()});
   }
   recalcLoyalty(); save(); render(); toast('Exemplos gerados',`${nEmp} empresa(s) · ${nCli} contacto(s) · ${nProp} proposta(s)`);
 }
@@ -4682,7 +4744,7 @@ function exemploProp(){ return state.propostas[0]||{numero:'PROP-0000',titulo:'P
 
 /* ---- editor por blocos ---- */
 let tplDraft=null, tplSel=null, lastTagEl=null, tplDragFrom=null;
-function newTemplate(){ return {id:uid('pt'),nome:'',cor:'#006B3C',criadoPor:(currentUser()?currentUser().id:null),criadoEm:todayISO(),blocks:[defaultBlock('header'),defaultBlock('texto'),defaultBlock('cliente'),defaultBlock('cotacao'),defaultBlock('totais'),defaultBlock('condicoes')]}; }
+function newTemplate(){ return {id:uid('pt'),nome:'',cor:'#006B3C',criadoPor:(currentUser()?currentUser().id:null),criadoEm:todayISO(),blocks:[]}; }
 function openTplEditor(id){ tplDraft = id ? clone(state.propostaTemplates.find(x=>x.id===id)) : newTemplate(); tplSel = tplDraft.blocks.length?0:null; if(currentView()!=='modelos'){ location.hash='#modelos'; setTimeout(render,0); } else render(); }
 function updatePaper(){ const el=$('#tplPaper'); if(el&&tplDraft) el.innerHTML=blocksHTML(tplDraft,exemploProp()); }
 function applyBlockField(el){ if(!tplDraft) return; const i=+el.dataset.bi, f=el.dataset.bf; const b=tplDraft.blocks[i]; if(!b) return; b[f]= el.type==='checkbox'?el.checked : (el.type==='number'?Number(el.value): el.value); updatePaper(); }
