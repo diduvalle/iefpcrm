@@ -647,6 +647,16 @@ body.present .app{grid-template-columns:1fr}
 body.present .header .menu-btn,body.present .header [data-act="toggle-nav"]{display:none}
 body.present .content{max-width:1320px}
 body.present #presentExit{display:inline-flex;align-items:center;gap:6px;position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:210;background:var(--g700);color:#fff;border:0;border-radius:30px;padding:10px 20px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-lg)}
+/* diálogos personalizados — substituem confirm/prompt/alert nativos */
+.dlg-back{position:fixed;inset:0;z-index:6000;display:grid;place-items:center;padding:22px;background:rgba(8,20,15,.5);backdrop-filter:blur(3px);opacity:0;transition:opacity .15s}
+.dlg-back.open{opacity:1}
+.dlg{background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-lg);width:min(430px,94vw);padding:22px 22px 18px;transform:translateY(10px) scale(.985);transition:transform .18s cubic-bezier(.22,.61,.36,1)}
+.dlg-back.open .dlg{transform:none}
+.dlg-title{font-size:1.06rem;font-weight:800;color:var(--text);margin-bottom:8px;display:flex;align-items:center;gap:9px}
+.dlg-msg{font-size:.9rem;color:var(--muted);line-height:1.55}
+.dlg-input{width:100%;margin-top:14px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface2);color:var(--text);font-size:.92rem;font-family:inherit}
+.dlg-input:focus{outline:none;border-color:var(--g500);box-shadow:0 0 0 3px var(--g100)}
+.dlg-foot{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="worldmap.js"></script>
@@ -1497,9 +1507,9 @@ function rootSave(el){
   ]).then(()=>{ toast('Guardado','Turma '+cod+' atualizada'); renderRootPanel(); })
    .catch(e=>{ toast('Erro',supaMsg(e),'err'); el.disabled=false; });
 }
-function rootRecovery(el){
+async function rootRecovery(el){
   const card=rootCardOf(el); if(!card) return; const cod=el.dataset.codigo;
-  if(!confirm('Gerar um NOVO código de recuperação para o formador da turma '+cod+'?\nO código anterior deixa de funcionar.')) return;
+  if(!(await uiConfirm('O código anterior deixa de funcionar.',{title:'Novo código de recuperação — turma '+cod+'?',okText:'Gerar'}))) return;
   el.disabled=true;
   supaRpc('root_recovery_formador',{p_token:rootSession,p_codigo:cod}).then(d=>{
     const rv=card.querySelector('.root-reveal');
@@ -1508,11 +1518,11 @@ function rootRecovery(el){
     el.disabled=false;
   }).catch(e=>{ toast('Erro',supaMsg(e),'err'); el.disabled=false; });
 }
-function rootDelete(el){
+async function rootDelete(el){
   const card=rootCardOf(el); if(!card) return; const cod=el.dataset.codigo;
   const typed=(card.querySelector('[data-rf="delcode"]')||{}).value||'';
   if(typed.trim()!==cod){ toast('Confirmação inválida','Escreve o código '+cod+' para apagar','warn'); return; }
-  if(!confirm('APAGAR definitivamente a turma '+cod+' e todos os seus dados (utilizadores, sessões, entregas)?\nEsta ação é irreversível.')) return;
+  if(!(await uiConfirm('Vai apagar a turma '+cod+' e TODOS os seus dados (utilizadores, sessões, entregas). Esta ação é irreversível.',{title:'Apagar turma definitivamente?',danger:true,okText:'Apagar'}))) return;
   el.disabled=true;
   supaRpc('root_apagar_turma',{p_token:rootSession,p_codigo:cod}).then(()=>{ toast('Turma apagada',cod); renderRootPanel(); })
    .catch(e=>{ toast('Erro',supaMsg(e),'err'); el.disabled=false; });
@@ -2558,13 +2568,13 @@ function mailHistory(){
     <div class="callout info" style="margin-top:14px">${ic('alert',16)}<div class="ctxt"><strong>Sobre o controlo de leitura:</strong> a abertura é detetada por um <strong>pixel de rastreio</strong> (imagem invisível no email). Neste ambiente de formação a métrica é <strong>simulada</strong>. O rastreio real — e saber se foi <em>apagado sem ler</em> — exige um servidor próprio (ver sugestões). Nota RGPD: muitos clientes bloqueiam imagens, por isso "não aberto" nem sempre significa que não leram.</div></div>
   </div>`;
 }
-function mailSend(){
+async function mailSend(){
   syncMailDraft();
   const c=mailDraft.clienteId?getC(mailDraft.clienteId):null;
   const to=c?c.email:(mailDraft.toEmail||'');
   if(!to){ toast('Sem destinatário','Escolha um cliente da lista','warn'); return; }
   if(!String(mailDraft.subject||'').trim()){ toast('Sem assunto','Escreva um assunto','warn'); return; }
-  if(!hasSignature()){ if(!confirm('Não tem uma assinatura de email configurada no seu perfil.\n\nQuer enviar mesmo assim?')){ toast('Configure a assinatura','Clique no seu nome (canto inferior esquerdo) → Assinatura de email','info'); return; } }
+  if(!hasSignature()){ if(!(await uiConfirm('Não tem uma assinatura de email configurada no seu perfil. Quer enviar mesmo assim?',{title:'Enviar sem assinatura?',okText:'Enviar'}))){ toast('Configure a assinatura','Clique no seu nome (canto inferior esquerdo) → Assinatura de email','info'); return; } }
   const subj=mergeCtx(mailDraft.subject,c,null);
   const sigT=sigHtmlToText((currentUser()||{}).assinatura);
   const msg=mergeCtx(mailDraft.message,c,null)+(sigT?'\n\n'+mergeCtx(sigT,c,null):'');
@@ -2616,7 +2626,7 @@ function emailEditorHTML(){
 function syncEmailDraft(){ const f=$('#content'); if(!f||!emailDraft) return; const n=$('#emNome'),cc=$('#emCor'),lg=$('#emLogo'); if(n)emailDraft.nome=n.value; if(cc)emailDraft.cor=cc.value; if(lg)emailDraft.mostrarLogo=lg.checked; $$('[data-em]',f).forEach(el=>{ if(el.id==='emNome'||el.id==='emCor'||el.id==='emLogo')return; emailDraft[el.dataset.em]= el.type==='checkbox'?el.checked:el.value; }); }
 function updateEmailPreview(){ syncEmailDraft(); const box=$('#emPreview'); if(box){ const sample=state.propostas[0]; box.innerHTML=emailHTML(emailDraft,sample?getC(sample.clienteId):state.clientes[0],sample); } }
 function saveEmailTpl(){ syncEmailDraft(); if(!String(emailDraft.nome||'').trim()){ toast('Falta o nome','Dê um nome ao template','warn'); return; } const i=state.templates.findIndex(x=>x.id===emailDraft.id); if(i>=0)state.templates[i]=emailDraft; else { emailDraft.criadoPor=currentUser()?currentUser().id:emailDraft.criadoPor; emailDraft.criadoEm=todayISO(); state.templates.push(emailDraft); } const nm=emailDraft.nome; save(); emailDraft=null; render(); toast(i>=0?'Template atualizado':'Template criado',nm); }
-function delEmailTpl(id){ if(!confirm('Eliminar este template?')) return; state.templates=state.templates.filter(x=>x.id!==id); save(); render(); toast('Template eliminado'); }
+async function delEmailTpl(id){ if(!(await uiConfirm('Esta ação não pode ser anulada.',{title:'Eliminar template?',danger:true,okText:'Eliminar'}))) return; state.templates=state.templates.filter(x=>x.id!==id); save(); render(); toast('Template eliminado'); }
 function insertEmailTag(tag){ const ta=(lastTagEl&&lastTagEl.isConnected)?lastTagEl:$('#content [data-emtag]'); if(!ta)return; const s=ta.selectionStart??ta.value.length,e=ta.selectionEnd??ta.value.length; const ins='{{'+tag+'}}'; ta.value=ta.value.slice(0,s)+ins+ta.value.slice(e); ta.focus(); ta.setSelectionRange(s+ins.length,s+ins.length); updateEmailPreview(); }
 
 /* ---- enviar email (modal) ---- */
@@ -2656,11 +2666,11 @@ function renderSendForm(){
     <div id="sendPreview" style="display:flex;justify-content:center">${tpl?emailHTML(tpl,cli,prop,currentSigHTML(cli,prop)):''}</div>`;
 }
 function syncSendDraft(){ const f=$('#modalForm'); if(!f||!sendDraft)return; const g=n=>f.querySelector(`[data-send="${n}"]`); const ts=g('templateId'); if(ts)sendDraft.templateId=ts.value; const as=g('assunto'); if(as)sendDraft.assunto=as.value; const an=g('anexar'); if(an)sendDraft.anexar=an.checked; const cc=g('cc'); if(cc)sendDraft.cc=cc.value.trim(); const bcc=g('bcc'); if(bcc)sendDraft.bcc=bcc.value.trim(); }
-function doSendEmail(openMail){
+async function doSendEmail(openMail){
   syncSendDraft();
   const cli=getC(sendDraft.clienteId); const prop=sendDraft.propostaId&&sendDraft.anexar?state.propostas.find(p=>p.id===sendDraft.propostaId):null;
   const tpl=state.templates.find(t=>t.id===sendDraft.templateId);
-  if(!hasSignature()){ if(!confirm('Não tem uma assinatura de email configurada no seu perfil.\n\nQuer enviar mesmo assim?')){ toast('Configure a assinatura','Clique no seu nome (canto inferior esquerdo) → Assinatura de email','info'); return; } }
+  if(!hasSignature()){ if(!(await uiConfirm('Não tem uma assinatura de email configurada no seu perfil. Quer enviar mesmo assim?',{title:'Enviar sem assinatura?',okText:'Enviar'}))){ toast('Configure a assinatura','Clique no seu nome (canto inferior esquerdo) → Assinatura de email','info'); return; } }
   const sigT=sigHtmlToText((currentUser()||{}).assinatura);
   const body=mergeCtx((tpl?tpl.saudacao+'\n\n'+tpl.corpo+(tpl.botaoTexto&&tpl.botaoLink?'\n\n'+tpl.botaoTexto+': '+tpl.botaoLink:'')+(prop?'\n\n(Proposta '+prop.numero+' — exportável em PDF a partir do CRM)':'')+'\n\n'+tpl.assinatura:''),cli,prop)+(sigT?'\n\n'+mergeCtx(sigT,cli,prop):'');
   const ev=sendEmail({clienteId:cli.id, templateId:sendDraft.templateId, assunto:sendDraft.assunto, proposta:prop, origem:'Manual'});
@@ -3496,12 +3506,12 @@ function closeDrawer(){ $('#drawerBack').classList.remove('open'); $('#drawer').
 
 /* ---------- eliminar ---------- */
 const STORE_OF={cliente:'clientes',empresa:'empresas',tarefa:'tarefas',produto:'produtos',familia:'familias',subfamilia:'subfamilias',proposta:'propostas',utilizador:'utilizadores',loyalty:'loyalty',campanha:'campanhas',consentimento:'consentimentos',pedido:'pedidos',ropa:'ropa',violacao:'violacoes',automacao:'automacoes'};
-function deleteEntity(type,id){
+async function deleteEntity(type,id){
   const store=STORE_OF[type]; if(!store) return;
   const item=state[store].find(x=>x.id===id);
   if(type==='utilizador' && item && (item.id==='u1'||item.protegido)){ toast('Não permitido','O perfil de administrador/criador não pode ser removido.','warn'); return; }
   const nm=type==='cliente'?clientName(id):(item?.nome||item?.numero||item?.atividade||item?.descricao||'registo');
-  if(!confirm(`Eliminar ${type} "${nm}"? Esta ação não pode ser anulada.`)) return;
+  if(!(await uiConfirm(`Eliminar "${nm}"? Esta ação não pode ser anulada.`,{title:'Eliminar '+esc(type)+'?',danger:true,okText:'Eliminar'}))) return;
   state[store]=state[store].filter(x=>x.id!==id);
   if(type==='cliente'){ // limpar dependências
     state.propostas=state.propostas.filter(p=>p.clienteId!==id);
@@ -3655,7 +3665,7 @@ function reloadBase(){
   const url=turmaBaseURL();
   toast('A procurar base…','',('info'));
   fetch(url,{cache:'no-store'}).then(r=>{ if(!r.ok) throw 0; return r.json(); })
-    .then(d=>{ if(d&&Array.isArray(d.clientes)){ if(!confirm('Recarregar a base online? Substitui os dados atuais NESTE navegador.')) return; localStorage.setItem(STORE_KEY,JSON.stringify(d)); load(); save(); render(); toast('Base recarregada','Dados online aplicados'); } else toast('Base inválida','O ficheiro não tem o formato esperado','warn'); })
+    .then(async d=>{ if(d&&Array.isArray(d.clientes)){ if(!(await uiConfirm('Substitui os dados atuais NESTE navegador pelos dados online.',{title:'Recarregar a base online?',danger:true,okText:'Recarregar'}))) return; localStorage.setItem(STORE_KEY,JSON.stringify(d)); load(); save(); render(); toast('Base recarregada','Dados online aplicados'); } else toast('Base inválida','O ficheiro não tem o formato esperado','warn'); })
     .catch(()=>toast('Sem base online',`Não encontrei "${esc(url)}" no servidor`,'warn'));
 }
 function exportBase(){
@@ -3943,7 +3953,31 @@ function brandImgUpload(input){
 }
 
 /* ---------- delegação de eventos ---------- */
-document.addEventListener('click', e=>{
+/* ---------- diálogos com o look da app (substituem confirm/prompt/alert) ---------- */
+function uiDialog(o){ o=o||{}; return new Promise(res=>{
+  const isInput=o.input!=null;
+  const back=document.createElement('div'); back.className='dlg-back';
+  back.innerHTML=`<div class="dlg" role="dialog" aria-modal="true">
+    ${o.title?`<div class="dlg-title">${o.icon?ic(o.icon,18):''}${esc(o.title)}</div>`:''}
+    ${o.message?`<div class="dlg-msg">${esc(o.message).replace(/\n/g,'<br>')}</div>`:''}
+    ${isInput?`<input class="dlg-input" value="${esc(o.input)}" placeholder="${esc(o.placeholder||'')}">`:''}
+    <div class="dlg-foot">${o.cancelText===null?'':`<button class="btn-sec" data-dlg="cancel">${esc(o.cancelText||'Cancelar')}</button>`}<button class="btn${o.danger?'-danger':''}" data-dlg="ok">${esc(o.okText||'OK')}</button></div>
+  </div>`;
+  document.body.appendChild(back);
+  requestAnimationFrame(()=>back.classList.add('open'));
+  const inp=back.querySelector('.dlg-input'); const okBtn=back.querySelector('[data-dlg="ok"]');
+  setTimeout(()=>{ (inp||okBtn).focus(); if(inp) inp.select(); },30);
+  function done(val){ document.removeEventListener('keydown',onKey,true); back.classList.remove('open'); setTimeout(()=>back.remove(),170); res(val); }
+  function onKey(ev){ if(ev.key==='Escape'){ ev.preventDefault(); done(isInput?null:false); } else if(ev.key==='Enter'){ ev.preventDefault(); done(isInput?(inp?inp.value:true):true); } }
+  document.addEventListener('keydown',onKey,true);
+  back.addEventListener('mousedown',ev=>{ if(ev.target===back) done(isInput?null:false); });
+  back.addEventListener('click',ev=>{ const b=ev.target.closest('[data-dlg]'); if(!b) return; done(b.dataset.dlg==='ok'?(isInput?(inp?inp.value:true):true):(isInput?null:false)); });
+}); }
+function uiConfirm(message,o){ o=o||{}; return uiDialog({title:o.title||'Confirmar',icon:o.icon||(o.danger?'alert':'help'),message,okText:o.okText||'Confirmar',cancelText:o.cancelText||'Cancelar',danger:o.danger}); }
+function uiAlert(message,o){ o=o||{}; return uiDialog({title:o.title||'Aviso',icon:o.icon||'info',message,okText:o.okText||'OK',cancelText:null}); }
+function uiPrompt(message,def,o){ o=o||{}; return uiDialog({title:o.title||'',icon:o.icon,message,okText:o.okText||'OK',cancelText:'Cancelar',input:def||'',placeholder:o.placeholder||''}); }
+
+document.addEventListener('click', async e=>{
   const el=e.target.closest('[data-act]'); if(!el) return;
   const act=el.dataset.act, type=el.dataset.type, id=el.dataset.id;
   // botões com data-stop não propagam para a linha
@@ -3978,10 +4012,10 @@ document.addEventListener('click', e=>{
     case 'help': openHelp(); break;
     case 'lang': { setLang(getLang()==='en'?'pt':'en'); const _lb=$('#langBtn'); if(_lb) _lb.textContent=(getLang()==='en')?'EN':'PT'; } break;
     case 'page': { const np=+el.dataset.p; if(np>=1){ _pages[el.dataset.key]=np; render(); const tw=$('.table-wrap'); if(tw) tw.scrollIntoView({block:'nearest'}); } } break;
-    case 'logout': if(confirm('Terminar sessão?')) doLogout(); break;
+    case 'logout': if(await uiConfirm('Quer terminar a sessão?',{title:'Terminar sessão',okText:'Terminar',icon:'logout'})) doLogout(); break;
     case 'profile': openProfile(); break;
     case 'sig-cmd': try{ document.execCommand(el.dataset.cmd, false, el.dataset.val||null); }catch(e2){} break;
-    case 'sig-link': { const url=prompt('Endereço do link (ex.: https://www.exemplo.pt):',''); if(url){ try{ document.execCommand('createLink',false,url); }catch(e2){} } } break;
+    case 'sig-link': { const url=await uiPrompt('Endereço do link (ex.: https://www.exemplo.pt):','',{title:'Inserir link'}); if(url){ try{ document.execCommand('createLink',false,url); }catch(e2){} } } break;
     case 'tpl-new': openTplEditor(); break;
     case 'tpl-edit': openTplEditor(id); break;
     case 'del-proptpl': e.stopPropagation(); delPropTpl(id); break;
@@ -4028,7 +4062,7 @@ document.addEventListener('click', e=>{
     case 'save-settings': if(!canFeat('entidade')){ toast('Sem permissão','','warn'); break; } saveSettings(); break;
     case 'export': exportJSON(); break;
     case 'import': $('#importFile').click(); break;
-    case 'reset': if(confirm('Repor todos os dados de demonstração? Perde as alterações atuais.')) resetDemo(); break;
+    case 'reset': if(await uiConfirm('Repõe todos os dados de demonstração — perde as alterações atuais neste navegador.',{title:'Repor dados demo?',danger:true,okText:'Repor'})) resetDemo(); break;
     case 'theme': applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'); break;
     case 'present': document.body.classList.toggle('present'); break;
     case 'notif': { const p=$('#notifPanel'); if(!p)break; const open=p.classList.toggle('open'); if(open) renderNotifPanel(); } break;
@@ -4046,13 +4080,13 @@ document.addEventListener('click', e=>{
     case 'users-template': downloadUserTemplate(); break;
     case 'import-roster': $('#importRosterFile').click(); break;
     case 'roster-add': rosterAdd(); break;
-    case 'roster-del': { const nm=el.dataset.nome||''; if(confirm('Remover '+nm+' desta turma?\nO acesso deixa de funcionar (os dados locais do próprio computador não são afetados).')){ supaRemove(el.dataset.id).then(()=>{ toast('Removido',nm); renderTurmaRoster(); }).catch(er=>toast('Erro',supaMsg(er),'err')); } break; }
-    case 'roster-pwd': { const p=prompt('Nova palavra-passe para "'+(el.dataset.nome||'')+'":'); if(p&&p.trim()){ supaResetPwd(el.dataset.id,p.trim()).then(()=>toast('Palavra-passe reposta',el.dataset.nome)).catch(er=>toast('Erro',supaMsg(er),'err')); } break; }
+    case 'roster-del': { const nm=el.dataset.nome||''; if(await uiConfirm('O acesso de '+nm+' deixa de funcionar. Os dados locais do próprio computador não são afetados.',{title:'Remover da turma?',danger:true,okText:'Remover'})){ supaRemove(el.dataset.id).then(()=>{ toast('Removido',nm); renderTurmaRoster(); }).catch(er=>toast('Erro',supaMsg(er),'err')); } break; }
+    case 'roster-pwd': { const p=await uiPrompt('Nova palavra-passe para "'+(el.dataset.nome||'')+'":','',{title:'Repor palavra-passe'}); if(p&&p.trim()){ supaResetPwd(el.dataset.id,p.trim()).then(()=>toast('Palavra-passe reposta',el.dataset.nome)).catch(er=>toast('Erro',supaMsg(er),'err')); } break; }
     case 'roster-invite': { const em=el.dataset.email||''; const un=el.dataset.username||''; const nm=el.dataset.nome||un;
       if(!em){ toast('Sem email','Este utilizador não tem email definido','warn'); break; }
       if(!realSendOn()){ toast('Ative o envio real','Definições → EmailJS (modo real) para enviar convites','warn'); break; }
       const pwd=genFormandoPwd(em,nm,el.dataset.apelido||'',un);
-      if(!confirm('Reenviar convite a '+nm+' ('+em+')?\n\nA palavra-passe será reposta para a regra do sistema e enviada por email.')) break;
+      if(!(await uiConfirm('A palavra-passe de '+nm+' será reposta para a regra do sistema e enviada para '+em+'.',{title:'Reenviar convite?',okText:'Reenviar',icon:'send'}))) break;
       supaResetPwd(el.dataset.id,pwd).then(()=>sendInvite({nome:nm,apelido:el.dataset.apelido||'',email:em,username:un},pwd))
         .then(r=>toast((r&&r.sent)?'Convite reenviado':'Falha no envio',em,(r&&r.sent)?'':'warn'))
         .catch(er=>toast('Erro',supaMsg(er),'err')); break; }
@@ -4211,11 +4245,11 @@ function saveGroup(){
   }
   save(); editing=null; groupDraft=null; closeModal(); render(); toast('Grupo guardado',nome);
 }
-function delGroup(name){
+async function delGroup(name){
   if(name==='Administrador'){ toast('Não permitido','O grupo Administrador não pode ser removido','warn'); return; }
   const inUse=state.utilizadores.filter(u=>u.papel===name);
   if(inUse.length){ toast('Grupo em uso',`${inUse.length} utilizador(es) usam este grupo — reatribua-os primeiro`,'warn'); return; }
-  if(!confirm(`Eliminar o grupo "${name}"?`)) return;
+  if(!(await uiConfirm(`Eliminar o grupo "${name}"?`,{title:'Eliminar grupo?',danger:true,okText:'Eliminar'}))) return;
   delete state.roles[name]; save(); closeModal(); render(); toast('Grupo eliminado',name);
 }
 function togglePerm(role,mod,on,el){
@@ -4953,7 +4987,7 @@ function inspectorHTML(b,i){
   else if(b.type==='divisor') body='<p class="muted" style="font-size:.82rem">Linha divisória — sem opções.</p>';
   return head+body;
 }
-function delPropTpl(id){ if(!id) return; if(!confirm('Eliminar este modelo de proposta?')) return; state.propostaTemplates=state.propostaTemplates.filter(x=>x.id!==id); save(); render(); toast('Modelo eliminado'); }
+async function delPropTpl(id){ if(!id) return; if(!(await uiConfirm('Esta ação não pode ser anulada.',{title:'Eliminar modelo de proposta?',danger:true,okText:'Eliminar'}))) return; state.propostaTemplates=state.propostaTemplates.filter(x=>x.id!==id); save(); render(); toast('Modelo eliminado'); }
 
 /* ---------- arranque ---------- */
 load();
