@@ -98,7 +98,9 @@
 .md-header__inner > .md-header__option[data-md-component="palette"] { order: 2; } /* tema (lua/sol) */
 .md-header__inner > label.md-icon[for="__search"],
 .md-header__inner > .md-search { order: 3; }
-.md-header__option { margin: 0 0 0 .3rem; padding: 0; }
+/* espacamento IGUAL a app: gap de 9px entre os botoes do cluster (.header-r) */
+.md-header__option { margin: 0 0 0 9px; padding: 0; }
+.md-header__inner > .md-search { margin-left: 9px; }
 
 /* Botão de tema (lua/sol) = .icon-btn da app (40×40, moldura, ícone cinza).
    :not([hidden]) — o Material mantém o toggle INATIVO com [hidden]; só o ATIVO
@@ -114,7 +116,7 @@
 .md-header__option[data-md-component="palette"] > label.md-header__button.md-icon:not([hidden]):hover {
   background: var(--iefp-surface2); border-color: var(--iefp-g300); color: var(--iefp-text);
 }
-.md-header__option[data-md-component="palette"] > label.md-header__button.md-icon svg { width: 20px; height: 20px; }
+.md-header__option[data-md-component="palette"] > label.md-header__button.md-icon svg { width: 18px; height: 18px; }
 
 /* Botão de idioma (PT/EN) = .icon-btn.lang-btn da app (40×40, texto verde, sem globo) */
 .md-header .md-select > .md-header__button.md-icon {
