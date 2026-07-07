@@ -92,14 +92,34 @@
 .md-header__button.md-logo { padding: .2rem; }
 .md-header__button.md-logo img { height: 34px; width: auto; }
 
-/* Seletor de idioma (alternate) = .lang-btn / .icon-btn da app */
-.md-header__option { margin-left: .1rem; }
+/* --- Cluster de botões do header = .icon-btn da app (40×40, com moldura) --- */
+/* Ordem IGUAL à app: idioma (PT) -> tema (lua) -> pesquisa */
+.md-header__inner > .md-header__option:not([data-md-component]) { order: 1; }    /* idioma (PT/EN) */
+.md-header__inner > .md-header__option[data-md-component="palette"] { order: 2; } /* tema (lua/sol) */
+.md-header__inner > label.md-icon[for="__search"],
+.md-header__inner > .md-search { order: 3; }
+.md-header__option { margin: 0 0 0 .3rem; padding: 0; }
+
+/* Botão de tema (lua/sol) = .icon-btn da app (40×40, moldura, ícone cinza) */
+.md-header__option[data-md-component="palette"] > label.md-header__button.md-icon {
+  width: 40px; height: 40px; margin: 0; padding: 0; opacity: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 10px; border: 1px solid var(--iefp-border);
+  background: var(--iefp-surface); color: var(--iefp-muted);
+  transition: background .15s, border-color .15s, color .15s;
+}
+.md-header__option[data-md-component="palette"] > label.md-header__button.md-icon:hover {
+  background: var(--iefp-surface2); border-color: var(--iefp-g300); color: var(--iefp-text);
+}
+.md-header__option[data-md-component="palette"] > label.md-header__button.md-icon svg { width: 20px; height: 20px; }
+
+/* Botão de idioma (PT/EN) = .icon-btn.lang-btn da app (40×40, texto verde, sem globo) */
 .md-header .md-select > .md-header__button.md-icon {
-  width: auto; min-width: 40px; height: 34px; padding: 0 12px; margin: 0;
+  width: 40px; height: 40px; padding: 0; margin: 0; opacity: 1;
   display: inline-flex; align-items: center; justify-content: center;
   border-radius: 10px; border: 1px solid var(--iefp-border);
   background: var(--iefp-surface); color: var(--iefp-g700);
-  font-weight: 800; font-size: .78rem; letter-spacing: .04em; opacity: 1;
+  font-weight: 800; font-size: .78rem; letter-spacing: .04em;
   transition: background .15s, border-color .15s, color .15s;
 }
 .md-header .md-select > .md-header__button.md-icon:hover {
@@ -127,7 +147,7 @@ html[lang^="en"] .md-header .md-select > .md-header__button.md-icon::after { con
   background: var(--iefp-surface2);
   border: 1px solid var(--iefp-border);
   border-radius: var(--iefp-rs);
-  height: 1.9rem;
+  height: 2.5rem;
   box-shadow: none;
   transition: border .14s, box-shadow .14s;
 }
@@ -349,7 +369,7 @@ html[lang^="en"] .md-header .md-select > .md-header__button.md-icon::after { con
   pointer-events: none;
 }
 .md-typeset .iefp-hero h1 { color: #fff; margin: 0 0 .35rem; font-size: 1.65rem; }
-.md-typeset .iefp-hero p { color: rgba(255,255,255,.9); max-width: 56ch; margin: 0; font-size: .82rem; position: relative; }
+.md-typeset .iefp-hero p { color: rgba(255,255,255,.9); max-width: 48rem; margin: 0; font-size: .82rem; position: relative; }
 .iefp-hero-actions { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: 1rem; position: relative; }
 .md-typeset .iefp-hero-actions a {
   display: inline-flex; align-items: center; gap: 7px;
