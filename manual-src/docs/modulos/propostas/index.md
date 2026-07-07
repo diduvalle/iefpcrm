@@ -4,7 +4,7 @@ O coração comercial do CRM: do *lead* à proposta ganha, com **pipeline Kanban
 
 ## O ecrã
 
-No topo tens o **filtro temporal**, os **KPIs** (nº de propostas, pipeline, conversão, ticket — podem aparecer com 🔒), e a alternância **Lista / Kanban** com o botão **+ Proposta**.
+No topo tens o **filtro temporal**, os **KPIs** (nº de propostas, pipeline, conversão, ticket - podem aparecer com 🔒), e a alternância **Lista / Kanban** com o botão **+ Proposta**.
 
 ## Ações
 
@@ -15,7 +15,7 @@ Escolhe a ação que queres fazer:
 -   <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> __Criar a proposta__
 
     ---
-    Cliente, título, validade e estado — campo a campo.
+    Cliente, título, validade e estado - campo a campo.
 
     [:octicons-arrow-right-24: Abrir](criar.md)
 

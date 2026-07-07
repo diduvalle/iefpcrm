@@ -10,7 +10,7 @@ Clica **+ Proposta** (ou num cartão existente para editar). O modal abre com o 
 
 | Campo | Notas |
 |---|---|
-| **Número** | Automático (`PROP-{ano}-{nº}`), só leitura — reinicia a cada ano. |
+| **Número** | Automático (`PROP-{ano}-{nº}`), só leitura - reinicia a cada ano. |
 | **Cliente** | Escolhe da lista de contactos. Define o **IVA por região** e o **desconto de loyalty**. |
 | **Título** | Nome da proposta (ex.: *Licenciamento CRM*). |
 | **Validade** | Data até à qual a proposta é válida. |
@@ -25,6 +25,6 @@ Clica **+ Proposta** (ou num cartão existente para editar). O modal abre com o 
 5. **Guardar**.
 
 !!! tip "Auditoria"
-    A proposta guarda **quem criou/alterou e quando** — visível no rodapé do modal.
+    A proposta guarda **quem criou/alterou e quando** - visível no rodapé do modal.
 
 ➡️ A seguir: **[Linhas & catálogo](linhas.md)** · voltar a **[Propostas](index.md)**.

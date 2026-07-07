@@ -12,11 +12,11 @@
 
 ## Step 1 · Create the class
 
-1. Open **[iefpcrm.cr0x.org](https://iefpcrm.cr0x.org)** → **“I’m a trainer — create a new class”**.
+1. Open **[iefpcrm.cr0x.org](https://iefpcrm.cr0x.org)** → **“I’m a trainer - create a new class”**.
 2. Fill in IEFP email, name, **class number (8 digits)**, username and password → **Create class and enter**.
 
 !!! warning "Save the recovery code"
-    It appears **once** — write it down. It is your way to recover the password.
+    It appears **once** - write it down. It is your way to recover the password.
 
 <video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/hub.png"><source src="/manual/assets/videos/montar-turma-en.webm" type="video/webm"><source src="/manual/assets/videos/montar-turma-en.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/montar-turma-en.vtt" srclang="en" label="English" default></video>
 
@@ -30,7 +30,7 @@
 2. Fill in one row per trainee: `first name · surname · email · username · password`.
 
 !!! tip "Password"
-    If you leave the `password` column empty, the **initial password** is used (field on the page) — the same for everyone; each trainee changes it later.
+    If you leave the `password` column empty, the **initial password** is used (field on the page) - the same for everyone; each trainee changes it later.
 
 ---
 
@@ -68,5 +68,5 @@ In **Settings → Real email sending**, turn on **Enable real sending** and run 
 
 ## Next
 
-- When the trainees hand in, you go to **[Submission & validation](../formador/entregas.md)** — review, generate PDF, download.
+- When the trainees hand in, you go to **[Submission & validation](../formador/entregas.md)** - review, generate PDF, download.
 - Customize the **[Brand](../formador/email-marca.md)** if you want the CRM with a different identity.

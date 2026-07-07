@@ -4,7 +4,7 @@ The commercial heart of the CRM: from *lead* to won proposal, with a **Kanban pi
 
 ## The screen
 
-At the top you have the **time filter**, the **KPIs** (number of proposals, pipeline, conversion, ticket — these may appear with 🔒), and the **List / Kanban** toggle with the **+ Proposal** button.
+At the top you have the **time filter**, the **KPIs** (number of proposals, pipeline, conversion, ticket - these may appear with 🔒), and the **List / Kanban** toggle with the **+ Proposal** button.
 
 ## Actions
 
@@ -15,7 +15,7 @@ Choose the action you want to perform:
 -   <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> __Create the proposal__
 
     ---
-    Client, title, validity and status — field by field.
+    Client, title, validity and status - field by field.
 
     [:octicons-arrow-right-24: Open](criar.md)
 

@@ -10,9 +10,9 @@ The **block builder** that defines how the proposal PDF looks. Each proposal use
 
 When you open **Templates** → choose a template (or **+ New**). The editor has three areas:
 
-- **Left — Structure:** the list of blocks (drag to reorder, ↑↓, delete) + the **Add block** palette.
-- **Center — Inspector:** the options of the selected block.
-- **Right — Live preview:** the "sheet" as it will come out in the PDF.
+- **Left - Structure:** the list of blocks (drag to reorder, ↑↓, delete) + the **Add block** palette.
+- **Center - Inspector:** the options of the selected block.
+- **Right - Live preview:** the "sheet" as it will come out in the PDF.
 
 ## Block types
 

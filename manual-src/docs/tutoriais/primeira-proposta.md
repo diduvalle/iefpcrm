@@ -8,7 +8,7 @@
 - [x] Estás **dentro da tua turma** (entraste pelo link `?t=…`).
 - [x] Vês a barra lateral à esquerda (Dashboard, Empresas, Contactos…).
 
-> Se ainda não entraste, vê **[Primeiros passos — Formando](../primeiros-passos/formando.md)**.
+> Se ainda não entraste, vê **[Primeiros passos - Formando](../primeiros-passos/formando.md)**.
 
 ---
 
@@ -17,7 +17,7 @@
 1. Na barra lateral, clica **Empresas**.
 2. Clica **+ Empresa**.
 3. Preenche **Nome** (ex.: *Hotel Sol & Mar, Lda.*) e o **NIPC** (a app valida-o).
-4. Escolhe a **Região** (ex.: *Madeira*) — vai definir o IVA mais à frente.
+4. Escolhe a **Região** (ex.: *Madeira*) - vai definir o IVA mais à frente.
 5. **Guardar**.
 
 !!! success "Resultado"
@@ -48,7 +48,7 @@
 3. **+ Artigo**: nome (*Licença CRM Pro*), família/subfamília, **preço** (ex.: 79 €) e **IVA**. **Guardar**.
 
 !!! info "Porquê primeiro o catálogo?"
-    Nas propostas, as linhas escolhem-se **do catálogo** — garante preços e IVA consistentes.
+    Nas propostas, as linhas escolhem-se **do catálogo** - garante preços e IVA consistentes.
 
 ---
 
@@ -62,7 +62,7 @@
 6. **Guardar**.
 
 !!! warning "Aviso de IVA"
-    Se a região do cliente não bater certo com o IVA da linha, aparece **“Corrigir para {região}”** — clica para alinhar.
+    Se a região do cliente não bater certo com o IVA da linha, aparece **“Corrigir para {região}”** - clica para alinhar.
 
 !!! note "📷 Screenshot"
     ![A proposta no pipeline](../assets/screens/propostas.png)
@@ -82,11 +82,11 @@
 ## Passo 6 · Mover no pipeline e submeter
 
 1. Em **Propostas** (vista Kanban), **arrasta** o cartão para **Negociação** e depois **Ganha**.
-2. Define a tua **assinatura** no perfil (canto inferior esquerdo) — é obrigatória para entregar.
+2. Define a tua **assinatura** no perfil (canto inferior esquerdo) - é obrigatória para entregar.
 3. Clica **Submeter o meu trabalho** → confirma e **Submeter**.
 
 !!! success "Concluíste o fluxo!"
-    Criaste dados, uma proposta, um PDF e fizeste a entrega — o ciclo completo de um CRM. 🎉
+    Criaste dados, uma proposta, um PDF e fizeste a entrega - o ciclo completo de um CRM. 🎉
 
 ---
 

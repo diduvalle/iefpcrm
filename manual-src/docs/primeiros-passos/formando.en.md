@@ -1,4 +1,4 @@
-# Getting started — Trainee
+# Getting started - Trainee
 
 Welcome! Here are the essentials to get you started.
 
@@ -16,7 +16,7 @@ Welcome! Here are the essentials to get you started.
 
 ## 2. Get to know your space
 
-Each trainee has **their own *sandbox*** — a copy of the CRM just for you, with sample data already loaded. You can create, edit and delete freely: **it doesn’t affect your classmates**.
+Each trainee has **their own *sandbox*** - a copy of the CRM just for you, with sample data already loaded. You can create, edit and delete freely: **it doesn’t affect your classmates**.
 
 Navigation is on the left, grouped (Main, Marketing & Analysis, Compliance, System).
 
@@ -29,7 +29,7 @@ Navigation is on the left, grouped (Main, Marketing & Analysis, Compliance, Syst
 3. **Save changes**.
 
 !!! question "Forgot your password?"
-    See **[Recover your password](../formando/recuperar.md)** — you can ask the trainer to reset it.
+    See **[Recover your password](../formando/recuperar.md)** - you can ask the trainer to reset it.
 
 ## 4. Submit your work
 
@@ -41,6 +41,6 @@ When you finish the exercise, click **“Submit my work”** (at the bottom of t
 
 ### Next
 
-- [Working in the CRM](../formando/trabalhar.md) — the modules explained
-- [Submit your work](../formando/submeter.md) — how to hand in
+- [Working in the CRM](../formando/trabalhar.md) - the modules explained
+- [Submit your work](../formando/submeter.md) - how to hand in
 - [Recover your password](../formando/recuperar.md)

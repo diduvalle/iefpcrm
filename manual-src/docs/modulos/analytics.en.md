@@ -1,6 +1,6 @@
 # Analytics
 
-The **KPIs & Dashboards** module — the focus of UFCD **10868**. Everything respects the **date filter** and lets you **compare with the previous period**.
+The **KPIs & Dashboards** module - the focus of UFCD **10868**. Everything respects the **date filter** and lets you **compare with the previous period**.
 
 <video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/analytics.png"><source src="/manual/assets/videos/analytics-en.webm" type="video/webm"><source src="/manual/assets/videos/analytics-en.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/analytics-en.vtt" srclang="en" label="English" default></video>
 
@@ -8,23 +8,23 @@ The **KPIs & Dashboards** module — the focus of UFCD **10868**. Everything res
 
 ## Filter and comparison
 
-- **Date filter** at the top: All / 30 days / Quarter / This month / This year / From–To dates.
-- **Compare** button — calculates the previous period of equal length and shows **▲▼ X% vs previous** in each KPI (churn appears inverted).
+- **Date filter** at the top: All / 30 days / Quarter / This month / This year / From-To dates.
+- **Compare** button - calculates the previous period of equal length and shows **▲▼ X% vs previous** in each KPI (churn appears inverted).
 
-## The indicators — one by one
+## The indicators - one by one
 
-- **Sales funnel** — conversion between pipeline stages (or proposals created in the period).
-- **Conversion rate** — % of proposals that reach *Won*.
-- **Average ticket** — average value of won proposals.
-- **Churn** — loss of customers (lower is better).
-- **Revenue per month** — bars of the proposals won in the period.
-- **Sales by status** — distribution by pipeline status.
-- **Top customers** — by value won.
-- **Loss analysis** — groups the **loss reasons** of lost proposals (bars + biggest cause).
-- **CAC** — Customer Acquisition Cost = **marketing budget ÷ new customers**. You set the budget in the dedicated field (**Apply**).
-- **LTV / CAC** — ratio between customer value and the cost of acquiring them; turns **green when ≥ 3:1** (healthy).
-- **Lead scoring** — a **0–100** score for each contact (purchases, *engagement*, loyalty, segment) → **Hot / Warm / Cold**, with bars.
-- **AI insights** *(simulated)* — cards with automatic readings of the KPIs and suggestions.
+- **Sales funnel** - conversion between pipeline stages (or proposals created in the period).
+- **Conversion rate** - % of proposals that reach *Won*.
+- **Average ticket** - average value of won proposals.
+- **Churn** - loss of customers (lower is better).
+- **Revenue per month** - bars of the proposals won in the period.
+- **Sales by status** - distribution by pipeline status.
+- **Top customers** - by value won.
+- **Loss analysis** - groups the **loss reasons** of lost proposals (bars + biggest cause).
+- **CAC** - Customer Acquisition Cost = **marketing budget ÷ new customers**. You set the budget in the dedicated field (**Apply**).
+- **LTV / CAC** - ratio between customer value and the cost of acquiring them; turns **green when ≥ 3:1** (healthy).
+- **Lead scoring** - a **0-100** score for each contact (purchases, *engagement*, loyalty, segment) → **Hot / Warm / Cold**, with bars.
+- **AI insights** *(simulated)* - cards with automatic readings of the KPIs and suggestions.
 
 ## Export
 

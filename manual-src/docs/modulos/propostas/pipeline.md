@@ -20,6 +20,6 @@ As propostas organizam-se por **estado**, em colunas que podes arrastar.
 Numa proposta fechada, **Reabrir** volta a colocá-la em *Negociação* e desbloqueia as linhas.
 
 !!! tip "Vista Lista"
-    Preferes uma tabela? Alterna para **Lista** no topo do módulo — mesmos dados, outra leitura.
+    Preferes uma tabela? Alterna para **Lista** no topo do módulo - mesmos dados, outra leitura.
 
 ➡️ A seguir: **[Exportar PDF](pdf.md)** · voltar a **[Propostas](index.md)**.

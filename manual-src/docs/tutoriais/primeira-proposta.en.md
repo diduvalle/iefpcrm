@@ -8,7 +8,7 @@
 - [x] You are **inside your class** (you entered through the `?t=…` link).
 - [x] You see the sidebar on the left (Dashboard, Companies, Contacts…).
 
-> If you haven’t entered yet, see **[Getting started — Trainee](../primeiros-passos/formando.md)**.
+> If you haven’t entered yet, see **[Getting started - Trainee](../primeiros-passos/formando.md)**.
 
 ---
 
@@ -17,7 +17,7 @@
 1. In the sidebar, click **Companies**.
 2. Click **+ Company**.
 3. Fill in **Name** (e.g. *Hotel Sol & Mar, Lda.*) and the **NIPC** (the app validates it).
-4. Choose the **Region** (e.g. *Madeira*) — it will set the VAT further on.
+4. Choose the **Region** (e.g. *Madeira*) - it will set the VAT further on.
 5. **Save**.
 
 !!! success "Result"
@@ -48,7 +48,7 @@
 3. **+ Item**: name (*CRM Pro License*), family/subfamily, **price** (e.g. €79) and **VAT**. **Save**.
 
 !!! info "Why the catalog first?"
-    In proposals, the lines are chosen **from the catalog** — it ensures consistent prices and VAT.
+    In proposals, the lines are chosen **from the catalog** - it ensures consistent prices and VAT.
 
 ---
 
@@ -62,7 +62,7 @@
 6. **Save**.
 
 !!! warning "VAT notice"
-    If the customer’s region doesn’t match the line’s VAT, **“Correct to {region}”** appears — click it to align.
+    If the customer’s region doesn’t match the line’s VAT, **“Correct to {region}”** appears - click it to align.
 
 !!! note "📷 Screenshot"
     ![The proposal in the pipeline](../assets/screens/propostas.png)
@@ -82,11 +82,11 @@
 ## Step 6 · Move through the pipeline and submit
 
 1. In **Proposals** (Kanban view), **drag** the card to **Negotiation** and then **Won**.
-2. Set your **signature** in your profile (bottom-left corner) — it is required to hand in.
+2. Set your **signature** in your profile (bottom-left corner) - it is required to hand in.
 3. Click **Submit my work** → confirm and **Submit**.
 
 !!! success "You completed the flow!"
-    You created data, a proposal, a PDF and made the submission — the full cycle of a CRM. 🎉
+    You created data, a proposal, a PDF and made the submission - the full cycle of a CRM. 🎉
 
 ---
 

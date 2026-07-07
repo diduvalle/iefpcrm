@@ -25,7 +25,7 @@ The **codes** are generated automatically; you don't have to invent them.
     - **Name**, **family** and **subfamily**.
     - **Type** (Product / Service) and **model** (e.g.: Annual).
     - **Price** and **VAT** (chosen from the list of rates by region).
-    - **Status** (Available / Unavailable) — *Unavailable* ones do not appear in proposals.
+    - **Status** (Available / Unavailable) - *Unavailable* ones do not appear in proposals.
 
 ## Bulk import (CSV)
 
@@ -35,4 +35,4 @@ The **codes** are generated automatically; you don't have to invent them.
     The item stores the **rate type** (Standard/Intermediate/Reduced). When you use it in a proposal, the VAT adjusts to the **customer's region** (Mainland 23/13/6, Madeira 22/12/5, Azores 16/9/4).
 
 !!! note "Link to proposals"
-    In proposals, the lines are chosen **from this catalog** — description, price and VAT fill in by themselves. See **[Proposals](propostas/index.md)**.
+    In proposals, the lines are chosen **from this catalog** - description, price and VAT fill in by themselves. See **[Proposals](propostas/index.md)**.

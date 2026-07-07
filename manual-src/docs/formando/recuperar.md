@@ -12,7 +12,7 @@
 
 ## Se te esqueceste
 
-Não há recuperação automática por email. **Pede ao formador** para repor a tua palavra-passe — ele faz isso em segundos, em *Gerir a turma*. Depois entras com a nova e mudas para uma à tua escolha.
+Não há recuperação automática por email. **Pede ao formador** para repor a tua palavra-passe - ele faz isso em segundos, em *Gerir a turma*. Depois entras com a nova e mudas para uma à tua escolha.
 
 !!! tip "Boa prática"
     Logo no primeiro acesso, muda a palavra-passe inicial para uma só tua. Assim ninguém entra na tua *sandbox*.

@@ -26,4 +26,4 @@ Your work (a *snapshot* of the CRM: customers, proposals, etc.) is delivered to 
     You can submit a **maximum of 2 times**. The counter shows **1/2** and then **2/2**; on the third, it becomes locked. Submit when you're truly ready.
 
 !!! info "What the trainer sees"
-    The trainer can **review** your work (customers, proposals) and **generate the PDF** of your proposals — using the template you designed.
+    The trainer can **review** your work (customers, proposals) and **generate the PDF** of your proposals - using the template you designed.

@@ -1,4 +1,4 @@
-# RoPA — Records of Processing Activities
+# RoPA - Records of Processing Activities
 
 The **RoPA** (*Records of Processing Activities*, Article 30 of the GDPR) lists **what** the organisation does with personal data.
 
@@ -14,7 +14,7 @@ The **RoPA** (*Records of Processing Activities*, Article 30 of the GDPR) lists 
 
 1. **GDPR → RoPA tab**.
 2. **+ Activity** → fill in the fields.
-3. **Save** — it enters the **compliance report**.
+3. **Save** - it enters the **compliance report**.
 
 !!! info "Why it is mandatory"
     The RoPA is the **map of data processing**. It is the first document a supervisory authority asks for in an audit.

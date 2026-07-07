@@ -12,11 +12,11 @@
 
 ## Passo 1 · Criar a turma
 
-1. Abre **[iefpcrm.cr0x.org](https://iefpcrm.cr0x.org)** → **“Sou formador — criar nova turma”**.
+1. Abre **[iefpcrm.cr0x.org](https://iefpcrm.cr0x.org)** → **“Sou formador - criar nova turma”**.
 2. Preenche email IEFP, nome, **número da turma (8 dígitos)**, utilizador e palavra-passe → **Criar turma e entrar**.
 
 !!! warning "Guarda o código de recuperação"
-    Aparece **uma vez** — anota-o. É a tua forma de recuperar a palavra-passe.
+    Aparece **uma vez** - anota-o. É a tua forma de recuperar a palavra-passe.
 
 <video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/hub.png"><source src="/manual/assets/videos/montar-turma-pt.webm" type="video/webm"><source src="/manual/assets/videos/montar-turma-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/montar-turma-pt.vtt" srclang="pt" label="Português" default></video>
 
@@ -30,7 +30,7 @@
 2. Preenche uma linha por formando: `nome · apelido · email · username · password`.
 
 !!! tip "Palavra-passe"
-    Se deixares a coluna `password` vazia, é usada a **palavra-passe inicial** (campo na página) — igual para todos; cada formando muda-a depois.
+    Se deixares a coluna `password` vazia, é usada a **palavra-passe inicial** (campo na página) - igual para todos; cada formando muda-a depois.
 
 ---
 
@@ -68,5 +68,5 @@ Em **Definições → Envio de email real**, liga **Ativar envio real** e faz **
 
 ## A seguir
 
-- Quando os formandos entregarem, vais a **[Entrega & validação](../formador/entregas.md)** — rever, gerar PDF, descarregar.
+- Quando os formandos entregarem, vais a **[Entrega & validação](../formador/entregas.md)** - rever, gerar PDF, descarregar.
 - Personaliza a **[Marca](../formador/email-marca.md)** se quiseres o CRM com outra identidade.

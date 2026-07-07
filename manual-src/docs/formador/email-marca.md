@@ -6,7 +6,7 @@ Dois cartões em **Definições**, só para administradores.
 
 A plataforma pode enviar emails **a sério** (propostas, avisos de entrega) ou em **modo simulado** (regista mas não envia).
 
-- As **chaves** (Service ID, Template ID, Public Key) são **fixas** — aparecem bloqueadas (🔒) para ninguém as alterar e partir o envio.
+- As **chaves** (Service ID, Template ID, Public Key) são **fixas** - aparecem bloqueadas (🔒) para ninguém as alterar e partir o envio.
 - A única coisa que geres é o **modo**: liga/desliga **“Ativar envio real”** e clica **Guardar configuração**.
 - **Enviar teste** envia um email real para confirmares.
 
@@ -19,4 +19,4 @@ Permite replicar o CRM para outra entidade:
 
 - **Nome**, **cor principal** (deriva automaticamente toda a paleta), **logótipo** e **fundo do login**.
 - **Aplicar marca** recolore a app ao vivo; **Repor IEFP** volta ao verde original.
-- A marca **viaja no Export JSON** — replicas o ambiente noutra utilização só com import + trocar nome/cor/logo.
+- A marca **viaja no Export JSON** - replicas o ambiente noutra utilização só com import + trocar nome/cor/logo.

@@ -5,10 +5,10 @@ Record of each data subject's consent to the processing of their data.
 ## Each consent
 
 - **Customer/Data subject** it relates to.
-- **Purpose** — marketing, newsletter, relationship management…
-- **Legal basis** — Consent, Contract, Legitimate interest, Legal obligation…
+- **Purpose** - marketing, newsletter, relationship management…
+- **Legal basis** - Consent, Contract, Legitimate interest, Legal obligation…
 - **Collection channel** and **Date**.
-- **Status** — Active / Withdrawn.
+- **Status** - Active / Withdrawn.
 
 !!! info "Valid consent"
     It must be **freely given, specific, informed and unambiguous**. The data subject can **withdraw it** at any time.

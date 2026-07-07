@@ -20,6 +20,6 @@ Proposals are organised by **status**, in columns you can drag.
 On a closed proposal, **Reopen** puts it back into *Negotiation* and unlocks the lines.
 
 !!! tip "List view"
-    Prefer a table? Switch to **List** at the top of the module — same data, a different read.
+    Prefer a table? Switch to **List** at the top of the module - same data, a different read.
 
 ➡️ Next: **[Export PDF](pdf.md)** · back to **[Proposals](index.md)**.

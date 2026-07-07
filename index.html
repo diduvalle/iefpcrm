@@ -3,28 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IEFP CRM — Plataforma de Formação</title>
-<meta name="description" content="Plataforma pedagógica de CRM e Proteção de Dados (RGPD) das UFCD 10868 e 10870 — IEFP.">
+<title>IEFP CRM - Plataforma de Formação</title>
+<meta name="description" content="Plataforma pedagógica de CRM e Proteção de Dados (RGPD) das UFCD 10868 e 10870 - IEFP.">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#006B3C">
 <!-- Open Graph (WhatsApp, Messenger, Facebook, LinkedIn) -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="IEFP CRM">
-<meta property="og:title" content="IEFP CRM — Plataforma de Formação">
-<meta property="og:description" content="Plataforma pedagógica de CRM e Proteção de Dados (RGPD) das UFCD 10868 e 10870 — IEFP.">
+<meta property="og:title" content="IEFP CRM - Plataforma de Formação">
+<meta property="og:description" content="Plataforma pedagógica de CRM e Proteção de Dados (RGPD) das UFCD 10868 e 10870 - IEFP.">
 <meta property="og:url" content="https://iefpcrm.cr0x.org/">
 <meta property="og:image" content="https://iefpcrm.cr0x.org/og-image.png">
 <meta property="og:image:secure_url" content="https://iefpcrm.cr0x.org/og-image.png">
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="IEFP CRM — Plataforma de Formação">
+<meta property="og:image:alt" content="IEFP CRM - Plataforma de Formação">
 <meta property="og:locale" content="pt_PT">
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="IEFP CRM — Plataforma de Formação">
-<meta name="twitter:description" content="Plataforma pedagógica de CRM e Proteção de Dados (RGPD) das UFCD 10868 e 10870 — IEFP.">
+<meta name="twitter:title" content="IEFP CRM - Plataforma de Formação">
+<meta name="twitter:description" content="Plataforma pedagógica de CRM e Proteção de Dados (RGPD) das UFCD 10868 e 10870 - IEFP.">
 <meta name="twitter:image" content="https://iefpcrm.cr0x.org/og-image.png">
 <style>
 :root{
@@ -647,7 +647,7 @@ body.present .app{grid-template-columns:1fr}
 body.present .header .menu-btn,body.present .header [data-act="toggle-nav"]{display:none}
 body.present .content{max-width:1320px}
 body.present #presentExit{display:inline-flex;align-items:center;gap:6px;position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:210;background:var(--g700);color:#fff;border:0;border-radius:30px;padding:10px 20px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-lg)}
-/* diálogos personalizados — substituem confirm/prompt/alert nativos */
+/* diálogos personalizados - substituem confirm/prompt/alert nativos */
 .dlg-back{position:fixed;inset:0;z-index:6000;display:grid;place-items:center;padding:22px;background:rgba(8,20,15,.5);backdrop-filter:blur(3px);opacity:0;transition:opacity .15s}
 .dlg-back.open{opacity:1}
 .dlg{background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-lg);width:min(430px,94vw);padding:22px 22px 18px;transform:translateY(10px) scale(.985);transition:transform .18s cubic-bezier(.22,.61,.36,1)}
@@ -702,7 +702,7 @@ body.present #presentExit{display:inline-flex;align-items:center;gap:6px;positio
           <span class="notif-badge" id="notifBadge" style="display:none">0</span>
           <div class="notif-panel" id="notifPanel"></div>
         </div>
-        <button class="icon-btn" data-act="help" title="Manual online — abrir a página deste ecrã"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></button>
+        <button class="icon-btn" data-act="help" title="Manual online - abrir a página deste ecrã"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></button>
         <button class="icon-btn" data-act="present" title="Modo de apresentação (ecrã limpo)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
         <button class="icon-btn lang-btn" data-act="lang" title="Idioma / Language" id="langBtn">PT</button>
         <button class="icon-btn" data-act="theme" title="Tema claro/escuro" id="themeBtn"></button>
@@ -757,7 +757,7 @@ body.present #presentExit{display:inline-flex;align-items:center;gap:6px;positio
 "use strict";
 (function(){
 /* =========================================================================
-   IEFP CRM v4 — aplicação pedagógica single-file
+   IEFP CRM v4 - aplicação pedagógica single-file
    Módulos: Dashboard · Clientes(360) · Produtos · Propostas · Campanhas
             · Analytics · RGPD · Comunicação · Definições
    ========================================================================= */
@@ -778,7 +778,7 @@ const fmtN = n => new Intl.NumberFormat('pt-PT').format(Number(n||0));
 const pct = n => (Number(n||0)).toLocaleString('pt-PT',{maximumFractionDigits:1})+'%';
 const pad = (n,l=2)=>String(n).padStart(l,'0');
 const todayISO = () => new Date().toISOString().slice(0,10);
-const dPT = iso => iso ? new Date(iso+'T00:00:00').toLocaleDateString('pt-PT',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+const dPT = iso => iso ? new Date(iso+'T00:00:00').toLocaleDateString('pt-PT',{day:'2-digit',month:'short',year:'numeric'}) : '-';
 const daysBetween = (a,b)=>Math.round((new Date(b)-new Date(a))/864e5);
 const addDays = (iso,d)=>{const x=new Date(iso+'T00:00:00');x.setDate(x.getDate()+d);return x.toISOString().slice(0,10);};
 const clone = o => JSON.parse(JSON.stringify(o));
@@ -829,57 +829,57 @@ const ic = (k,s=18)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="
 
 /* ---------- balões pedagógicos (referência aos slides) ---------- */
 const INFO={
-  crm:{t:'CRM — Customer Relationship Management',x:'Conjunto de Processos, Tecnologias e Comportamentos centrados no cliente. "O CRM não é um mero arquivo de dados."',r:'10868 · slide 7 (o que é o CRM)'},
+  crm:{t:'CRM - Customer Relationship Management',x:'Conjunto de Processos, Tecnologias e Comportamentos centrados no cliente. "O CRM não é um mero arquivo de dados."',r:'10868 · slide 7 (o que é o CRM)'},
   motivoperda:{t:'Motivo da perda (análise de perdas)',x:'Registar porque se perde cada negócio (preço, concorrência, timing…) permite a análise de perdas: descobrir padrões e corrigir a abordagem comercial. É um KPI qualitativo essencial.',r:'10868 · slide 99 (porque se perdem clientes)'},
-  empresa:{t:'Empresa vs Contacto (modelo Account/Contact)',x:'Nos CRM B2B separa-se a Empresa (entidade legal, com NIPC e dados fiscais) dos Contactos (as pessoas que lá trabalham). Uma empresa tem vários contactos. Isto evita duplicar dados e dá a visão 360º da conta.',r:'Boa prática CRM — gestão de contas (10870)'},
+  empresa:{t:'Empresa vs Contacto (modelo Account/Contact)',x:'Nos CRM B2B separa-se a Empresa (entidade legal, com NIPC e dados fiscais) dos Contactos (as pessoas que lá trabalham). Uma empresa tem vários contactos. Isto evita duplicar dados e dá a visão 360º da conta.',r:'Boa prática CRM - gestão de contas (10870)'},
   cac:{t:'CAC e rácio LTV/CAC',x:'CAC = Custo de Aquisição de Cliente (investimento ÷ novos clientes). O rácio LTV/CAC compara o valor que um cliente gera (LTV) com o custo de o adquirir. Acima de 3:1 é saudável; abaixo, o crescimento sai caro.',r:'10868 · slide 124 (custo de aquisição)'},
-  leadscore:{t:'Lead scoring',x:'Pontuação automática de cada contacto (0-100) com base no histórico de compras, engagement de email, segmento e fidelização. Prioriza o esforço comercial nos contactos "quentes", com maior probabilidade de fecho.',r:'Boa prática CRM — qualificação de leads'},
+  leadscore:{t:'Lead scoring',x:'Pontuação automática de cada contacto (0-100) com base no histórico de compras, engagement de email, segmento e fidelização. Prioriza o esforço comercial nos contactos "quentes", com maior probabilidade de fecho.',r:'Boa prática CRM - qualificação de leads'},
   conversao:{t:'Taxa de conversão',x:'Percentagem de oportunidades que se convertem em vendas (ganhas ÷ fechadas). Mede a eficácia do funil.',r:'10868 · slide 123 (taxa de conversão)'},
   churn:{t:'Churn (taxa de abandono)',x:'Proporção de clientes que deixam de comprar. Uma redução do churn de 5% pode aumentar significativamente os lucros.',r:'10868 · slide 102 (fidelização)'},
-  ltv:{t:'LTV — Valor do tempo de vida do cliente',x:'Valor que um cliente gera ao longo da relação. Reter custa menos do que adquirir (taxa de retenção).',r:'10868 · slide 125 (Customer Lifetime Value)'},
+  ltv:{t:'LTV - Valor do tempo de vida do cliente',x:'Valor que um cliente gera ao longo da relação. Reter custa menos do que adquirir (taxa de retenção).',r:'10868 · slide 125 (Customer Lifetime Value)'},
   funil:{t:'Funil de vendas',x:'Etapas desde o lead até à venda ganha. Permite medir a conversão entre cada fase.',r:'10868 · slide 122 (criar leads / funil)'},
   ticket:{t:'Ticket médio',x:'Valor médio por proposta ganha (receita ÷ nº de vendas). KPI de operação.',r:'10868 · slide 5 (KPI de operação)'},
   persona:{t:'Persona',x:'Perfil semi-fictício do cliente ideal, construído a partir do público-alvo, que orienta a comunicação.',r:'10868 · slide 16 (persona)'},
   segmento:{t:'Segmentação',x:'Agrupar clientes com características semelhantes para campanhas de marketing mais direcionadas.',r:'10868 · slide 49 (segmentação)'},
   loyalty:{t:'Fidelização (Loyalty)',x:'A fidelização é um processo contínuo, associado ao ciclo de vida do cliente.',r:'10868 · slide 17 (fidelização / ciclo de vida)'},
-  consentimento:{t:'Consentimento',x:'Manifestação de vontade livre, específica, informada e inequívoca do titular. Pode ser retirado a qualquer momento.',r:'10870 · slide 92 (consentimento — art. 7.º RGPD)'},
+  consentimento:{t:'Consentimento',x:'Manifestação de vontade livre, específica, informada e inequívoca do titular. Pode ser retirado a qualquer momento.',r:'10870 · slide 92 (consentimento - art. 7.º RGPD)'},
   titular:{t:'Titular dos dados',x:'A pessoa singular a quem os dados pessoais dizem respeito. Importa o local onde se encontra o titular.',r:'10870 · slide 81 (conceito de dados pessoais)'},
   responsavel:{t:'Responsável pelo tratamento',x:'Entidade que determina as finalidades e os meios do tratamento de dados.',r:'10870 · slide 88 (responsável pelo tratamento)'},
   subcontratante:{t:'Subcontratante',x:'Entidade que trata dados por conta do responsável (ex.: processamento de salários, alojamento).',r:'10870 · slide 89 (subcontratante)'},
   epd:{t:'Encarregado de Proteção de Dados (EPD/DPO)',x:'Informa, aconselha e fiscaliza o cumprimento; controla a AIPD; ponto de contacto com a CNPD.',r:'10870 · slide 118 (Encarregado de Proteção de Dados)'},
-  ropa:{t:'Registo de Atividades de Tratamento (RoPA)',x:'Obrigação do art. 30.º do RGPD; documenta os tratamentos e é facultado à CNPD a pedido.',r:'10870 · slide 130 (RoPA — art. 30.º)'},
+  ropa:{t:'Registo de Atividades de Tratamento (RoPA)',x:'Obrigação do art. 30.º do RGPD; documenta os tratamentos e é facultado à CNPD a pedido.',r:'10870 · slide 130 (RoPA - art. 30.º)'},
   violacao:{t:'Violação de dados (data breach)',x:'Quebra de segurança que provoque destruição, perda, alteração ou acesso não autorizado a dados. Notificar a CNPD em 72h.',r:'10870 · slides 131-132 (violação / data breach, 72h)'},
-  aipd:{t:'AIPD — Avaliação de Impacto',x:'Obrigatória quando o tratamento implica risco elevado para os direitos e liberdades dos titulares.',r:'10870 · slide 137 (AIPD — art. 35.º)'},
-  cnpd:{t:'CNPD',x:'Comissão Nacional de Proteção de Dados — autoridade de controlo nacional; fiscaliza e sanciona.',r:'10870 · slide 194 (Autoridade de Controlo — CNPD)'},
+  aipd:{t:'AIPD - Avaliação de Impacto',x:'Obrigatória quando o tratamento implica risco elevado para os direitos e liberdades dos titulares.',r:'10870 · slide 137 (AIPD - art. 35.º)'},
+  cnpd:{t:'CNPD',x:'Comissão Nacional de Proteção de Dados - autoridade de controlo nacional; fiscaliza e sanciona.',r:'10870 · slide 194 (Autoridade de Controlo - CNPD)'},
   categorias:{t:'Categorias especiais de dados',x:'Dados sensíveis (saúde, biometria, opiniões políticas…) com proteção reforçada.',r:'10870 · slide 97 (categorias especiais de dados)'},
   iva:{t:'Taxa de IVA por região',x:'Continente 23/13/6% · Madeira 22/12/5% · Açores 16/9/4%. Use sempre a taxa correta da região.',r:'Definições → Taxas de IVA'},
-  pipeline:{t:'Pipeline',x:'Soma do valor das propostas em aberto (Criada/Enviada/Negociação) — o potencial de receita em curso.',r:'10868 · slide 5 (KPI de operação)'},
+  pipeline:{t:'Pipeline',x:'Soma do valor das propostas em aberto (Criada/Enviada/Negociação) - o potencial de receita em curso.',r:'10868 · slide 5 (KPI de operação)'},
   visao360:{t:'Visão 360º do cliente',x:'Vista única com todas as interações: propostas, valor, consentimentos e pedidos RGPD.',r:'10868 · slide 8 (gestão 360º do cliente)'},
   automacao:{t:'Marketing Automation',x:'Regras que enviam emails automaticamente quando ocorre um evento no CRM (ex.: cliente novo, proposta ganha).',r:'10868 · slide 88 (marketing automatizado)'},
-  abertura:{t:'Taxa de abertura',x:'Percentagem de emails abertos sobre os enviados — mede o interesse no assunto.',r:'Boa prática — métricas de email (10868)'},
-  ctr:{t:'CTR — taxa de cliques',x:'Percentagem de destinatários que clicaram, sobre os emails enviados.',r:'Boa prática — métricas de email (10868)'},
-  nif:{t:'NIF / NIPC',x:'Número de Identificação Fiscal — 9 dígitos, validado pelo dígito de controlo.',r:'Identificação do cliente (qualidade de dados)'},
+  abertura:{t:'Taxa de abertura',x:'Percentagem de emails abertos sobre os enviados - mede o interesse no assunto.',r:'Boa prática - métricas de email (10868)'},
+  ctr:{t:'CTR - taxa de cliques',x:'Percentagem de destinatários que clicaram, sobre os emails enviados.',r:'Boa prática - métricas de email (10868)'},
+  nif:{t:'NIF / NIPC',x:'Número de Identificação Fiscal - 9 dígitos, validado pelo dígito de controlo.',r:'Identificação do cliente (qualidade de dados)'},
   regiao:{t:'Região (IVA)',x:'Define a taxa de IVA aplicável às propostas: Continente, Madeira ou Açores.',r:'Definições → Taxas de IVA'},
   origem:{t:'Origem do cliente',x:'Canal por onde o cliente chegou (aquisição). Editável em Definições para análise de marketing.',r:'10868 · slide 49 (segmentação / aquisição)'},
   catalogo:{t:'Catálogo (Família › Subfamília › Artigo)',x:'Estrutura hierárquica para organizar e codificar produtos/serviços automaticamente.',r:'Administração de CRM (10870)'},
   pedido:{t:'Pedido do titular (DSAR)',x:'Direitos: acesso, retificação, apagamento, portabilidade, oposição, limitação. Resposta em 1 mês.',r:'10870 · slide 110 (direitos dos titulares)'},
-  agendado:{t:'Emails agendados',x:'Passos de sequências com atraso, à espera da data de envio — processados quando a data chega.',r:'Marketing automation (10868)'},
+  agendado:{t:'Emails agendados',x:'Passos de sequências com atraso, à espera da data de envio - processados quando a data chega.',r:'Marketing automation (10868)'},
 };
 function infoTip(key){ const d=INFO[key]; if(!d) return ''; return `<span class="infotip" tabindex="0" role="button" aria-label="${esc(d.t)}"><span class="infotip-ic">${ic('info',12)}</span><span class="infotip-pop"><strong>${esc(d.t)}</strong><span class="ix">${esc(d.x)}</span><span class="ref">${ic(/^\s*\d{4,5}\b/.test(d.r||'')?'slides':'book',11)} ${esc(d.r)}</span></span></span>`; }
 /* grelha de glossário reutilizável: [termo, definição, referência ao slide] */
 function glossGrid(arr,hi){ hi=hi||'shield'; return `<div class="gloss-grid">${arr.map(g=>`<div class="gloss"><h4>${ic(hi,15)} ${esc(g[0])}</h4><p>${esc(g[1])}</p>${g[2]?`<p style="margin-top:8px;color:var(--g700);font-weight:700;font-size:.72rem;display:flex;align-items:center;gap:5px;border-top:1px solid var(--border);padding-top:7px">${ic('slides',12)} ${esc(g[2])}</p>`:''}</div>`).join('')}</div>`; }
-/* Glossário CRM (UFCD 10868) — termo, definição, slide do deck DEFAULT */
+/* Glossário CRM (UFCD 10868) - termo, definição, slide do deck DEFAULT */
 const CRMGLOSS=[
-  ['CRM','Conjunto de Processos, Tecnologias e Comportamentos centrados no cliente — não é um mero arquivo de dados.','10868 · slide 7'],
-  ['KPI','Key Performance Indicators — indicadores-chave de vendas e gestão de serviços.','10868 · slide 5'],
+  ['CRM','Conjunto de Processos, Tecnologias e Comportamentos centrados no cliente - não é um mero arquivo de dados.','10868 · slide 7'],
+  ['KPI','Key Performance Indicators - indicadores-chave de vendas e gestão de serviços.','10868 · slide 5'],
   ['Público-alvo','Conjunto de características, comportamentos e valores partilhados por um grupo.','10868 · slide 13'],
   ['Persona','Perfil semi-fictício do cliente ideal, construído a partir do público-alvo.','10868 · slide 16'],
   ['Ciclo de vida do cliente','A fidelização é um processo contínuo ao longo da relação com o cliente.','10868 · slide 17'],
-  ['Ser – Ter – Parecer','Eixos psicológicos que ajudam a explicar o comportamento de consumo.','10868 · slide 31'],
+  ['Ser - Ter - Parecer','Eixos psicológicos que ajudam a explicar o comportamento de consumo.','10868 · slide 31'],
   ['CRM Analítico','Recolhe, integra, interpreta e dissemina a informação para aumentar o valor do cliente.','10868 · slide 45'],
   ['Segmentação','Agrupar clientes com características semelhantes para campanhas direcionadas.','10868 · slide 49'],
   ['Marketing Relacional','Conhecimento permanentemente atualizado do cliente para uma relação de longo prazo.','10868 · slide 62'],
-  ['IDIC','Identify, Differentiate, Interact, Customize — abordagem de relação individual.','10868 · slide 76'],
+  ['IDIC','Identify, Differentiate, Interact, Customize - abordagem de relação individual.','10868 · slide 76'],
   ['Big Data & Análise Preditiva','Transformar dados para decidir e prever comportamentos futuros.','10868 · slides 81 e 84'],
   ['Funil de vendas / Lead','Etapas do lead à venda; uma lead é um potencial cliente que demonstrou interesse.','10868 · slide 122'],
   ['Taxa de conversão','Percentagem de oportunidades que se convertem em vendas.','10868 · slide 123'],
@@ -904,7 +904,7 @@ function avatarHTML(u, size){ size=size||36; const ini=initialsOf(u); if(u&&u.av
 
 /* ---------- taxas de IVA ---------- */
 function ivaRates(){ return (state.settings&&state.settings.ivaRates)||[]; }
-function ivaOptions(sel){ return ivaRates().map(r=>`<option value="${r.taxa}" ${Number(sel)===Number(r.taxa)?'selected':''}>${r.taxa}% — ${esc(r.regiao)} ${esc(r.tipo)}</option>`).join(''); }
+function ivaOptions(sel){ return ivaRates().map(r=>`<option value="${r.taxa}" ${Number(sel)===Number(r.taxa)?'selected':''}>${r.taxa}% - ${esc(r.regiao)} ${esc(r.tipo)}</option>`).join(''); }
 function defaultIva(){ const r=ivaRates().find(x=>x.taxa===23)||ivaRates()[0]; return r?r.taxa:23; }
 function regiaoTaxas(reg){ return ivaRates().filter(r=>r.regiao===reg).map(r=>Number(r.taxa)); }
 
@@ -999,19 +999,19 @@ const I18N_EN = {
   'o seu utilizador':'your username','Portal do Titular (RGPD) →':'Data Subject Portal (GDPR) →',
   /* --- Ecrã de login (PT→EN) --- */
   'Indique o número da sua turma para entrar.':'Enter your class number to sign in.',
-  'Número da turma':'Class number','ou':'or','Sou formador — criar nova turma':"I'm a trainer — create a new class",
+  'Número da turma':'Class number','ou':'or','Sou formador - criar nova turma':"I'm a trainer - create a new class",
   'Recentes neste dispositivo':'Recent on this device','Inicie sessão na sua turma.':'Sign in to your class.',
   'Esqueci-me da palavra-passe':'Forgot my password','Portal do Titular':'Data Subject Portal','trocar':'switch',
   'Criar nova turma':'Create a new class','Apenas formadores IEFP. Valide o seu email institucional.':'IEFP trainers only. Verify your institutional email.',
   'Email de formador IEFP *':'IEFP trainer email *','Nome *':'First name *','Apelido':'Surname',
-  'Número da turma — 8 dígitos *':'Class number — 8 digits *','Nome da turma (opcional)':'Class name (optional)',
+  'Número da turma - 8 dígitos *':'Class number - 8 digits *','Nome da turma (opcional)':'Class name (optional)',
   'Utilizador *':'Username *','Palavra-passe *':'Password *','Criar turma e entrar':'Create class and enter',
   '← Voltar ao início de sessão':'← Back to sign in','Suporte':'Support',
   'Recuperar palavra-passe':'Reset password','Para formadores. Use o seu código de recuperação.':'For trainers. Use your recovery code.',
   'Código de recuperação':'Recovery code','Nova palavra-passe':'New password','Redefinir e entrar':'Reset and enter',
   'Aviso legal':'Legal notice','Plataforma de Formação':'Training Platform',
   'Relação com o Cliente, na prática.':'Customer Relationship, in practice.',
-  'Ambiente pedagógico das UFCD 10868 — CRM Analytics e 10870 — Administração de CRM.':'Learning environment for the UFCD 10868 — CRM Analytics and 10870 — CRM Administration courses.',
+  'Ambiente pedagógico das UFCD 10868 - CRM Analytics e 10870 - Administração de CRM.':'Learning environment for the UFCD 10868 - CRM Analytics and 10870 - CRM Administration courses.',
   // Campos / etiquetas frequentes
   'Nome':'Name','Apelido':'Surname','Email':'Email','Telefone':'Phone','Empresa':'Company','Cidade':'City','Região':'Region',
   'Estado':'Status','Segmento':'Segment','Origem':'Source','Notas':'Notes','Papel':'Role','Data':'Date','Total':'Total',
@@ -1096,10 +1096,10 @@ function demoData(){
   const clientes = [
     {id:'cl1',numero:'0001',nome:'João',apelido:'Silva',empresa:'Silva & Filhos, Lda.',nif:'501234560',email:'joao@silvafilhos.pt',telefone:'912345678',cidade:'Porto',regiao:'Continente',segmento:'PME',loyalty:'Ouro',origem:'Recomendação',criado:'2025-01-12',notas:'Cliente histórico, foco em retenção.'},
     {id:'cl2',numero:'0002',nome:'Marta',apelido:'Costa',empresa:'Costa Eventos',nif:'502345675',email:'marta@costaeventos.pt',telefone:'913222111',cidade:'Lisboa',regiao:'Continente',segmento:'PME',loyalty:'Prata',origem:'Website',criado:'2025-03-04',notas:''},
-    {id:'cl3',numero:'0003',nome:'Ricardo',apelido:'Nunes',empresa:'Nunes Hotelaria SA',nif:'503456780',email:'ricardo@nuneshotel.pt',telefone:'934567890',cidade:'Funchal',regiao:'Madeira',segmento:'Grande Empresa',loyalty:'Ouro',origem:'Feira',criado:'2025-02-20',notas:'Grupo hoteleiro na Madeira — atenção à taxa de IVA regional.'},
+    {id:'cl3',numero:'0003',nome:'Ricardo',apelido:'Nunes',empresa:'Nunes Hotelaria SA',nif:'503456780',email:'ricardo@nuneshotel.pt',telefone:'934567890',cidade:'Funchal',regiao:'Madeira',segmento:'Grande Empresa',loyalty:'Ouro',origem:'Feira',criado:'2025-02-20',notas:'Grupo hoteleiro na Madeira - atenção à taxa de IVA regional.'},
     {id:'cl4',numero:'0004',nome:'Sofia',apelido:'Almeida',empresa:'Almeida Consultores',nif:'504567896',email:'sofia@almeidaconsult.pt',telefone:'961112233',cidade:'Braga',regiao:'Continente',segmento:'Micro',loyalty:'Bronze',origem:'Campanha Email',criado:'2025-04-18',notas:''},
     {id:'cl5',numero:'0005',nome:'Pedro',apelido:'Ferreira',empresa:'Ferreira Retalho',nif:'505678900',email:'pedro@ferretalho.pt',telefone:'917654321',cidade:'Coimbra',regiao:'Continente',segmento:'PME',loyalty:'Prata',origem:'Website',criado:'2025-05-02',notas:''},
-    {id:'cl6',numero:'0006',nome:'Ana',apelido:'Rodrigues',empresa:'Rodrigues Clínica',nif:'506789012',email:'ana@rodriguesclinica.pt',telefone:'939887766',cidade:'Aveiro',regiao:'Continente',segmento:'PME',loyalty:'Bronze',origem:'Recomendação',criado:'2025-05-21',notas:'Dados de saúde — categoria especial RGPD.'},
+    {id:'cl6',numero:'0006',nome:'Ana',apelido:'Rodrigues',empresa:'Rodrigues Clínica',nif:'506789012',email:'ana@rodriguesclinica.pt',telefone:'939887766',cidade:'Aveiro',regiao:'Continente',segmento:'PME',loyalty:'Bronze',origem:'Recomendação',criado:'2025-05-21',notas:'Dados de saúde - categoria especial RGPD.'},
   ];
   const propostas = [
     {id:'p1',numero:'PROP-2026-001',titulo:'Implementação CRM + Analytics',clienteId:'cl1',criada:'2026-04-02',validade:'2026-06-30',estado:'Ganha',linhas:[{descricao:'Licença CRM Pro',qtd:5,preco:79,iva:23},{descricao:'Módulo Analytics 360',qtd:5,preco:25,iva:23},{descricao:'Consultoria de Implementação',qtd:1,preco:1200,iva:23}]},
@@ -1173,7 +1173,7 @@ function demoData(){
     {id:'l3',nome:'Ouro',minVolume:6000,desconto:10,estado:'Ativo'},
   ];
   const templates = [
-    {id:'t1',nome:'Envio de proposta',assunto:'A sua proposta {{proposta.numero}} — {{entidade.nome}}',cor:'#006B3C',mostrarLogo:true,saudacao:'Exmo(a). Sr(a). {{cliente.nome}},',corpo:'É com muito gosto que enviamos a proposta {{proposta.numero}} — "{{proposta.titulo}}", no valor total de {{proposta.total}}.\n\nA proposta segue em anexo (PDF) e fica válida até {{proposta.validade}}. Ficamos ao dispor para qualquer esclarecimento.',botaoTexto:'Ver proposta',botaoLink:'#',assinatura:'Com os melhores cumprimentos,\nEquipa {{entidade.nome}}',criadoPor:'u1',criadoEm:'2026-01-08'},
+    {id:'t1',nome:'Envio de proposta',assunto:'A sua proposta {{proposta.numero}} - {{entidade.nome}}',cor:'#006B3C',mostrarLogo:true,saudacao:'Exmo(a). Sr(a). {{cliente.nome}},',corpo:'É com muito gosto que enviamos a proposta {{proposta.numero}} - "{{proposta.titulo}}", no valor total de {{proposta.total}}.\n\nA proposta segue em anexo (PDF) e fica válida até {{proposta.validade}}. Ficamos ao dispor para qualquer esclarecimento.',botaoTexto:'Ver proposta',botaoLink:'#',assinatura:'Com os melhores cumprimentos,\nEquipa {{entidade.nome}}',criadoPor:'u1',criadoEm:'2026-01-08'},
     {id:'t2',nome:'Follow-up de proposta',assunto:'Seguimento da proposta {{proposta.numero}}',cor:'#00A651',mostrarLogo:true,saudacao:'Olá {{cliente.nome}},',corpo:'Gostaríamos de saber se teve oportunidade de analisar a proposta {{proposta.numero}}. Estamos disponíveis para esclarecer qualquer questão ou ajustar a proposta às necessidades da {{cliente.empresa}}.',botaoTexto:'Falar connosco',botaoLink:'mailto:{{entidade.email}}',assinatura:'Cumprimentos,\n{{entidade.nome}}',criadoPor:'u1',criadoEm:'2026-01-08'},
     {id:'t3',nome:'Agradecimento (cliente ganho)',assunto:'Obrigado pela sua confiança',cor:'#006B3C',mostrarLogo:true,saudacao:'Olá {{cliente.nome}},',corpo:'Obrigado por escolher a {{entidade.nome}}! É um prazer tê-lo(a) como cliente. A nossa equipa vai acompanhar de perto a implementação.',botaoTexto:'',botaoLink:'',assinatura:'Até breve,\n{{entidade.nome}}',criadoPor:'u1',criadoEm:'2026-01-08'},
     {id:'t4',nome:'Boas-vindas (novo cliente)',assunto:'Bem-vindo(a) à {{entidade.nome}}',cor:'#00A651',mostrarLogo:true,saudacao:'Olá {{cliente.nome}},',corpo:'Seja bem-vindo(a)! Registámos os seus dados e estamos prontos para ajudar a {{cliente.empresa}}. Pode gerir as suas preferências de privacidade a qualquer momento.',botaoTexto:'Portal do Titular',botaoLink:'#portal',assinatura:'{{entidade.nome}}',criadoPor:'u1',criadoEm:'2026-01-08'},
@@ -1188,14 +1188,14 @@ function demoData(){
     {id:'ag1',dataAgendada:'2026-06-12',clienteId:'cl1',templateId:'t5',propostaId:null,automacaoId:'au1',nome:'Sequência de boas-vindas (passo 2)'},
   ];
   const envios = [
-    {id:'ev1',data:'2026-04-02',aberto:true,clicado:true,clienteId:'cl1',paraEmail:'joao@silvafilhos.pt',paraNome:'João Silva',assunto:'A sua proposta PROP-2026-001 — IEFP CRM',templateId:'t1',anexo:{tipo:'proposta',propostaId:'p1',numero:'PROP-2026-001'},origem:'Manual',porUtilizador:'u2',estado:'Enviado'},
+    {id:'ev1',data:'2026-04-02',aberto:true,clicado:true,clienteId:'cl1',paraEmail:'joao@silvafilhos.pt',paraNome:'João Silva',assunto:'A sua proposta PROP-2026-001 - IEFP CRM',templateId:'t1',anexo:{tipo:'proposta',propostaId:'p1',numero:'PROP-2026-001'},origem:'Manual',porUtilizador:'u2',estado:'Enviado'},
     {id:'ev2',data:'2026-04-05',aberto:true,clicado:false,clienteId:'cl1',paraEmail:'joao@silvafilhos.pt',paraNome:'João Silva',assunto:'Obrigado pela sua confiança',templateId:'t3',anexo:null,origem:'Automação',automacaoId:'au2',estado:'Enviado'},
-    {id:'ev3',data:'2026-05-05',aberto:true,clicado:true,clienteId:'cl2',paraEmail:'marta@costaeventos.pt',paraNome:'Marta Costa',assunto:'A sua proposta PROP-2026-003 — IEFP CRM',templateId:'t1',anexo:{tipo:'proposta',propostaId:'p3',numero:'PROP-2026-003'},origem:'Manual',porUtilizador:'u2',estado:'Enviado'},
+    {id:'ev3',data:'2026-05-05',aberto:true,clicado:true,clienteId:'cl2',paraEmail:'marta@costaeventos.pt',paraNome:'Marta Costa',assunto:'A sua proposta PROP-2026-003 - IEFP CRM',templateId:'t1',anexo:{tipo:'proposta',propostaId:'p3',numero:'PROP-2026-003'},origem:'Manual',porUtilizador:'u2',estado:'Enviado'},
     {id:'ev4',data:'2026-05-21',aberto:false,clicado:false,clienteId:'cl6',paraEmail:'ana@rodriguesclinica.pt',paraNome:'Ana Rodrigues',assunto:'Bem-vindo(a) à IEFP CRM',templateId:'t4',anexo:null,origem:'Automação',automacaoId:'au1',estado:'Enviado'},
   ];
   propostas.forEach((p,i)=>{ p.templateId = p.templateId || (i%2 ? 'pt2' : 'pt1'); p.criadoPor='u2'; p.alteradoPor='u2'; p.alteradoEm=p.criada; });
   return {
-    settings:{entidade:'IEFP CRM — Centro de Formação',nif:'600000000',email:'iefpcrm@cr0x.org',telefone:'210 000 000',cidade:'Lisboa',epd:'Rita Sousa',numeroSeq:6,requireLogin:true,
+    settings:{entidade:'IEFP CRM - Centro de Formação',nif:'600000000',email:'iefpcrm@cr0x.org',telefone:'210 000 000',cidade:'Lisboa',epd:'Rita Sousa',numeroSeq:6,requireLogin:true,
       origens:['Website','Recomendação','Feira','Campanha Email','Redes Sociais','Outro'],
       emailjs:Object.assign({},EMAILJS_DEFAULT),
       baseURL:'base.json', entregaURL:'',
@@ -1234,7 +1234,7 @@ function load(){
   if(state.settings.email==='geral@iefpcrm.pt') state.settings.email='iefpcrm@cr0x.org';  // reply-to: placeholder antigo → email real
   { const adm=state.utilizadores.find(u=>u.id==='u1'); if(adm && adm.apelido==='Vale') adm.apelido='du Valle'; }
   Object.values(state.roles||{}).forEach(r=>{ if(r&&Array.isArray(r.modules)&&!r.modules.includes('email')&&(r.gestor||r.modules.includes('campanhas'))) r.modules.push('email'); });
-  // --- Empresas & Contactos (modelo Account/Contact) — migração additiva ---
+  // --- Empresas & Contactos (modelo Account/Contact) - migração additiva ---
   if(!Array.isArray(state.empresas)) state.empresas=[];
   if(state.settings.empSeq==null) state.settings.empSeq=0;
   if(state.settings.cacBudget==null) state.settings.cacBudget=2000;
@@ -1291,7 +1291,7 @@ function resetDemo(){ state = demoData(); save(); render(); toast('Dados reposto
 const getC = id => state.clientes.find(x=>x.id===id);
 const getFam = id => state.familias.find(x=>x.id===id);
 const getSub = id => state.subfamilias.find(x=>x.id===id);
-const clientName = id => { const c=getC(id); return c?`${c.nome} ${c.apelido}`:'—'; };
+const clientName = id => { const c=getC(id); return c?`${c.nome} ${c.apelido}`:'-'; };
 const lineTotals = linhas => {
   const sub=(linhas||[]).reduce((s,l)=>s+(+l.qtd||0)*(+l.preco||0),0);
   const iva=(linhas||[]).reduce((s,l)=>s+(+l.qtd||0)*(+l.preco||0)*(+l.iva||0)/100,0);
@@ -1309,7 +1309,7 @@ function recalcLoyalty(){
   state.clientes.forEach(c=>{ const v=clientVolume(c.id); let n=lv[0]?.nome||'Bronze'; lv.forEach(x=>{ if(v>=x.minVolume) n=x.nome; }); c.loyalty=n; });
 }
 
-/* ---------- autenticação (DEMO pedagógica — não é segurança real) ---------- */
+/* ---------- autenticação (DEMO pedagógica - não é segurança real) ---------- */
 const SESSION_KEY='iefp-crm-v4-session'+TURMA_SFX;
 function hashPwd(s){ let h=5381; s=String(s); for(let i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))>>>0; return 'h'+h.toString(36); }
 let sessionUserId = null;
@@ -1384,7 +1384,7 @@ async function supaLogin(username,password){
   rememberTurma(TURMA);
   return data.user;
 }
-// Criar turma (gate de email IEFP) — devolve {token,turma,user}
+// Criar turma (gate de email IEFP) - devolve {token,turma,user}
 async function supaCriarTurma(p){
   const data=await supaRpc('criar_turma',{p_codigo:p.codigo,p_email:p.email,p_username:p.username,p_password:p.password,p_nome:p.nome,p_apelido:p.apelido||'',p_nome_turma:p.nomeTurma||null});
   return data;
@@ -1433,14 +1433,14 @@ function rootOpenTurma(codigo){
 }
 function rootLogout(){ if(rootSession&&supa()) supaRpc('logout_root',{p_token:rootSession}).catch(()=>{}); try{sessionStorage.removeItem('iefp-root-tok');}catch(_){} rootSession=null; rootTurmas=[]; loginMode='login'; renderLogin(); }
 
-/* ---------- Painel de SUPORTE (root) — Definições e Consola ---------- */
+/* ---------- Painel de SUPORTE (root) - Definições e Consola ---------- */
 let rootResumo=null, rootRows=[], rootBoxSel='#rootPanel';
-function rootFmtDate(t){ if(!t) return '—'; try{ return new Date(t).toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'}); }catch(e){ return '—'; } }
+function rootFmtDate(t){ if(!t) return '-'; try{ return new Date(t).toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'}); }catch(e){ return '-'; } }
 function rootFmtName(t){ return ((t.formador_nome||'')+' '+(t.formador_apelido||'')).trim(); }
 function rootRowHTML(t){
   const nome=esc(t.nome||('Turma '+t.codigo));
-  const fnome=esc(rootFmtName(t)||'—');
-  const fmail=esc(t.formador_email||t.criado_por||'—');
+  const fnome=esc(rootFmtName(t)||'-');
+  const fmail=esc(t.formador_email||t.criado_por||'-');
   const uname=esc(t.formador_username||'');
   const c=esc(t.codigo);
   return `<div class="root-card" data-codigo="${c}">
@@ -1452,9 +1452,9 @@ function rootRowHTML(t){
       <div class="form-grid">
         <div class="field"><label>Nome da turma</label><input data-rf="nome" value="${nome}"></div>
         <div class="field"><label>Utilizador (login do formador) ${ic('lock',12)}</label><input value="${uname}" readonly title="O username de entrada do formador (não editável)" style="background:var(--surface3);color:var(--muted);cursor:not-allowed"></div>
-        <div class="field"><label>Formador — nome</label><input data-rf="fnome" value="${esc(t.formador_nome||'')}"></div>
-        <div class="field"><label>Formador — apelido</label><input data-rf="fapelido" value="${esc(t.formador_apelido||'')}"></div>
-        <div class="field"><label>Formador — email</label><input data-rf="femail" type="email" value="${esc(t.formador_email||t.criado_por||'')}"></div>
+        <div class="field"><label>Formador - nome</label><input data-rf="fnome" value="${esc(t.formador_nome||'')}"></div>
+        <div class="field"><label>Formador - apelido</label><input data-rf="fapelido" value="${esc(t.formador_apelido||'')}"></div>
+        <div class="field"><label>Formador - email</label><input data-rf="femail" type="email" value="${esc(t.formador_email||t.criado_por||'')}"></div>
       </div>
       <div class="toolbar" style="margin-top:10px;gap:8px;flex-wrap:wrap">
         <button class="btn btn-sm" data-act="root-save" data-codigo="${c}">Guardar alterações</button>
@@ -1462,7 +1462,7 @@ function rootRowHTML(t){
       </div>
       <div class="root-reveal" hidden></div>
       <div class="root-danger">
-        <div class="ctxt" style="font-size:.78rem"><strong>Apagar turma</strong> — remove utilizadores, sessões e entregas. Irreversível. Escreve <strong>${c}</strong> para confirmar:</div>
+        <div class="ctxt" style="font-size:.78rem"><strong>Apagar turma</strong> - remove utilizadores, sessões e entregas. Irreversível. Escreve <strong>${c}</strong> para confirmar:</div>
         <div class="toolbar" style="margin-top:6px;gap:8px"><input data-rf="delcode" placeholder="${c}" style="max-width:170px" autocomplete="off"><button class="btn-danger btn-sm" data-act="root-del" data-codigo="${c}">Apagar turma</button></div>
       </div>
     </div>
@@ -1509,7 +1509,7 @@ function rootSave(el){
 }
 async function rootRecovery(el){
   const card=rootCardOf(el); if(!card) return; const cod=el.dataset.codigo;
-  if(!(await uiConfirm('O código anterior deixa de funcionar.',{title:'Novo código de recuperação — turma '+cod+'?',okText:'Gerar'}))) return;
+  if(!(await uiConfirm('O código anterior deixa de funcionar.',{title:'Novo código de recuperação - turma '+cod+'?',okText:'Gerar'}))) return;
   el.disabled=true;
   supaRpc('root_recovery_formador',{p_token:rootSession,p_codigo:cod}).then(d=>{
     const rv=card.querySelector('.root-reveal');
@@ -1587,7 +1587,7 @@ views.dashboard = () => {
   <div class="hero">
     <div>
       <h3 style="display:flex;align-items:center">Bem-vindo ao IEFP CRM <span style="color:#fff">${infoTip('crm')}</span></h3>
-      <p>Plataforma pedagógica de gestão de relação com clientes — vendas, marketing, analytics e conformidade RGPD num só lugar.</p>
+      <p>Plataforma pedagógica de gestão de relação com clientes - vendas, marketing, analytics e conformidade RGPD num só lugar.</p>
       <div class="hero-actions">
         <button class="btn" data-act="new" data-type="cliente">${ic('users',16)} Novo cliente</button>
         <button class="btn-out" data-act="new" data-type="proposta">${ic('doc',16)} Nova proposta</button>
@@ -1645,7 +1645,7 @@ function monthlyRevenue(props){
   const m={}; const names=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
   props.filter(p=>p.estado==='Ganha').forEach(p=>{ const mi=+(p.criada||'').slice(5,7)-1; if(mi>=0){m[mi]=(m[mi]||0)+propTotal(p);} });
   const keys=Object.keys(m).map(Number).sort((a,b)=>a-b);
-  if(!keys.length) return [{l:'—',v:0}];
+  if(!keys.length) return [{l:'-',v:0}];
   const lo=Math.min(...keys), hi=Math.max(...keys); const out=[];
   for(let i=lo;i<=hi;i++) out.push({l:names[i],v:m[i]||0});
   return out;
@@ -1662,7 +1662,7 @@ function paginate(list,key){
 }
 function pager(key,pg){
   const {p,pages,total,start,slice}=pg; if(total===0) return '';
-  const info=`${start+1}–${start+slice.length} de ${total}`;
+  const info=`${start+1}-${start+slice.length} de ${total}`;
   if(pages<=1) return `<div class="pager"><span class="pager-info">${total} registo(s)</span></div>`;
   let nums=''; const win=2; const lo=Math.max(1,p-win), hi=Math.min(pages,p+win);
   if(lo>1){ nums+=`<button class="pg-num" data-act="page" data-key="${key}" data-p="1">1</button>`; if(lo>2) nums+=`<span class="pg-dots">…</span>`; }
@@ -1703,11 +1703,11 @@ views.empresas = () => {
     </div>
     <div class="table-wrap"><table><thead><tr><th>N.º</th><th>Empresa</th><th>NIPC</th><th>Setor / Dimensão</th><th>Localização</th><th class="t-center">Contactos</th>${canSeeFinance()?'<th class="t-right">Valor</th>':''}<th></th></tr></thead><tbody>
       ${list.length?pg.slice.map(e=>{const nc=empContacts(e.id).length;return `<tr data-act="open-empresa" data-id="${e.id}" style="cursor:pointer">
-        <td class="muted">${esc(e.numero||'—')}</td>
+        <td class="muted">${esc(e.numero||'-')}</td>
         <td><div class="cell-main">${esc(e.nome)}</div><div class="cell-sub">${esc(e.website||e.email||'')}</div></td>
-        <td>${esc(e.nipc||'—')}</td>
-        <td><span class="chip">${esc(e.setor||'—')}</span> <span class="pill grey">${esc(e.dimensao||'—')}</span></td>
-        <td>${esc(e.cidade||'—')}${e.regiao&&e.regiao!=='Continente'?` <span class="pill amber">${esc(e.regiao)}</span>`:''}</td>
+        <td>${esc(e.nipc||'-')}</td>
+        <td><span class="chip">${esc(e.setor||'-')}</span> <span class="pill grey">${esc(e.dimensao||'-')}</span></td>
+        <td>${esc(e.cidade||'-')}${e.regiao&&e.regiao!=='Continente'?` <span class="pill amber">${esc(e.regiao)}</span>`:''}</td>
         <td class="t-center"><strong>${nc}</strong></td>
         ${canSeeFinance()?`<td class="t-right"><strong>${money(empValue(e.id))}</strong></td>`:''}
         <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="empresa" data-id="${e.id}" data-stop>Editar</button></div></td>
@@ -1721,15 +1721,15 @@ function openEmpresa360(id){
   const contacts=empContacts(id);
   const props=state.propostas.filter(p=>contacts.some(c=>c.id===p.clienteId));
   const ganhas=props.filter(p=>p.estado==='Ganha');
-  $('#drawerTitle').innerHTML=`<h3 style="font-size:1.1rem;font-weight:800">${esc(e.nome)}</h3><div class="sub" style="color:var(--muted);font-size:.82rem">${esc(e.numero||'')} · ${esc(e.setor||'—')} · ${esc(e.dimensao||'—')}</div>`;
+  $('#drawerTitle').innerHTML=`<h3 style="font-size:1.1rem;font-weight:800">${esc(e.nome)}</h3><div class="sub" style="color:var(--muted);font-size:.82rem">${esc(e.numero||'')} · ${esc(e.setor||'-')} · ${esc(e.dimensao||'-')}</div>`;
   $('#drawerBody').innerHTML=`
     <dl class="kv">
-      <dt>NIPC / NIF</dt><dd>${esc(e.nipc||'—')}</dd>
-      <dt>CAE</dt><dd>${esc(e.cae||'—')}</dd>
-      <dt>Morada fiscal</dt><dd>${esc(e.moradaFiscal||'—')}${(e.codigoPostal||e.cidade)?`<br>${esc(e.codigoPostal||'')} ${esc(e.cidade||'')}`:''}</dd>
-      <dt>Região (IVA)</dt><dd>${esc(e.regiao||'—')}</dd>
-      <dt>Website</dt><dd>${esc(e.website||'—')}</dd>
-      <dt>Contacto geral</dt><dd>${esc(e.telefone||'—')} · ${esc(e.email||'—')}</dd>
+      <dt>NIPC / NIF</dt><dd>${esc(e.nipc||'-')}</dd>
+      <dt>CAE</dt><dd>${esc(e.cae||'-')}</dd>
+      <dt>Morada fiscal</dt><dd>${esc(e.moradaFiscal||'-')}${(e.codigoPostal||e.cidade)?`<br>${esc(e.codigoPostal||'')} ${esc(e.cidade||'')}`:''}</dd>
+      <dt>Região (IVA)</dt><dd>${esc(e.regiao||'-')}</dd>
+      <dt>Website</dt><dd>${esc(e.website||'-')}</dd>
+      <dt>Contacto geral</dt><dd>${esc(e.telefone||'-')} · ${esc(e.email||'-')}</dd>
     </dl>
     <div class="divider" style="margin:16px 0"></div>
     <div class="section-head" style="margin-bottom:10px"><div><h3 style="font-size:.98rem">Contactos (${contacts.length})</h3></div><button class="btn-sec btn-sm" data-act="new" data-type="cliente">${ic('users',14)} Contacto</button></div>
@@ -1771,9 +1771,9 @@ views.clientes = () => {
       ${list.length?pg.slice.map(c=>`<tr data-act="open-client" data-id="${c.id}" style="cursor:pointer">
         <td class="muted">${esc(c.numero)}</td>
         <td><div class="cell-main">${esc(c.nome)} ${esc(c.apelido)}</div><div class="cell-sub">${esc(c.email)}</div></td>
-        <td>${esc(c.empresa||'—')}</td>
-        <td>${esc(c.cidade||'—')}</td>
-        <td><span class="chip">${esc(c.segmento||'—')}</span></td>
+        <td>${esc(c.empresa||'-')}</td>
+        <td>${esc(c.cidade||'-')}</td>
+        <td><span class="chip">${esc(c.segmento||'-')}</span></td>
         <td><span class="pill ${c.loyalty==='Ouro'?'amber':c.loyalty==='Prata'?'grey':'green'}">${esc(c.loyalty||'Bronze')}</span></td>
         <td class="t-right"><strong>${money(clientValue(c.id))}</strong></td>
         <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="cliente" data-id="${c.id}" data-stop>Editar</button></div></td>
@@ -1790,7 +1790,7 @@ function openClient360(id){
   const cons=state.consentimentos.filter(x=>x.clienteId===id);
   const peds=state.pedidos.filter(x=>x.clienteId===id);
   const val=clientValue(id);
-  $('#drawerTitle').innerHTML=`<h3 style="font-size:1.1rem;font-weight:800">${esc(c.nome)} ${esc(c.apelido)}</h3><div class="sub" style="color:var(--muted);font-size:.82rem">Cliente n.º ${esc(c.numero)} · ${esc(c.empresa||'—')}</div>`;
+  $('#drawerTitle').innerHTML=`<h3 style="font-size:1.1rem;font-weight:800">${esc(c.nome)} ${esc(c.apelido)}</h3><div class="sub" style="color:var(--muted);font-size:.82rem">Cliente n.º ${esc(c.numero)} · ${esc(c.empresa||'-')}</div>`;
   $('#drawerBody').innerHTML=`
     <div class="grid cols-2">
       ${kpi('Valor total', money(val), {icon:'euro'})}
@@ -1799,12 +1799,12 @@ function openClient360(id){
     <div class="card card-pad">
       <h4 style="font-weight:800;margin-bottom:10px;font-size:.95rem">Ficha</h4>
       <dl class="kv">
-        <dt>Email</dt><dd>${esc(c.email||'—')}</dd>
-        <dt>Telefone</dt><dd>${esc(c.telefone||'—')}</dd>
-        <dt>NIF</dt><dd>${esc(c.nif||'—')}</dd>
-        <dt>Cidade</dt><dd>${esc(c.cidade||'—')}</dd>
-        <dt>Segmento</dt><dd>${esc(c.segmento||'—')}</dd>
-        <dt>Origem</dt><dd>${esc(c.origem||'—')}</dd>
+        <dt>Email</dt><dd>${esc(c.email||'-')}</dd>
+        <dt>Telefone</dt><dd>${esc(c.telefone||'-')}</dd>
+        <dt>NIF</dt><dd>${esc(c.nif||'-')}</dd>
+        <dt>Cidade</dt><dd>${esc(c.cidade||'-')}</dd>
+        <dt>Segmento</dt><dd>${esc(c.segmento||'-')}</dd>
+        <dt>Origem</dt><dd>${esc(c.origem||'-')}</dd>
         <dt>Loyalty</dt><dd><span class="pill ${c.loyalty==='Ouro'?'amber':c.loyalty==='Prata'?'grey':'green'}">${esc(c.loyalty)}</span></dd>
         <dt>Cliente desde</dt><dd>${dPT(c.criado)}</dd>
       </dl>
@@ -1841,7 +1841,7 @@ views.produtos = () => {
     </div>
     <div class="card card-pad">
       <div class="section-head" style="margin-bottom:12px"><div><h3>Subfamílias</h3></div><button class="btn-sec btn-sm" data-act="new" data-type="subfamilia">+ Subfamília</button></div>
-      <div class="mini-list scroll-list">${state.subfamilias.map(s=>`<div class="mini-item"><span class="ic">${ic('list')}</span><span class="grow"><strong>${esc(s.codigo)} · ${esc(s.nome)}</strong><span>${esc(getFam(s.familiaId)?.nome||'—')}</span></span><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="subfamilia" data-id="${s.id}">Editar</button><button class="btn-danger btn-xs" data-act="delete" data-type="subfamilia" data-id="${s.id}">✕</button></div></div>`).join('')||empty('Sem subfamílias')}</div>
+      <div class="mini-list scroll-list">${state.subfamilias.map(s=>`<div class="mini-item"><span class="ic">${ic('list')}</span><span class="grow"><strong>${esc(s.codigo)} · ${esc(s.nome)}</strong><span>${esc(getFam(s.familiaId)?.nome||'-')}</span></span><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="subfamilia" data-id="${s.id}">Editar</button><button class="btn-danger btn-xs" data-act="delete" data-type="subfamilia" data-id="${s.id}">✕</button></div></div>`).join('')||empty('Sem subfamílias')}</div>
     </div>
   </div>
   <div class="card card-pad">
@@ -1860,7 +1860,7 @@ views.produtos = () => {
       ${prods.length?pgp.slice.map(p=>`<tr>
         <td class="muted">${esc(p.codigo)}</td>
         <td class="cell-main">${esc(p.nome)}</td>
-        <td><div class="cell-sub">${esc(getFam(p.familiaId)?.nome||'—')}</div><div class="cell-sub">${esc(getSub(p.subfamiliaId)?.nome||'—')}</div></td>
+        <td><div class="cell-sub">${esc(getFam(p.familiaId)?.nome||'-')}</div><div class="cell-sub">${esc(getSub(p.subfamiliaId)?.nome||'-')}</div></td>
         <td><span class="pill ${p.tipo==='Serviço'?'blue':'green'}">${esc(p.tipo)}</span></td>
         <td>${esc(p.modelo)}</td>
         <td class="t-right"><strong>${fmt(p.preco)}</strong></td>
@@ -1926,7 +1926,7 @@ views.campanhas = () => {
     <div class="card card-pad">
       <div class="section-head" style="margin-bottom:14px"><div><h3>Campanhas ${infoTip('segmento')}</h3><div class="sub">Marketing direcionado por segmento</div></div><div class="toolbar"><button class="btn-sec" data-act="wizard">✨ Gerar de persona</button><button class="btn" data-act="new" data-type="campanha">+ Campanha</button></div></div>
       <div class="table-wrap"><table><thead><tr><th>Campanha</th><th>Segmento</th><th>Período</th><th>Abertura</th><th>CTR</th><th>Estado</th><th></th></tr></thead><tbody>
-        ${camps.map(c=>{const ab=c.enviados?c.abertos/c.enviados*100:0;const ct=c.enviados?c.cliques/c.enviados*100:0;return `<tr><td><div class="cell-main">${esc(c.nome)}</div><div class="cell-sub">${esc(c.canal)} · ${fmtN(c.enviados)} envios</div></td><td><span class="chip">${esc(c.segmento)}</span></td><td class="muted">${dPT(c.inicio)} – ${dPT(c.fim)}</td><td>${pct(ab)}</td><td>${pct(ct)}</td><td><span class="pill ${c.estado==='Ativa'?'green':c.estado==='Concluída'?'grey':'blue'}">${esc(c.estado)}</span></td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="campaign-send" data-id="${c.id}">${ic('send',13)} Enviar</button><button class="btn-sec btn-xs" data-act="edit" data-type="campanha" data-id="${c.id}">Editar</button><button class="btn-danger btn-xs" data-act="delete" data-type="campanha" data-id="${c.id}">✕</button></div></td></tr>`;}).join('')||`<tr><td colspan="7">${empty(act?'Sem campanhas no período':'Sem campanhas')}</td></tr>`}
+        ${camps.map(c=>{const ab=c.enviados?c.abertos/c.enviados*100:0;const ct=c.enviados?c.cliques/c.enviados*100:0;return `<tr><td><div class="cell-main">${esc(c.nome)}</div><div class="cell-sub">${esc(c.canal)} · ${fmtN(c.enviados)} envios</div></td><td><span class="chip">${esc(c.segmento)}</span></td><td class="muted">${dPT(c.inicio)} - ${dPT(c.fim)}</td><td>${pct(ab)}</td><td>${pct(ct)}</td><td><span class="pill ${c.estado==='Ativa'?'green':c.estado==='Concluída'?'grey':'blue'}">${esc(c.estado)}</span></td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="campaign-send" data-id="${c.id}">${ic('send',13)} Enviar</button><button class="btn-sec btn-xs" data-act="edit" data-type="campanha" data-id="${c.id}">Editar</button><button class="btn-danger btn-xs" data-act="delete" data-type="campanha" data-id="${c.id}">✕</button></div></td></tr>`;}).join('')||`<tr><td colspan="7">${empty(act?'Sem campanhas no período':'Sem campanhas')}</td></tr>`}
       </tbody></table></div>
     </div>
     <div class="card card-pad">
@@ -1936,7 +1936,7 @@ views.campanhas = () => {
       <div class="divider" style="margin:16px 0"></div>
       <h4 style="font-weight:800;font-size:.92rem;margin-bottom:10px">${ic('target',15)} Persona pedagógica ${infoTip('persona')}</h4>
       <div class="persona-card"><div class="pav">🏨</div><div><strong>Zé Miguel · 40 anos</strong><div class="muted" style="font-size:.82rem">Hoteleiro independente · procura automatização de processos e fidelização. Canal: LinkedIn. Orçamento médio.</div></div></div>
-      <p class="muted" style="font-size:.8rem;margin-top:10px">A <strong>persona</strong> representa o cliente ideal e orienta a comunicação (UFCD 10868 — hiperpersonalização).</p>
+      <p class="muted" style="font-size:.8rem;margin-top:10px">A <strong>persona</strong> representa o cliente ideal e orienta a comunicação (UFCD 10868 - hiperpersonalização).</p>
     </div>
   </div>`;
 };
@@ -2023,7 +2023,7 @@ function agendaWeekHTML(tasks,today){
   </div>`;
 }
 function taskColor(t){ return {Chamada:'blue','Reunião':'green','Follow-up':'amber','Email':'purple'}[t&&t.tipo]||'grey'; }
-function taskRow(t){ const c=t.clienteId?getC(t.clienteId):null; const over=t.estado!=='Concluída'&&t.data<todayISO(); const done=t.estado==='Concluída'; return `<div class="mini-item" style="${done?'opacity:.55':''}"><button class="task-check ${done?'on':''}" data-act="task-done" data-id="${t.id}" data-stop title="${done?'Reabrir':'Concluir'}">${done?ic('check',13):''}</button><span class="grow" data-act="edit" data-type="tarefa" data-id="${t.id}" style="cursor:pointer"><strong style="${done?'text-decoration:line-through':''}">${esc(t.titulo)}</strong><div class="muted" style="font-size:.74rem">${ic('calendar',12)} ${dPT(t.data)}${t.hora?' · '+esc(t.hora):''}${c?' · '+esc(c.nome)+' '+esc(c.apelido||''):''}</div></span><span class="pill ${over?'red':taskColor(t)}">${esc(t.tipo||'—')}</span></div>`; }
+function taskRow(t){ const c=t.clienteId?getC(t.clienteId):null; const over=t.estado!=='Concluída'&&t.data<todayISO(); const done=t.estado==='Concluída'; return `<div class="mini-item" style="${done?'opacity:.55':''}"><button class="task-check ${done?'on':''}" data-act="task-done" data-id="${t.id}" data-stop title="${done?'Reabrir':'Concluir'}">${done?ic('check',13):''}</button><span class="grow" data-act="edit" data-type="tarefa" data-id="${t.id}" style="cursor:pointer"><strong style="${done?'text-decoration:line-through':''}">${esc(t.titulo)}</strong><div class="muted" style="font-size:.74rem">${ic('calendar',12)} ${dPT(t.data)}${t.hora?' · '+esc(t.hora):''}${c?' · '+esc(c.nome)+' '+esc(c.apelido||''):''}</div></span><span class="pill ${over?'red':taskColor(t)}">${esc(t.tipo||'-')}</span></div>`; }
 views.agenda = () => {
   if(!agendaYM) agendaYM=curYM();
   if(!agendaWeek) agendaWeek=mondayOf(todayISO());
@@ -2032,7 +2032,7 @@ views.agenda = () => {
   const pend=tasks.filter(t=>t.estado!=='Concluída');
   const overdueList=pend.filter(t=>t.data<today).sort((a,b)=>a.data.localeCompare(b.data));
   const upcoming=pend.filter(t=>t.data>=today).sort((a,b)=>(a.data+(a.hora||'24')).localeCompare(b.data+(b.hora||'24')));
-  const wd=weekDays(agendaWeek); const wTitle=`${+wd[0].slice(8)}–${+wd[6].slice(8)} ${MONTHS_PT[+wd[0].slice(5,7)-1]} ${wd[0].slice(0,4)}`;
+  const wd=weekDays(agendaWeek); const wTitle=`${+wd[0].slice(8)}-${+wd[6].slice(8)} ${MONTHS_PT[+wd[0].slice(5,7)-1]} ${wd[0].slice(0,4)}`;
   const title=agendaView==='semana'?wTitle:`${MONTHS_PT[m-1]} ${y}`;
   return `
   <div class="callout green">${ic('calendar',18)}<div style="flex:1"><strong>Agenda & Tarefas</strong><span class="ctxt">Vista mensal ou semanal. Na vista semanal, clique numa hora para marcar uma tarefa nesse horário (15 em 15 min).</span></div></div>
@@ -2073,17 +2073,17 @@ function aiInsights(m){
   const a=[];
   if(m.conv<35) a.push({i:'alert',c:'amber',t:'Conversão abaixo do ideal',x:`A taxa de conversão está em ${pct(m.conv)}. Qualifique melhor as leads antes de avançar para proposta.`});
   else a.push({i:'check',c:'green',t:'Boa taxa de conversão',x:`${pct(m.conv)} de propostas ganhas. Replique esta abordagem nas restantes oportunidades.`});
-  if(m.topLoss) a.push({i:'trend',c:'blue',t:`Principal motivo de perda: ${m.topLoss}`,x:m.topLoss==='Preço'?'O preço é a objeção dominante — reforce o valor entregue ou reveja a política de descontos.':`Padrão recorrente. Crie um argumentário específico para "${m.topLoss}".`});
+  if(m.topLoss) a.push({i:'trend',c:'blue',t:`Principal motivo de perda: ${m.topLoss}`,x:m.topLoss==='Preço'?'O preço é a objeção dominante - reforce o valor entregue ou reveja a política de descontos.':`Padrão recorrente. Crie um argumentário específico para "${m.topLoss}".`});
   if(m.churn>50) a.push({i:'alert',c:'red',t:'Churn elevado',x:`${pct(m.churn)} dos contactos ainda não compraram. Lance uma campanha de reativação.`});
-  if(m.cac && m.ltvCac && m.ltvCac<3) a.push({i:'euro',c:'amber',t:`Rácio LTV/CAC = ${m.ltvCac.toFixed(1)}:1`,x:'Abaixo de 3:1 — o custo de aquisição está alto face ao valor do cliente. Otimize os canais mais caros.'});
+  if(m.cac && m.ltvCac && m.ltvCac<3) a.push({i:'euro',c:'amber',t:`Rácio LTV/CAC = ${m.ltvCac.toFixed(1)}:1`,x:'Abaixo de 3:1 - o custo de aquisição está alto face ao valor do cliente. Otimize os canais mais caros.'});
   else if(m.ltvCac>=3) a.push({i:'check',c:'green',t:`Rácio LTV/CAC saudável (${m.ltvCac.toFixed(1)}:1)`,x:'Cada euro investido em aquisição traz bom retorno.'});
-  if(m.hot) a.push({i:'target',c:'green',t:`${m.hot} lead(s) quente(s)`,x:'Contacte primeiro os contactos com score ≥ 70 — maior probabilidade de fecho.'});
+  if(m.hot) a.push({i:'target',c:'green',t:`${m.hot} lead(s) quente(s)`,x:'Contacte primeiro os contactos com score ≥ 70 - maior probabilidade de fecho.'});
   return a;
 }
 function aiSuggestEmail(c){
   const nome=c?c.nome:'cliente'; const emp=(c&&c.empresa)?` da ${c.empresa}`:''; const ent=state.settings.entidade||'';
   const won=c?state.propostas.some(p=>p.clienteId===c.id&&p.estado==='Ganha'):false;
-  if(won) return `Olá ${nome},\n\nFoi um prazer trabalhar consigo${emp}. Queria saber como está a correr e se há algo em que possamos ajudar a dar o próximo passo.\n\nTenho disponibilidade esta semana para uma breve conversa — diga-me o melhor horário.\n\nCom os melhores cumprimentos,\n${ent}`;
+  if(won) return `Olá ${nome},\n\nFoi um prazer trabalhar consigo${emp}. Queria saber como está a correr e se há algo em que possamos ajudar a dar o próximo passo.\n\nTenho disponibilidade esta semana para uma breve conversa - diga-me o melhor horário.\n\nCom os melhores cumprimentos,\n${ent}`;
   return `Olá ${nome},\n\nReparei no interesse demonstrado nas nossas soluções${emp}. Preparei algumas ideias que podem fazer sentido para os vossos objetivos e gostava de as partilhar.\n\nFazia-lhe sentido uma curta apresentação de 15 minutos esta semana?\n\nCom os melhores cumprimentos,\n${ent}`;
 }
 views.analytics = () => {
@@ -2123,7 +2123,7 @@ views.analytics = () => {
   if(cmpOn){ const len=daysBetween(r.from,r.to); const prevTo=addDays(r.from,-1); const prevFrom=addDays(prevTo,-len); prev=analyticsMetrics(prevFrom,prevTo); prevLabel=`${dPT(prevFrom)} a ${dPT(prevTo)}`; }
   const cR=cmpOn?cmp(receita,prev.receita):{}, cC=cmpOn?cmp(conv,prev.conv):{}, cT=cmpOn?cmp(ticket,prev.ticket):{}, cH=cmpOn?cmp(churn,prev.churn,true):{};
   return `
-  <div class="callout green">${ic('chart',18)}<div style="flex:1"><strong>UFCD 10868 — CRM Analytics ${infoTip('crm')}</strong><span class="ctxt">KPIs de vendas e gestão de serviços, calculados em tempo real a partir dos dados do CRM. Filtre por período para analisar data a data.</span></div><button class="btn-sec btn-sm" data-act="an-report" style="flex:0 0 auto">${ic('print',15)} Exportar PDF</button></div>
+  <div class="callout green">${ic('chart',18)}<div style="flex:1"><strong>UFCD 10868 - CRM Analytics ${infoTip('crm')}</strong><span class="ctxt">KPIs de vendas e gestão de serviços, calculados em tempo real a partir dos dados do CRM. Filtre por período para analisar data a data.</span></div><button class="btn-sec btn-sm" data-act="an-report" style="flex:0 0 auto">${ic('print',15)} Exportar PDF</button></div>
   ${dateBar('an', extra)}
   ${canCmp?`<div class="toolbar" style="justify-content:flex-end"><button class="btn-sec btn-sm" data-act="an-compare" style="${cmpOn?'border-color:var(--g400);color:var(--g700);background:var(--g100)':''}">${ic('trend',14)} ${cmpOn?'A comparar com período anterior':'Comparar com período anterior'}</button></div>${cmpOn?`<div class="muted" style="font-size:.78rem;text-align:right">Período anterior (igual duração): <strong>${prevLabel}</strong></div>`:''}`:''}
   <div class="grid cols-4">
@@ -2157,17 +2157,17 @@ views.analytics = () => {
   <div class="split eq">
     <div class="card card-pad">
       <div class="section-head" style="margin-bottom:14px"><div><h3>Análise de perdas ${infoTip('motivoperda')}</h3><div class="sub">Porque se perderam ${perdidas.length} proposta(s)</div></div></div>
-      ${perdidas.length?`<div class="funnel">${lossE.map(([m,n])=>`<div class="funnel-row"><div class="funnel-bar" style="width:${Math.max(14,n/lossMax*100)}%;background:#d8746c">${esc(m)} · ${n}</div><span class="funnel-meta">${Math.round(n/perdidas.length*100)}%</span></div>`).join('')}</div>${(topLoss&&topLoss!=='(por classificar)')?`<div class="callout warn" style="margin-top:14px">${ic('alert',16)}<div class="ctxt">Maior causa de perda: <strong>${esc(topLoss)}</strong>. Crie um argumentário específico para reduzir estas perdas.</div></div>`:''}`:empty('Sem perdas no período','Nenhuma proposta perdida — bom trabalho.')}
+      ${perdidas.length?`<div class="funnel">${lossE.map(([m,n])=>`<div class="funnel-row"><div class="funnel-bar" style="width:${Math.max(14,n/lossMax*100)}%;background:#d8746c">${esc(m)} · ${n}</div><span class="funnel-meta">${Math.round(n/perdidas.length*100)}%</span></div>`).join('')}</div>${(topLoss&&topLoss!=='(por classificar)')?`<div class="callout warn" style="margin-top:14px">${ic('alert',16)}<div class="ctxt">Maior causa de perda: <strong>${esc(topLoss)}</strong>. Crie um argumentário específico para reduzir estas perdas.</div></div>`:''}`:empty('Sem perdas no período','Nenhuma proposta perdida - bom trabalho.')}
     </div>
     <div class="card card-pad">
       <div class="section-head" style="margin-bottom:14px"><div><h3>CAC & LTV/CAC ${infoTip('cac')}</h3><div class="sub">Custo de aquisição vs valor do cliente</div></div></div>
       <div class="field"><label>Investimento em marketing no período (€)</label><div style="display:flex;gap:8px"><input id="cacInput" type="number" value="${cacBudget}" style="flex:1"><button class="btn-sec" data-act="apply-cac">Aplicar</button></div></div>
       <div style="display:flex;gap:10px;margin-top:14px;text-align:center">
-        <div style="flex:1;background:var(--surface2);border-radius:10px;padding:14px"><div class="muted" style="font-size:.72rem">CAC</div><strong style="font-size:1.2rem">${(cacBudget&&novos)?money(cac):'—'}</strong><div class="muted" style="font-size:.68rem">por novo cliente</div></div>
+        <div style="flex:1;background:var(--surface2);border-radius:10px;padding:14px"><div class="muted" style="font-size:.72rem">CAC</div><strong style="font-size:1.2rem">${(cacBudget&&novos)?money(cac):'-'}</strong><div class="muted" style="font-size:.68rem">por novo cliente</div></div>
         <div style="flex:1;background:var(--surface2);border-radius:10px;padding:14px"><div class="muted" style="font-size:.72rem">LTV</div><strong style="font-size:1.2rem">${money(ltv)}</strong><div class="muted" style="font-size:.68rem">valor médio</div></div>
-        <div style="flex:1;background:${ltvCac>=3?'var(--g100)':'var(--warn-bg)'};border-radius:10px;padding:14px"><div class="muted" style="font-size:.72rem">LTV / CAC</div><strong style="font-size:1.2rem;color:${ltvCac>=3?'var(--g700)':'var(--warn)'}">${ltvCac?ltvCac.toFixed(1)+':1':'—'}</strong><div class="muted" style="font-size:.68rem">ideal ≥ 3:1</div></div>
+        <div style="flex:1;background:${ltvCac>=3?'var(--g100)':'var(--warn-bg)'};border-radius:10px;padding:14px"><div class="muted" style="font-size:.72rem">LTV / CAC</div><strong style="font-size:1.2rem;color:${ltvCac>=3?'var(--g700)':'var(--warn)'}">${ltvCac?ltvCac.toFixed(1)+':1':'-'}</strong><div class="muted" style="font-size:.68rem">ideal ≥ 3:1</div></div>
       </div>
-      <div class="callout info" style="margin-top:14px">${ic('alert',16)}<div class="ctxt">Defina o investimento de marketing para calcular o <strong>CAC</strong> (custo ÷ ${novos} novos clientes) e o rácio <strong>LTV/CAC</strong> — quanto vale um cliente face ao que custa adquiri-lo.</div></div>
+      <div class="callout info" style="margin-top:14px">${ic('alert',16)}<div class="ctxt">Defina o investimento de marketing para calcular o <strong>CAC</strong> (custo ÷ ${novos} novos clientes) e o rácio <strong>LTV/CAC</strong> - quanto vale um cliente face ao que custa adquiri-lo.</div></div>
     </div>
   </div>
   <div class="split eq">
@@ -2182,7 +2182,7 @@ views.analytics = () => {
     </div>
   </div>
   <div class="card card-pad">
-    <div class="section-head" style="margin-bottom:14px"><div><h3>Glossário CRM</h3><div class="sub">Conceitos-chave da UFCD 10868 — CRM Analytics. Cada cartão indica o slide do módulo.</div></div></div>
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Glossário CRM</h3><div class="sub">Conceitos-chave da UFCD 10868 - CRM Analytics. Cada cartão indica o slide do módulo.</div></div></div>
     ${glossGrid(CRMGLOSS,'chart')}
   </div>`;
 };
@@ -2198,7 +2198,7 @@ views.rgpd = () => {
   const abertos=fped.filter(p=>p.estado!=='Concluído').length;
   const atrasados=fped.filter(p=>p.estado!=='Concluído'&&daysBetween(todayISO(),p.prazo)<0).length;
   return `
-  <div class="callout green">${ic('shield',18)}<div style="flex:1"><strong>UFCD 10870 — Regulamento Geral sobre a Proteção de Dados (RGPD)</strong><span class="ctxt">Conformidade prática: consentimentos, direitos dos titulares, registo de atividades de tratamento (RoPA) e violações de dados.</span></div><div class="toolbar" style="flex:0 0 auto"><button class="btn-sec btn-sm" data-act="rgpd-report">${ic('print',15)} Relatório</button><a class="btn-sec btn-sm" href="#portal">${ic('eye',15)} Portal do Titular</a></div></div>
+  <div class="callout green">${ic('shield',18)}<div style="flex:1"><strong>UFCD 10870 - Regulamento Geral sobre a Proteção de Dados (RGPD)</strong><span class="ctxt">Conformidade prática: consentimentos, direitos dos titulares, registo de atividades de tratamento (RoPA) e violações de dados.</span></div><div class="toolbar" style="flex:0 0 auto"><button class="btn-sec btn-sm" data-act="rgpd-report">${ic('print',15)} Relatório</button><a class="btn-sec btn-sm" href="#portal">${ic('eye',15)} Portal do Titular</a></div></div>
   ${dateBar('rg', act?`${fcons.length} consentimentos · ${fped.length} pedidos · ${fviol.length} violações`:'')}
   <div class="grid cols-4">
     ${kpi('Consentimentos ativos '+infoTip('consentimento'), fmtN(ativos), {icon:'check', sub:act?'no período':''})}
@@ -2218,7 +2218,7 @@ views.rgpd = () => {
 function rgpdTab(tab, ctx){
   ctx=ctx||{}; const cons=ctx.fcons||state.consentimentos, peds=ctx.fped||state.pedidos, viol=ctx.fviol||state.violacoes, act=ctx.act;
   if(tab==='consent') return `
-    <div class="section-head" style="margin-bottom:14px"><div><h3>Registo de consentimentos ${infoTip('consentimento')}</h3><div class="sub">Base legal, finalidade e canal de recolha — o consentimento deve ser livre, específico, informado e inequívoco.</div></div><button class="btn" data-act="new" data-type="consentimento">+ Consentimento</button></div>
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Registo de consentimentos ${infoTip('consentimento')}</h3><div class="sub">Base legal, finalidade e canal de recolha - o consentimento deve ser livre, específico, informado e inequívoco.</div></div><button class="btn" data-act="new" data-type="consentimento">+ Consentimento</button></div>
     <div class="table-wrap"><table><thead><tr><th>Titular</th><th>Finalidade</th><th>Base legal</th><th>Canal</th><th>Data</th><th>Estado</th><th></th></tr></thead><tbody>
       ${cons.map(c=>`<tr><td class="cell-main">${esc(clientName(c.clienteId))}</td><td>${esc(c.finalidade)}</td><td><span class="chip">${esc(c.base)}</span></td><td class="muted">${esc(c.canal)}</td><td>${dPT(c.data)}</td><td><span class="pill ${c.estado==='Ativo'?'green':'red'}">${esc(c.estado)}</span></td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="consentimento" data-id="${c.id}">Editar</button><button class="btn-danger btn-xs" data-act="delete" data-type="consentimento" data-id="${c.id}">✕</button></div></td></tr>`).join('')||`<tr><td colspan="7">${empty(act?'Sem consentimentos no período':'Sem consentimentos')}</td></tr>`}
     </tbody></table></div>`;
@@ -2228,7 +2228,7 @@ function rgpdTab(tab, ctx){
       ${peds.map(p=>{const atras=p.estado!=='Concluído'&&daysBetween(todayISO(),p.prazo)<0;const dleft=daysBetween(todayISO(),p.prazo);return `<tr><td class="cell-main">${esc(clientName(p.clienteId))}</td><td><span class="pill purple">${esc(p.tipo)}</span></td><td>${dPT(p.data)}</td><td>${dPT(p.prazo)} ${p.estado!=='Concluído'?`<span class="muted" style="font-size:.74rem">(${atras?'<b style="color:var(--danger)">atrasado</b>':dleft+' d'})</span>`:''}</td><td><span class="pill ${p.estado==='Concluído'?'green':p.estado==='Em curso'?'amber':'blue'}">${esc(p.estado)}</span></td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="pedido" data-id="${p.id}">Editar</button><button class="btn-danger btn-xs" data-act="delete" data-type="pedido" data-id="${p.id}">✕</button></div></td></tr>`;}).join('')||`<tr><td colspan="6">${empty(act?'Sem pedidos no período':'Sem pedidos')}</td></tr>`}
     </tbody></table></div>`;
   if(tab==='ropa') return `
-    <div class="section-head" style="margin-bottom:14px"><div><h3>Registo de Atividades de Tratamento (RoPA) ${infoTip('ropa')}</h3><div class="sub">Art. 30.º RGPD — documento que demonstra o cumprimento (responsabilização).</div></div><button class="btn" data-act="new" data-type="ropa">+ Atividade</button></div>
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Registo de Atividades de Tratamento (RoPA) ${infoTip('ropa')}</h3><div class="sub">Art. 30.º RGPD - documento que demonstra o cumprimento (responsabilização).</div></div><button class="btn" data-act="new" data-type="ropa">+ Atividade</button></div>
     <div class="grid" style="gap:14px">${state.ropa.map(r=>`<div class="card card-pad" style="box-shadow:none;border-color:var(--border)"><div class="section-head" style="margin-bottom:10px"><div><h3 style="font-size:.98rem">${esc(r.atividade)}</h3><div class="sub">${esc(r.finalidade)}</div></div><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="ropa" data-id="${r.id}">Editar</button><button class="btn-danger btn-xs" data-act="delete" data-type="ropa" data-id="${r.id}">✕</button></div></div><dl class="kv" style="grid-template-columns:auto 1fr;gap:6px 14px"><dt>Titulares</dt><dd style="text-align:left">${esc(r.titulares)}</dd><dt>Categorias</dt><dd style="text-align:left">${esc(r.categorias)}</dd><dt>Base legal</dt><dd style="text-align:left"><span class="chip">${esc(r.base)}</span></dd><dt>Conservação</dt><dd style="text-align:left">${esc(r.conservacao)}</dd><dt>Destinatários</dt><dd style="text-align:left">${esc(r.destinatarios)}</dd><dt>Segurança</dt><dd style="text-align:left">${esc(r.seguranca)}</dd></dl></div>`).join('')||empty('Sem atividades registadas')}</div>`;
   if(tab==='violacoes') return `
     <div class="section-head" style="margin-bottom:14px"><div><h3>Violações de dados pessoais ${infoTip('violacao')}</h3><div class="sub">Notificação à CNPD em 72h quando houver risco para os direitos e liberdades dos titulares.</div></div><button class="btn" data-act="new" data-type="violacao">+ Registar violação</button></div>
@@ -2260,23 +2260,23 @@ function rgpdTab(tab, ctx){
     ['Categorias especiais','Dados sensíveis (saúde, biometria, opiniões políticas…); o tratamento é, em princípio, proibido.','10870 · slide 97'],
     ['Pseudonimização','Tratar dados de forma a não serem atribuídos a um titular sem informação adicional guardada à parte.','10870 · slide 95'],
     ['Anonimização','Alterar dados de forma irreversível, deixando de identificar o titular.','10870 · slide 96'],
-    ['Privacy by Design & by Default','Privacidade desde a conceção e por defeito — abordagem proativa.','10870 · slide 68'],
+    ['Privacy by Design & by Default','Privacidade desde a conceção e por defeito - abordagem proativa.','10870 · slide 68'],
     ['Minimização dos dados','Recolher apenas os dados estritamente necessários à finalidade.','10870 · slide 71'],
     ['Direito de acesso','O titular pode obter confirmação e uma cópia dos seus dados.','10870 · slide 110'],
     ['Direito de retificação','Corrigir dados pessoais inexatos ou incompletos.','10870 · slide 111'],
     ['Direito ao apagamento (esquecimento)','Eliminação dos dados quando deixam de ser necessários.','10870 · slide 114'],
     ['Direito de portabilidade','Receber e transmitir os dados num formato estruturado e de uso corrente.','10870 · slide 113'],
-    ['EPD / DPO','Encarregado de Proteção de Dados — informa, aconselha e fiscaliza; ponto de contacto com a CNPD.','10870 · slide 118'],
-    ['RoPA','Registo de Atividades de Tratamento — obrigação do art. 30.º do RGPD.','10870 · slide 130'],
+    ['EPD / DPO','Encarregado de Proteção de Dados - informa, aconselha e fiscaliza; ponto de contacto com a CNPD.','10870 · slide 118'],
+    ['RoPA','Registo de Atividades de Tratamento - obrigação do art. 30.º do RGPD.','10870 · slide 130'],
     ['Violação de dados','Quebra de segurança; notificar a CNPD em 72h quando houver risco para os titulares.','10870 · slides 131-132'],
-    ['AIPD / DPIA','Avaliação de Impacto — obrigatória quando o tratamento implica risco elevado (art. 35.º).','10870 · slide 137'],
-    ['CNPD','Comissão Nacional de Proteção de Dados — autoridade de controlo nacional; fiscaliza e sanciona.','10870 · slide 194'],
+    ['AIPD / DPIA','Avaliação de Impacto - obrigatória quando o tratamento implica risco elevado (art. 35.º).','10870 · slide 137'],
+    ['CNPD','Comissão Nacional de Proteção de Dados - autoridade de controlo nacional; fiscaliza e sanciona.','10870 · slide 194'],
     ['Coimas','Sanções por incumprimento (até 20 M€ ou 4% do volume de negócios anual).','10870 · slide 78'],
   ];
   const done=state.checklistRGPD||{};
   const total=checks.length, dCount=checks.filter((_,i)=>done[i]).length;
   return `
-    <div class="section-head" style="margin-bottom:14px"><div><h3>Checklist de conformidade RGPD</h3><div class="sub">Ciclo de vida da implementação — ${dCount}/${total} concluídos</div></div></div>
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Checklist de conformidade RGPD</h3><div class="sub">Ciclo de vida da implementação - ${dCount}/${total} concluídos</div></div></div>
     <div class="progress" style="margin-bottom:14px"><i style="width:${dCount/total*100}%"></i></div>
     <div class="checklist">${checks.map((c,i)=>`<div class="check-item ${done[i]?'done':''}" data-check="${i}"><span class="check-box">${done[i]?ic('check',14):''}</span><span class="ctxt2">${esc(c)}</span></div>`).join('')}</div>
     <div class="divider" style="margin:20px 0"></div>
@@ -2356,14 +2356,15 @@ function genFormandoPwd(email,nome,apelido,username){
 function emailNum(email){ const l=String(email||'').split('@')[0]; return /^\d{4,}$/.test(l)?l:''; }
 function inviteLoginURL(){ try{ return location.origin+location.pathname+(TURMA?('?t='+TURMA):''); }catch(e){ return 'https://iefpcrm.cr0x.org/'+(TURMA?('?t='+TURMA):''); } }
 const INVITE_DEFAULT={cor:'#006B3C',mostrarLogo:true,
-  assunto:'Bem-vindo(a) ao IEFP CRM — os seus dados de acesso',
+  assunto:'Bem-vindo(a) ao IEFP CRM',
   saudacao:'Olá {{nome}}, bem-vindo(a)!',
-  corpo:'Foi adicionado(a) à turma {{turma}} da plataforma pedagógica IEFP CRM.\n\nOs seus dados de acesso:\n\nUtilizador:  {{username}}\nPalavra-passe:  {{password}}\n\nClique no botão abaixo para entrar. Explore a plataforma à vontade — tem a sua própria sandbox e, em caso de dúvida, o manual online está sempre a um clique.',
+  corpo:'Foste adicionado(a) à turma {{turma}} da plataforma pedagógica IEFP CRM.\n\nOs teus dados de acesso:\n\nUtilizador:  {{username}}\nPalavra-passe:  {{password}}\n\nExplora a plataforma à vontade - tens a tua própria sandbox e em caso de dúvida, o manual online está sempre a um clique:\n\nhttps://iefpcrm.cr0x.org/manual/',
   botaoTexto:'Entrar na plataforma',botaoLink:'{{login}}',
-  assinatura:'Bons estudos!\nEquipa de Formação · IEFP CRM'};
+  assinatura:'Bom trabalho!\nIEFP CRM\n{{formador}}\n{{emaildoformador}}'};
 function inviteTpl(){ const t=Object.assign({},INVITE_DEFAULT,state.settings.inviteTemplate||{}); const fi=(typeof formInv==='function')?formInv():{}; return Object.keys(fi).length?Object.assign(t,fi):t; }
-function inviteMerge(s,ctx){ return String(s||'').replace(/\{\{(nome|username|password|turma|login)\}\}/g,(m,k)=>ctx[k]!=null?ctx[k]:m); }
-function buildInviteTpl(f,pwd){ const ctx={nome:((f.nome||'')+' '+(f.apelido||'')).trim()||f.username||'',username:f.username||'',password:pwd||'',turma:TURMA||'',login:inviteLoginURL()};
+function inviteMerge(s,ctx){ return String(s||'').replace(/\{\{(nome|username|password|turma|login|formador|emaildoformador)\}\}/g,(m,k)=>ctx[k]!=null?ctx[k]:m); }
+function buildInviteTpl(f,pwd){ const u=currentUser()||{}; const forNome=((u.nome||'')+' '+(u.apelido||'')).trim();
+  const ctx={nome:((f.nome||'')+' '+(f.apelido||'')).trim()||f.username||'',username:f.username||'',password:pwd||'',turma:TURMA||'',login:inviteLoginURL(),formador:forNome,emaildoformador:u.email||''};
   const t=inviteTpl(),out=Object.assign({},t); ['assunto','saudacao','corpo','botaoLink','assinatura'].forEach(k=>out[k]=inviteMerge(t[k],ctx)); return out; }
 function inviteBodyText(t){ const parts=[t.saudacao,t.corpo]; if(t.botaoTexto&&t.botaoLink) parts.push(t.botaoTexto+':\n'+t.botaoLink); if(t.assinatura) parts.push(t.assinatura); return parts.filter(Boolean).join('\n\n'); }
 function sendInvite(f,pwd){ if(!realSendOn()) return Promise.resolve({sent:false,reason:'emailjs'}); if(!f||!f.email) return Promise.resolve({sent:false,reason:'noemail'});
@@ -2371,7 +2372,7 @@ function sendInvite(f,pwd){ if(!realSendOn()) return Promise.resolve({sent:false
   return sendViaEmailJS({toEmail:f.email,toName:((f.nome||'')+' '+(f.apelido||'')).trim()||f.username,subject:tpl.assunto,message:inviteBodyText(tpl)})
     .then(()=>({sent:true})).catch(e=>({sent:false,reason:(typeof supaMsg==='function'?supaMsg(e):String(e&&e.text||e))})); }
 function formInv(){ const els=document.querySelectorAll('#modalForm [data-inv]'); const o={}; els.forEach(el=>o[el.dataset.inv]=el.value); return o; }
-function invitePreviewHTML(){ const f={nome:'Ana',apelido:'Mendes',username:'8236236',email:'8236236@formacao.iefp.pt'};
+function invitePreviewHTML(){ const f={nome:'Maria',apelido:'Silva',username:'1234567',email:'1234567@exemplo.pt'};
   const t=buildInviteTpl(f,genFormandoPwd(f.email,f.nome,f.apelido,f.username));
   return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden">
     <div style="background:${esc(t.cor||'#006B3C')};height:6px"></div>
@@ -2382,7 +2383,7 @@ function openInviteEditor(){ const t=inviteTpl(); editing={type:'__invite'};
   $('#modal').classList.add('wide'); $('#modalDelete').style.display='none';
   { const sv=$('[data-act="modal-save"]'); if(sv){ sv.style.display=''; sv.disabled=false; sv.textContent='Guardar modelo'; } }
   $('#modalForm').innerHTML=`
-    <div class="callout ${realSendOn()?'info':'warn'}" style="margin-bottom:12px">${ic('alert',16)}<div class="ctxt">Variáveis: <code>{{nome}}</code> <code>{{username}}</code> <code>{{password}}</code> <code>{{turma}}</code> <code>{{login}}</code>.${realSendOn()?'':' <strong>Envio real desativado</strong> — ative o EmailJS (modo real) em Definições para os convites saírem.'}</div></div>
+    <div class="callout ${realSendOn()?'info':'warn'}" style="margin-bottom:12px">${ic('alert',16)}<div class="ctxt">Variáveis: <code>{{nome}}</code> <code>{{username}}</code> <code>{{password}}</code> <code>{{turma}}</code> <code>{{login}}</code> <code>{{formador}}</code> <code>{{emaildoformador}}</code>.${realSendOn()?'':' <strong>Envio real desativado</strong> - ative o EmailJS (modo real) em Definições para os convites saírem.'}</div></div>
     <div class="split">
       <div class="form-grid" style="grid-template-columns:1fr;gap:12px">
         <div class="field"><label>Assunto</label><input data-inv="assunto" value="${esc(t.assunto)}"></div>
@@ -2402,7 +2403,7 @@ function sendTestEmailJS(){
   if(!emailjsActive()){ toast('Configure primeiro','Preencha os 3 campos e ative o modo real','warn'); return; }
   const to=(currentUser()&&currentUser().email)||state.settings.email||''; if(!to){ toast('Sem destinatário','Defina o email da entidade','warn'); return; }
   toast('A enviar teste…','via EmailJS','info');
-  sendViaEmailJS({toEmail:to,toName:'Teste',subject:'Teste — IEFP CRM',message:'Este é um email de teste enviado pelo IEFP CRM via EmailJS. Se o recebeu, a configuração está correta.'})
+  sendViaEmailJS({toEmail:to,toName:'Teste',subject:'Teste - IEFP CRM',message:'Este é um email de teste enviado pelo IEFP CRM via EmailJS. Se o recebeu, a configuração está correta.'})
     .then(()=>toast('Teste enviado',`Verifique a caixa de ${to}`))
     .catch(err=>toast('Falha no teste',String(err&&(err.text||err.message)||err),'err'));
 }
@@ -2469,7 +2470,7 @@ function comHistorico(){
   return `<div class="card card-pad">
     <div class="section-head" style="margin-bottom:14px"><div><h3>Histórico de envios</h3><div class="sub">Todos os emails enviados, com destinatário, template, anexo e origem.</div></div></div>
     <div class="table-wrap"><table><thead><tr><th>Data</th><th>Destinatário</th><th>Assunto</th><th>Template</th><th>Anexo</th><th>Origem</th><th>Interação</th><th></th></tr></thead><tbody>
-      ${list.length?list.map(e=>{const tpl=state.templates.find(t=>t.id===e.templateId);return `<tr data-act="open-envio" data-id="${e.id}" style="cursor:pointer"><td>${dPT(e.data)}</td><td><div class="cell-main">${esc(e.paraNome||'—')}</div><div class="cell-sub">${esc(e.paraEmail||'')}</div></td><td>${esc(e.assunto||'')}</td><td><span class="chip">${esc(tpl?tpl.nome:'—')}</span></td><td>${e.anexo?`<span class="pill green">${ic('doc',12)} ${esc(e.anexo.numero)}</span>`:'<span class="muted">—</span>'}</td><td><span class="pill ${e.origem==='Automação'?'purple':e.origem==='Campanha'?'amber':'blue'}">${esc(e.origem)}</span></td><td>${e.clicado?'<span class="pill blue">Clique</span>':e.aberto?'<span class="pill green">Aberto</span>':'<span class="muted">Não aberto</span>'}</td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="open-envio" data-id="${e.id}" data-stop>Ver</button></div></td></tr>`;}).join(''):`<tr><td colspan="8">${empty('Sem envios','Os emails enviados aparecem aqui.')}</td></tr>`}
+      ${list.length?list.map(e=>{const tpl=state.templates.find(t=>t.id===e.templateId);return `<tr data-act="open-envio" data-id="${e.id}" style="cursor:pointer"><td>${dPT(e.data)}</td><td><div class="cell-main">${esc(e.paraNome||'-')}</div><div class="cell-sub">${esc(e.paraEmail||'')}</div></td><td>${esc(e.assunto||'')}</td><td><span class="chip">${esc(tpl?tpl.nome:'-')}</span></td><td>${e.anexo?`<span class="pill green">${ic('doc',12)} ${esc(e.anexo.numero)}</span>`:'<span class="muted">-</span>'}</td><td><span class="pill ${e.origem==='Automação'?'purple':e.origem==='Campanha'?'amber':'blue'}">${esc(e.origem)}</span></td><td>${e.clicado?'<span class="pill blue">Clique</span>':e.aberto?'<span class="pill green">Aberto</span>':'<span class="muted">Não aberto</span>'}</td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="open-envio" data-id="${e.id}" data-stop>Ver</button></div></td></tr>`;}).join(''):`<tr><td colspan="8">${empty('Sem envios','Os emails enviados aparecem aqui.')}</td></tr>`}
     </tbody></table></div>
   </div>`;
 }
@@ -2479,7 +2480,7 @@ function comTemplates(){
     <div class="section-head" style="margin-bottom:14px"><div><h3>Templates de email</h3><div class="sub">Editor com pré-visualização ao vivo e campos dinâmicos. Registam quem criou.</div></div><button class="btn" data-act="email-new">${ic('mail',16)} Novo template</button></div>
     <div class="grid cols-3">${state.templates.map(t=>{const autor=state.utilizadores.find(u=>u.id===t.criadoPor);return `<div class="card card-pad tpl-card" data-act="email-edit" data-id="${t.id}" style="cursor:pointer">
       <div class="tpl-thumb" style="height:160px"><div class="tpl-thumb-inner" style="width:175%;transform:scale(.57)">${emailHTML(t,sampleCli,sample)}</div></div>
-      <div class="section-head" style="margin-top:12px"><div><strong>${esc(t.nome)}</strong><div class="muted" style="font-size:.78rem">${esc(t.assunto)}</div><div class="muted" style="font-size:.74rem;margin-top:2px">${esc(autor?autor.nome:'—')} · ${dPT(t.criadoEm)}</div></div></div>
+      <div class="section-head" style="margin-top:12px"><div><strong>${esc(t.nome)}</strong><div class="muted" style="font-size:.78rem">${esc(t.assunto)}</div><div class="muted" style="font-size:.74rem;margin-top:2px">${esc(autor?autor.nome:'-')} · ${dPT(t.criadoEm)}</div></div></div>
       <div class="toolbar" style="margin-top:10px"><button class="btn-sec btn-sm" data-act="email-edit" data-id="${t.id}" data-stop>Editar</button><button class="btn-danger btn-sm" data-act="email-del" data-id="${t.id}" data-stop>${ic('trash',14)}</button></div>
     </div>`;}).join('')||empty('Sem templates')}</div>
   </div>`;
@@ -2488,7 +2489,7 @@ function comAutomacoes(){
   return `<div class="card card-pad">
     <div class="section-head" style="margin-bottom:14px"><div><h3>Marketing Automation ${infoTip('automacao')}</h3><div class="sub">Regras evento → sequência de emails. Cada passo pode ter atraso (dias) para criar sequências.</div></div><button class="btn" data-act="auto-new">+ Automação</button></div>
     <div class="table-wrap"><table><thead><tr><th>Automação</th><th>Evento (gatilho)</th><th>Sequência</th><th>Condição</th><th>Disparos</th><th>Estado</th><th></th></tr></thead><tbody>
-      ${state.automacoes.map(a=>{const passos=(a.passos||[]);const seq=passos.map(p=>{const t=state.templates.find(x=>x.id===p.templateId);return (t?t.nome:'—')+((+p.atrasoDias||0)?` (+${p.atrasoDias}d)`:'');}).join(' → ');return `<tr><td class="cell-main">${esc(a.nome)}</td><td>${ic('bell',13)} ${esc(triggerLabel(a.trigger))}</td><td style="white-space:normal"><span class="muted" style="font-size:.82rem">${esc(seq||'—')}</span></td><td>${a.condSegmento&&a.condSegmento!=='Todos'?`<span class="chip">${esc(a.condSegmento)}</span>`:'<span class="muted">Todos</span>'}</td><td>${fmtN(a.disparos||0)}</td><td><button class="pill ${a.estado==='Ativa'?'green':'grey'}" data-act="toggle-auto" data-id="${a.id}" style="border:0;cursor:pointer">${esc(a.estado)}</button></td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="auto-edit" data-id="${a.id}">Editar</button><button class="btn-danger btn-xs" data-act="delete" data-type="automacao" data-id="${a.id}">✕</button></div></td></tr>`;}).join('')||`<tr><td colspan="7">${empty('Sem automações')}</td></tr>`}
+      ${state.automacoes.map(a=>{const passos=(a.passos||[]);const seq=passos.map(p=>{const t=state.templates.find(x=>x.id===p.templateId);return (t?t.nome:'-')+((+p.atrasoDias||0)?` (+${p.atrasoDias}d)`:'');}).join(' → ');return `<tr><td class="cell-main">${esc(a.nome)}</td><td>${ic('bell',13)} ${esc(triggerLabel(a.trigger))}</td><td style="white-space:normal"><span class="muted" style="font-size:.82rem">${esc(seq||'-')}</span></td><td>${a.condSegmento&&a.condSegmento!=='Todos'?`<span class="chip">${esc(a.condSegmento)}</span>`:'<span class="muted">Todos</span>'}</td><td>${fmtN(a.disparos||0)}</td><td><button class="pill ${a.estado==='Ativa'?'green':'grey'}" data-act="toggle-auto" data-id="${a.id}" style="border:0;cursor:pointer">${esc(a.estado)}</button></td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="auto-edit" data-id="${a.id}">Editar</button><button class="btn-danger btn-xs" data-act="delete" data-type="automacao" data-id="${a.id}">✕</button></div></td></tr>`;}).join('')||`<tr><td colspan="7">${empty('Sem automações')}</td></tr>`}
     </tbody></table></div>
     <div class="callout info" style="margin-top:14px">${ic('alert',16)}<div class="ctxt">Ambiente pedagógico: o "envio" é simulado. Passos com atraso ficam em <strong>Agendados</strong> e são processados quando a data chega (ou manualmente).</div></div>
   </div>`;
@@ -2499,7 +2500,7 @@ function comAgendados(){
   return `<div class="card card-pad">
     <div class="section-head" style="margin-bottom:14px"><div><h3>Emails agendados ${infoTip('agendado')}</h3><div class="sub">Passos de sequências/automações com atraso, à espera da data de envio.</div></div>${vencidos?`<button class="btn" data-act="process-agend">${ic('send',16)} Processar ${vencidos} vencido(s)</button>`:''}</div>
     <div class="table-wrap"><table><thead><tr><th>Data de envio</th><th>Destinatário</th><th>Template</th><th>Automação</th><th></th></tr></thead><tbody>
-      ${list.length?list.map(a=>{const c=getC(a.clienteId);const tpl=state.templates.find(t=>t.id===a.templateId);const due=a.dataAgendada<=todayISO();return `<tr><td>${dPT(a.dataAgendada)} ${due?'<span class="pill amber">vencido</span>':`<span class="muted" style="font-size:.74rem">em ${daysBetween(todayISO(),a.dataAgendada)} d</span>`}</td><td class="cell-main">${esc(c?c.nome+' '+(c.apelido||''):a.clienteId)}</td><td><span class="chip">${esc(tpl?tpl.nome:'—')}</span></td><td class="muted">${esc(a.nome||'—')}</td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="send-agend" data-id="${a.id}">Enviar agora</button><button class="btn-danger btn-xs" data-act="cancel-agend" data-id="${a.id}">✕</button></div></td></tr>`;}).join(''):`<tr><td colspan="5">${empty('Nada agendado','Sequências com atraso aparecem aqui.')}</td></tr>`}
+      ${list.length?list.map(a=>{const c=getC(a.clienteId);const tpl=state.templates.find(t=>t.id===a.templateId);const due=a.dataAgendada<=todayISO();return `<tr><td>${dPT(a.dataAgendada)} ${due?'<span class="pill amber">vencido</span>':`<span class="muted" style="font-size:.74rem">em ${daysBetween(todayISO(),a.dataAgendada)} d</span>`}</td><td class="cell-main">${esc(c?c.nome+' '+(c.apelido||''):a.clienteId)}</td><td><span class="chip">${esc(tpl?tpl.nome:'-')}</span></td><td class="muted">${esc(a.nome||'-')}</td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="send-agend" data-id="${a.id}">Enviar agora</button><button class="btn-danger btn-xs" data-act="cancel-agend" data-id="${a.id}">✕</button></div></td></tr>`;}).join(''):`<tr><td colspan="5">${empty('Nada agendado','Sequências com atraso aparecem aqui.')}</td></tr>`}
     </tbody></table></div>
   </div>`;
 }
@@ -2524,7 +2525,7 @@ views.email = () => {
   const env=state.envios; const ab=env.filter(e=>e.aberto).length; const cl=env.filter(e=>e.clicado).length; const real=realSendOn();
   const pc=mailDraft.clienteId?getC(mailDraft.clienteId):null;
   return `
-  <div class="callout green">${ic('mail',18)}<div style="flex:1"><strong>Centro de Email</strong><span class="ctxt">Componha e envie emails à medida para os seus clientes, com pré-visualização ao vivo e acompanhamento de leitura. UFCD 10868 — métricas de email marketing.</span></div></div>
+  <div class="callout green">${ic('mail',18)}<div style="flex:1"><strong>Centro de Email</strong><span class="ctxt">Componha e envie emails à medida para os seus clientes, com pré-visualização ao vivo e acompanhamento de leitura. UFCD 10868 - métricas de email marketing.</span></div></div>
   <div class="grid cols-4">
     ${kpi('Emails enviados', fmtN(env.length), {icon:'send', sub:`${env.filter(e=>e.origem==='Manual').length} manuais`})}
     ${kpi('Taxa de abertura '+infoTip('abertura'), pct(env.length?ab/env.length*100:0), {icon:'eye', sub:`${ab} abertos`})}
@@ -2534,11 +2535,11 @@ views.email = () => {
   <div class="mail-split">
     <div class="card card-pad">
       <div class="section-head" style="margin-bottom:12px"><div><h3>Novo email</h3><div class="sub">Procure o contacto, escreva a mensagem (ou use um template) e envie.</div></div></div>
-      <div class="callout ${real?'info':''}" style="margin-bottom:14px${real?'':';background:var(--surface3);border-color:var(--border)'}">${ic(real?'send':'eye',16)}<div class="ctxt"><strong>${real?'Envio real ATIVO':'Modo simulado'}</strong> — ${real?'o email será entregue ao destinatário via EmailJS.':'o email é registado no histórico mas <strong>não</strong> é entregue (ambiente de formação).'}</div></div>
+      <div class="callout ${real?'info':''}" style="margin-bottom:14px${real?'':';background:var(--surface3);border-color:var(--border)'}">${ic(real?'send':'eye',16)}<div class="ctxt"><strong>${real?'Envio real ATIVO':'Modo simulado'}</strong> - ${real?'o email será entregue ao destinatário via EmailJS.':'o email é registado no histórico mas <strong>não</strong> é entregue (ambiente de formação).'}</div></div>
       <form id="mailForm" onsubmit="return false" autocomplete="off">
       <div class="form-grid">
         <div class="field full"><label>Destinatário (contacto)</label>${pc?`<div class="picked">${avatarHTML({nome:pc.nome,apelido:pc.apelido},30)}<div style="flex:1;min-width:0"><strong>${esc(pc.nome)} ${esc(pc.apelido||'')}</strong><div class="muted" style="font-size:.76rem">${esc(pc.email||'')}${pc.empresa?' · '+esc(pc.empresa):''}</div></div><button class="btn-ghost btn-sm" type="button" data-act="mail-clearclient">Mudar</button></div>`:`<div class="mail-search-wrap"><input id="mailSearch" data-mailsearch placeholder="Procurar contacto por nome, email ou empresa…"><div id="mailSearchResults" class="mail-results"></div></div>`}</div>
-        <div class="field"><label>Template (opcional)</label><select data-mail="templateId"><option value="" ${!mailDraft.templateId?'selected':''}>— sem template —</option>${state.templates.map(t=>`<option value="${t.id}" ${t.id===mailDraft.templateId?'selected':''}>${esc(t.nome)}</option>`).join('')}</select></div>
+        <div class="field"><label>Template (opcional)</label><select data-mail="templateId"><option value="" ${!mailDraft.templateId?'selected':''}>- sem template -</option>${state.templates.map(t=>`<option value="${t.id}" ${t.id===mailDraft.templateId?'selected':''}>${esc(t.nome)}</option>`).join('')}</select></div>
         <div class="field"><label>Assunto</label><input data-mail="subject" value="${esc(mailDraft.subject)}" placeholder="Assunto do email"></div>
         <div class="field"><label>CC <span class="muted" style="font-weight:500">(opcional)</span></label><input data-mail="cc" value="${esc(mailDraft.cc)}" placeholder="email, email…"></div>
         <div class="field"><label>BCC <span class="muted" style="font-weight:500">(opcional)</span></label><input data-mail="bcc" value="${esc(mailDraft.bcc)}" placeholder="email, email…"></div>
@@ -2562,10 +2563,10 @@ function mailHistory(){
   return `<div class="card card-pad">
     <div class="section-head" style="margin-bottom:14px"><div><h3>Histórico & controlo de leitura ${infoTip('abertura')}</h3><div class="sub">Emails enviados e o respetivo estado de leitura.</div></div></div>
     <div class="table-wrap"><table><thead><tr><th>Data</th><th>Destinatário</th><th>Assunto</th><th>Estado de leitura</th><th>Origem</th><th></th></tr></thead><tbody>
-      ${list.length?pg.slice.map(e=>`<tr data-act="open-envio" data-id="${e.id}" style="cursor:pointer"><td>${dPT(e.data)}</td><td><div class="cell-main">${esc(e.paraNome||'—')}</div><div class="cell-sub">${esc(e.paraEmail||'')}</div></td><td>${esc(e.assunto||'')}</td><td>${readStepHTML(e)}</td><td><span class="pill ${e.origem==='Automação'?'purple':e.origem==='Campanha'?'amber':'blue'}">${esc(e.origem)}</span></td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="open-envio" data-id="${e.id}" data-stop>Ver</button></div></td></tr>`).join(''):`<tr><td colspan="6">${empty('Sem emails enviados','Componha o seu primeiro email acima.')}</td></tr>`}
+      ${list.length?pg.slice.map(e=>`<tr data-act="open-envio" data-id="${e.id}" style="cursor:pointer"><td>${dPT(e.data)}</td><td><div class="cell-main">${esc(e.paraNome||'-')}</div><div class="cell-sub">${esc(e.paraEmail||'')}</div></td><td>${esc(e.assunto||'')}</td><td>${readStepHTML(e)}</td><td><span class="pill ${e.origem==='Automação'?'purple':e.origem==='Campanha'?'amber':'blue'}">${esc(e.origem)}</span></td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="open-envio" data-id="${e.id}" data-stop>Ver</button></div></td></tr>`).join(''):`<tr><td colspan="6">${empty('Sem emails enviados','Componha o seu primeiro email acima.')}</td></tr>`}
     </tbody></table></div>
     ${pager('mailhist',pg)}
-    <div class="callout info" style="margin-top:14px">${ic('alert',16)}<div class="ctxt"><strong>Sobre o controlo de leitura:</strong> a abertura é detetada por um <strong>pixel de rastreio</strong> (imagem invisível no email). Neste ambiente de formação a métrica é <strong>simulada</strong>. O rastreio real — e saber se foi <em>apagado sem ler</em> — exige um servidor próprio (ver sugestões). Nota RGPD: muitos clientes bloqueiam imagens, por isso "não aberto" nem sempre significa que não leram.</div></div>
+    <div class="callout info" style="margin-top:14px">${ic('alert',16)}<div class="ctxt"><strong>Sobre o controlo de leitura:</strong> a abertura é detetada por um <strong>pixel de rastreio</strong> (imagem invisível no email). Neste ambiente de formação a métrica é <strong>simulada</strong>. O rastreio real - e saber se foi <em>apagado sem ler</em> - exige um servidor próprio (ver sugestões). Nota RGPD: muitos clientes bloqueiam imagens, por isso "não aberto" nem sempre significa que não leram.</div></div>
   </div>`;
 }
 async function mailSend(){
@@ -2652,7 +2653,7 @@ function renderSendForm(){
   const real=realSendOn();
   $('#modalForm').innerHTML=`
     ${prop?`<div class="toolbar" style="margin-bottom:12px"><button class="btn-ghost btn-sm" type="button" data-act="send-back">← Voltar à proposta</button></div>`:''}
-    <div class="callout ${real?'info':''}" style="margin-bottom:14px${real?'':';background:var(--surface3);border-color:var(--border)'}">${ic(real?'send':'eye',16)}<div class="ctxt"><strong>${real?'Envio real ATIVO':'Modo simulado'}</strong> — ${real?'este email será entregue ao destinatário via EmailJS.':'o email é registado no histórico mas <strong>não</strong> é entregue a ninguém.'}</div></div>
+    <div class="callout ${real?'info':''}" style="margin-bottom:14px${real?'':';background:var(--surface3);border-color:var(--border)'}">${ic(real?'send':'eye',16)}<div class="ctxt"><strong>${real?'Envio real ATIVO':'Modo simulado'}</strong> - ${real?'este email será entregue ao destinatário via EmailJS.':'o email é registado no histórico mas <strong>não</strong> é entregue a ninguém.'}</div></div>
     <div class="form-grid">
       <div class="field"><label>Para</label><input value="${esc(cli?cli.email:'')}" readonly style="background:var(--surface3)"></div>
       <div class="field"><label>Template</label><select data-send="templateId">${state.templates.map(t=>`<option value="${t.id}" ${t.id===d.templateId?'selected':''}>${esc(t.nome)}</option>`).join('')}</select></div>
@@ -2672,7 +2673,7 @@ async function doSendEmail(openMail){
   const tpl=state.templates.find(t=>t.id===sendDraft.templateId);
   if(!hasSignature()){ if(!(await uiConfirm('Não tem uma assinatura de email configurada no seu perfil. Quer enviar mesmo assim?',{title:'Enviar sem assinatura?',okText:'Enviar'}))){ toast('Configure a assinatura','Clique no seu nome (canto inferior esquerdo) → Assinatura de email','info'); return; } }
   const sigT=sigHtmlToText((currentUser()||{}).assinatura);
-  const body=mergeCtx((tpl?tpl.saudacao+'\n\n'+tpl.corpo+(tpl.botaoTexto&&tpl.botaoLink?'\n\n'+tpl.botaoTexto+': '+tpl.botaoLink:'')+(prop?'\n\n(Proposta '+prop.numero+' — exportável em PDF a partir do CRM)':'')+'\n\n'+tpl.assinatura:''),cli,prop)+(sigT?'\n\n'+mergeCtx(sigT,cli,prop):'');
+  const body=mergeCtx((tpl?tpl.saudacao+'\n\n'+tpl.corpo+(tpl.botaoTexto&&tpl.botaoLink?'\n\n'+tpl.botaoTexto+': '+tpl.botaoLink:'')+(prop?'\n\n(Proposta '+prop.numero+' - exportável em PDF a partir do CRM)':'')+'\n\n'+tpl.assinatura:''),cli,prop)+(sigT?'\n\n'+mergeCtx(sigT,cli,prop):'');
   const ev=sendEmail({clienteId:cli.id, templateId:sendDraft.templateId, assunto:sendDraft.assunto, proposta:prop, origem:'Manual'});
   const real=realSendOn(); ev.modo = real?'real':'simulado'; if(sendDraft.cc) ev.cc=sendDraft.cc; if(sendDraft.bcc) ev.bcc=sendDraft.bcc;
   const _cc=sendDraft.cc, _bcc=sendDraft.bcc;
@@ -2690,7 +2691,7 @@ async function doSendEmail(openMail){
 function openEnvio(id){
   const e=state.envios.find(x=>x.id===id); if(!e)return; const tpl=state.templates.find(t=>t.id===e.templateId); const cli=getC(e.clienteId); const prop=e.anexo?state.propostas.find(p=>p.id===e.anexo.propostaId):null;
   $('#drawerTitle').innerHTML=`<h3 style="font-size:1.05rem;font-weight:800">${esc(e.assunto||'Email')}</h3><div class="sub" style="color:var(--muted);font-size:.82rem">${dPT(e.data)} · ${esc(e.origem)}</div>`;
-  $('#drawerBody').innerHTML=`<dl class="kv"><dt>Para</dt><dd>${esc(e.paraNome)} (${esc(e.paraEmail)})</dd><dt>Template</dt><dd>${esc(tpl?tpl.nome:'—')}</dd><dt>Anexo</dt><dd>${e.anexo?esc(e.anexo.numero)+'.pdf':'—'}</dd><dt>Estado</dt><dd><span class="pill green">${esc(e.estado)}</span></dd></dl><div class="divider" style="margin:14px 0"></div>${tpl?emailHTML(tpl,cli,prop):'<div class="empty">Template removido</div>'}`;
+  $('#drawerBody').innerHTML=`<dl class="kv"><dt>Para</dt><dd>${esc(e.paraNome)} (${esc(e.paraEmail)})</dd><dt>Template</dt><dd>${esc(tpl?tpl.nome:'-')}</dd><dt>Anexo</dt><dd>${e.anexo?esc(e.anexo.numero)+'.pdf':'-'}</dd><dt>Estado</dt><dd><span class="pill green">${esc(e.estado)}</span></dd></dl><div class="divider" style="margin:14px 0"></div>${tpl?emailHTML(tpl,cli,prop):'<div class="empty">Template removido</div>'}`;
   $('#drawerFoot').innerHTML=`${e.anexo&&prop?`<button class="btn-sec" data-act="print-prop" data-id="${prop.id}">${ic('print',16)} Ver PDF</button>`:''}<div style="flex:1"></div><button class="btn" data-act="resend-envio" data-id="${e.id}">${ic('send',16)} Reenviar</button>`;
   openDrawer();
 }
@@ -2734,7 +2735,7 @@ views.alertas = () => {
   <div class="split eq">
     <div class="card card-pad">
       <div class="section-head" style="margin-bottom:14px"><div><h3>Alertas ativos ${al.length?`<span class="pill amber">${al.length}</span>`:''}</h3><div class="sub">Itens que requerem a sua atenção</div></div></div>
-      ${al.length?`<div class="mini-list">${al.map(x=>`<div class="mini-item" data-act="notif-go" data-k="${x.k}" data-id="${x.id||''}" style="cursor:pointer"><span class="ni-ic" style="background:${pillBgVar(x.c)};color:${pillColorVar(x.c)};flex:0 0 auto">${ic(x.i,17)}</span><span class="grow"><strong style="font-size:.9rem">${esc(x.t)}</strong><div class="muted" style="font-size:.78rem">${esc(x.s)}</div></span></div>`).join('')}</div>`:`<div class="callout green" style="margin:0">${ic('check',16)}<div class="ctxt">Tudo em dia — sem alertas pendentes. 🎉</div></div>`}
+      ${al.length?`<div class="mini-list">${al.map(x=>`<div class="mini-item" data-act="notif-go" data-k="${x.k}" data-id="${x.id||''}" style="cursor:pointer"><span class="ni-ic" style="background:${pillBgVar(x.c)};color:${pillColorVar(x.c)};flex:0 0 auto">${ic(x.i,17)}</span><span class="grow"><strong style="font-size:.9rem">${esc(x.t)}</strong><div class="muted" style="font-size:.78rem">${esc(x.s)}</div></span></div>`).join('')}</div>`:`<div class="callout green" style="margin:0">${ic('check',16)}<div class="ctxt">Tudo em dia - sem alertas pendentes. 🎉</div></div>`}
     </div>
     <div class="card card-pad">
       <div class="section-head" style="margin-bottom:14px"><div><h3>Histórico de atividade</h3><div class="sub">Ações recentes na ferramenta</div></div>${log.length?`<button class="btn-sec btn-sm" data-act="clear-log">Limpar</button>`:''}</div>
@@ -2760,11 +2761,11 @@ function slugUser(nome,apelido){ return (String(nome||'')+'.'+String(apelido||''
 function turmaUsersCardHTML(){
   return `<div class="card card-pad">
     <div class="section-head" style="margin-bottom:14px"><div><h3>Formandos da turma ${esc(TURMA)}</h3><div class="sub">Acessos geridos centralmente (online), ligados a esta turma.</div></div></div>
-    <div class="callout info" style="margin-bottom:14px">${ic('alert',16)}<div class="ctxt"><strong>Como funciona — leia antes de usar</strong><br>
+    <div class="callout info" style="margin-bottom:14px">${ic('alert',16)}<div class="ctxt"><strong>Como funciona - leia antes de usar</strong><br>
       1. Os acessos dos formandos vivem <strong>online</strong> e estão ligados a <strong>esta</strong> turma (${esc(TURMA)}).<br>
       2. Partilhe o link <code>?t=${esc(TURMA)}</code> com a turma. Cada formando abre-o e entra com o <strong>seu utilizador e palavra-passe</strong>.<br>
-      3. Cada formando <strong>só acede a esta turma</strong> — nunca a outra — e tem a <strong>sua própria sandbox</strong>: os dados de trabalho ficam no computador dele e não se misturam com os dos colegas.<br>
-      4. <strong>Importação em massa:</strong> descarregue o <strong>Modelo</strong>, preencha no Excel (obrigatórios: <strong>nome, apelido, email</strong>) e clique <strong>Importar lista</strong> → mostro uma <strong>pré-visualização</strong> com os erros marcados e só importo as linhas válidas. O <strong>utilizador</strong> e a <strong>palavra-passe</strong> são preenchidos automaticamente pelo modelo (nº do email + iniciais, ex.: <code>8236236AM</code>) — não precisa de os escrever.</div></div>
+      3. Cada formando <strong>só acede a esta turma</strong> - nunca a outra - e tem a <strong>sua própria sandbox</strong>: os dados de trabalho ficam no computador dele e não se misturam com os dos colegas.<br>
+      4. <strong>Importação em massa:</strong> descarregue o <strong>Modelo</strong>, preencha no Excel (obrigatórios: <strong>nome, apelido, email</strong>) e clique <strong>Importar lista</strong> → mostro uma <strong>pré-visualização</strong> com os erros marcados e só importo as linhas válidas. O <strong>utilizador</strong> e a <strong>palavra-passe</strong> são preenchidos automaticamente pelo modelo (nº do email + iniciais, ex.: <code>8236236AM</code>) - não precisa de os escrever.</div></div>
     <div class="toolbar" style="margin-bottom:12px;align-items:flex-end;gap:10px;flex-wrap:wrap">
       <button class="btn-sec" data-act="users-template">${ic('download',16)} Modelo Excel/CSV</button>
       <button class="btn-sec" data-act="import-roster">${ic('upload',16)} Importar lista</button>
@@ -2792,7 +2793,7 @@ function renderTurmaRoster(){
     const rows=list.map(u=>`<tr>
       <td class="cell-main">${esc(((u.nome||'')+' '+(u.apelido||'')).trim())}${me&&me.id===u.id?' <span class="tag">eu</span>':''}</td>
       <td><span class="chip">${ic('key',13)} ${esc(u.username)}</span></td>
-      <td>${esc(u.email||'—')}</td>
+      <td>${esc(u.email||'-')}</td>
       <td><span class="chip">${esc(u.papel)}</span></td>
       <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="roster-pwd" data-id="${u.id}" data-nome="${esc(u.username)}">Repor palavra-passe</button>${me&&me.id===u.id?`<span class="btn-xs" style="color:var(--muted2)" title="A sua conta">${ic('lock',13)}</span>`:`<button class="btn-danger btn-xs" data-act="roster-del" data-id="${u.id}" data-nome="${esc(((u.nome||'')+' '+(u.apelido||'')).trim())}">✕</button><button class="btn-sec btn-xs" data-act="roster-invite" data-id="${u.id}" data-username="${esc(u.username)}" data-nome="${esc(u.nome||'')}" data-apelido="${esc(u.apelido||'')}" data-email="${esc(u.email||'')}" title="Repor palavra-passe (regra do sistema) e enviar o convite por email">${ic('send',13)} Reenviar convite</button>`}</div></td></tr>`).join('');
     box.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Nome</th><th>Utilizador</th><th>Email</th><th>Papel</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="5" class="muted" style="padding:14px">Ainda sem utilizadores nesta turma. Adicione um formando ou importe a lista.</td></tr>`}</tbody></table></div><div class="muted" style="font-size:.76rem;margin-top:8px">${list.length} utilizador(es) · turma ${esc(TURMA)}</div>`;
@@ -2815,7 +2816,7 @@ function renderEntregas(){
     const rows=list.map(s=>`<tr>
       <td class="cell-main">${esc(s.nome||s.username)}<div class="cell-sub">${esc(s.username)}</div></td>
       <td>${esc(dPT(s.criado_em))}</td>
-      <td class="muted" style="max-width:280px">${esc((s.mensagem||'').slice(0,100))||'—'}</td>
+      <td class="muted" style="max-width:280px">${esc((s.mensagem||'').slice(0,100))||'-'}</td>
       <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="entrega-rever" data-id="${s.id}" data-nome="${esc(s.nome||s.username)}">Rever</button><button class="btn-sec btn-xs" data-act="entrega-baixar" data-id="${s.id}" data-nome="${esc(s.username||'aluno')}">.json</button></div></td></tr>`).join('');
     box.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Formando</th><th>Data</th><th>Mensagem</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="4" class="muted" style="padding:14px">Ainda não há entregas nesta turma.</td></tr>`}</tbody></table></div><div class="muted" style="font-size:.76rem;margin-top:8px">${list.length} entrega(s)</div>`;
   }).catch(e=>{ box.innerHTML=`<div class="callout warn" style="margin:0">${ic('alert',16)}<div class="ctxt">${esc(supaMsg(e))}</div></div>`; });
@@ -2825,19 +2826,19 @@ function downloadEntrega(id,nome){ supaObterSubmissao(id).then(p=>baixarJSON(p,'
 function renderRevisao(p,nome){
   p=p||{}; revisaoPayload=p; revisaoNome=nome||'aluno';
   editing={type:'__revisao'};
-  $('#modalTitle').textContent='Rever entrega — '+(nome||'');
-  $('#modalSub').textContent='Apenas leitura — não altera os teus dados';
+  $('#modalTitle').textContent='Rever entrega - '+(nome||'');
+  $('#modalSub').textContent='Apenas leitura - não altera os teus dados';
   $('#modal').classList.add('wide');
   $('#modalDelete').style.display='none';
   { const sv=$('[data-act="modal-save"]'); if(sv){ sv.style.display=''; sv.disabled=false; sv.textContent='Fechar'; } }
   const cli=(p.clientes||[]), prop=(p.propostas||[]), emp=(p.empresas||[]);
-  const cn=cid=>{ const c=cli.find(x=>x.id===cid); return c?((c.nome||'')+' '+(c.apelido||'')).trim():'—'; };
+  const cn=cid=>{ const c=cli.find(x=>x.id===cid); return c?((c.nome||'')+' '+(c.apelido||'')).trim():'-'; };
   $('#modalForm').innerHTML=`
     <div class="grid cols-4" style="gap:10px;margin-bottom:14px">${kpi('Empresas',emp.length)}${kpi('Clientes',cli.length)}${kpi('Propostas',prop.length)}${kpi('Campanhas',(p.campanhas||[]).length)}</div>
     <h3 style="font-size:.95rem;margin:6px 0 8px">Clientes (${cli.length})</h3>
-    <div class="table-wrap" style="max-height:210px;overflow:auto;margin-bottom:14px"><table><thead><tr><th>Nome</th><th>Empresa</th><th>Email</th><th>Segmento</th></tr></thead><tbody>${cli.slice(0,150).map(c=>`<tr><td>${esc(((c.nome||'')+' '+(c.apelido||'')).trim())}</td><td>${esc(c.empresa||'—')}</td><td>${esc(c.email||'—')}</td><td>${esc(c.segmento||'—')}</td></tr>`).join('')||`<tr><td colspan="4" class="muted" style="padding:10px">Sem clientes.</td></tr>`}</tbody></table></div>
-    <h3 style="font-size:.95rem;margin:6px 0 8px">Propostas (${prop.length}) <span class="muted" style="font-weight:500;font-size:.78rem">— "PDF" regenera o documento a partir do trabalho entregue</span></h3>
-    <div class="table-wrap" style="max-height:210px;overflow:auto"><table><thead><tr><th>Número</th><th>Título</th><th>Cliente</th><th>Estado</th><th></th></tr></thead><tbody>${prop.slice(0,150).map(pr=>`<tr><td>${esc(pr.numero||'—')}</td><td>${esc(pr.titulo||'—')}</td><td>${esc(cn(pr.clienteId))}</td><td>${esc(pr.estado||'—')}</td><td class="t-right"><button class="btn-sec btn-xs" type="button" data-act="entrega-prop-pdf" data-pid="${esc(pr.id||'')}">${ic('download',12)} PDF</button></td></tr>`).join('')||`<tr><td colspan="5" class="muted" style="padding:10px">Sem propostas.</td></tr>`}</tbody></table></div>
+    <div class="table-wrap" style="max-height:210px;overflow:auto;margin-bottom:14px"><table><thead><tr><th>Nome</th><th>Empresa</th><th>Email</th><th>Segmento</th></tr></thead><tbody>${cli.slice(0,150).map(c=>`<tr><td>${esc(((c.nome||'')+' '+(c.apelido||'')).trim())}</td><td>${esc(c.empresa||'-')}</td><td>${esc(c.email||'-')}</td><td>${esc(c.segmento||'-')}</td></tr>`).join('')||`<tr><td colspan="4" class="muted" style="padding:10px">Sem clientes.</td></tr>`}</tbody></table></div>
+    <h3 style="font-size:.95rem;margin:6px 0 8px">Propostas (${prop.length}) <span class="muted" style="font-weight:500;font-size:.78rem">- "PDF" regenera o documento a partir do trabalho entregue</span></h3>
+    <div class="table-wrap" style="max-height:210px;overflow:auto"><table><thead><tr><th>Número</th><th>Título</th><th>Cliente</th><th>Estado</th><th></th></tr></thead><tbody>${prop.slice(0,150).map(pr=>`<tr><td>${esc(pr.numero||'-')}</td><td>${esc(pr.titulo||'-')}</td><td>${esc(cn(pr.clienteId))}</td><td>${esc(pr.estado||'-')}</td><td class="t-right"><button class="btn-sec btn-xs" type="button" data-act="entrega-prop-pdf" data-pid="${esc(pr.id||'')}">${ic('download',12)} PDF</button></td></tr>`).join('')||`<tr><td colspan="5" class="muted" style="padding:10px">Sem propostas.</td></tr>`}</tbody></table></div>
     <div class="toolbar" style="margin-top:14px"><button class="btn-sec btn-sm" type="button" data-act="entrega-baixar-atual">${ic('download',15)} Descarregar trabalho completo (.json)</button></div>`;
   $('#modalBack').classList.add('open');
 }
@@ -2916,8 +2917,8 @@ function openImportPreview(){
   $('#modal').classList.add('wide'); $('#modalDelete').style.display='none';
   { const sv=$('[data-act="modal-save"]'); if(sv){ sv.style.display=''; sv.disabled=!valid.length; sv.textContent=valid.length?`Importar ${valid.length} válido(s)`:'Sem linhas válidas'; } }
   $('#modalForm').innerHTML=`
-    <div class="callout ${invalid.length?'warn':'info'}" style="margin-bottom:14px">${ic('alert',16)}<div class="ctxt">${invalid.length?`<strong>${invalid.length} linha(s) com erro</strong> não serão importadas — corrija o ficheiro e volte a importar, ou importe só as válidas.`:`Tudo válido — ${valid.length} formando(s) prontos a importar.`} Obrigatórios: nome, apelido, email, utilizador, palavra-passe.</div></div>
-    <div class="table-wrap" style="max-height:340px;overflow:auto"><table><thead><tr><th>Lin.</th><th>Nome</th><th>Email</th><th>Utilizador</th><th>Papel</th><th>Estado</th></tr></thead><tbody>${rows.map(r=>`<tr style="${r.errs.length?'background:rgba(220,53,69,.06)':''}"><td class="muted">${r.i}</td><td>${esc((r.nome+' '+r.apelido).trim())||'—'}</td><td>${esc(r.email||'—')}</td><td>${esc(r.username||'—')}</td><td>${esc(r.papel)}</td><td>${r.errs.length?`<span class="pill red">${esc(r.errs.join(' · '))}</span>`:`<span class="pill green">OK</span>`}</td></tr>`).join('')}</tbody></table></div>`;
+    <div class="callout ${invalid.length?'warn':'info'}" style="margin-bottom:14px">${ic('alert',16)}<div class="ctxt">${invalid.length?`<strong>${invalid.length} linha(s) com erro</strong> não serão importadas - corrija o ficheiro e volte a importar, ou importe só as válidas.`:`Tudo válido - ${valid.length} formando(s) prontos a importar.`} Obrigatórios: nome, apelido, email, utilizador, palavra-passe.</div></div>
+    <div class="table-wrap" style="max-height:340px;overflow:auto"><table><thead><tr><th>Lin.</th><th>Nome</th><th>Email</th><th>Utilizador</th><th>Papel</th><th>Estado</th></tr></thead><tbody>${rows.map(r=>`<tr style="${r.errs.length?'background:rgba(220,53,69,.06)':''}"><td class="muted">${r.i}</td><td>${esc((r.nome+' '+r.apelido).trim())||'-'}</td><td>${esc(r.email||'-')}</td><td>${esc(r.username||'-')}</td><td>${esc(r.papel)}</td><td>${r.errs.length?`<span class="pill red">${esc(r.errs.join(' · '))}</span>`:`<span class="pill green">OK</span>`}</td></tr>`).join('')}</tbody></table></div>`;
   $('#modalBack').classList.add('open');
 }
 function confirmImport(){
@@ -2947,14 +2948,14 @@ function secEntidade(s){ return `<div class="card card-pad">
       </div>
     </div>`; }
 function secGerador(){ return `<div class="card card-pad">
-    <div class="section-head" style="margin-bottom:14px"><div><h3>Gerador de dados de exemplo</h3><div class="sub">Para a base académica crescer ao longo das formações sem criar tudo de raiz — gera empresas, contactos e propostas realistas.</div></div></div>
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Gerador de dados de exemplo</h3><div class="sub">Para a base académica crescer ao longo das formações sem criar tudo de raiz - gera empresas, contactos e propostas realistas.</div></div></div>
     <div class="toolbar">
       <button class="btn-sec" data-act="gen" data-e="6" data-n="0" data-p="0">${ic('building',16)} +6 empresas</button>
       <button class="btn-sec" data-act="gen" data-e="0" data-n="10" data-p="0">${ic('users',16)} +10 contactos</button>
       <button class="btn-sec" data-act="gen" data-e="0" data-n="0" data-p="12">${ic('doc',16)} +12 propostas</button>
       <button class="btn" data-act="gen" data-e="8" data-n="15" data-p="20">✨ Gerar lote (8 empresas + 15 contactos + 20 propostas)</button>
     </div>
-    <div class="callout info" style="margin-top:14px">${ic('alert',16)}<div class="ctxt">Os exemplos são <strong>acrescentados</strong> aos dados atuais. As propostas geradas usam o modelo oficial — para praticar, crie e aplique o <strong>seu</strong> modelo manualmente.</div></div>
+    <div class="callout info" style="margin-top:14px">${ic('alert',16)}<div class="ctxt">Os exemplos são <strong>acrescentados</strong> aos dados atuais. As propostas geradas usam o modelo oficial - para praticar, crie e aplique o <strong>seu</strong> modelo manualmente.</div></div>
   </div>`; }
 function secLoyalty(){ return `<div class="card card-pad">
     <div class="section-head" style="margin-bottom:14px"><div><h3>Níveis de fidelização (Loyalty)</h3><div class="sub">Atribuídos automaticamente pelo volume de compras</div></div><button class="btn" data-act="new" data-type="loyalty">+ Nível</button></div>
@@ -2968,7 +2969,7 @@ function secOrigens(s){ return `<div class="card card-pad">
     <div class="toolbar"><div class="search-inp" style="flex:1;max-width:320px"><input id="newOrigem" placeholder="Nova origem (ex.: Evento)…"></div><button class="btn-sec" data-act="add-origem">+ Adicionar</button></div>
   </div>`; }
 function secBrand(s){ return `<div class="card card-pad">
-    <div class="section-head" style="margin-bottom:14px"><div><h3>Marca & Aparência <span class="pill grey" style="font-size:.66rem;vertical-align:middle">Sandbox</span></h3><div class="sub">Personalize nome, cor, logótipo e fundo do login. ${isAdmin()?'Para replicar o CRM noutras utilizações (white-label).':'Fica só no seu navegador — personalize a sua empresa fictícia.'}</div></div></div>
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Marca & Aparência <span class="pill grey" style="font-size:.66rem;vertical-align:middle">Sandbox</span></h3><div class="sub">Personalize nome, cor, logótipo e fundo do login. ${isAdmin()?'Para replicar o CRM noutras utilizações (white-label).':'Fica só no seu navegador - personalize a sua empresa fictícia.'}</div></div></div>
     <div class="form-grid">
       <div class="field"><label>Nome do CRM</label><input data-brand="nome" value="${esc(s.brand.nome||'')}" placeholder="IEFP CRM"></div>
       <div class="field"><label>Cor principal</label><div style="display:flex;gap:10px;align-items:center"><input type="color" data-brand="cor" value="${esc(s.brand.cor||'#006B3C')}" style="width:48px;height:38px;padding:2px;border:1px solid var(--border);border-radius:8px;background:var(--surface);cursor:pointer"><span class="muted" style="font-size:.8rem">${s.brand.cor?esc(s.brand.cor):'verde IEFP (predefinido)'}</span></div></div>
@@ -2983,7 +2984,7 @@ function defSandboxView(){ const s=state.settings; const secs=[];
   if(canFeat('loyalty')) secs.push(secLoyalty());
   if(canFeat('origens')) secs.push(secOrigens(s));
   if(canFeat('brand')) secs.push(secBrand(s));
-  return `<div class="card card-pad"><div class="section-head" style="margin-bottom:6px"><div><h3>${ic('settings',18)} Personalizar o meu ambiente</h3><div class="sub">Modo sandbox — todas as alterações ficam <strong>só neste navegador</strong>. Personalize a sua empresa fictícia e os exemplos para os exercícios.</div></div></div></div>`+(secs.join('')||`<div class="card card-pad"><div class="empty">Sem secções disponíveis.</div></div>`); }
+  return `<div class="card card-pad"><div class="section-head" style="margin-bottom:6px"><div><h3>${ic('settings',18)} Personalizar o meu ambiente</h3><div class="sub">Modo sandbox - todas as alterações ficam <strong>só neste navegador</strong>. Personalize a sua empresa fictícia e os exemplos para os exercícios.</div></div></div></div>`+(secs.join('')||`<div class="card card-pad"><div class="empty">Sem secções disponíveis.</div></div>`); }
 
 /* ---------- DEFINIÇÕES ---------- */
 views.definicoes = () => {
@@ -2992,7 +2993,7 @@ views.definicoes = () => {
   const pgu=paginate(state.utilizadores,'utilizadores');
   return `
   ${rootSession?`<div class="card card-pad" id="rootPanelCard">
-    <div class="section-head" style="margin-bottom:14px"><div><h3>Suporte — Gestão de turmas <span class="pill red" style="font-size:.66rem;vertical-align:middle">Root</span></h3><div class="sub">Acesso de suporte a <strong>todas</strong> as turmas. Ações sensíveis — usar com cuidado.</div></div><button class="btn-sec btn-sm" data-act="root-refresh">Atualizar</button></div>
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Suporte - Gestão de turmas <span class="pill red" style="font-size:.66rem;vertical-align:middle">Root</span></h3><div class="sub">Acesso de suporte a <strong>todas</strong> as turmas. Ações sensíveis - usar com cuidado.</div></div><button class="btn-sec btn-sm" data-act="root-refresh">Atualizar</button></div>
     <div id="rootPanel"><div class="muted" style="padding:6px 2px">A carregar turmas…</div></div>
   </div>`:''}
   <div class="card card-pad">
@@ -3025,7 +3026,7 @@ views.definicoes = () => {
       <input type="file" id="importClientsFile" accept=".csv,text/csv" style="display:none">
     </div>
   <div class="card card-pad">
-    <div class="section-head" style="margin-bottom:14px"><div><h3>Gerador de dados de exemplo</h3><div class="sub">Para a base académica crescer ao longo das formações sem criar tudo de raiz — gera empresas, contactos e propostas realistas.</div></div></div>
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Gerador de dados de exemplo</h3><div class="sub">Para a base académica crescer ao longo das formações sem criar tudo de raiz - gera empresas, contactos e propostas realistas.</div></div></div>
     <div class="toolbar">
       <button class="btn-sec" data-act="gen" data-e="6" data-n="0" data-p="0">${ic('building',16)} +6 empresas</button>
       <button class="btn-sec" data-act="gen" data-e="0" data-n="10" data-p="0">${ic('users',16)} +10 contactos</button>
@@ -3049,12 +3050,12 @@ views.definicoes = () => {
   </div>
   ${TURMA?(turmaUsersCardHTML()+entregasCardHTML()):`<div class="card card-pad">
     <div class="section-head" style="margin-bottom:16px">
-      <div><h3>Utilizadores</h3><div class="sub">Acessos com utilizador e palavra-passe. Importe os formandos em massa (Excel/CSV) — ficam ativos como Formando — ou crie um a um.</div></div>
+      <div><h3>Utilizadores</h3><div class="sub">Acessos com utilizador e palavra-passe. Importe os formandos em massa (Excel/CSV) - ficam ativos como Formando - ou crie um a um.</div></div>
       <div class="toolbar"><button class="btn-sec" data-act="users-template">${ic('download',16)} Modelo</button><button class="btn-sec" data-act="import-users">${ic('upload',16)} Importar</button><button class="btn" data-act="new" data-type="utilizador">+ Utilizador</button></div>
     </div>
     <input type="file" id="importUsersFile" accept=".csv,text/csv" style="display:none">
     <div class="table-wrap"><table><thead><tr><th>Nome</th><th>Utilizador</th><th>Email</th><th>Papel</th><th>Estado</th><th></th></tr></thead><tbody>
-      ${pgu.slice.map(u=>`<tr><td><div style="display:flex;align-items:center;gap:10px">${avatarHTML(u,30)}<span class="cell-main">${esc(u.nome)} ${esc(u.apelido||'')}${currentUser()&&currentUser().id===u.id?' <span class="tag">eu</span>':''}</span></div></td><td><span class="chip">${ic('key',13)} ${esc(u.username||'—')}</span></td><td>${esc(u.email)}</td><td><span class="chip">${esc(u.papel)}</span></td><td><span class="pill ${u.estado==='Ativo'?'green':'grey'}">${esc(u.estado)}</span></td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="utilizador" data-id="${u.id}">Editar</button>${(u.id==='u1'||u.protegido)?`<span class="btn-xs" style="color:var(--muted2)" title="Protegido">${ic('lock',13)}</span>`:`<button class="btn-danger btn-xs" data-act="delete" data-type="utilizador" data-id="${u.id}">✕</button>`}</div></td></tr>`).join('')}
+      ${pgu.slice.map(u=>`<tr><td><div style="display:flex;align-items:center;gap:10px">${avatarHTML(u,30)}<span class="cell-main">${esc(u.nome)} ${esc(u.apelido||'')}${currentUser()&&currentUser().id===u.id?' <span class="tag">eu</span>':''}</span></div></td><td><span class="chip">${ic('key',13)} ${esc(u.username||'-')}</span></td><td>${esc(u.email)}</td><td><span class="chip">${esc(u.papel)}</span></td><td><span class="pill ${u.estado==='Ativo'?'green':'grey'}">${esc(u.estado)}</span></td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="utilizador" data-id="${u.id}">Editar</button>${(u.id==='u1'||u.protegido)?`<span class="btn-xs" style="color:var(--muted2)" title="Protegido">${ic('lock',13)}</span>`:`<button class="btn-danger btn-xs" data-act="delete" data-type="utilizador" data-id="${u.id}">✕</button>`}</div></td></tr>`).join('')}
     </tbody></table></div>
     ${pager('utilizadores',pgu)}
   </div>`}
@@ -3063,7 +3064,7 @@ views.definicoes = () => {
     <div class="table-wrap"><table><thead><tr><th>Grupo</th>${NAV_FLAT.map(m=>`<th class="t-center" style="font-size:.68rem">${esc(m.label)}</th>`).join('')}<th></th></tr></thead><tbody>
       ${Object.keys(state.roles).map(rn=>{const r=state.roles[rn];return `<tr><td class="cell-main">${esc(rn)}${r.gestor?' <span class="tag">gestor</span>':''}${(r.feats&&r.feats.length)?` <span class="pill green" style="font-size:.62rem" title="${esc(r.feats.map(k=>(FEATS.find(f=>f.k===k)||{}).l||k).join(', '))}">+${r.feats.length} sandbox</span>`:''}</td>${NAV_FLAT.map(m=>`<td class="t-center"><input type="checkbox" data-perm="${esc(rn)}" data-mod="${m.id}" ${r.modules.includes(m.id)?'checked':''} style="width:17px;height:17px;accent-color:var(--g600);cursor:pointer"></td>`).join('')}<td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit-group" data-group="${esc(rn)}">Editar</button>${rn==='Administrador'?'':`<button class="btn-danger btn-xs" data-act="del-group" data-group="${esc(rn)}">✕</button>`}</div></td></tr>`;}).join('')}
     </tbody></table></div>
-    <p class="muted" style="font-size:.78rem;margin-top:10px">${ic('lock',14)} Nota pedagógica: autenticação simulada para fins de formação — não constitui segurança real (palavras-passe ficam no navegador).</p>
+    <p class="muted" style="font-size:.78rem;margin-top:10px">${ic('lock',14)} Nota pedagógica: autenticação simulada para fins de formação - não constitui segurança real (palavras-passe ficam no navegador).</p>
   </div>
   <div class="card card-pad">
     <div class="section-head"><div><h3>Modelos de Proposta</h3><div class="sub">A gestão de modelos passou para o módulo "Modelos" no menu lateral, com permissão própria.</div></div><a class="btn-sec" href="#modelos">${ic('layout',16)} Abrir Modelos</a></div>
@@ -3079,7 +3080,7 @@ views.definicoes = () => {
     <div class="grid cols-3">
       ${['Continente','Madeira','Açores'].map(reg=>`<div class="card card-pad" style="box-shadow:none">
         <h4 style="font-weight:800;font-size:.92rem;margin-bottom:8px;color:var(--g700)">${ic('percent',15)} ${reg}</h4>
-        <div class="mini-list">${ivaRates().filter(r=>r.regiao===reg).sort((a,b)=>b.taxa-a.taxa).map(r=>`<div class="stat-line"><span>${esc(r.tipo)}</span><strong>${r.taxa}%</strong></div>`).join('')||'<div class="muted">—</div>'}</div>
+        <div class="mini-list">${ivaRates().filter(r=>r.regiao===reg).sort((a,b)=>b.taxa-a.taxa).map(r=>`<div class="stat-line"><span>${esc(r.tipo)}</span><strong>${r.taxa}%</strong></div>`).join('')||'<div class="muted">-</div>'}</div>
       </div>`).join('')}
     </div>
     <div class="callout info" style="margin-top:14px">${ic('alert',16)}<div class="ctxt">Em Portugal continental o IVA normal é <strong>23%</strong>. As Regiões Autónomas têm taxas próprias. Estas taxas evitam erros de introdução manual nas propostas.</div></div>
@@ -3090,7 +3091,7 @@ views.definicoes = () => {
     <div class="toolbar"><div class="search-inp" style="flex:1;max-width:320px"><input id="newOrigem" placeholder="Nova origem (ex.: Evento)…"></div><button class="btn-sec" data-act="add-origem">+ Adicionar</button></div>
   </div>
   ${isAdmin()?`<div class="card card-pad">
-    <div class="section-head" style="margin-bottom:14px"><div><h3>Marca & Aparência <span class="pill grey" style="font-size:.66rem;vertical-align:middle">Admin</span></h3><div class="sub">Personalize nome, cor, logótipo e fundo do login — para replicar o CRM noutras utilizações (white-label).</div></div></div>
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Marca & Aparência <span class="pill grey" style="font-size:.66rem;vertical-align:middle">Admin</span></h3><div class="sub">Personalize nome, cor, logótipo e fundo do login - para replicar o CRM noutras utilizações (white-label).</div></div></div>
     <div class="form-grid">
       <div class="field"><label>Nome do CRM</label><input data-brand="nome" value="${esc(s.brand.nome||'')}" placeholder="IEFP CRM"></div>
       <div class="field"><label>Cor principal</label><div style="display:flex;gap:10px;align-items:center"><input type="color" data-brand="cor" value="${esc(s.brand.cor||'#006B3C')}" style="width:48px;height:38px;padding:2px;border:1px solid var(--border);border-radius:8px;background:var(--surface);cursor:pointer"><span class="muted" style="font-size:.8rem">${s.brand.cor?esc(s.brand.cor):'verde IEFP (predefinido)'}</span></div></div>
@@ -3098,21 +3099,21 @@ views.definicoes = () => {
       <div class="field"><label>Imagem de fundo do login</label><div style="display:flex;gap:10px;align-items:center"><label class="btn-sec btn-sm" style="cursor:pointer;margin:0">${ic('image',15)} Carregar<input type="file" accept="image/*" data-brandimg="loginBg" style="display:none"></label>${s.brand.loginBg?`<span class="pill green">definida</span><button class="btn-ghost btn-sm" data-act="brand-clear" data-k="loginBg">Repor</button>`:'<span class="muted" style="font-size:.8rem">usa background.jpg</span>'}</div></div>
     </div>
     <div class="toolbar" style="margin-top:10px"><button class="btn" data-act="save-brand">Aplicar marca</button><button class="btn-sec" data-act="brand-reset">Repor IEFP</button></div>
-    <div class="callout info" style="margin-top:14px">${ic('alert',16)}<div class="ctxt">Fica guardado nas definições — ao <strong>Exportar JSON</strong> a marca viaja com os dados. Replicas o CRM para outra entidade só com export/import + trocar nome/cor/logótipo. As cores derivam automaticamente uma paleta a partir da cor principal.</div></div>
+    <div class="callout info" style="margin-top:14px">${ic('alert',16)}<div class="ctxt">Fica guardado nas definições - ao <strong>Exportar JSON</strong> a marca viaja com os dados. Replicas o CRM para outra entidade só com export/import + trocar nome/cor/logótipo. As cores derivam automaticamente uma paleta a partir da cor principal.</div></div>
   </div>
   <div class="card card-pad">
-    <div class="section-head" style="margin-bottom:14px"><div><h3>Envio de email real (EmailJS) ${infoTip('automacao')} <span class="pill grey" style="font-size:.66rem;vertical-align:middle">Admin</span></h3><div class="sub">As chaves são <strong>fixas</strong> (não editáveis) — só gere o <strong>modo de envio</strong> (real ou simulado). O botão "Enviar teste" entrega um email a sério via EmailJS.</div></div><button class="btn-sec" data-act="test-emailjs">${ic('send',16)} Enviar teste</button></div>
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Envio de email real (EmailJS) ${infoTip('automacao')} <span class="pill grey" style="font-size:.66rem;vertical-align:middle">Admin</span></h3><div class="sub">As chaves são <strong>fixas</strong> (não editáveis) - só gere o <strong>modo de envio</strong> (real ou simulado). O botão "Enviar teste" entrega um email a sério via EmailJS.</div></div><button class="btn-sec" data-act="test-emailjs">${ic('send',16)} Enviar teste</button></div>
     <div class="form-grid">
-      <div class="field"><label>Service ID ${ic('lock',12)}</label><input value="${esc(s.emailjs.serviceId)}" readonly title="Fixo — não editável" style="background:var(--surface3);color:var(--muted);cursor:not-allowed"></div>
-      <div class="field"><label>Template ID ${ic('lock',12)}</label><input value="${esc(s.emailjs.templateId)}" readonly title="Fixo — não editável" style="background:var(--surface3);color:var(--muted);cursor:not-allowed"></div>
-      <div class="field"><label>Public Key ${ic('lock',12)}</label><input value="${esc(s.emailjs.publicKey)}" readonly title="Fixo — não editável" style="background:var(--surface3);color:var(--muted);cursor:not-allowed"></div>
+      <div class="field"><label>Service ID ${ic('lock',12)}</label><input value="${esc(s.emailjs.serviceId)}" readonly title="Fixo - não editável" style="background:var(--surface3);color:var(--muted);cursor:not-allowed"></div>
+      <div class="field"><label>Template ID ${ic('lock',12)}</label><input value="${esc(s.emailjs.templateId)}" readonly title="Fixo - não editável" style="background:var(--surface3);color:var(--muted);cursor:not-allowed"></div>
+      <div class="field"><label>Public Key ${ic('lock',12)}</label><input value="${esc(s.emailjs.publicKey)}" readonly title="Fixo - não editável" style="background:var(--surface3);color:var(--muted);cursor:not-allowed"></div>
       <div class="field"><label>Modo de envio</label><label style="cursor:pointer;display:flex;align-items:center;gap:8px;padding-top:9px"><input type="checkbox" data-ejs="ativo" ${s.emailjs.ativo?'checked':''} style="width:15px;height:15px;accent-color:var(--g600)">Ativar envio real</label></div>
     </div>
     <div class="toolbar" style="margin-top:8px;align-items:center"><button class="btn" data-act="save-emailjs">Guardar configuração</button>${emailjsActive()?'<span class="pill green">Modo real ATIVO</span>':'<span class="pill grey">Simulado</span>'}</div>
-    <div class="callout warn" style="margin-top:14px">${ic('alert',16)}<div class="ctxt">A <strong>Public Key</strong> fica visível no código do site — em <strong>EmailJS → Account → Security</strong> restrinja os domínios autorizados a <strong>iefpcrm.cr0x.org</strong>. No plano grátis <strong>não há anexo de PDF</strong> (a proposta vai como referência no texto). O template usa as variáveis: to_email, to_name, subject, message.</div></div>
+    <div class="callout warn" style="margin-top:14px">${ic('alert',16)}<div class="ctxt">A <strong>Public Key</strong> fica visível no código do site - em <strong>EmailJS → Account → Security</strong> restrinja os domínios autorizados a <strong>iefpcrm.cr0x.org</strong>. No plano grátis <strong>não há anexo de PDF</strong> (a proposta vai como referência no texto). O template usa as variáveis: to_email, to_name, subject, message.</div></div>
   </div>
   <div class="card card-pad" id="siteAnalyticsCard">
-    <div class="section-head" style="margin-bottom:14px"><div><h3>Analítica do site <span class="pill grey" style="font-size:.66rem;vertical-align:middle">Admin</span></h3><div class="sub">Visitas ao <strong>manual</strong> e aberturas da <strong>app</strong> — anónimo, sem cookies nem dados pessoais. <a class="legal-link" href="https://iefpcrm.cr0x.org/manual/aviso-legal/" target="_blank" rel="noopener">Como recolhemos</a>.</div></div><button class="btn-sec btn-sm" data-act="reload-analytics">Atualizar</button></div>
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Analítica do site <span class="pill grey" style="font-size:.66rem;vertical-align:middle">Admin</span></h3><div class="sub">Visitas ao <strong>manual</strong> e aberturas da <strong>app</strong> - anónimo, sem cookies nem dados pessoais. <a class="legal-link" href="https://iefpcrm.cr0x.org/manual/aviso-legal/" target="_blank" rel="noopener">Como recolhemos</a>.</div></div><button class="btn-sec btn-sm" data-act="reload-analytics">Atualizar</button></div>
     <div id="siteAnalytics"><div class="muted" style="padding:6px 2px">A carregar estatísticas…</div></div>
   </div>`:''}
   `;
@@ -3126,10 +3127,10 @@ const refClientes = ()=>state.clientes.map(c=>({v:c.id,t:`${c.numero} · ${c.nom
 const SCHEMAS = {
   cliente:{store:'clientes',label:'Contacto',code:c=>{c.numero=c.numero||pad(++state.settings.numeroSeq,4);},after:c=>{ const e=state.empresas.find(x=>x.id===c.empresaId); if(e){ c.empresa=e.nome; if(!c.cidade)c.cidade=e.cidade; if(!c.regiao)c.regiao=e.regiao; } else if(!c.empresaId){ c.empresa=c.empresa||''; } },fields:[
     {n:'nome',l:'Nome',req:1},{n:'apelido',l:'Apelido',req:1},
-    {n:'empresaId',l:'Empresa',type:'select',full:1,opts:()=>[{v:'',t:'— sem empresa (particular) —'}].concat(state.empresas.map(e=>({v:e.id,t:`${e.nome}${e.nipc?' · '+e.nipc:''}`})))},
+    {n:'empresaId',l:'Empresa',type:'select',full:1,opts:()=>[{v:'',t:'- sem empresa (particular) -'}].concat(state.empresas.map(e=>({v:e.id,t:`${e.nome}${e.nipc?' · '+e.nipc:''}`})))},
     {n:'cargo',l:'Cargo / função',hint:'ex.: Diretor Comercial, Responsável de Compras'},
     {n:'email',l:'Email',type:'email'},{n:'telefone',l:'Telefone',type:'tel'},
-    {n:'nif',l:'NIF (pessoal)',hint:'9 dígitos — validado'},{n:'cidade',l:'Cidade'},
+    {n:'nif',l:'NIF (pessoal)',hint:'9 dígitos - validado'},{n:'cidade',l:'Cidade'},
     {n:'regiao',l:'Região (IVA)',type:'select',opts:['Continente','Madeira','Açores'].map(x=>({v:x,t:x}))},
     {n:'segmento',l:'Segmento',type:'select',opts:['Micro','PME','Grande Empresa'].map(x=>({v:x,t:x}))},
     {n:'origem',l:'Origem',type:'select',opts:()=>(state.settings.origens||[]).map(x=>({v:x,t:x}))},
@@ -3137,7 +3138,7 @@ const SCHEMAS = {
   ]},
   empresa:{store:'empresas',label:'Empresa',fem:1,code:e=>{ if(!e.numero) e.numero='E'+pad(++state.settings.empSeq,3); },fields:[
     {n:'nome',l:'Razão social / Nome da empresa',req:1,full:1},
-    {n:'nipc',l:'NIPC / NIF',hint:'9 dígitos — validado pelo dígito de controlo'},
+    {n:'nipc',l:'NIPC / NIF',hint:'9 dígitos - validado pelo dígito de controlo'},
     {n:'cae',l:'CAE (código de atividade)'},
     {n:'setor',l:'Setor',type:'select',opts:['Comércio','Indústria','Serviços','Hotelaria','Restauração','Saúde','Tecnologia','Construção','Educação','Transportes','Outro'].map(x=>({v:x,t:x}))},
     {n:'dimensao',l:'Dimensão',type:'select',opts:['Micro','PME','Grande Empresa'].map(x=>({v:x,t:x}))},
@@ -3153,7 +3154,7 @@ const SCHEMAS = {
     {n:'data',l:'Data',type:'date'},
     {n:'hora',l:'Hora',type:'time',hint:'deixe vazio para "dia todo"'},
     {n:'duracao',l:'Duração (min)',type:'select',numeric:1,def:30,opts:[15,30,45,60,90,120].map(x=>({v:x,t:x+' min'}))},
-    {n:'clienteId',l:'Contacto associado',type:'select',full:1,opts:()=>[{v:'',t:'— nenhum —'}].concat(state.clientes.map(c=>({v:c.id,t:`${c.nome} ${c.apelido||''}${c.empresa?' · '+c.empresa:''}`})))},
+    {n:'clienteId',l:'Contacto associado',type:'select',full:1,opts:()=>[{v:'',t:'- nenhum -'}].concat(state.clientes.map(c=>({v:c.id,t:`${c.nome} ${c.apelido||''}${c.empresa?' · '+c.empresa:''}`})))},
     {n:'estado',l:'Estado',type:'select',opts:['Pendente','Concluída'].map(x=>({v:x,t:x}))},
     {n:'notas',l:'Notas',type:'textarea',full:1},
   ]},
@@ -3164,7 +3165,7 @@ const SCHEMAS = {
     {n:'tipo',l:'Tipo',type:'select',opts:['Produto','Serviço'].map(x=>({v:x,t:x}))},
     {n:'modelo',l:'Modelo',type:'select',opts:['Único','Mensal','Anual'].map(x=>({v:x,t:x}))},
     {n:'preco',l:'Preço (€)',type:'number'},
-    {n:'iva',l:'Taxa de IVA',type:'select',numeric:1,opts:()=>ivaRates().map(r=>({v:r.taxa,t:`${r.taxa}% — ${r.regiao} ${r.tipo}`})),def:23},
+    {n:'iva',l:'Taxa de IVA',type:'select',numeric:1,opts:()=>ivaRates().map(r=>({v:r.taxa,t:`${r.taxa}% - ${r.regiao} ${r.tipo}`})),def:23},
     {n:'estado',l:'Estado',type:'select',opts:['Disponível','Indisponível'].map(x=>({v:x,t:x}))},
   ]},
   familia:{store:'familias',label:'Família',code:f=>{if(!f.codigo)f.codigo=pad(state.familias.length+1);},fields:[
@@ -3180,7 +3181,7 @@ const SCHEMAS = {
     {n:'avatar',l:'Foto de perfil',type:'avatar',full:1},
     {n:'nome',l:'Nome',req:1},{n:'apelido',l:'Apelido'},
     {n:'email',l:'Email',type:'email',full:1},
-    {n:'username',l:'Nome de utilizador (login)',req:1,hint:'Código único de acesso — o sistema avisa se já existir.'},
+    {n:'username',l:'Nome de utilizador (login)',req:1,hint:'Código único de acesso - o sistema avisa se já existir.'},
     {n:'password',l:'Palavra-passe',type:'password',hint:'Deixe em branco para manter a atual'},
     {n:'papel',l:'Papel',type:'select',opts:()=>Object.keys(state.roles).map(r=>({v:r,t:r}))},
     {n:'estado',l:'Estado',type:'select',opts:['Ativo','Inativo'].map(x=>({v:x,t:x}))},
@@ -3246,7 +3247,7 @@ function fieldHTML(f,item){
     const opts=typeof f.opts==='function'?f.opts():f.opts;
     return `<div class="${cls}"><label>${esc(f.l)}</label><select name="${f.n}">${opt(opts,v)}</select>${hint}</div>`;
   }
-  if(f.type==='avatar'){ const ini=initialsOf(item); return `<div class="${cls}"><label>${esc(f.l)}</label><div style="display:flex;align-items:center;gap:14px"><div id="avPreview" class="avatar" style="width:58px;height:58px;padding:0;overflow:hidden;font-size:1.15rem">${v?`<img src="${esc(v)}" style="width:100%;height:100%;object-fit:cover">`:esc(ini)}</div><label class="btn-sec btn-sm" style="cursor:pointer">${ic('image',15)} Carregar foto<input type="file" accept="image/*" data-avatar style="display:none"></label><input type="hidden" name="avatar" value="${esc(v)}"><button type="button" class="btn-ghost btn-sm" data-act="av-clear" ${v?'':'style="display:none"'}>Remover</button></div><span class="hint">Imagem quadrada recomendada — fica guardada no perfil do utilizador.</span></div>`; }
+  if(f.type==='avatar'){ const ini=initialsOf(item); return `<div class="${cls}"><label>${esc(f.l)}</label><div style="display:flex;align-items:center;gap:14px"><div id="avPreview" class="avatar" style="width:58px;height:58px;padding:0;overflow:hidden;font-size:1.15rem">${v?`<img src="${esc(v)}" style="width:100%;height:100%;object-fit:cover">`:esc(ini)}</div><label class="btn-sec btn-sm" style="cursor:pointer">${ic('image',15)} Carregar foto<input type="file" accept="image/*" data-avatar style="display:none"></label><input type="hidden" name="avatar" value="${esc(v)}"><button type="button" class="btn-ghost btn-sm" data-act="av-clear" ${v?'':'style="display:none"'}>Remover</button></div><span class="hint">Imagem quadrada recomendada - fica guardada no perfil do utilizador.</span></div>`; }
   if(f.type==='textarea') return `<div class="${cls}"><label>${esc(f.l)}</label><textarea name="${f.n}">${esc(v)}</textarea>${hint}</div>`;
   const t=f.type||'text';
   if(t==='password') v=''; // nunca pré-preencher palavra-passe
@@ -3292,7 +3293,7 @@ function openProfile(){
       <div class="field"><label>Papel</label><input value="${esc(u.papel||'')}" readonly style="background:var(--surface3);color:var(--muted);cursor:not-allowed"></div>
       ${(TURMA&&supaToken()&&u.papel&&u.papel!=='Formando')?`<div class="field full"><label>Código de recuperação</label>
         <div class="recovery-row"><button type="button" class="btn-sec btn-sm" data-act="gen-recovery">Gerar novo código</button><code id="recoveryCodeOut" class="recovery-out" style="display:none"></code></div>
-        <span class="hint">Permite recuperar a sua palavra-passe sozinho se a esquecer. Gerar um novo invalida o anterior — guarde-o num local seguro.</span></div>`:''}
+        <span class="hint">Permite recuperar a sua palavra-passe sozinho se a esquecer. Gerar um novo invalida o anterior - guarde-o num local seguro.</span></div>`:''}
       <div class="field full">
         <label>Assinatura de email</label>
         <div class="sig-toolbar">
@@ -3404,7 +3405,7 @@ function renderPropForm(){
     <div class="form-grid">
       <div class="field"><label>Número (automático)</label><input name="numero" value="${esc(p.numero)}" readonly style="background:var(--surface3);color:var(--muted);cursor:not-allowed"></div>
       <div class="field"><label>Estado</label><select name="estado">${opt(PROP_STATES.map(s=>({v:s,t:s})),p.estado)}</select></div>
-      ${p.estado==='Perdida'?`<div class="field"><label>Motivo da perda ${infoTip('motivoperda')}</label><select name="motivoPerda">${opt([{v:'',t:'— selecione —'}].concat(LOSS_REASONS.map(x=>({v:x,t:x}))),p.motivoPerda||'')}</select></div>
+      ${p.estado==='Perdida'?`<div class="field"><label>Motivo da perda ${infoTip('motivoperda')}</label><select name="motivoPerda">${opt([{v:'',t:'- selecione -'}].concat(LOSS_REASONS.map(x=>({v:x,t:x}))),p.motivoPerda||'')}</select></div>
       <div class="field full"><label>Detalhe do motivo (opcional)</label><input name="motivoPerdaNota" value="${esc(p.motivoPerdaNota||'')}" placeholder="ex.: concorrente 15% mais barato"></div>`:''}
       <div class="field full"><label>Título *</label><input name="titulo" value="${esc(p.titulo)}" ${locked?'readonly':''}></div>
       <div class="field"><label>Cliente</label><select name="clienteId" ${locked?'disabled':''}>${opt(refClientes(),p.clienteId)}</select></div>
@@ -3417,15 +3418,15 @@ function renderPropForm(){
     <div class="line-head"><span>Artigo (catálogo)</span><span>Qtd</span><span>Preço</span><span>IVA</span><span></span></div>
     <div class="lines" id="lines">${p.linhas.map((l,i)=>lineRow(l,i,locked)).join('')}</div>
     <div id="propTotalsWrap">${propTotalsHTML(p)}</div>
-    <div class="muted" style="font-size:.74rem;margin-top:14px;border-top:1px solid var(--border);padding-top:8px">${ic('users',12)} Criada por ${esc(aC?aC.nome+' '+(aC.apelido||''):'—')}${p.criadoEm?' em '+dPT(p.criadoEm):''} · Última alteração: ${esc(aA?aA.nome+' '+(aA.apelido||''):'—')}${p.alteradoEm?' em '+dPT(p.alteradoEm):''}</div>`;
+    <div class="muted" style="font-size:.74rem;margin-top:14px;border-top:1px solid var(--border);padding-top:8px">${ic('users',12)} Criada por ${esc(aC?aC.nome+' '+(aC.apelido||''):'-')}${p.criadoEm?' em '+dPT(p.criadoEm):''} · Última alteração: ${esc(aA?aA.nome+' '+(aA.apelido||''):'-')}${p.alteradoEm?' em '+dPT(p.alteradoEm):''}</div>`;
   syncDraftFromForm();
 }
 function produtoOptions(sel){
-  let html='<option value="">— escolher artigo —</option>';
+  let html='<option value="">- escolher artigo -</option>';
   state.familias.forEach(f=>{
     state.subfamilias.filter(s=>s.familiaId===f.id).forEach(s=>{
       const prods=state.produtos.filter(p=>p.subfamiliaId===s.id && p.estado!=='Indisponível');
-      if(prods.length) html+=`<optgroup label="${esc(f.nome)} › ${esc(s.nome)}">${prods.map(p=>`<option value="${p.id}" ${p.id===sel?'selected':''}>${esc(p.nome)} — ${fmt(p.preco)}</option>`).join('')}</optgroup>`;
+      if(prods.length) html+=`<optgroup label="${esc(f.nome)} › ${esc(s.nome)}">${prods.map(p=>`<option value="${p.id}" ${p.id===sel?'selected':''}>${esc(p.nome)} - ${fmt(p.preco)}</option>`).join('')}</optgroup>`;
     });
   });
   return html;
@@ -3493,7 +3494,7 @@ function persistPropDraft(){
 function openPropPreview(){
   if(!propDraft) return; syncDraftFromForm();
   const tpl=state.propostaTemplates.find(t=>t.id===propDraft.templateId)||state.propostaTemplates[0];
-  $('#previewSub').textContent='Modelo: '+(tpl?tpl.nome:'—');
+  $('#previewSub').textContent='Modelo: '+(tpl?tpl.nome:'-');
   $('#previewDoc').innerHTML=tpl?blocksHTML(tpl,propDraft):'<div class="empty">Crie um modelo de proposta no módulo "Modelos" primeiro.</div>';
   $('#previewBack').classList.add('open');
 }
@@ -3526,7 +3527,7 @@ async function deleteEntity(type,id){
 function mergeTags(text,p){
   const c=getC(p.clienteId)||{}; const s=state.settings; const t=proposalTotals(p);
   const map={
-    'cliente.nome':`${c.nome||''} ${c.apelido||''}`.trim()||'—','cliente.empresa':c.empresa||'','cliente.nif':c.nif||'',
+    'cliente.nome':`${c.nome||''} ${c.apelido||''}`.trim()||'-','cliente.empresa':c.empresa||'','cliente.nif':c.nif||'',
     'cliente.email':c.email||'','cliente.telefone':c.telefone||'','cliente.cidade':c.cidade||'',
     'proposta.numero':p.numero||'','proposta.titulo':p.titulo||'','proposta.validade':dPT(p.validade),
     'proposta.total':fmt(t.total),'proposta.subtotal':fmt(t.sub),'proposta.iva':fmt(t.iva),'proposta.desconto':fmt(t.desconto),
@@ -3559,7 +3560,7 @@ function printRGPDReport(){
   const dCount=checks.filter((_,i)=>state.checklistRGPD&&state.checklistRGPD[i]).length;
   const row=(c)=>`<tr>${c.map(x=>`<td>${x}</td>`).join('')}</tr>`;
   const w=window.open('','_blank');
-  w.document.write(`<!doctype html><html lang="pt-PT"><head><meta charset="UTF-8"><title>Relatório RGPD — ${esc(s.entidade)}</title>
+  w.document.write(`<!doctype html><html lang="pt-PT"><head><meta charset="UTF-8"><title>Relatório RGPD - ${esc(s.entidade)}</title>
   <style>body{font-family:Inter,system-ui,sans-serif;color:#15302a;padding:38px;max-width:880px;margin:0 auto;font-size:13px}
   h1{color:#006B3C;font-size:1.5rem}h2{color:#005a32;font-size:1.05rem;margin:22px 0 8px;border-bottom:2px solid #E8F5EE;padding-bottom:5px}
   .head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #006B3C;padding-bottom:14px}
@@ -3567,7 +3568,7 @@ function printRGPDReport(){
   .kpis{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap}.k{flex:1;min-width:120px;border:1px solid #dbe6df;border-radius:10px;padding:11px}.k b{display:block;font-size:1.4rem;color:#006B3C}.k span{font-size:.74rem;color:#5f746b;text-transform:uppercase}
   .bar{height:9px;background:#eef4f0;border-radius:20px;overflow:hidden;margin-top:6px}.bar>i{display:block;height:100%;background:#00A651}
   .warn{color:#dc2626;font-weight:700}@media print{body{padding:0}}</style></head><body>
-  <div class="head"><div><h1>Relatório de Conformidade RGPD</h1><div class="muted">${esc(s.entidade)} · NIF ${esc(s.nif)}</div><div class="muted">Encarregado de Proteção de Dados: ${esc(s.epd||'—')}</div></div>
+  <div class="head"><div><h1>Relatório de Conformidade RGPD</h1><div class="muted">${esc(s.entidade)} · NIF ${esc(s.nif)}</div><div class="muted">Encarregado de Proteção de Dados: ${esc(s.epd||'-')}</div></div>
   <div style="text-align:right" class="muted">Emitido em<br><strong style="color:#15302a">${dPT(todayISO())}</strong>${act?`<br><span style="font-size:.8rem">Período: ${rg.from?dPT(rg.from):'início'} a ${rg.to?dPT(rg.to):'hoje'}</span>`:''}</div></div>
   <div class="kpis">
     <div class="k"><b>${ativos.length}</b><span>Consentimentos ativos</span></div>
@@ -3576,22 +3577,22 @@ function printRGPDReport(){
     <div class="k"><b class="${atrasados.length?'warn':''}">${atrasados.length}</b><span>Fora de prazo</span></div>
     <div class="k"><b>${fviol.length}</b><span>Violações</span></div>
   </div>
-  <h2>Conformidade — Checklist (${dCount}/${checks.length})</h2>
+  <h2>Conformidade - Checklist (${dCount}/${checks.length})</h2>
   <div class="bar"><i style="width:${dCount/checks.length*100}%"></i></div>
   <ul style="margin-top:10px;columns:2;font-size:.86rem">${checks.map((c,i)=>`<li style="margin-bottom:3px">${(state.checklistRGPD&&state.checklistRGPD[i])?'☑':'☐'} ${esc(c)}</li>`).join('')}</ul>
   <h2>Registo de Consentimentos</h2>
   <table><thead><tr><th>Titular</th><th>Finalidade</th><th>Base legal</th><th>Data</th><th>Estado</th></tr></thead><tbody>
-  ${fcons.map(c=>row([esc(clientName(c.clienteId)),esc(c.finalidade),esc(c.base),dPT(c.data),esc(c.estado)])).join('')||'<tr><td colspan=5>—</td></tr>'}</tbody></table>
+  ${fcons.map(c=>row([esc(clientName(c.clienteId)),esc(c.finalidade),esc(c.base),dPT(c.data),esc(c.estado)])).join('')||'<tr><td colspan=5>-</td></tr>'}</tbody></table>
   <h2>Pedidos de Titulares</h2>
   <table><thead><tr><th>Titular</th><th>Direito</th><th>Data</th><th>Prazo</th><th>Estado</th></tr></thead><tbody>
-  ${fped.map(p=>row([esc(clientName(p.clienteId)),esc(p.tipo),dPT(p.data),dPT(p.prazo),esc(p.estado)+(p.estado!=='Concluído'&&daysBetween(todayISO(),p.prazo)<0?' <span class="warn">(atrasado)</span>':'')])).join('')||'<tr><td colspan=5>—</td></tr>'}</tbody></table>
+  ${fped.map(p=>row([esc(clientName(p.clienteId)),esc(p.tipo),dPT(p.data),dPT(p.prazo),esc(p.estado)+(p.estado!=='Concluído'&&daysBetween(todayISO(),p.prazo)<0?' <span class="warn">(atrasado)</span>':'')])).join('')||'<tr><td colspan=5>-</td></tr>'}</tbody></table>
   <h2>Registo de Atividades de Tratamento (RoPA)</h2>
   <table><thead><tr><th>Atividade</th><th>Finalidade</th><th>Base legal</th><th>Conservação</th></tr></thead><tbody>
-  ${state.ropa.map(r=>row([esc(r.atividade),esc(r.finalidade),esc(r.base),esc(r.conservacao)])).join('')||'<tr><td colspan=4>—</td></tr>'}</tbody></table>
+  ${state.ropa.map(r=>row([esc(r.atividade),esc(r.finalidade),esc(r.base),esc(r.conservacao)])).join('')||'<tr><td colspan=4>-</td></tr>'}</tbody></table>
   <h2>Violações de Dados</h2>
   <table><thead><tr><th>Data</th><th>Descrição</th><th>Risco</th><th>Afetados</th><th>CNPD</th></tr></thead><tbody>
   ${fviol.map(v=>row([dPT(v.data),esc(v.descricao),esc(v.risco),fmtN(v.afetados),esc(v.notificada)])).join('')||'<tr><td colspan=5>Sem violações registadas</td></tr>'}</tbody></table>
-  <p class="muted" style="margin-top:34px;border-top:1px solid #dbe6df;padding-top:12px">Documento gerado pelo IEFP CRM — ferramenta pedagógica (UFCD 10870 — Administração de CRM / RGPD). Não constitui aconselhamento jurídico.</p>
+  <p class="muted" style="margin-top:34px;border-top:1px solid #dbe6df;padding-top:12px">Documento gerado pelo IEFP CRM - ferramenta pedagógica (UFCD 10870 - Administração de CRM / RGPD). Não constitui aconselhamento jurídico.</p>
   </body></html>`);
   w.document.close(); setTimeout(()=>w.print(),300);
 }
@@ -3613,7 +3614,7 @@ function printAnalyticsReport(){
   const vc=(cur,pv,inv)=>{ if(pv==null) return ''; const d=pv===0?(cur>0?100:0):(cur-pv)/pv*100; const col=Math.abs(d)<0.05?'#5f746b':((inv?d<0:d>0)?'#0f9d58':'#dc2626'); return `<span style="color:${col};font-weight:700;font-size:.8rem"> ${d>0?'▲':d<0?'▼':'•'} ${Math.abs(d).toLocaleString('pt-PT',{maximumFractionDigits:1})}%</span>`; };
   const funnel=[['Leads / Criadas',props.length],['Enviadas',props.filter(p=>['Enviada','Negociação','Ganha','Perdida'].includes(p.estado)).length],['Negociação',props.filter(p=>['Negociação','Ganha'].includes(p.estado)).length],['Ganhas',ganhas.length]];
   const fmax=Math.max(...funnel.map(f=>f[1]),1);
-  openPrint(`<!doctype html><html lang="pt-PT"><head><meta charset="UTF-8"><title>Relatório Analytics — ${esc(s.entidade)}</title>
+  openPrint(`<!doctype html><html lang="pt-PT"><head><meta charset="UTF-8"><title>Relatório Analytics - ${esc(s.entidade)}</title>
   <style>body{font-family:Inter,system-ui,sans-serif;color:#15302a;padding:38px;max-width:880px;margin:0 auto;font-size:13px}
   h1{color:#006B3C;font-size:1.5rem}h2{color:#005a32;font-size:1.05rem;margin:22px 0 8px;border-bottom:2px solid #E8F5EE;padding-bottom:5px}
   .head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #006B3C;padding-bottom:14px}.muted{color:#5f746b}
@@ -3621,7 +3622,7 @@ function printAnalyticsReport(){
   table{width:100%;border-collapse:collapse;margin-top:6px}th,td{padding:7px 9px;border-bottom:1px solid #dbe6df;text-align:left}th{background:#E8F5EE;color:#005a32;font-size:.76rem;text-transform:uppercase}
   .fbar{height:24px;background:#006B3C;border-radius:5px;color:#fff;display:flex;align-items:center;padding:0 10px;font-size:.8rem;font-weight:700;margin:4px 0}
   @media print{body{padding:0}}</style></head><body>
-  <div class="head"><div><h1>Relatório de Analytics</h1><div class="muted">${esc(s.entidade)} · UFCD 10868 — CRM Analytics</div></div>
+  <div class="head"><div><h1>Relatório de Analytics</h1><div class="muted">${esc(s.entidade)} · UFCD 10868 - CRM Analytics</div></div>
   <div style="text-align:right" class="muted">Emitido em<br><strong style="color:#15302a">${dPT(todayISO())}</strong>${act?`<br><span style="font-size:.8rem">Período: ${r.from?dPT(r.from):'início'} a ${r.to?dPT(r.to):'hoje'}</span>`:'<br><span style="font-size:.8rem">Todos os dados</span>'}${prev?`<br><span style="font-size:.78rem">vs ${prevLabel}</span>`:''}</div></div>
   <div class="kpis">
     <div class="k"><b>${fmt(receita)}${prev?vc(receita,prev.receita):''}</b><span>Receita ganha</span></div>
@@ -3634,7 +3635,7 @@ function printAnalyticsReport(){
   <h2>Top clientes (por valor ganho)</h2>
   <table><thead><tr><th>#</th><th>Cliente</th><th style="text-align:right">Valor</th></tr></thead><tbody>
   ${top.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.c.nome)} ${esc(x.c.apelido||'')}</td><td style="text-align:right">${fmt(x.v)}</td></tr>`).join('')||'<tr><td colspan=3>Sem dados no período</td></tr>'}</tbody></table>
-  <p class="muted" style="margin-top:30px;border-top:1px solid #dbe6df;padding-top:12px">Documento gerado pelo IEFP CRM — ferramenta pedagógica (UFCD 10868 — CRM Analytics).</p>
+  <p class="muted" style="margin-top:30px;border-top:1px solid #dbe6df;padding-top:12px">Documento gerado pelo IEFP CRM - ferramenta pedagógica (UFCD 10868 - CRM Analytics).</p>
   </body></html>`);
 }
 
@@ -3678,7 +3679,7 @@ function submitWork(){
   const u=currentUser(); const nome=u?(((u.nome||'')+'-'+(u.apelido||'')).normalize('NFD').replace(/[^a-zA-Z]/g,'')||u.username||'formando'):'formando';
   const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='trabalho-'+nome+'.json'; a.click(); URL.revokeObjectURL(a.href);
-  toast('Trabalho descarregado',`trabalho-${nome}.json — pode anexá-lo ao email`);
+  toast('Trabalho descarregado',`trabalho-${nome}.json - pode anexá-lo ao email`);
 }
 // Resumo compacto do trabalho (vai no corpo do email de entrega)
 function resumoTrabalho(){
@@ -3689,7 +3690,7 @@ function resumoTrabalho(){
     `• Produtos: ${(s.produtos||[]).length}`,
     `• Propostas: ${(s.propostas||[]).length} (Ganhas ${pe('Ganha')}, Negociação ${pe('Negociação')}, Perdidas ${pe('Perdida')})`,
     `• Campanhas: ${(s.campanhas||[]).length}`,
-    `• RGPD — consentimentos: ${(s.consentimentos||[]).length} · pedidos de titular: ${(s.pedidos||[]).length}`
+    `• RGPD - consentimentos: ${(s.consentimentos||[]).length} · pedidos de titular: ${(s.pedidos||[]).length}`
   ].join('\n');
 }
 // Modal: o formando submete o trabalho (guardado no Supabase) a partir do CRM
@@ -3705,7 +3706,7 @@ function openSubmitWork(){
   $('#modalDelete').style.display='none';
   { const sv=$('[data-act="modal-save"]'); if(sv){ sv.disabled=false; sv.textContent='Submeter trabalho'; } }
   const temSig=hasSignature(u);
-  const assunto=`Entrega de trabalho — ${(u.nome||'')} ${(u.apelido||'')}`.trim()+(TURMA?` (Turma ${TURMA})`:'');
+  const assunto=`Entrega de trabalho - ${(u.nome||'')} ${(u.apelido||'')}`.trim()+(TURMA?` (Turma ${TURMA})`:'');
   $('#modalForm').innerHTML=`
     <div class="callout info" style="margin-bottom:14px">${ic('send',16)}<div class="ctxt">Submete o teu trabalho ao formador <strong>a partir do CRM</strong>. O trabalho (snapshot) é entregue e o formador recebe um aviso. Tens no máximo <strong>2 entregas</strong>.</div></div>
     <div id="swEnvios" class="callout" style="margin-bottom:14px;background:var(--surface3);border-color:var(--border)">${ic('send',16)}<div class="ctxt">A verificar as tuas entregas…</div></div>
@@ -3716,12 +3717,12 @@ function openSubmitWork(){
       <div class="field full"><label>Assunto</label><input name="swsubject" value="${esc(assunto)}"></div>
       <div class="field full"><label>Mensagem para o formador <span class="muted" style="font-weight:500">(opcional)</span></label><textarea name="swmsg" rows="4" placeholder="Escreve uma nota (opcional)…"></textarea></div>
     </div>
-    <div class="callout green" style="margin:6px 0 12px">${ic('check',16)}<div class="ctxt"><strong>Trabalho pronto a enviar</strong> — o snapshot do teu CRM (clientes, propostas, etc.) segue com a entrega.</div></div>
+    <div class="callout green" style="margin:6px 0 12px">${ic('check',16)}<div class="ctxt"><strong>Trabalho pronto a enviar</strong> - o snapshot do teu CRM (clientes, propostas, etc.) segue com a entrega.</div></div>
     ${temSig?`<div class="muted" style="font-size:.8rem;font-weight:700;margin:4px 0 6px">${ic('check',14)} A tua assinatura</div><div style="border:1px solid var(--border);border-radius:10px;padding:12px;background:var(--surface)">${currentSigHTML(null,null)}</div>`:''}`;
   $('#modalBack').classList.add('open');
   // contagem de envios (servidor) + email do formador
   supaMeusEnvios().then(d=>{ submitEnvios=d; const el=$('#swEnvios'); if(!el) return; const cheio=d.enviados>=d.limite;
-    el.className='callout '+(cheio?'warn':'info'); el.innerHTML=`${ic(cheio?'alert':'send',16)}<div class="ctxt">${cheio?`<strong>Limite atingido</strong> — já fizeste ${d.enviados}/${d.limite} entregas; não podes submeter mais.`:`Entregas: <strong>${d.enviados}/${d.limite}</strong>. Esta será a tua ${d.enviados+1}.ª.`}</div>`;
+    el.className='callout '+(cheio?'warn':'info'); el.innerHTML=`${ic(cheio?'alert':'send',16)}<div class="ctxt">${cheio?`<strong>Limite atingido</strong> - já fizeste ${d.enviados}/${d.limite} entregas; não podes submeter mais.`:`Entregas: <strong>${d.enviados}/${d.limite}</strong>. Esta será a tua ${d.enviados+1}.ª.`}</div>`;
     if(cheio){ const sv=$('[data-act="modal-save"]'); if(sv){ sv.disabled=true; sv.textContent='Limite atingido'; } }
   }).catch(e=>{ const el=$('#swEnvios'); if(el) el.innerHTML=`${ic('alert',16)}<div class="ctxt">${esc(supaMsg(e))}</div>`; });
   supaTurmaFormador(TURMA).then(d=>{ const i=$('#modalForm [name="swto"]'); if(i){ if(d&&d.email&&!i.value) i.value=d.email; i.placeholder='email do formador'; } }).catch(()=>{ const i=$('#modalForm [name="swto"]'); if(i) i.placeholder='email do formador'; });
@@ -3740,7 +3741,7 @@ function sendSubmitWork(){
     toast('Trabalho submetido',`Entrega ${res.enviados}/${res.limite} registada`);
     if(emailjsActive()){
       const sigT=sigHtmlToText(u.assinatura);
-      const body=`${msg||'(sem mensagem)'}\n\n———\nRESUMO DO TRABALHO\n${resumoTrabalho()}\n\nEntrega ${res.enviados}/${res.limite} · ${(u.nome||'')} ${(u.apelido||'')}${TURMA?' · Turma '+TURMA:''} · ${todayISO()}\n\n${sigT}`;
+      const body=`${msg||'(sem mensagem)'}\n\n---\nRESUMO DO TRABALHO\n${resumoTrabalho()}\n\nEntrega ${res.enviados}/${res.limite} · ${(u.nome||'')} ${(u.apelido||'')}${TURMA?' · Turma '+TURMA:''} · ${todayISO()}\n\n${sigT}`;
       const fromName=(`${(u.nome||'').trim()} ${(u.apelido||'').trim()}`.trim()||u.username||'Formando')+' (IEFP CRM)';
       sendViaEmailJS({toEmail:to,toName:'Formador',subject,message:body,fromName,replyTo:u.email||''}).catch(()=>{});
     }
@@ -3767,7 +3768,7 @@ function buildNav(){
   const u=currentUser();
   const foot=$('.nav-foot');
   if(foot){
-    const credit=`${TURMA?`<div class="turma-chip" title="Ambiente isolado desta turma">${ic('building',12)} Turma: ${esc(TURMA)}</div>`:''}<a href="https://www.linkedin.com/in/ldvale/" target="_blank" rel="noopener noreferrer" class="made-by" title="LinkedIn — Diogo du Valle">${ic('linkedin',14)}<span>Created by Diogo du Valle</span></a><a class="legal-link" href="https://iefpcrm.cr0x.org/manual/aviso-legal/" target="_blank" rel="noopener">Aviso legal</a>`;
+    const credit=`${TURMA?`<div class="turma-chip" title="Ambiente isolado desta turma">${ic('building',12)} Turma: ${esc(TURMA)}</div>`:''}<a href="https://www.linkedin.com/in/ldvale/" target="_blank" rel="noopener noreferrer" class="made-by" title="LinkedIn - Diogo du Valle">${ic('linkedin',14)}<span>Created by Diogo du Valle</span></a><a class="legal-link" href="https://iefpcrm.cr0x.org/manual/aviso-legal/" target="_blank" rel="noopener">Aviso legal</a>`;
     if(u){
       const submitBtn=(u.papel==='Formando')?`<button class="btn-sec btn-sm submit-work" data-act="submit-work" title="Enviar o meu trabalho ao formador">${ic('upload',15)}<span>Submeter o meu trabalho</span></button>`:'';
       foot.innerHTML=`<div class="profile"><div class="profile-id" data-act="profile" title="Editar o meu perfil" style="display:flex;align-items:center;gap:11px;flex:1;min-width:0;cursor:pointer">${avatarHTML(u,36)}<div class="profile-txt"><strong>${esc(u.nome)} ${esc(u.apelido||'')}</strong><span>${esc(u.papel)}</span></div></div><button class="icon-btn" data-act="logout" title="Terminar sessão" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18);color:#fff;width:34px;height:34px">${ic('logout',16)}</button></div>${submitBtn}${credit}`;
@@ -3823,12 +3824,12 @@ function render(){
 function prettyPath(p){
   if(!p) return '(raiz)';
   let s=String(p).replace(/^\/manual\/?/,'').replace(/\/$/,'').replace(/\.html$/,'');
-  if(!s||s==='index') return 'Manual — Início';
+  if(!s||s==='index') return 'Manual - Início';
   s=s.split('/').pop().replace(/-/g,' ');
   return s.charAt(0).toUpperCase()+s.slice(1);
 }
 function prettyVideo(l){
-  if(!l) return '—';
+  if(!l) return '-';
   return String(l).replace(/\.(webm|mp4)$/,'').replace(/-(pt|en)$/,'').replace(/-/g,' ').replace(/^\w/,c=>c.toUpperCase());
 }
 function anList(items, fmt){
@@ -3837,7 +3838,7 @@ function anList(items, fmt){
 }
 function anSplit(obj, map){
   const ent=Object.entries(obj||{}).filter(([k])=>k!=='?'); const tot=ent.reduce((a,[,v])=>a+v,0)||1;
-  return ent.length? ent.sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="an-chip"><span>${esc(map[k]||k)}</span><strong>${Math.round(v/tot*100)}%</strong><span class="muted">(${v})</span></div>`).join('') : '<span class="muted">—</span>';
+  return ent.length? ent.sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="an-chip"><span>${esc(map[k]||k)}</span><strong>${Math.round(v/tot*100)}%</strong><span class="muted">(${v})</span></div>`).join('') : '<span class="muted">-</span>';
 }
 let anData=null, anDays=14;
 function anFlag(cc){ return /^[A-Z]{2}$/.test(cc)? cc.replace(/./g,c=>String.fromCodePoint(0x1F1E6+c.charCodeAt(0)-65)) : '🏳️'; }
@@ -3938,7 +3939,7 @@ function _mix(hex,target,t){ const a=_hexRgb(hex),b=_hexRgb(target); return _rgb
 function applyBrand(){
   const b=brandCfg(); const r=document.documentElement;
   // nome + logótipo (sidebar estático)
-  try{ document.title=brandName()+' — Plataforma de Formação'; const h=$('.brand-txt h1'); if(h) h.textContent=brandName(); $$('.brand-logo img').forEach(i=>{ if(i.getAttribute('src')!==logoURL()) i.src=logoURL(); }); }catch(e){}
+  try{ document.title=brandName()+' - Plataforma de Formação'; const h=$('.brand-txt h1'); if(h) h.textContent=brandName(); $$('.brand-logo img').forEach(i=>{ if(i.getAttribute('src')!==logoURL()) i.src=logoURL(); }); }catch(e){}
   // cor principal → paleta derivada
   if(b.cor && /^#?[0-9a-fA-F]{3,6}$/.test(b.cor)){ const c=b.cor[0]==='#'?b.cor:'#'+b.cor;
     const map={'--g900':_mix(c,'#000',.36),'--g800':_mix(c,'#000',.22),'--g700':_mix(c,'#000',.1),'--g600':c,'--g500':_mix(c,'#fff',.12),'--g400':_mix(c,'#fff',.28),'--g300':_mix(c,'#fff',.55),'--g100':_mix(c,'#fff',.88),'--g50':_mix(c,'#fff',.95),'--accent':_mix(c,'#fff',.2)};
@@ -4047,7 +4048,7 @@ document.addEventListener('click', async e=>{
     case 'mail-reset': mailDraft=defaultMailDraft(); render(); break;
     case 'mail-pick': mailDraft.clienteId=el.dataset.id; if(mailDraft.templateId) applyMailTemplate(); render(); break;
     case 'mail-clearclient': mailDraft.clienteId=''; render(); break;
-    case 'mail-ai': { syncMailDraft(); const c=mailDraft.clienteId?getC(mailDraft.clienteId):null; mailDraft.message=aiSuggestEmail(c); if(!mailDraft.subject||!mailDraft.subject.trim()) mailDraft.subject='Uma ideia para '+(c?`${c.nome}`:'si'); render(); toast('Rascunho gerado','Sugestão de IA (simulada) — reveja antes de enviar'); } break;
+    case 'mail-ai': { syncMailDraft(); const c=mailDraft.clienteId?getC(mailDraft.clienteId):null; mailDraft.message=aiSuggestEmail(c); if(!mailDraft.subject||!mailDraft.subject.trim()) mailDraft.subject='Uma ideia para '+(c?`${c.nome}`:'si'); render(); toast('Rascunho gerado','Sugestão de IA (simulada) - reveja antes de enviar'); } break;
     case 'apply-cac': { const v=+($('#cacInput')?.value||0); state.settings.cacBudget=v<0?0:v; save(); render(); toast('CAC atualizado','Investimento de marketing aplicado'); } break;
     case 'cal-view': agendaView=el.dataset.view; render(); break;
     case 'cal-prev': if(agendaView==='semana') agendaWeek=addDays(agendaWeek||mondayOf(todayISO()),-7); else agendaYM=shiftYM(agendaYM||curYM(),-1); render(); break;
@@ -4062,7 +4063,7 @@ document.addEventListener('click', async e=>{
     case 'save-settings': if(!canFeat('entidade')){ toast('Sem permissão','','warn'); break; } saveSettings(); break;
     case 'export': exportJSON(); break;
     case 'import': $('#importFile').click(); break;
-    case 'reset': if(await uiConfirm('Repõe todos os dados de demonstração — perde as alterações atuais neste navegador.',{title:'Repor dados demo?',danger:true,okText:'Repor'})) resetDemo(); break;
+    case 'reset': if(await uiConfirm('Repõe todos os dados de demonstração - perde as alterações atuais neste navegador.',{title:'Repor dados demo?',danger:true,okText:'Repor'})) resetDemo(); break;
     case 'theme': applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'); break;
     case 'present': document.body.classList.toggle('present'); break;
     case 'notif': { const p=$('#notifPanel'); if(!p)break; const open=p.classList.toggle('open'); if(open) renderNotifPanel(); } break;
@@ -4145,7 +4146,7 @@ document.addEventListener('click', async e=>{
     case 'portal-lookup': { const v=($('#lookupEmail')?.value||'').trim(); state._portalEmail=v; state._portalTab='consent'; renderPortal(); if(v&&!state.clientes.some(x=>(x.email||'').toLowerCase()===v.toLowerCase())) toast('Sem registos','Nenhum consentimento para esse email','info'); } break;
     case 'portal-withdraw': { const c=state.consentimentos.find(x=>x.id===id); if(c){ c.estado='Retirado'; c.data=todayISO(); save(); renderPortal(); toast('Consentimento retirado','Atualizado com sucesso'); } } break;
     case 'rgpd-report': printRGPDReport(); break;
-    case 'campaign-email': { const c=state.campanhas.find(x=>x.id===id); if(c){ const txt=`Assunto: ${c.nome}\n\nOlá,\n\n${c.mensagem||'Temos novidades que podem ser do seu interesse.'}\n\nEsta comunicação é dirigida ao segmento "${c.segmento}". Pode cancelar a subscrição a qualquer momento.\n\nCom os melhores cumprimentos,\n${state.settings.entidade}`; if(navigator.clipboard){ navigator.clipboard.writeText(txt).then(()=>toast('Email da campanha copiado',`"${c.nome}" — pronto a colar`)).catch(()=>toast('Não foi possível copiar','','warn')); } else toast('Copiar indisponível','','warn'); } } break;
+    case 'campaign-email': { const c=state.campanhas.find(x=>x.id===id); if(c){ const txt=`Assunto: ${c.nome}\n\nOlá,\n\n${c.mensagem||'Temos novidades que podem ser do seu interesse.'}\n\nEsta comunicação é dirigida ao segmento "${c.segmento}". Pode cancelar a subscrição a qualquer momento.\n\nCom os melhores cumprimentos,\n${state.settings.entidade}`; if(navigator.clipboard){ navigator.clipboard.writeText(txt).then(()=>toast('Email da campanha copiado',`"${c.nome}" - pronto a colar`)).catch(()=>toast('Não foi possível copiar','','warn')); } else toast('Copiar indisponível','','warn'); } } break;
   }
 });
 // tabs e filtros
@@ -4215,10 +4216,10 @@ function openGroupModal(name){
   $('#modalForm').innerHTML=`
     <div class="form-grid">
       <div class="field full"><label>Nome do grupo *</label><input name="gnome" value="${esc(name||'')}"></div>
-      ${!isEdit?`<div class="field full"><label>Copiar permissões de</label><select name="gcopy"><option value="">— começar sem acessos —</option>${Object.keys(state.roles).map(r=>`<option value="${esc(r)}">${esc(r)}</option>`).join('')}</select></div>`:''}
-      <div class="field full"><label style="cursor:pointer"><input type="checkbox" name="ggestor" ${role&&role.gestor?'checked':''} style="vertical-align:-2px;margin-right:8px;width:15px;height:15px;accent-color:var(--g600)">Gestor — vê todos os módulos e pode gerir o sistema</label></div>
-      <div class="field full"><label style="cursor:pointer"><input type="checkbox" name="gocultar" ${role&&role.ocultarFinanceiro?'checked':''} style="vertical-align:-2px;margin-right:8px;width:15px;height:15px;accent-color:var(--g600)">Ocultar valores financeiros (€) — útil para formandos</label></div>
-      <div class="field full" style="border-top:1px solid var(--border);margin-top:2px;padding-top:12px"><label style="font-weight:800;font-size:.86rem">Permissões específicas (sandbox)</label><div class="sub" style="font-size:.78rem;margin:2px 0 9px">Dá acesso a secções das Definições <strong>sem</strong> ativar o módulo completo. Ideal para formandos personalizarem o ambiente — tudo o que alterarem fica só no navegador deles.</div>
+      ${!isEdit?`<div class="field full"><label>Copiar permissões de</label><select name="gcopy"><option value="">- começar sem acessos -</option>${Object.keys(state.roles).map(r=>`<option value="${esc(r)}">${esc(r)}</option>`).join('')}</select></div>`:''}
+      <div class="field full"><label style="cursor:pointer"><input type="checkbox" name="ggestor" ${role&&role.gestor?'checked':''} style="vertical-align:-2px;margin-right:8px;width:15px;height:15px;accent-color:var(--g600)">Gestor - vê todos os módulos e pode gerir o sistema</label></div>
+      <div class="field full"><label style="cursor:pointer"><input type="checkbox" name="gocultar" ${role&&role.ocultarFinanceiro?'checked':''} style="vertical-align:-2px;margin-right:8px;width:15px;height:15px;accent-color:var(--g600)">Ocultar valores financeiros (€) - útil para formandos</label></div>
+      <div class="field full" style="border-top:1px solid var(--border);margin-top:2px;padding-top:12px"><label style="font-weight:800;font-size:.86rem">Permissões específicas (sandbox)</label><div class="sub" style="font-size:.78rem;margin:2px 0 9px">Dá acesso a secções das Definições <strong>sem</strong> ativar o módulo completo. Ideal para formandos personalizarem o ambiente - tudo o que alterarem fica só no navegador deles.</div>
         <div style="display:flex;flex-wrap:wrap;gap:10px 20px">${FEATS.map(ft=>`<label style="cursor:pointer;display:flex;align-items:center;gap:7px"><input type="checkbox" name="gfeat" value="${ft.k}" ${role&&role.feats&&role.feats.includes(ft.k)?'checked':''} style="width:15px;height:15px;accent-color:var(--g600)">${esc(ft.l)}</label>`).join('')}</div>
       </div>
     </div>
@@ -4248,7 +4249,7 @@ function saveGroup(){
 async function delGroup(name){
   if(name==='Administrador'){ toast('Não permitido','O grupo Administrador não pode ser removido','warn'); return; }
   const inUse=state.utilizadores.filter(u=>u.papel===name);
-  if(inUse.length){ toast('Grupo em uso',`${inUse.length} utilizador(es) usam este grupo — reatribua-os primeiro`,'warn'); return; }
+  if(inUse.length){ toast('Grupo em uso',`${inUse.length} utilizador(es) usam este grupo - reatribua-os primeiro`,'warn'); return; }
   if(!(await uiConfirm(`Eliminar o grupo "${name}"?`,{title:'Eliminar grupo?',danger:true,okText:'Eliminar'}))) return;
   delete state.roles[name]; save(); closeModal(); render(); toast('Grupo eliminado',name);
 }
@@ -4300,7 +4301,7 @@ window.addEventListener('hashchange',()=>{ state._q=''; _pages={}; render(); });
 function exportClient(id){
   const c=getC(id); if(!c) return;
   const data={
-    _documento:'Exportação de dados pessoais — RGPD Art. 20.º (direito à portabilidade)',
+    _documento:'Exportação de dados pessoais - RGPD Art. 20.º (direito à portabilidade)',
     _entidade:state.settings.entidade,
     _exportadoEm:new Date().toISOString(),
     titular:c,
@@ -4311,7 +4312,7 @@ function exportClient(id){
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
   a.download=`titular-${c.numero}-${(c.apelido||c.nome||'cliente').replace(/\s+/g,'_')}.json`; a.click(); URL.revokeObjectURL(a.href);
-  toast('Dados exportados','Portabilidade RGPD — JSON estruturado');
+  toast('Dados exportados','Portabilidade RGPD - JSON estruturado');
 }
 
 /* ---------- Importação de clientes via CSV ---------- */
@@ -4421,12 +4422,12 @@ function downloadUserTemplate(){
   const lines=['nome;apelido;email;username;password;papel'];
   for(let r=2;r<=N+1;r++){ const e=ex[r-2]||['','',''];
     const uForm=`=SE(C${r}="";"";ESQUERDA(C${r};LOCALIZAR("@";C${r})-1))`;                                   // utilizador = nº do email (único)
-    const pForm=`=SE(C${r}="";"";ESQUERDA(C${r};LOCALIZAR("@";C${r})-1)&MAIÚSCULA(ESQUERDA(A${r};1)&ESQUERDA(B${r};1)))`; // password = nº + iniciais
+    const pForm=`=SE(C${r}="";"";ESQUERDA(C${r};LOCALIZAR("@";C${r})-1)&ESQUERDA(A${r};1)&ESQUERDA(B${r};1))`; // password = nº + iniciais (nomes já vêm capitalizados)
     lines.push([cc(e[0]),cc(e[1]),cc(e[2]),cc(uForm),cc(pForm),(e[2]?'Formando':'')].join(';'));
   }
   const blob=new Blob(['﻿'+lines.join('\n')+'\n'],{type:'text/csv;charset=utf-8'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='modelo-formandos.csv'; a.click(); URL.revokeObjectURL(a.href);
-  toast('Modelo descarregado','Abra no Excel — utilizador e palavra-passe calculam-se sozinhos');
+  toast('Modelo descarregado','Abra no Excel - utilizador e palavra-passe calculam-se sozinhos');
 }
 
 /* ---------- gerador de dados de exemplo (base académica) ---------- */
@@ -4438,7 +4439,7 @@ const GN_SEG=['Micro','PME','PME','PME','Grande Empresa'];
 function gnRand(a){ return a[Math.floor(Math.random()*a.length)]; }
 function gnDate(){ return '2026-'+pad(1+Math.floor(Math.random()*6))+'-'+pad(1+Math.floor(Math.random()*28)); }
 function gnNIF(){ let d='5'; for(let i=0;i<7;i++) d+=Math.floor(Math.random()*10); let s=0; for(let i=0;i<8;i++) s+=Number(d[i])*(9-i); let c=11-(s%11); if(c>=10)c=0; return d+c; }
-/* Template "oficial" para propostas geradas — nunca um criado por formando (obriga-os a aplicar o seu manualmente). */
+/* Template "oficial" para propostas geradas - nunca um criado por formando (obriga-os a aplicar o seu manualmente). */
 function seedTplId(){ const t=(state.propostaTemplates||[]).find(x=>x.criadoPor==='u1'); return t?t.id:null; }
 function gerarExemplos(nCli,nProp,nEmp){
   nEmp=nEmp||0;
@@ -4460,7 +4461,7 @@ function gerarExemplos(nCli,nProp,nEmp){
     if(!state.clientes.length||!prods.length) break;
     const cli=gnRand(state.clientes); const nlin=1+Math.floor(Math.random()*3); const linhas=[];
     for(let j=0;j<nlin;j++){ const pr=gnRand(prods); linhas.push({produtoId:pr.id,descricao:pr.nome,qtd:1+Math.floor(Math.random()*6),preco:pr.preco,iva:ivaForRegion(pr.iva,cli.regiao||'Continente')}); }
-    state.propostas.push({id:uid('prop'),numero:nextProposalNumber(),titulo:gnRand(['Implementação CRM','Plano Analytics','Suporte Premium','Workshop de equipa','Conformidade RGPD','Licenciamento anual'])+' — '+cli.empresa,clienteId:cli.id,criada:gnDate(),validade:addDays(todayISO(),30),estado:gnRand(['Criada','Enviada','Negociação','Negociação','Ganha','Ganha','Perdida']),templateId:seedTplId(),linhas,criadoPor:(currentUser()?currentUser().id:null),criadoEm:gnDate(),alteradoEm:todayISO()});
+    state.propostas.push({id:uid('prop'),numero:nextProposalNumber(),titulo:gnRand(['Implementação CRM','Plano Analytics','Suporte Premium','Workshop de equipa','Conformidade RGPD','Licenciamento anual'])+' - '+cli.empresa,clienteId:cli.id,criada:gnDate(),validade:addDays(todayISO(),30),estado:gnRand(['Criada','Enviada','Negociação','Negociação','Ganha','Ganha','Perdida']),templateId:seedTplId(),linhas,criadoPor:(currentUser()?currentUser().id:null),criadoEm:gnDate(),alteradoEm:todayISO()});
   }
   recalcLoyalty(); save(); render(); toast('Exemplos gerados',`${nEmp} empresa(s) · ${nCli} contacto(s) · ${nProp} proposta(s)`);
 }
@@ -4582,7 +4583,7 @@ function submitEnterTurma(){
     else { if(err) err.textContent='Turma '+d+' não encontrada. Confirme o número com o formador.'; if(btn){ btn.disabled=false; btn.textContent='Entrar'; } }
   }).catch(()=>{ go(); });        // função ainda não criada / rede → não bloquear (cai no login normal)
 }
-/* Consola de Suporte dedicada (ecrã inteiro) — quando há sessão root no Principal. */
+/* Consola de Suporte dedicada (ecrã inteiro) - quando há sessão root no Principal. */
 function renderRootConsole(){
   $('#login').innerHTML=`
   <div class="root-console">
@@ -4595,7 +4596,7 @@ function renderRootConsole(){
       </div>
     </header>
     <div class="rc-body"><div id="rootConsolePanel"><div class="muted" style="padding:10px">A carregar turmas…</div></div></div>
-    <div class="rc-foot"><span class="muted">Acesso de suporte — gestão de identidade (turmas e contas). Não toca nos dados de prática (locais).</span><a class="legal-link" href="https://iefpcrm.cr0x.org/manual/aviso-legal/" target="_blank" rel="noopener">Aviso legal</a></div>
+    <div class="rc-foot"><span class="muted">Acesso de suporte - gestão de identidade (turmas e contas). Não toca nos dados de prática (locais).</span><a class="legal-link" href="https://iefpcrm.cr0x.org/manual/aviso-legal/" target="_blank" rel="noopener">Aviso legal</a></div>
   </div>`;
   renderRootPanel('#rootConsolePanel');
   startI18n();
@@ -4609,8 +4610,8 @@ function renderLogin(){
   if(createdInfo){
     // Turma criada → mostra o CÓDIGO DE RECUPERAÇÃO uma única vez.
     body=`<h2 class="login-h">Turma criada ✓</h2>
-      <p class="login-sub">Guarde o seu <strong>código de recuperação</strong> — é a única forma de recuperar a palavra-passe sozinho se a esquecer.</p>
-      <div class="recovery-box"><span class="rb-label">Código de recuperação</span><span class="rb-code">${esc(createdInfo.recovery||'—')}</span></div>
+      <p class="login-sub">Guarde o seu <strong>código de recuperação</strong> - é a única forma de recuperar a palavra-passe sozinho se a esquecer.</p>
+      <div class="recovery-box"><span class="rb-label">Código de recuperação</span><span class="rb-code">${esc(createdInfo.recovery||'-')}</span></div>
       <div class="callout warn" style="margin:14px 0">${ic('alert',16)}<div class="ctxt">Não voltará a ser mostrado. Anote-o num local seguro. Sem ele, só o suporte poderá repor a sua palavra-passe.</div></div>
       <button type="button" class="btn login-btn" data-act="goto-created">Entrar na turma ${esc(createdInfo.codigo)}</button>`;
   } else if(inTurma && turmaRecover && turmaRecoverEmail){
@@ -4654,8 +4655,8 @@ function renderLogin(){
       <form id="loginForm" onsubmit="return false">
         <div class="field"><label>Email de formador IEFP *</label><input name="email" type="email" autocomplete="email" placeholder="forNNNN@formacao.iefp.pt"></div>
         <div class="form-grid" style="gap:12px"><div class="field"><label>Nome *</label><input name="nome" placeholder="primeiro nome"></div><div class="field"><label>Apelido</label><input name="apelido" placeholder="apelido"></div></div>
-        <div class="field"><label>Número da turma — 8 dígitos *</label><input name="codigo" inputmode="numeric" placeholder="12345678" maxlength="8"></div>
-        <div class="field"><label>Nome da turma (opcional)</label><input name="nometurma" placeholder="ex.: CRM 2026 — Manhã"></div>
+        <div class="field"><label>Número da turma - 8 dígitos *</label><input name="codigo" inputmode="numeric" placeholder="12345678" maxlength="8"></div>
+        <div class="field"><label>Nome da turma (opcional)</label><input name="nometurma" placeholder="ex.: CRM 2026 - Manhã"></div>
         <div class="form-grid" style="gap:12px"><div class="field"><label>Utilizador *</label><input name="username" autocomplete="username" placeholder="ex.: formador"></div><div class="field"><label>Palavra-passe *</label><input name="password" type="password" autocomplete="new-password" placeholder="••••••••"></div></div>
         <button type="button" class="btn login-btn" data-act="criarturma">Criar turma e entrar</button>
       </form>
@@ -4664,7 +4665,7 @@ function renderLogin(){
   } else if(mode==='root'){
     if(!rootSession){
       body=`<h2 class="login-h">Suporte</h2>
-        <p class="login-sub">Acesso de suporte (root) à identidade — turmas e contas.</p>
+        <p class="login-sub">Acesso de suporte (root) à identidade - turmas e contas.</p>
         <form id="loginForm" onsubmit="return false">
           <div class="field"><label>Palavra-passe de suporte</label><input name="rootpass" type="password" autocomplete="current-password" placeholder="••••••••"></div>
           <button type="button" class="btn login-btn" data-act="rootlogin">Entrar como suporte</button>
@@ -4672,8 +4673,8 @@ function renderLogin(){
         <div id="loginErr" class="login-err"></div>
         <div class="login-foot"><a class="login-portal" data-act="login-tologin">← Voltar</a></div>`;
     } else {
-      const rows=rootTurmas.map(t=>`<div class="root-trow"><div class="root-tinfo"><strong>${esc(t.nome||('Turma '+t.codigo))}</strong><span>${esc(t.codigo)} · ${t.n_utilizadores} util. · ${esc(t.criado_por||'—')}</span></div><button type="button" class="btn-sec btn-sm" data-act="root-open" data-codigo="${esc(t.codigo)}">Abrir</button></div>`).join('');
-      body=`<h2 class="login-h">Suporte — turmas</h2>
+      const rows=rootTurmas.map(t=>`<div class="root-trow"><div class="root-tinfo"><strong>${esc(t.nome||('Turma '+t.codigo))}</strong><span>${esc(t.codigo)} · ${t.n_utilizadores} util. · ${esc(t.criado_por||'-')}</span></div><button type="button" class="btn-sec btn-sm" data-act="root-open" data-codigo="${esc(t.codigo)}">Abrir</button></div>`).join('');
+      body=`<h2 class="login-h">Suporte - turmas</h2>
         <p class="login-sub">${rootTurmas.length} turma(s). "Abrir" entra como administrador da turma.</p>
         <div class="root-list">${rows||'<div class="muted" style="padding:12px;text-align:center">Ainda não há turmas criadas.</div>'}</div>
         <div id="loginErr" class="login-err"></div>
@@ -4691,7 +4692,7 @@ function renderLogin(){
       <div id="loginErr" class="login-err"></div>
       ${recentChipsHTML()}
       <div class="login-sep">ou</div>
-      <a class="login-action" data-act="login-tocreate">${ic('users',16)} Sou formador — criar nova turma</a>
+      <a class="login-action" data-act="login-tocreate">${ic('users',16)} Sou formador - criar nova turma</a>
       <div class="login-foot">
         <a class="login-portal" href="#portal">Portal do Titular (RGPD) →</a>
       </div>`;
@@ -4777,17 +4778,17 @@ function submitRecoverEmail(){
 function genRecovery(){
   const btn=$('[data-act="gen-recovery"]'); if(btn){ btn.disabled=true; }
   supaGerarRecovery().then(d=>{
-    const out=$('#recoveryCodeOut'); if(out){ out.textContent=d&&d.code||'—'; out.style.display='block'; }
-    toast('Código gerado','Guarde-o — o código anterior deixou de ser válido');
+    const out=$('#recoveryCodeOut'); if(out){ out.textContent=d&&d.code||'-'; out.style.display='block'; }
+    toast('Código gerado','Guarde-o - o código anterior deixou de ser válido');
     if(btn){ btn.disabled=false; }
   }).catch(e=>{ toast('Não foi possível gerar o código',supaMsg(e),'err'); if(btn){ btn.disabled=false; } });
 }
 
 /* ---------- Wizard: gerar campanha a partir de persona ---------- */
 const PERSONAS=[
-  {id:'zemiguel',nome:'Zé Miguel',emoji:'🏨',seg:'PME',desc:'Hoteleiro independente — procura automatização de processos e fidelização de clientes. Canal: LinkedIn. Orçamento médio.',msg:'Automatize a relação com os seus hóspedes'},
-  {id:'sofia',nome:'Sofia Diretora',emoji:'💼',seg:'Grande Empresa',desc:'Diretora comercial — foco em analytics, dashboards e previsão de vendas para a equipa.',msg:'Dashboards e previsões para a sua equipa de vendas'},
-  {id:'antonio',nome:'António Loja',emoji:'🛍️',seg:'Micro',desc:'Comerciante local — primeiro CRM, quer simplicidade e orçamento reduzido.',msg:'Comece hoje a organizar os seus clientes'},
+  {id:'zemiguel',nome:'Zé Miguel',emoji:'🏨',seg:'PME',desc:'Hoteleiro independente - procura automatização de processos e fidelização de clientes. Canal: LinkedIn. Orçamento médio.',msg:'Automatize a relação com os seus hóspedes'},
+  {id:'sofia',nome:'Sofia Diretora',emoji:'💼',seg:'Grande Empresa',desc:'Diretora comercial - foco em analytics, dashboards e previsão de vendas para a equipa.',msg:'Dashboards e previsões para a sua equipa de vendas'},
+  {id:'antonio',nome:'António Loja',emoji:'🛍️',seg:'Micro',desc:'Comerciante local - primeiro CRM, quer simplicidade e orçamento reduzido.',msg:'Comece hoje a organizar os seus clientes'},
 ];
 function openWizard(){
   editing={type:'__wizard'};
@@ -4874,7 +4875,7 @@ function blockHTML(b,p,cor){
 }
 function blocksHTML(tpl,p){ const cor=tpl.cor||'#006B3C'; return (tpl.blocks||[]).map(b=>blockHTML(b,p,cor)).join(''); }
 function proposalDocHTML(tpl,p){
-  return `<!doctype html><html lang="pt-PT"><head><meta charset="UTF-8"><title>${esc(p.numero||'Proposta')} — ${esc(p.titulo||'')}</title>
+  return `<!doctype html><html lang="pt-PT"><head><meta charset="UTF-8"><title>${esc(p.numero||'Proposta')} - ${esc(p.titulo||'')}</title>
   <style>
     @page{size:A4;margin:15mm 14mm 17mm}
     *{box-sizing:border-box}
@@ -4924,7 +4925,7 @@ function tplListHTML(){
   <div class="grid cols-3">
     ${state.propostaTemplates.map(t=>{const autor=state.utilizadores.find(u=>u.id===t.criadoPor);return `<div class="card card-pad tpl-card" data-act="tpl-edit" data-id="${t.id}" style="cursor:pointer">
       <div class="tpl-thumb"><div class="tpl-thumb-inner">${blocksHTML(t,exemploProp())}</div></div>
-      <div class="section-head" style="margin-top:12px"><div><strong>${esc(t.nome)}</strong><div class="muted" style="font-size:.78rem">${t.blocks.length} blocos · ${esc(autor?autor.nome:'—')} · ${dPT(t.criadoEm)}</div></div><span style="width:16px;height:16px;border-radius:4px;background:${esc(t.cor)};display:inline-block;flex:0 0 auto"></span></div>
+      <div class="section-head" style="margin-top:12px"><div><strong>${esc(t.nome)}</strong><div class="muted" style="font-size:.78rem">${t.blocks.length} blocos · ${esc(autor?autor.nome:'-')} · ${dPT(t.criadoEm)}</div></div><span style="width:16px;height:16px;border-radius:4px;background:${esc(t.cor)};display:inline-block;flex:0 0 auto"></span></div>
       <div class="toolbar" style="margin-top:10px"><button class="btn-sec btn-sm" data-act="tpl-edit" data-id="${t.id}" data-stop>Editar</button><button class="btn-danger btn-sm" data-act="del-proptpl" data-id="${t.id}" data-stop>${ic('trash',14)}</button></div>
     </div>`;}).join('')||empty('Sem modelos','Crie o primeiro modelo de proposta.')}
   </div>`;
@@ -4945,7 +4946,7 @@ function tplEditorHTML(){
   <div class="tpl-editor">
     <div class="tpl-side">
       <div class="card card-pad">
-        <h4 style="font-weight:800;font-size:.9rem;margin-bottom:10px">Estrutura <span class="muted" style="font-weight:500;font-size:.78rem">— arraste para reordenar</span></h4>
+        <h4 style="font-weight:800;font-size:.9rem;margin-bottom:10px">Estrutura <span class="muted" style="font-weight:500;font-size:.78rem">- arraste para reordenar</span></h4>
         <div class="block-list" id="blockList">${d.blocks.map((b,i)=>blockRowHTML(b,i)).join('')||'<div class="empty" style="padding:16px">Sem blocos</div>'}</div>
       </div>
       <div class="card card-pad">
@@ -4984,7 +4985,7 @@ function inspectorHTML(b,i){
   else if(b.type==='totais') body=chk('mostrarSubtotal','Mostrar subtotal')+chk('mostrarIVA','Mostrar IVA');
   else if(b.type==='assinatura') body=F('Texto',`<input data-bi="${i}" data-bf="texto" value="${esc(b.texto||'')}">`)+F('Alinhamento',selAlign(i,b.alinhamento,[['flex-start','Esquerda'],['center','Centro'],['flex-end','Direita']]));
   else if(b.type==='espaco') body=F('Altura (px)',`<input type="number" data-bi="${i}" data-bf="altura" value="${esc(b.altura||24)}">`);
-  else if(b.type==='divisor') body='<p class="muted" style="font-size:.82rem">Linha divisória — sem opções.</p>';
+  else if(b.type==='divisor') body='<p class="muted" style="font-size:.82rem">Linha divisória - sem opções.</p>';
   return head+body;
 }
 async function delPropTpl(id){ if(!id) return; if(!(await uiConfirm('Esta ação não pode ser anulada.',{title:'Eliminar modelo de proposta?',danger:true,okText:'Eliminar'}))) return; state.propostaTemplates=state.propostaTemplates.filter(x=>x.id!==id); save(); render(); toast('Modelo eliminado'); }

@@ -1,10 +1,10 @@
 # RGPD & Pedagogia
 
-O módulo **RGPD** é o núcleo da UFCD **10870 — Administração de CRM** (proteção de dados). Tudo respeita o **filtro temporal** e há um **relatório de conformidade imprimível**.
+O módulo **RGPD** é o núcleo da UFCD **10870 - Administração de CRM** (proteção de dados). Tudo respeita o **filtro temporal** e há um **relatório de conformidade imprimível**.
 
 <video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/rgpd.png"><source src="/manual/assets/videos/rgpd-pt.webm" type="video/webm"><source src="/manual/assets/videos/rgpd-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/rgpd-pt.vtt" srclang="pt" label="Português" default></video>
 
-*Consentimentos, pedidos de titular, RoPA e violações — num só módulo.*
+*Consentimentos, pedidos de titular, RoPA e violações - num só módulo.*
 
 ## Áreas do módulo
 
@@ -51,8 +51,8 @@ O módulo **RGPD** é o núcleo da UFCD **10870 — Administração de CRM** (pr
 
 | UFCD | Onde se pratica |
 |---|---|
-| **10868 — CRM Analytics** | Dashboard, Analytics, Campanhas, segmentação, funil, CAC/LTV |
-| **10870 — Administração de CRM** | RGPD (consentimentos, DSAR, RoPA, violações), utilizadores e permissões |
+| **10868 - CRM Analytics** | Dashboard, Analytics, Campanhas, segmentação, funil, CAC/LTV |
+| **10870 - Administração de CRM** | RGPD (consentimentos, DSAR, RoPA, violações), utilizadores e permissões |
 
 !!! info "Balões pedagógicos"
     Por toda a app, o ícone **ⓘ** traz a definição do conceito (consentimento, titular, violação, RoPA…) e a **referência à página dos slides**.

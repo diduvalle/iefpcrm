@@ -4,7 +4,7 @@ Tira o acesso de um formando à turma.
 
 ## Passo a passo
 
-1. **Definições → Formandos da turma** — localiza o formando.
+1. **Definições → Formandos da turma** - localiza o formando.
 2. Clica **✕** na linha dele.
 3. Confirma.
 

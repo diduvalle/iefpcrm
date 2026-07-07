@@ -1,12 +1,12 @@
 # Linhas & catálogo
 
-As linhas da proposta são os **artigos** — escolhidos do **catálogo de produtos** (não há descrição livre).
+As linhas da proposta são os **artigos** - escolhidos do **catálogo de produtos** (não há descrição livre).
 
 ## Cada linha
 
-- **Artigo** — escolhido do catálogo (agrupado por família → subfamília). Ao escolher, preenche **descrição** (travada), **preço** e **IVA**.
+- **Artigo** - escolhido do catálogo (agrupado por família → subfamília). Ao escolher, preenche **descrição** (travada), **preço** e **IVA**.
 - **Quantidade**.
-- **IVA** — ajusta-se à **região do cliente**. Se uma linha tiver IVA de outra região, aparece **“Corrigir para {região}”**.
+- **IVA** - ajusta-se à **região do cliente**. Se uma linha tiver IVA de outra região, aparece **“Corrigir para {região}”**.
 - **➕** adiciona linha · **🗑️** remove.
 
 ## Totais (automáticos)

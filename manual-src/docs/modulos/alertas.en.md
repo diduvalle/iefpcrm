@@ -10,12 +10,12 @@ The **warnings** center and the **activity history** (System group). There is al
 
 The app automatically calculates the warnings that require attention:
 
-- **Proposals about to expire** — validity within the next **15 days**.
+- **Proposals about to expire** - validity within the next **15 days**.
 - **GDPR requests** overdue or due (**≤7 days**).
 - **Tasks** due today or **overdue**.
 - **Scheduled sends** that are overdue.
 
-Each alert is **clickable** — it takes you directly to the item (proposal, request, task…).
+Each alert is **clickable** - it takes you directly to the item (proposal, request, task…).
 
 ## The bell (top)
 
@@ -26,4 +26,4 @@ The bell icon opens the **notifications panel** with the same alerts, always vis
 Records recent actions in the tool (toasts/events), with date and time. There is a **Clear** button to empty the history.
 
 !!! tip "For the trainer"
-    Alerts help the trainee understand what is “pending” — a good way to practice **pipeline and deadline management** of a real CRM.
+    Alerts help the trainee understand what is “pending” - a good way to practice **pipeline and deadline management** of a real CRM.

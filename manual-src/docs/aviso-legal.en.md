@@ -1,6 +1,6 @@
 # Legal notice
 
-**IEFP CRM** is an **independent, non-commercial, educational** project created by **Diogo du Valle** as a teaching tool for the training units **10868 — CRM Analytics** and **10870 — CRM Administration**.
+**IEFP CRM** is an **independent, non-commercial, educational** project created by **Diogo du Valle** as a teaching tool for the training units **10868 - CRM Analytics** and **10870 - CRM Administration**.
 
 ## Trademark and logo
 
@@ -14,7 +14,7 @@
 
 ## Analytics
 
-- To understand usage, we record **anonymous, aggregated statistics** (page visited, language, device type, videos played). We **do not use cookies**, **do not collect personal data**, and do not share with third parties — the data stays within the project's own infrastructure.
+- To understand usage, we record **anonymous, aggregated statistics** (page visited, language, device type, videos played). We **do not use cookies**, **do not collect personal data**, and do not share with third parties - the data stays within the project's own infrastructure.
 
 ## Rights and contact
 

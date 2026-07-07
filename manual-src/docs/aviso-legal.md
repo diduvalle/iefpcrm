@@ -1,6 +1,6 @@
 # Aviso legal
 
-O **IEFP CRM** é um projeto **pedagógico, independente e sem fins lucrativos**, criado por **Diogo du Valle** como ferramenta de apoio à formação nas UFCD **10868 — CRM Analytics** e **10870 — Administração de CRM**.
+O **IEFP CRM** é um projeto **pedagógico, independente e sem fins lucrativos**, criado por **Diogo du Valle** como ferramenta de apoio à formação nas UFCD **10868 - CRM Analytics** e **10870 - Administração de CRM**.
 
 ## Marca e logótipo
 
@@ -14,7 +14,7 @@ O **IEFP CRM** é um projeto **pedagógico, independente e sem fins lucrativos**
 
 ## Analítica
 
-- Para perceber a utilização, registamos **estatísticas anónimas e agregadas** (página visitada, idioma, tipo de dispositivo, vídeos vistos). **Não usamos cookies**, **não recolhemos dados pessoais** nem partilhamos com terceiros — os dados ficam na infraestrutura do próprio projeto.
+- Para perceber a utilização, registamos **estatísticas anónimas e agregadas** (página visitada, idioma, tipo de dispositivo, vídeos vistos). **Não usamos cookies**, **não recolhemos dados pessoais** nem partilhamos com terceiros - os dados ficam na infraestrutura do próprio projeto.
 
 ## Direitos e contacto
 

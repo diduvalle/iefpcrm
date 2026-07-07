@@ -4,7 +4,7 @@
 
 *Settings, with collapsible cards (several admin-only).*
 
-The **system configuration** (System group). The cards are **collapsible** — click the title to open/close; on the first visit they are collapsed to keep the page compact. Several cards are **administrators only** (*Admin* badge).
+The **system configuration** (System group). The cards are **collapsible** - click the title to open/close; on the first visit they are collapsed to keep the page compact. Several cards are **administrators only** (*Admin* badge).
 
 ## Available cards
 
@@ -15,7 +15,7 @@ Data used in proposals and communications: **entity name**, **NIF/NIPC**, **phon
 **Export** / **Import** the full CRM JSON (backup or migration). This is also where you **restore the sample data**.
 
 ### Sample data generator
-Quickly creates realistic **companies, contacts and proposals** (PT) — adds to the existing data.
+Quickly creates realistic **companies, contacts and proposals** (PT) - adds to the existing data.
 
 ### Brand & Appearance *(Admin)*
 *White-label*: **name**, **primary color** (derives the palette), **logo**, **login background**. **Apply** / **Reset IEFP**. → [Email & Brand](../formador/email-marca.md).
@@ -36,8 +36,8 @@ Shortcut to the template builder. → [Proposal Templates](modelos.md).
 
 In a class, Settings gain two central cards:
 
-- **Trainees in the class** — access management (import, individual, reset password). → [Manage the class](../formador/gerir-turma/index.md).
-- **Submission & validation of work** — receive and grade submissions. → [Submission & validation](../formador/entregas.md).
+- **Trainees in the class** - access management (import, individual, reset password). → [Manage the class](../formador/gerir-turma/index.md).
+- **Submission & validation of work** - receive and grade submissions. → [Submission & validation](../formador/entregas.md).
 
 !!! note "Who sees Settings"
     **Trainees do not access** Settings. It is a **trainer/administrator** space.

@@ -10,9 +10,9 @@ O **construtor por blocos** que define o aspeto do PDF da proposta. Cada propost
 
 Ao abrir **Modelos** → escolhe um modelo (ou **+ Novo**). O editor tem três zonas:
 
-- **Esquerda — Estrutura:** a lista de blocos (arrasta para reordenar, ↑↓, eliminar) + a palete **Adicionar bloco**.
-- **Centro — Inspetor:** as opções do bloco selecionado.
-- **Direita — Pré-visualização ao vivo:** a "folha" como vai sair no PDF.
+- **Esquerda - Estrutura:** a lista de blocos (arrasta para reordenar, ↑↓, eliminar) + a palete **Adicionar bloco**.
+- **Centro - Inspetor:** as opções do bloco selecionado.
+- **Direita - Pré-visualização ao vivo:** a "folha" como vai sair no PDF.
 
 ## Tipos de bloco
 

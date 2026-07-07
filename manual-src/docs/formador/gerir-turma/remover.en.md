@@ -4,7 +4,7 @@ Take away a trainee's access to the class.
 
 ## Step by step
 
-1. **Settings → Class trainees** — locate the trainee.
+1. **Settings → Class trainees** - locate the trainee.
 2. Click **✕** on their row.
 3. Confirm.
 

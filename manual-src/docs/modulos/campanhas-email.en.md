@@ -13,7 +13,7 @@ Two menus: **Campaigns** (marketing planning) and **Email/Communication** (sendi
 ### The screen
 Date filter + list of campaigns (name, channel, segment, status, metrics) + **+ Campaign** and **✨ Generate from persona**.
 
-### Create — field by field
+### Create - field by field
 - **Name**, **Channel** (Email / SMS / Social Media).
 - Target **segment** (All / Micro / SME / Large Enterprise).
 - **Status** (Planned / Active…), **Start** and **End**.
@@ -21,7 +21,7 @@ Date filter + list of campaigns (name, channel, segment, status, metrics) + **+ 
 
 ### Persona generator (✨)
 1. Click **Generate from persona**.
-2. Choose a **persona** (e.g.: Zé Miguel — hotelier; Sofia — sales director; António — shopkeeper).
+2. Choose a **persona** (e.g.: Zé Miguel - hotelier; Sofia - sales director; António - shopkeeper).
 3. Set the **Objective** (Acquisition/Retention/Reactivation/Launch) and **Channel**.
 4. The app shows the **estimated audience** in the segment and a **suggested message** → **Generate**.
 
@@ -33,20 +33,20 @@ Date filter + list of campaigns (name, channel, segment, status, metrics) + **+ 
 ## Email / Communication
 
 ### Tabs
-- **Send history** — rich table; click a send to view the preview and resend.
-- **Templates** — email templates.
-- **Automations** — automatic rules.
-- **Scheduled** — queue of future sends.
+- **Send history** - rich table; click a send to view the preview and resend.
+- **Templates** - email templates.
+- **Automations** - automatic rules.
+- **Scheduled** - queue of future sends.
 
 ### Composer (Email module)
-- **Customer** — by **search** (not a giant dropdown).
-- **Template** — pre-fills subject + message.
+- **Customer** - by **search** (not a giant dropdown).
+- **Template** - pre-fills subject + message.
 - **CC / BCC**, **Subject**, **Message** (textarea).
 - **Live preview** + **mode chip** (real/simulated).
-- **Suggest with AI** *(simulated)* — generates a personalized draft.
+- **Suggest with AI** *(simulated)* - generates a personalized draft.
 - The user's **signature** is automatically added at the end.
 
-### Email templates — field by field
+### Email templates - field by field
 Name, subject, color, show logo, greeting, body, button text/link, signature. Uses **tags** (`{{cliente.nome}}`, `{{entidade.nome}}`).
 
 ### Automations (marketing automation)
@@ -61,7 +61,7 @@ Name, subject, color, show logo, greeting, body, button text/link, signature. Us
 **Open** and **click** rate per send and aggregated.
 
 !!! warning "Real vs simulated sending · tracking"
-    **Trainees** always send in **simulated** mode (safe). The open/click metrics in the learning environment are **simulated** — the app explains that real tracking requires a pixel + server.
+    **Trainees** always send in **simulated** mode (safe). The open/click metrics in the learning environment are **simulated** - the app explains that real tracking requires a pixel + server.
 
 ## Related
 

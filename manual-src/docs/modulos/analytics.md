@@ -1,6 +1,6 @@
 # Analytics
 
-O módulo de **KPIs & Dashboards** — o foco da UFCD **10868**. Tudo respeita o **filtro temporal** e permite **comparar com o período anterior**.
+O módulo de **KPIs & Dashboards** - o foco da UFCD **10868**. Tudo respeita o **filtro temporal** e permite **comparar com o período anterior**.
 
 <video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/analytics.png"><source src="/manual/assets/videos/analytics-pt.webm" type="video/webm"><source src="/manual/assets/videos/analytics-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/analytics-pt.vtt" srclang="pt" label="Português" default></video>
 
@@ -8,23 +8,23 @@ O módulo de **KPIs & Dashboards** — o foco da UFCD **10868**. Tudo respeita o
 
 ## Filtro e comparação
 
-- **Filtro temporal** no topo: Tudo / 30 dias / Trimestre / Este mês / Este ano / datas De–Até.
-- Botão **Comparar** — calcula o período anterior de igual duração e mostra **▲▼ X% vs anterior** em cada KPI (o churn aparece invertido).
+- **Filtro temporal** no topo: Tudo / 30 dias / Trimestre / Este mês / Este ano / datas De-Até.
+- Botão **Comparar** - calcula o período anterior de igual duração e mostra **▲▼ X% vs anterior** em cada KPI (o churn aparece invertido).
 
-## Os indicadores — um a um
+## Os indicadores - um a um
 
-- **Funil de vendas** — conversão entre etapas do pipeline (ou propostas criadas no período).
-- **Taxa de conversão** — % de propostas que chegam a *Ganha*.
-- **Ticket médio** — valor médio das propostas ganhas.
-- **Churn** — perda de clientes (menor é melhor).
-- **Receita por mês** — barras das propostas ganhas no período.
-- **Vendas por estado** — distribuição por estado do pipeline.
-- **Top clientes** — por valor ganho.
-- **Análise de perdas** — agrupa os **motivos de perda** das propostas perdidas (barras + maior causa).
-- **CAC** — Custo de Aquisição de Cliente = **orçamento de marketing ÷ novos clientes**. Defines o orçamento no campo próprio (**Aplicar**).
-- **LTV / CAC** — rácio entre o valor do cliente e o custo de o adquirir; fica **verde quando ≥ 3:1** (saudável).
-- **Lead scoring** — pontuação **0–100** de cada contacto (compras, *engagement*, loyalty, segmento) → **Quente / Morno / Frio**, com barras.
-- **Insights de IA** *(simulado)* — cartões com leituras automáticas dos KPIs e sugestões.
+- **Funil de vendas** - conversão entre etapas do pipeline (ou propostas criadas no período).
+- **Taxa de conversão** - % de propostas que chegam a *Ganha*.
+- **Ticket médio** - valor médio das propostas ganhas.
+- **Churn** - perda de clientes (menor é melhor).
+- **Receita por mês** - barras das propostas ganhas no período.
+- **Vendas por estado** - distribuição por estado do pipeline.
+- **Top clientes** - por valor ganho.
+- **Análise de perdas** - agrupa os **motivos de perda** das propostas perdidas (barras + maior causa).
+- **CAC** - Custo de Aquisição de Cliente = **orçamento de marketing ÷ novos clientes**. Defines o orçamento no campo próprio (**Aplicar**).
+- **LTV / CAC** - rácio entre o valor do cliente e o custo de o adquirir; fica **verde quando ≥ 3:1** (saudável).
+- **Lead scoring** - pontuação **0-100** de cada contacto (compras, *engagement*, loyalty, segmento) → **Quente / Morno / Frio**, com barras.
+- **Insights de IA** *(simulado)* - cartões com leituras automáticas dos KPIs e sugestões.
 
 ## Exportar
 

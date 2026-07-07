@@ -26,4 +26,4 @@ O teu trabalho (um *snapshot* do CRM: clientes, propostas, etc.) é entregue ao 
     Podes submeter no **máximo 2 vezes**. O contador mostra **1/2** e depois **2/2**; à terceira, fica bloqueado. Entrega quando estiveres mesmo pronto.
 
 !!! info "O que o formador vê"
-    O formador consegue **rever** o teu trabalho (clientes, propostas) e **gerar o PDF** das tuas propostas — com o modelo que tu desenhaste.
+    O formador consegue **rever** o teu trabalho (clientes, propostas) e **gerar o PDF** das tuas propostas - com o modelo que tu desenhaste.

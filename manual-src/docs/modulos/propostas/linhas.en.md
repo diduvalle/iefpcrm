@@ -1,12 +1,12 @@
 # Lines & catalogue
 
-The proposal lines are the **items** — chosen from the **product catalogue** (there is no free-text description).
+The proposal lines are the **items** - chosen from the **product catalogue** (there is no free-text description).
 
 ## Each line
 
-- **Item** — chosen from the catalogue (grouped by family › subfamily). When you choose, it fills in the **description** (locked), **price** and **VAT**.
+- **Item** - chosen from the catalogue (grouped by family › subfamily). When you choose, it fills in the **description** (locked), **price** and **VAT**.
 - **Quantity**.
-- **VAT** — adjusts to the **client's region**. If a line has VAT from another region, **"Correct to {region}"** appears.
+- **VAT** - adjusts to the **client's region**. If a line has VAT from another region, **"Correct to {region}"** appears.
 - **➕** adds a line · **🗑️** removes.
 
 ## Totals (automatic)

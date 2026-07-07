@@ -8,7 +8,7 @@ hide:
 
 # IEFP CRM Manual
 
-Welcome to the manual for the **IEFP CRM platform** — the teaching tool for **CRM** and **Data Protection (GDPR)** of the UFCD **10868 — CRM Analytics** and **10870 — CRM Administration**.
+Welcome to the manual for the **IEFP CRM platform** - the teaching tool for **CRM** and **Data Protection (GDPR)** of the UFCD **10868 - CRM Analytics** and **10870 - CRM Administration**.
 
 <div class="iefp-hero-actions">
 <a class="hb-solid" href="https://iefpcrm.cr0x.org" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"/></svg>Open the platform</a>
@@ -45,10 +45,10 @@ Here you will find everything you need, organized into **two tracks**. Choose yo
 
 ## What is IEFP CRM?
 
-It is a **complete CRM** (clients, companies, products, proposals, campaigns, email, analytics, calendar) with a strong **GDPR** module — designed to **practice** the concepts of the UFCD in a realistic and safe environment.
+It is a **complete CRM** (clients, companies, products, proposals, campaigns, email, analytics, calendar) with a strong **GDPR** module - designed to **practice** the concepts of the UFCD in a realistic and safe environment.
 
-- **Each class has its own isolated environment** — trainees do not mix.
-- **Each trainee has their own *sandbox*** — work freely without affecting others.
+- **Each class has its own isolated environment** - trainees do not mix.
+- **Each trainee has their own *sandbox*** - work freely without affecting others.
 - **Portuguese sample data** already loaded so you can start right away.
 
 !!! tip "Quick shortcut"

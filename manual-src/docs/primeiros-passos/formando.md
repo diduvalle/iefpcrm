@@ -1,4 +1,4 @@
-# Primeiros passos — Formando
+# Primeiros passos - Formando
 
 Bem-vindo! Aqui está o essencial para começares.
 
@@ -16,7 +16,7 @@ Bem-vindo! Aqui está o essencial para começares.
 
 ## 2. Conhecer o teu espaço
 
-Cada formando tem a **sua própria *sandbox*** — uma cópia do CRM só tua, com dados de exemplo já carregados. Podes criar, editar e apagar à vontade: **não afeta os colegas**.
+Cada formando tem a **sua própria *sandbox*** - uma cópia do CRM só tua, com dados de exemplo já carregados. Podes criar, editar e apagar à vontade: **não afeta os colegas**.
 
 A navegação está à esquerda, por grupos (Principal, Marketing & Análise, Conformidade, Sistema).
 
@@ -29,7 +29,7 @@ A navegação está à esquerda, por grupos (Principal, Marketing & Análise, Co
 3. **Guardar alterações**.
 
 !!! question "Esqueceste-te da palavra-passe?"
-    Vê **[Recuperar a palavra-passe](../formando/recuperar.md)** — podes pedir ao formador para a repor.
+    Vê **[Recuperar a palavra-passe](../formando/recuperar.md)** - podes pedir ao formador para a repor.
 
 ## 4. Submeter o trabalho
 
@@ -41,6 +41,6 @@ Quando terminares o exercício, clica em **“Submeter o meu trabalho”** (em b
 
 ### A seguir
 
-- [Trabalhar no CRM](../formando/trabalhar.md) — os módulos explicados
-- [Submeter o trabalho](../formando/submeter.md) — como entregar
+- [Trabalhar no CRM](../formando/trabalhar.md) - os módulos explicados
+- [Submeter o trabalho](../formando/submeter.md) - como entregar
 - [Recuperar a palavra-passe](../formando/recuperar.md)

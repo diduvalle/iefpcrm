@@ -8,7 +8,7 @@ hide:
 
 # Manual do IEFP CRM
 
-Bem-vindo ao manual da **plataforma IEFP CRM** — a ferramenta pedagógica de **CRM** e **Proteção de Dados (RGPD)** das UFCD **10868 — CRM Analytics** e **10870 — Administração de CRM**.
+Bem-vindo ao manual da **plataforma IEFP CRM** - a ferramenta pedagógica de **CRM** e **Proteção de Dados (RGPD)** das UFCD **10868 - CRM Analytics** e **10870 - Administração de CRM**.
 
 <div class="iefp-hero-actions">
 <a class="hb-solid" href="https://iefpcrm.cr0x.org" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"/></svg>Abrir a plataforma</a>
@@ -45,10 +45,10 @@ Aqui encontras tudo o que precisas, organizado em **duas vertentes**. Escolhe o 
 
 ## O que é o IEFP CRM?
 
-É um **CRM completo** (clientes, empresas, produtos, propostas, campanhas, email, analytics, agenda) com um módulo forte de **RGPD** — pensado para **praticar** os conceitos das UFCD num ambiente realista e seguro.
+É um **CRM completo** (clientes, empresas, produtos, propostas, campanhas, email, analytics, agenda) com um módulo forte de **RGPD** - pensado para **praticar** os conceitos das UFCD num ambiente realista e seguro.
 
-- **Cada turma tem o seu ambiente isolado** — os formandos não se misturam.
-- **Cada formando tem a sua *sandbox*** — trabalha à vontade sem afetar os colegas.
+- **Cada turma tem o seu ambiente isolado** - os formandos não se misturam.
+- **Cada formando tem a sua *sandbox*** - trabalha à vontade sem afetar os colegas.
 - **Dados de exemplo portugueses** já carregados para começar logo.
 
 !!! tip "Atalho rápido"

@@ -10,12 +10,12 @@ O centro de **avisos** e o **histórico de atividade** (grupo Sistema). Há tamb
 
 A app calcula automaticamente os avisos que exigem atenção:
 
-- **Propostas a expirar** — validade nos próximos **15 dias**.
+- **Propostas a expirar** - validade nos próximos **15 dias**.
 - **Pedidos RGPD** fora de prazo ou a vencer (**≤7 dias**).
 - **Tarefas** de hoje ou em **atraso**.
 - **Envios agendados** vencidos.
 
-Cada alerta é **clicável** — leva diretamente ao item (proposta, pedido, tarefa…).
+Cada alerta é **clicável** - leva diretamente ao item (proposta, pedido, tarefa…).
 
 ## O sino (topo)
 
@@ -26,4 +26,4 @@ O ícone do sino abre o **painel de notificações** com os mesmos alertas, semp
 Regista as ações recentes na ferramenta (toasts/eventos), com data e hora. Há um botão **Limpar** para esvaziar o histórico.
 
 !!! tip "Para o formador"
-    Os alertas ajudam o formando a perceber o que está “pendente” — uma boa forma de praticar a **gestão do pipeline e de prazos** de um CRM real.
+    Os alertas ajudam o formando a perceber o que está “pendente” - uma boa forma de praticar a **gestão do pipeline e de prazos** de um CRM real.

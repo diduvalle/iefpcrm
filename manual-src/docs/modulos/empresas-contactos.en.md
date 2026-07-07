@@ -4,7 +4,7 @@ Professional **Account / Contact** model (B2B): **Companies** are the legal enti
 
 <video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/clientes.png"><source src="/manual/assets/videos/contactos-en.webm" type="video/webm"><source src="/manual/assets/videos/contactos-en.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/contactos-en.vtt" srclang="en" label="English" default></video>
 
-*The Contacts tab — full record and 360° view of each client.*
+*The Contacts tab - full record and 360° view of each client.*
 
 ---
 
@@ -15,13 +15,13 @@ Professional **Account / Contact** model (B2B): **Companies** are the legal enti
 - **Search**, **pagination** and the **+ Company** button.
 - Click a **row** to open the **360° profile**.
 
-### Create / edit — field by field
+### Create / edit - field by field
 - **Name** (legal name) *required*.
-- **NIPC** — validated (check digit). *Blocks saving if invalid.*
+- **NIPC** - validated (check digit). *Blocks saving if invalid.*
 - **CAE** and **Sector**.
-- **Size** — Micro / SME / Large Enterprise.
+- **Size** - Micro / SME / Large Enterprise.
 - **Tax address**, **Postal code**, **City**.
-- **Region** — Mainland / Madeira / Azores (affects the VAT on its contacts' proposals).
+- **Region** - Mainland / Madeira / Azores (affects the VAT on its contacts' proposals).
 - **Website**, **Phone**, **Email**, **Notes**.
 
 ### 360° profile
@@ -34,17 +34,17 @@ Shows the **tax data**, the company's **contact list** and a summary of **propos
 The people (the former "customers").
 
 ### The screen
-Same as companies: date filter, KPIs (number of contacts, average value — may appear 🔒), search, pagination, **+ Contact**. Click a row → **360° profile**.
+Same as companies: date filter, KPIs (number of contacts, average value - may appear 🔒), search, pagination, **+ Contact**. Click a row → **360° profile**.
 
-### Create / edit — field by field
+### Create / edit - field by field
 - **First name** and **Last name** *(name required)*.
-- **Company** — pick from the Companies list; **Job title** at the company.
+- **Company** - pick from the Companies list; **Job title** at the company.
 - **Email**, **Phone**.
-- **NIF** — validated (PT check digit).
-- **City** and **Region** — the region sets the **VAT rate** applicable on proposals.
-- **Segment** — Lead / Micro / SME / Large Enterprise.
-- **Source** — acquisition channel (editable list in Settings): Website, Referral, Trade fair, Email Campaign…
-- **Loyalty** — Bronze / Silver / Gold (recalculated by purchase volume; gives a **discount** on proposals).
+- **NIF** - validated (PT check digit).
+- **City** and **Region** - the region sets the **VAT rate** applicable on proposals.
+- **Segment** - Lead / Micro / SME / Large Enterprise.
+- **Source** - acquisition channel (editable list in Settings): Website, Referral, Trade fair, Email Campaign…
+- **Loyalty** - Bronze / Silver / Gold (recalculated by purchase volume; gives a **discount** on proposals).
 - **Notes**.
 
 ### 360° profile
@@ -64,7 +64,7 @@ Both **Contacts** and **Products** have **Import** + **Template**:
     In **Settings → Sample data generator** you can quickly create realistic companies, contacts and proposals (valid PT names/NIF) to practice without starting from scratch.
 
 !!! note "Pedagogy (UFCD 10868)"
-    You practice modeling the data of a real CRM (entity vs person), **data quality** (NIF/NIPC validation), **segmentation** and **loyalty** — the basis of customer analysis.
+    You practice modeling the data of a real CRM (entity vs person), **data quality** (NIF/NIPC validation), **segmentation** and **loyalty** - the basis of customer analysis.
 
 ## Related
 

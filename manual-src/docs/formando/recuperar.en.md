@@ -12,7 +12,7 @@
 
 ## If you forgot it
 
-There is no automatic recovery by email. **Ask the trainer** to reset your password — they do it in seconds, in *Manage the class*. Then you log in with the new one and change it to one of your choosing.
+There is no automatic recovery by email. **Ask the trainer** to reset your password - they do it in seconds, in *Manage the class*. Then you log in with the new one and change it to one of your choosing.
 
 !!! tip "Good practice"
     On your very first access, change the initial password to one that is only yours. That way nobody can get into your *sandbox*.
