@@ -1263,7 +1263,9 @@ function load(){
   if(!state.roles||!Object.keys(state.roles).length) state.roles=def.roles;
   if(!Array.isArray(state.propostaTemplates)||!state.propostaTemplates.length) state.propostaTemplates=def.propostaTemplates;
   // migração de permissões: gestores veem tudo; Comercial ganha 'modelos' (formandos não, por defeito)
-  Object.entries(state.roles||{}).forEach(([name,r])=>{ r.modules=r.modules||[]; if(r.gestor){ NAV_FLAT.forEach(n=>{ if(!r.modules.includes(n.id)) r.modules.push(n.id); }); } else if(name==='Comercial' && !r.modules.includes('modelos')) r.modules.push('modelos'); });
+  Object.entries(state.roles||{}).forEach(([name,r])=>{ r.modules=r.modules||[]; if(r.gestor){ NAV_FLAT.forEach(n=>{ if(!r.modules.includes(n.id)) r.modules.push(n.id); }); } else if(name==='Comercial' && !r.modules.includes('modelos')) r.modules.push('modelos');
+    // backfill de sub-permissões (feats): sessões antigas ficaram sem elas → repor o default do grupo (só se nunca foram definidas)
+    if(r.feats===undefined && def.roles[name] && def.roles[name].feats) r.feats=def.roles[name].feats.slice(); });
   // garantir que cada modelo tem blocos (construtor por blocos)
   (state.propostaTemplates||[]).forEach(t=>{ if(!Array.isArray(t.blocks)||!t.blocks.length) t.blocks=blocksFromLegacy(t); });
   // associar linhas de proposta ao catálogo (produtoId)
@@ -2345,7 +2347,7 @@ function emailParams(o){ const s=state.settings; return { to_email:o.toEmail||''
 function sendViaEmailJS(o){ const c=emailjsCfg(); return loadEmailJS().then(ej=>ej.send(c.serviceId, c.templateId, emailParams(o), {publicKey:c.publicKey})); }
 /* ---------- Convite de formando: password determinística + email de boas-vindas ---------- */
 function fmdInitials(nome,apelido){ const p=((nome||'')+' '+(apelido||'')).trim().split(/\s+/).filter(Boolean); return ((((p[0]||'')[0]||'')+((p[1]||'')[0]||''))||'XX').toUpperCase(); }
-/* Regra: número do email (parte antes de @) + iniciais. Ex.: 8236236@… + Ana Mendes → 8236236AM.
+/* Regra: número do email (parte antes de @) + iniciais. Ex.: 1234567@… + Beatriz Rocha → 1234567BR.
    Determinística → sempre regenerável (para o reenvio). Fallback por hash se o email não tiver número. */
 function genFormandoPwd(email,nome,apelido,username){
   const local=String(email||'').split('@')[0];
@@ -2765,7 +2767,7 @@ function turmaUsersCardHTML(){
       1. Os acessos dos formandos vivem <strong>online</strong> e estão ligados a <strong>esta</strong> turma (${esc(TURMA)}).<br>
       2. Partilhe o link <code>?t=${esc(TURMA)}</code> com a turma. Cada formando abre-o e entra com o <strong>seu utilizador e palavra-passe</strong>.<br>
       3. Cada formando <strong>só acede a esta turma</strong> - nunca a outra - e tem a <strong>sua própria sandbox</strong>: os dados de trabalho ficam no computador dele e não se misturam com os dos colegas.<br>
-      4. <strong>Importação em massa:</strong> descarregue o <strong>Modelo</strong>, preencha no Excel (obrigatórios: <strong>nome, apelido, email</strong>) e clique <strong>Importar lista</strong> → mostro uma <strong>pré-visualização</strong> com os erros marcados e só importo as linhas válidas. O <strong>utilizador</strong> e a <strong>palavra-passe</strong> são preenchidos automaticamente pelo modelo (nº do email + iniciais, ex.: <code>8236236AM</code>) - não precisa de os escrever.</div></div>
+      4. <strong>Importação em massa:</strong> descarregue o <strong>Modelo</strong>, preencha no Excel (obrigatórios: <strong>nome, apelido, email</strong>) e clique <strong>Importar lista</strong> → mostro uma <strong>pré-visualização</strong> com os erros marcados e só importo as linhas válidas. O <strong>utilizador</strong> e a <strong>palavra-passe</strong> são preenchidos automaticamente pelo modelo (nº do email + iniciais, ex.: <code>1234567BR</code>) - não precisa de os escrever.</div></div>
     <div class="toolbar" style="margin-bottom:12px;align-items:flex-end;gap:10px;flex-wrap:wrap">
       <button class="btn-sec" data-act="users-template">${ic('download',16)} Modelo Excel/CSV</button>
       <button class="btn-sec" data-act="import-roster">${ic('upload',16)} Importar lista</button>
@@ -2779,7 +2781,7 @@ function turmaUsersCardHTML(){
       <div class="field"><label>Apelido</label><input name="apelido"></div>
       <div class="field"><label>Email</label><input name="email" type="email"></div>
       <div class="field"><label>Utilizador (auto se vazio)</label><input name="username" placeholder="ex.: joao.silva"></div>
-      <div class="field"><label>Palavra-passe (auto se vazia)</label><input name="password" type="text" placeholder="vazio → nº do email + iniciais (ex.: 8236236AM)"></div>
+      <div class="field"><label>Palavra-passe (auto se vazia)</label><input name="password" type="text" placeholder="vazio → nº do email + iniciais (ex.: 1234567BR)"></div>
       <div class="field"><label>Papel</label><select name="papel"><option>Formando</option><option>Formador</option></select></div>
       <div class="field full"><button type="button" class="btn" data-act="roster-add">${ic('users',16)} Adicionar à turma</button></div>
     </form>
@@ -4418,7 +4420,7 @@ function importUsersCSV(file){
 function downloadUserTemplate(){
   const cc=v=>{ v=String(v); return /[";\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; };
   const N=60;
-  const ex=[['Ana','Mendes','8236236@formacao.iefp.pt'],['André','Martins','8301686@formacao.iefp.pt']]; // 2 exemplos (repare: iniciais AM iguais → utilizador usa o nº, único)
+  const ex=[['Beatriz','Rocha','1234567@formacao.iefp.pt'],['Bruno','Ribeiro','1234568@formacao.iefp.pt']]; // 2 exemplos fictícios (repare: iniciais BR iguais → utilizador usa o nº, único)
   const lines=['nome;apelido;email;username;password;papel'];
   for(let r=2;r<=N+1;r++){ const e=ex[r-2]||['','',''];
     const uForm=`=SE(C${r}="";"";ESQUERDA(C${r};LOCALIZAR("@";C${r})-1))`;                                   // utilizador = nº do email (único)
