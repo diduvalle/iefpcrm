@@ -384,6 +384,15 @@ td .cell-sub{font-size:.78rem;color:var(--muted)}
 .field input,.field select,.field textarea{width:100%;padding:9px 12px;border-radius:9px;border:1px solid var(--border);background:var(--surface2);transition:border .14s,box-shadow .14s;font-size:.9rem}
 .field input:focus,.field select:focus,.field textarea:focus{outline:0;border-color:var(--g400);box-shadow:0 0 0 3px rgba(0,166,81,.14);background:var(--surface)}
 .field textarea{resize:vertical;min-height:80px}
+/* combobox de pesquisa (associar por nome/NIPC em vez de dropdown gigante) */
+.combo{position:relative}
+.combo-input{width:100%;padding:9px 12px;border-radius:9px;border:1px solid var(--border);background:var(--surface2);font-size:.9rem;transition:border .14s,box-shadow .14s}
+.combo-input:focus{outline:0;border-color:var(--g400);box-shadow:0 0 0 3px rgba(0,166,81,.14);background:var(--surface)}
+.combo-menu{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:70;max-height:264px;overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-lg);padding:5px}
+.combo-opt{display:block;width:100%;text-align:left;font:inherit;cursor:pointer;border:0;background:transparent;color:var(--text);padding:8px 10px;border-radius:7px;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.combo-opt:hover,.combo-opt.active{background:var(--g50);color:var(--g700)}
+.combo-opt[data-none="1"]{color:var(--muted);font-style:italic}
+.combo-more,.combo-empty{padding:7px 10px;font-size:.76rem;color:var(--muted)}
 .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .form-grid .full{grid-column:1/-1}
 .search-inp{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:0 11px}
@@ -3155,7 +3164,7 @@ const refClientes = ()=>state.clientes.map(c=>({v:c.id,t:`${c.numero} · ${c.nom
 const SCHEMAS = {
   cliente:{store:'clientes',label:'Contacto',code:c=>{c.numero=c.numero||pad(++state.settings.numeroSeq,4);},after:c=>{ const e=state.empresas.find(x=>x.id===c.empresaId); if(e){ c.empresa=e.nome; if(!c.cidade)c.cidade=e.cidade; if(!c.regiao)c.regiao=e.regiao; } else if(!c.empresaId){ c.empresa=c.empresa||''; } },fields:[
     {n:'nome',l:'Nome',req:1},{n:'apelido',l:'Apelido',req:1},
-    {n:'empresaId',l:'Empresa',type:'select',full:1,opts:()=>[{v:'',t:'- sem empresa (particular) -'}].concat(state.empresas.map(e=>({v:e.id,t:`${e.nome}${e.nipc?' · '+e.nipc:''}`})))},
+    {n:'empresaId',l:'Empresa',type:'combo',src:'empresas',full:1,placeholder:'Escreva o nome ou NIPC da empresa…'},
     {n:'cargo',l:'Cargo / função',hint:'ex.: Diretor Comercial, Responsável de Compras'},
     {n:'email',l:'Email',type:'email'},{n:'telefone',l:'Telefone',type:'tel'},
     {n:'nif',l:'NIF (pessoal)',hint:'9 dígitos - validado'},{n:'cidade',l:'Cidade'},
@@ -3182,7 +3191,7 @@ const SCHEMAS = {
     {n:'data',l:'Data',type:'date'},
     {n:'hora',l:'Hora',type:'time',hint:'deixe vazio para "dia todo"'},
     {n:'duracao',l:'Duração (min)',type:'select',numeric:1,def:30,opts:[15,30,45,60,90,120].map(x=>({v:x,t:x+' min'}))},
-    {n:'clienteId',l:'Contacto associado',type:'select',full:1,opts:()=>[{v:'',t:'- nenhum -'}].concat(state.clientes.map(c=>({v:c.id,t:`${c.nome} ${c.apelido||''}${c.empresa?' · '+c.empresa:''}`})))},
+    {n:'clienteId',l:'Contacto associado',type:'combo',src:'clientes',full:1,placeholder:'Escreva o nome do contacto…'},
     {n:'estado',l:'Estado',type:'select',opts:['Pendente','Concluída'].map(x=>({v:x,t:x}))},
     {n:'notas',l:'Notas',type:'textarea',full:1},
   ]},
@@ -3231,7 +3240,7 @@ const SCHEMAS = {
     {n:'estado',l:'Estado',type:'select',opts:['Planeada','Ativa','Concluída'].map(x=>({v:x,t:x}))},
   ]},
   consentimento:{store:'consentimentos',label:'Consentimento',fields:[
-    {n:'clienteId',l:'Titular (cliente)',type:'select',opts:refClientes,full:1},
+    {n:'clienteId',l:'Titular (cliente)',type:'combo',src:'clientes',full:1,placeholder:'Escreva o nome do titular…'},
     {n:'finalidade',l:'Finalidade',req:1,full:1},
     {n:'base',l:'Base legal',type:'select',opts:['Consentimento','Consentimento explícito','Execução de contrato','Obrigação legal','Interesse legítimo','Interesse vital','Exercício de funções públicas'].map(x=>({v:x,t:x}))},
     {n:'canal',l:'Canal de recolha'},
@@ -3239,7 +3248,7 @@ const SCHEMAS = {
     {n:'estado',l:'Estado',type:'select',opts:['Ativo','Retirado'].map(x=>({v:x,t:x}))},
   ]},
   pedido:{store:'pedidos',label:'Pedido de titular',after:p=>{if(p.data&&!p.prazo){p.prazo=addDays(p.data,30);}},fields:[
-    {n:'clienteId',l:'Titular (cliente)',type:'select',opts:refClientes,full:1},
+    {n:'clienteId',l:'Titular (cliente)',type:'combo',src:'clientes',full:1,placeholder:'Escreva o nome do titular…'},
     {n:'tipo',l:'Direito exercido',type:'select',opts:['Acesso','Retificação','Apagamento','Portabilidade','Oposição','Limitação'].map(x=>({v:x,t:x}))},
     {n:'data',l:'Data do pedido',type:'date'},
     {n:'prazo',l:'Prazo de resposta',type:'date'},
@@ -3267,10 +3276,57 @@ const SCHEMAS = {
   ]},
 };
 
+/* ---------- Combobox de pesquisa (associação por nome/NIPC) ----------
+   Fontes partilhadas: sempre ordenadas; a 1.ª entrada é a opção "nenhum". */
+const COMBO_SRC = {
+  empresas: ()=>[{v:'',t:'- sem empresa (particular) -',none:1}].concat(
+    (state.empresas||[]).slice().sort((a,b)=>String(a.nome||'').localeCompare(String(b.nome||''),'pt'))
+      .map(e=>({v:e.id,t:`${e.nome}${e.nipc?' · '+e.nipc:''}`}))),
+  clientes: ()=>[{v:'',t:'- nenhum -',none:1}].concat(
+    (state.clientes||[]).slice().sort((a,b)=>(`${a.nome||''} ${a.apelido||''}`).localeCompare(`${b.nome||''} ${b.apelido||''}`,'pt'))
+      .map(c=>({v:c.id,t:`${c.nome||''} ${c.apelido||''}${c.empresa?' · '+c.empresa:''}`.trim()}))),
+};
+function comboNorm(s){ return String(s==null?'':s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''); }
+function comboOptsFor(wrap){ const src=wrap&&wrap.dataset.comboSrc; const fn=src&&COMBO_SRC[src]; return fn?fn():[]; }
+function comboLabel(src,v){ const all=(COMBO_SRC[src]?COMBO_SRC[src]():[]); const o=all.find(x=>String(x.v)===String(v||'')); return o?(o.none?'':o.t):''; }
+function comboRender(input){
+  const wrap=input.closest('.combo'); if(!wrap) return;
+  const menu=wrap.querySelector('[data-combo-menu]'); if(!menu) return;
+  const all=comboOptsFor(wrap); const q=comboNorm(input.value.trim());
+  const none=all.find(o=>o.none); const rest=all.filter(o=>!o.none);
+  const matched=q?rest.filter(o=>comboNorm(o.t).includes(q)):rest;
+  const CAP=12, shown=matched.slice(0,CAP);
+  const oHTML=o=>`<button type="button" class="combo-opt" data-combo-opt data-val="${esc(o.v)}"${o.none?' data-none="1"':''}>${esc(o.t)}</button>`;
+  let html=(none?oHTML(none):'')+shown.map(oHTML).join('');
+  if(matched.length>shown.length) html+=`<div class="combo-more">+${matched.length-shown.length} - escreva mais para refinar</div>`;
+  if(q&&!matched.length) html+=`<div class="combo-empty">Sem resultados para "${esc(input.value.trim())}"</div>`;
+  menu.innerHTML=html; menu.hidden=false; input.setAttribute('aria-expanded','true');
+}
+function comboPick(optEl){
+  const wrap=optEl.closest('.combo'); if(!wrap) return;
+  wrap.querySelector('input[type="hidden"]').value=optEl.dataset.val||'';
+  wrap.querySelector('[data-combo-input]').value=optEl.dataset.none?'':optEl.textContent;
+  comboClose(wrap);
+}
+function comboClose(wrap){ const m=wrap.querySelector('[data-combo-menu]'); if(m){ m.hidden=true; m.innerHTML=''; } const i=wrap.querySelector('[data-combo-input]'); if(i) i.setAttribute('aria-expanded','false'); }
+function comboSync(wrap){ // repõe o texto do input com o rótulo do valor selecionado (evita texto de pesquisa órfão)
+  const hid=wrap.querySelector('input[type="hidden"]'), inp=wrap.querySelector('[data-combo-input]');
+  if(hid&&inp) inp.value=comboLabel(wrap.dataset.comboSrc, hid.value);
+  comboClose(wrap);
+}
 function fieldHTML(f,item){
   let v=item[f.n]!=null?item[f.n]:(f.def!=null?f.def:'');
   const cls='field'+(f.full?' full':'');
   const hint=f.hint?`<span class="hint">${esc(f.hint)}</span>`:'';
+  if(f.type==='combo'){
+    const label=comboLabel(f.src, v);
+    const ph=f.placeholder||'Escreva o nome ou NIPC…';
+    return `<div class="${cls} combo" data-combo-src="${esc(f.src)}">
+      <label>${esc(f.l)}${f.req?' *':''}</label>
+      <input type="hidden" name="${f.n}" value="${esc(v)}">
+      <input type="text" class="combo-input" data-combo-input value="${esc(label)}" placeholder="${esc(ph)}" autocomplete="off" role="combobox" aria-expanded="false" aria-autocomplete="list">
+      <div class="combo-menu" data-combo-menu hidden></div>${hint}</div>`;
+  }
   if(f.type==='select'){
     const opts=typeof f.opts==='function'?f.opts():f.opts;
     return `<div class="${cls}"><label>${esc(f.l)}</label><select name="${f.n}">${opt(opts,v)}</select>${hint}</div>`;
@@ -4219,6 +4275,20 @@ document.addEventListener('change', e=>{
 });
 // inputs em tempo real (totais de proposta, pesquisa de tabela)
 document.addEventListener('focusin', e=>{ if(e.target.matches('[data-tagtarget],[data-emtag]')) lastTagEl=e.target; });
+// combobox: abrir menu ao focar, filtrar ao escrever, escolher ao clicar, fechar fora
+document.addEventListener('focusin', e=>{ if(e.target.matches('[data-combo-input]')) comboRender(e.target); });
+document.addEventListener('click', e=>{
+  const opt=e.target.closest('[data-combo-opt]'); if(opt){ e.preventDefault(); comboPick(opt); return; }
+  if(e.target.closest('[data-combo-input]')){ comboRender(e.target.closest('[data-combo-input]')); return; }
+  document.querySelectorAll('.combo').forEach(w=>{ if(!w.contains(e.target)) comboSync(w); });
+});
+document.addEventListener('input', e=>{ if(e.target.matches('[data-combo-input]')){ comboRender(e.target); } });
+document.addEventListener('keydown', e=>{
+  if(!e.target.matches||!e.target.matches('[data-combo-input]')) return;
+  const wrap=e.target.closest('.combo'); if(!wrap) return;
+  if(e.key==='Escape'){ comboSync(wrap); e.target.blur(); }
+  else if(e.key==='Enter'){ e.preventDefault(); const first=wrap.querySelector('[data-combo-menu] .combo-opt:not([data-none="1"])')||wrap.querySelector('[data-combo-menu] .combo-opt'); if(first) comboPick(first); }
+}, true);
 document.addEventListener('input', e=>{
   if(e.target.closest('#modalForm')&&propDraft&&e.target.name==='estado'){ syncDraftFromForm(); renderPropForm(); return; }
   if(e.target.closest('#modalForm')&&propDraft&&(e.target.dataset.l||['qtd','preco','iva'].includes(e.target.name))) refreshTotals();
