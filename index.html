@@ -779,6 +779,8 @@ const pct = n => (Number(n||0)).toLocaleString('pt-PT',{maximumFractionDigits:1}
 const pad = (n,l=2)=>String(n).padStart(l,'0');
 const todayISO = () => new Date().toISOString().slice(0,10);
 const dPT = iso => iso ? new Date(iso+'T00:00:00').toLocaleDateString('pt-PT',{day:'2-digit',month:'short',year:'numeric'}) : '-';
+// timestamps completos (ex.: criado_em do Supabase) -> data + hora, sem "Invalid Date"
+const dtPT = ts => { if(!ts) return '-'; const d=new Date(ts); return isNaN(d.getTime()) ? '-' : d.toLocaleString('pt-PT',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); };
 const daysBetween = (a,b)=>Math.round((new Date(b)-new Date(a))/864e5);
 const addDays = (iso,d)=>{const x=new Date(iso+'T00:00:00');x.setDate(x.getDate()+d);return x.toISOString().slice(0,10);};
 const clone = o => JSON.parse(JSON.stringify(o));
@@ -2828,7 +2830,7 @@ function renderEntregas(){
     const rows=list.map(s=>{ const k=String(s.username||'').toLowerCase(); return `<tr>
       <td class="cell-main">${esc(s.nome||s.username)}<div class="cell-sub">${esc(s.username)}</div></td>
       <td><span class="chip" title="Entrega ${ord[s.id]||1} de ${tot[k]||1}">${ord[s.id]||1}ª</span></td>
-      <td>${esc(dPT(s.criado_em))}</td>
+      <td>${esc(dtPT(s.criado_em))}</td>
       <td class="muted" style="max-width:280px">${esc((s.mensagem||'').slice(0,100))||'-'}</td>
       <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="entrega-rever" data-id="${s.id}" data-nome="${esc(s.nome||s.username)}">Rever</button><button class="btn-sec btn-xs" data-act="entrega-baixar" data-id="${s.id}" data-nome="${esc(s.username||'aluno')}">.json</button></div></td></tr>`; }).join('');
     box.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Formando</th><th>Entrega</th><th>Data</th><th>Mensagem</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="5" class="muted" style="padding:14px">Ainda não há entregas nesta turma.</td></tr>`}</tbody></table></div><div class="muted" style="font-size:.76rem;margin-top:8px">${list.length} entrega(s)</div>`;
