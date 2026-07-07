@@ -2333,6 +2333,51 @@ function loadEmailJS(){
 }
 function emailParams(o){ const s=state.settings; return { to_email:o.toEmail||'', to_name:o.toName||'', subject:o.subject||'', message:o.message||'', from_name:o.fromName||s.entidade||'', reply_to:o.replyTo||s.email||'', cc:o.cc||'', bcc:o.bcc||'' }; }
 function sendViaEmailJS(o){ const c=emailjsCfg(); return loadEmailJS().then(ej=>ej.send(c.serviceId, c.templateId, emailParams(o), {publicKey:c.publicKey})); }
+/* ---------- Convite de formando: password determinística + email de boas-vindas ---------- */
+function genFormandoPwd(username){ const u=(username||'').trim(); if(!u) return ''; let h=2166136261>>>0; const seed=u.toLowerCase()+'|'+(TURMA||'');
+  for(let i=0;i<seed.length;i++){ h^=seed.charCodeAt(i); h=Math.imul(h,16777619)>>>0; }
+  return String(h%100000).padStart(5,'0')+u.toUpperCase(); }
+function inviteLoginURL(){ try{ return location.origin+location.pathname+(TURMA?('?t='+TURMA):''); }catch(e){ return 'https://iefpcrm.cr0x.org/'+(TURMA?('?t='+TURMA):''); } }
+const INVITE_DEFAULT={cor:'#006B3C',mostrarLogo:true,
+  assunto:'Bem-vindo(a) ao IEFP CRM — os seus dados de acesso',
+  saudacao:'Olá {{nome}}, bem-vindo(a)!',
+  corpo:'Foi adicionado(a) à turma {{turma}} da plataforma pedagógica IEFP CRM.\n\nOs seus dados de acesso:\n\nUtilizador:  {{username}}\nPalavra-passe:  {{password}}\n\nClique no botão abaixo para entrar. Explore a plataforma à vontade — tem a sua própria sandbox e, em caso de dúvida, o manual online está sempre a um clique.',
+  botaoTexto:'Entrar na plataforma',botaoLink:'{{login}}',
+  assinatura:'Bons estudos!\nEquipa de Formação · IEFP CRM'};
+function inviteTpl(){ return Object.assign({},INVITE_DEFAULT,state.settings.inviteTemplate||{}); }
+function inviteMerge(s,ctx){ return String(s||'').replace(/\{\{(nome|username|password|turma|login)\}\}/g,(m,k)=>ctx[k]!=null?ctx[k]:m); }
+function buildInviteTpl(f,pwd){ const ctx={nome:((f.nome||'')+' '+(f.apelido||'')).trim()||f.username||'',username:f.username||'',password:pwd||'',turma:TURMA||'',login:inviteLoginURL()};
+  const t=inviteTpl(),out=Object.assign({},t); ['assunto','saudacao','corpo','botaoLink','assinatura'].forEach(k=>out[k]=inviteMerge(t[k],ctx)); return out; }
+function sendInvite(f,pwd){ if(!realSendOn()) return Promise.resolve({sent:false,reason:'emailjs'}); if(!f||!f.email) return Promise.resolve({sent:false,reason:'noemail'});
+  const tpl=buildInviteTpl(f,pwd);
+  return sendViaEmailJS({toEmail:f.email,toName:((f.nome||'')+' '+(f.apelido||'')).trim()||f.username,subject:tpl.assunto,message:emailHTML(tpl,null,null,'')})
+    .then(()=>({sent:true})).catch(e=>({sent:false,reason:(typeof supaMsg==='function'?supaMsg(e):String(e&&e.text||e))})); }
+function formInv(){ const els=document.querySelectorAll('#modalForm [data-inv]'); const o={}; els.forEach(el=>o[el.dataset.inv]=el.value); return o; }
+function invitePreviewHTML(){ const base=Object.assign({},inviteTpl(),formInv());
+  const ctx={nome:'Zé Miguel',username:'zemiguel',password:genFormandoPwd('zemiguel')||'85213ZEMIGUEL',turma:TURMA||'12345678',login:inviteLoginURL()};
+  const merged=Object.assign({},base); ['saudacao','corpo','botaoLink','assinatura'].forEach(k=>merged[k]=inviteMerge(base[k],ctx));
+  return emailHTML(merged,null,null,''); }
+function openInviteEditor(){ const t=inviteTpl(); editing={type:'__invite'};
+  $('#modalTitle').textContent='Modelo de convite'; $('#modalSub').textContent='Email enviado aos formandos ao serem adicionados';
+  $('#modal').classList.add('wide'); $('#modalDelete').style.display='none';
+  { const sv=$('[data-act="modal-save"]'); if(sv){ sv.style.display=''; sv.disabled=false; sv.textContent='Guardar modelo'; } }
+  $('#modalForm').innerHTML=`
+    <div class="callout ${realSendOn()?'info':'warn'}" style="margin-bottom:12px">${ic('alert',16)}<div class="ctxt">Variáveis: <code>{{nome}}</code> <code>{{username}}</code> <code>{{password}}</code> <code>{{turma}}</code> <code>{{login}}</code>.${realSendOn()?'':' <strong>Envio real desativado</strong> — ative o EmailJS (modo real) em Definições para os convites saírem.'}</div></div>
+    <div class="split">
+      <div class="form-grid" style="grid-template-columns:1fr;gap:12px">
+        <div class="field"><label>Assunto</label><input data-inv="assunto" value="${esc(t.assunto)}"></div>
+        <div class="field"><label>Saudação</label><input data-inv="saudacao" value="${esc(t.saudacao)}"></div>
+        <div class="field"><label>Corpo</label><textarea data-inv="corpo" rows="7">${esc(t.corpo)}</textarea></div>
+        <div class="field"><label>Texto do botão</label><input data-inv="botaoTexto" value="${esc(t.botaoTexto)}"></div>
+        <div class="field"><label>Assinatura</label><textarea data-inv="assinatura" rows="2">${esc(t.assinatura)}</textarea></div>
+        <div class="field" style="max-width:160px"><label>Cor</label><input type="color" data-inv="cor" value="${esc(t.cor||'#006B3C')}" style="width:52px;height:36px;padding:2px;cursor:pointer"></div>
+        <div><button class="btn-sec btn-sm" data-act="inv-reset">Repor predefinido</button></div>
+      </div>
+      <div><label style="font-size:.72rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em">Pré-visualização</label><div id="invPreview" style="margin-top:8px">${invitePreviewHTML()}</div></div>
+    </div>`;
+  $('#modalBack').classList.add('open'); }
+function saveInviteTpl(){ state.settings.inviteTemplate=Object.assign({},inviteTpl(),formInv()); save(); closeModal(); toast('Modelo guardado','Convite de formando'); }
+document.addEventListener('input',e=>{ if(e.target&&e.target.dataset&&e.target.dataset.inv!=null){ const p=$('#invPreview'); if(p) p.innerHTML=invitePreviewHTML(); } });
 function sendTestEmailJS(){
   if(!emailjsActive()){ toast('Configure primeiro','Preencha os 3 campos e ative o modo real','warn'); return; }
   const to=(currentUser()&&currentUser().email)||state.settings.email||''; if(!to){ toast('Sem destinatário','Defina o email da entidade','warn'); return; }
@@ -2704,6 +2749,7 @@ function turmaUsersCardHTML(){
       <button class="btn-sec" data-act="users-template">${ic('download',16)} Modelo Excel/CSV</button>
       <div class="field" style="margin:0"><label style="font-size:.72rem">Palavra-passe inicial (se vazia no ficheiro)</label><input id="rosterInitPwd" value="iefp2026" style="width:240px"></div>
       <button class="btn-sec" data-act="import-roster">${ic('upload',16)} Importar lista</button>
+      <button class="btn-sec" data-act="invite-editor">${ic('mail',16)} Modelo de convite</button>
     </div>
     <input type="file" id="importRosterFile" accept=".csv,text/csv" style="display:none">
     <div class="divider" style="margin:4px 0 14px"></div>
@@ -2713,7 +2759,7 @@ function turmaUsersCardHTML(){
       <div class="field"><label>Apelido</label><input name="apelido"></div>
       <div class="field"><label>Email</label><input name="email" type="email"></div>
       <div class="field"><label>Utilizador (auto se vazio)</label><input name="username" placeholder="ex.: joao.silva"></div>
-      <div class="field"><label>Palavra-passe *</label><input name="password" type="text" placeholder="palavra-passe"></div>
+      <div class="field"><label>Palavra-passe (auto se vazia)</label><input name="password" type="text" placeholder="vazio → nº + UTILIZADOR (ex.: 85213DV)"></div>
       <div class="field"><label>Papel</label><select name="papel"><option>Formando</option><option>Formador</option></select></div>
       <div class="field full"><button type="button" class="btn" data-act="roster-add">${ic('users',16)} Adicionar à turma</button></div>
     </form>
@@ -2729,7 +2775,7 @@ function renderTurmaRoster(){
       <td><span class="chip">${ic('key',13)} ${esc(u.username)}</span></td>
       <td>${esc(u.email||'—')}</td>
       <td><span class="chip">${esc(u.papel)}</span></td>
-      <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="roster-pwd" data-id="${u.id}" data-nome="${esc(u.username)}">Repor palavra-passe</button>${me&&me.id===u.id?`<span class="btn-xs" style="color:var(--muted2)" title="A sua conta">${ic('lock',13)}</span>`:`<button class="btn-danger btn-xs" data-act="roster-del" data-id="${u.id}" data-nome="${esc(((u.nome||'')+' '+(u.apelido||'')).trim())}">✕</button>`}</div></td></tr>`).join('');
+      <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="roster-pwd" data-id="${u.id}" data-nome="${esc(u.username)}">Repor palavra-passe</button>${me&&me.id===u.id?`<span class="btn-xs" style="color:var(--muted2)" title="A sua conta">${ic('lock',13)}</span>`:`<button class="btn-danger btn-xs" data-act="roster-del" data-id="${u.id}" data-nome="${esc(((u.nome||'')+' '+(u.apelido||'')).trim())}">✕</button><button class="btn-sec btn-xs" data-act="roster-invite" data-id="${u.id}" data-username="${esc(u.username)}" data-nome="${esc(u.nome||'')}" data-apelido="${esc(u.apelido||'')}" data-email="${esc(u.email||'')}" title="Repor palavra-passe (regra do sistema) e enviar o convite por email">${ic('send',13)} Reenviar convite</button>`}</div></td></tr>`).join('');
     box.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Nome</th><th>Utilizador</th><th>Email</th><th>Papel</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="5" class="muted" style="padding:14px">Ainda sem utilizadores nesta turma. Adicione um formando ou importe a lista.</td></tr>`}</tbody></table></div><div class="muted" style="font-size:.76rem;margin-top:8px">${list.length} utilizador(es) · turma ${esc(TURMA)}</div>`;
   }).catch(e=>{ box.innerHTML=`<div class="callout warn" style="margin:0">${ic('alert',16)}<div class="ctxt">${esc(supaMsg(e))}</div></div>`; });
 }
@@ -2793,14 +2839,19 @@ function printEntregaProp(propId){
 function rosterAdd(){
   const f=$('#rosterAddForm'); if(!f) return;
   const g=n=>((f.querySelector('[name="'+n+'"]')||{}).value||'').trim();
-  const nome=g('nome'), apelido=g('apelido'), email=g('email'); let username=g('username'); const password=g('password'); const papel=g('papel')||'Formando';
+  const nome=g('nome'), apelido=g('apelido'), email=g('email'); let username=g('username'); const papel=g('papel')||'Formando';
   if(!nome){ toast('Falta o nome','Indique o nome do formando','warn'); return; }
-  if(!password){ toast('Falta a palavra-passe','Defina uma palavra-passe','warn'); return; }
   if(!username) username=slugUser(nome,apelido);
+  const password=g('password')||genFormandoPwd(username);   // regra determinística se vazia
   const btn=f.querySelector('[data-act="roster-add"]'); if(btn){ btn.disabled=true; btn.textContent='A adicionar…'; }
   const reset=()=>{ const b=$('#rosterAddForm [data-act="roster-add"]'); if(b){ b.disabled=false; b.innerHTML=ic('users',16)+' Adicionar à turma'; } };
   supaAddFormando({username,password,nome,apelido,email,papel}).then(()=>{
-    toast('Adicionado à turma',username); ['nome','apelido','email','username','password'].forEach(n=>{const el=f.querySelector('[name="'+n+'"]'); if(el) el.value='';}); renderTurmaRoster(); reset();
+    toast('Adicionado à turma',username);
+    sendInvite({nome,apelido,email,username},password).then(r=>{
+      if(r.sent) toast('Convite enviado',email);
+      else if(email&&r.reason==='emailjs') toast('Convite por enviar','Ative o envio real (Definições → EmailJS)','warn');
+    });
+    ['nome','apelido','email','username','password'].forEach(n=>{const el=f.querySelector('[name="'+n+'"]'); if(el) el.value='';}); renderTurmaRoster(); reset();
   }).catch(e=>{ toast('Erro',supaMsg(e),'err'); reset(); });
 }
 let importDraft=null;
@@ -2853,10 +2904,12 @@ function confirmImport(){
   const valid=(importDraft||[]).filter(r=>!r.errs.length); if(!valid.length){ closeModal(); return; }
   const sv=$('[data-act="modal-save"]'); if(sv){ sv.disabled=true; sv.textContent='A importar…'; }
   (async()=>{
-    let ok=0,fail=0; const errs=[];
-    for(const r of valid){ try{ await supaAddFormando({username:r.username,password:r.password,nome:r.nome,apelido:r.apelido,email:r.email,papel:r.papel}); ok++; } catch(e){ fail++; errs.push(r.username+': '+supaMsg(e)); } }
+    let ok=0,fail=0,inv=0; const errs=[];
+    for(const r of valid){ try{ await supaAddFormando({username:r.username,password:r.password,nome:r.nome,apelido:r.apelido,email:r.email,papel:r.papel}); ok++;
+      try{ const ir=await sendInvite({nome:r.nome,apelido:r.apelido,email:r.email,username:r.username},r.password); if(ir.sent) inv++; }catch(_){}
+    } catch(e){ fail++; errs.push(r.username+': '+supaMsg(e)); } }
     importDraft=null; closeModal(); renderTurmaRoster();
-    toast('Importação concluída',`${ok} criado(s)${fail?` · ${fail} falhou(aram)`:''}`,fail?'warn':'ok');
+    toast('Importação concluída',`${ok} criado(s)${inv?` · ${inv} convite(s) enviado(s)`:''}${fail?` · ${fail} falhou(aram)`:''}`,fail?'warn':'ok');
     if(errs.length) console.warn('Erros de importação:',errs);
   })();
 }
@@ -3271,6 +3324,7 @@ function saveModal(){
   if(editing&&editing.type==='__import') return confirmImport();
   if(editing&&editing.type==='__auto') return saveAuto();
   if(editing&&editing.type==='__group') return saveGroup();
+  if(editing&&editing.type==='__invite') return saveInviteTpl();
   if(editing&&editing.type==='proposta') return savePropModal();
   const {type,id,store}=editing; const sc=SCHEMAS[type];
   const fd=new FormData($('#modalForm'));
@@ -3984,6 +4038,16 @@ document.addEventListener('click', e=>{
     case 'roster-add': rosterAdd(); break;
     case 'roster-del': { const nm=el.dataset.nome||''; if(confirm('Remover '+nm+' desta turma?\nO acesso deixa de funcionar (os dados locais do próprio computador não são afetados).')){ supaRemove(el.dataset.id).then(()=>{ toast('Removido',nm); renderTurmaRoster(); }).catch(er=>toast('Erro',supaMsg(er),'err')); } break; }
     case 'roster-pwd': { const p=prompt('Nova palavra-passe para "'+(el.dataset.nome||'')+'":'); if(p&&p.trim()){ supaResetPwd(el.dataset.id,p.trim()).then(()=>toast('Palavra-passe reposta',el.dataset.nome)).catch(er=>toast('Erro',supaMsg(er),'err')); } break; }
+    case 'roster-invite': { const em=el.dataset.email||''; const un=el.dataset.username||''; const nm=el.dataset.nome||un;
+      if(!em){ toast('Sem email','Este utilizador não tem email definido','warn'); break; }
+      if(!realSendOn()){ toast('Ative o envio real','Definições → EmailJS (modo real) para enviar convites','warn'); break; }
+      const pwd=genFormandoPwd(un);
+      if(!confirm('Reenviar convite a '+nm+' ('+em+')?\n\nA palavra-passe será reposta para a regra do sistema e enviada por email.')) break;
+      supaResetPwd(el.dataset.id,pwd).then(()=>sendInvite({nome:nm,apelido:el.dataset.apelido||'',email:em,username:un},pwd))
+        .then(r=>toast((r&&r.sent)?'Convite reenviado':'Falha no envio',em,(r&&r.sent)?'':'warn'))
+        .catch(er=>toast('Erro',supaMsg(er),'err')); break; }
+    case 'invite-editor': openInviteEditor(); break;
+    case 'inv-reset': { const t=INVITE_DEFAULT; document.querySelectorAll('#modalForm [data-inv]').forEach(el=>{ if(t[el.dataset.inv]!=null) el.value=t[el.dataset.inv]; }); const p=$('#invPreview'); if(p) p.innerHTML=invitePreviewHTML(); toast('Reposto','Modelo predefinido'); break; }
     case 'gen': if(!canFeat('gerador')){ toast('Sem permissão','','warn'); break; } gerarExemplos(+el.dataset.n||0, +el.dataset.p||0, +el.dataset.e||0); break;
     case 'submit-work': openSubmitWork(); break;
     case 'download-trabalho': submitWork(); break;
