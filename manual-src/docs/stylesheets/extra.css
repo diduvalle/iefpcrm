@@ -100,15 +100,18 @@
 .md-header__inner > .md-search { order: 3; }
 .md-header__option { margin: 0 0 0 .3rem; padding: 0; }
 
-/* Botão de tema (lua/sol) = .icon-btn da app (40×40, moldura, ícone cinza) */
-.md-header__option[data-md-component="palette"] > label.md-header__button.md-icon {
+/* Botão de tema (lua/sol) = .icon-btn da app (40×40, moldura, ícone cinza).
+   :not([hidden]) — o Material mantém o toggle INATIVO com [hidden]; só o ATIVO
+   é que deve mostrar-se (senão apareciam lua E sol ao mesmo tempo). */
+.md-header__option[data-md-component="palette"] > label.md-header__button.md-icon[hidden] { display: none; }
+.md-header__option[data-md-component="palette"] > label.md-header__button.md-icon:not([hidden]) {
   width: 40px; height: 40px; margin: 0; padding: 0; opacity: 1;
   display: inline-flex; align-items: center; justify-content: center;
   border-radius: 10px; border: 1px solid var(--iefp-border);
   background: var(--iefp-surface); color: var(--iefp-muted);
   transition: background .15s, border-color .15s, color .15s;
 }
-.md-header__option[data-md-component="palette"] > label.md-header__button.md-icon:hover {
+.md-header__option[data-md-component="palette"] > label.md-header__button.md-icon:not([hidden]):hover {
   background: var(--iefp-surface2); border-color: var(--iefp-g300); color: var(--iefp-text);
 }
 .md-header__option[data-md-component="palette"] > label.md-header__button.md-icon svg { width: 20px; height: 20px; }
