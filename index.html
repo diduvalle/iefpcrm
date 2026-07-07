@@ -2334,9 +2334,15 @@ function loadEmailJS(){
 function emailParams(o){ const s=state.settings; return { to_email:o.toEmail||'', to_name:o.toName||'', subject:o.subject||'', message:o.message||'', from_name:o.fromName||s.entidade||'', reply_to:o.replyTo||s.email||'', cc:o.cc||'', bcc:o.bcc||'' }; }
 function sendViaEmailJS(o){ const c=emailjsCfg(); return loadEmailJS().then(ej=>ej.send(c.serviceId, c.templateId, emailParams(o), {publicKey:c.publicKey})); }
 /* ---------- Convite de formando: password determinística + email de boas-vindas ---------- */
-function genFormandoPwd(username){ const u=(username||'').trim(); if(!u) return ''; let h=2166136261>>>0; const seed=u.toLowerCase()+'|'+(TURMA||'');
-  for(let i=0;i<seed.length;i++){ h^=seed.charCodeAt(i); h=Math.imul(h,16777619)>>>0; }
-  return String(h%100000).padStart(5,'0')+u.toUpperCase(); }
+function fmdInitials(nome,apelido){ const p=((nome||'')+' '+(apelido||'')).trim().split(/\s+/).filter(Boolean); return ((((p[0]||'')[0]||'')+((p[1]||'')[0]||''))||'XX').toUpperCase(); }
+/* Regra: número do email (parte antes de @) + iniciais. Ex.: 8236236@… + Ana Mendes → 8236236AM.
+   Determinística → sempre regenerável (para o reenvio). Fallback por hash se o email não tiver número. */
+function genFormandoPwd(email,nome,apelido,username){
+  const local=String(email||'').split('@')[0];
+  let num = /^\d{4,}$/.test(local) ? local : ((local.match(/\d{4,}/)||[])[0]||'');
+  if(!num){ let h=2166136261>>>0; const seed=(username||local||nome||'').toLowerCase()+'|'+(TURMA||'');
+    for(let i=0;i<seed.length;i++){ h^=seed.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } num=String(h%10000000).padStart(7,'0'); }
+  return num+fmdInitials(nome,apelido); }
 function inviteLoginURL(){ try{ return location.origin+location.pathname+(TURMA?('?t='+TURMA):''); }catch(e){ return 'https://iefpcrm.cr0x.org/'+(TURMA?('?t='+TURMA):''); } }
 const INVITE_DEFAULT={cor:'#006B3C',mostrarLogo:true,
   assunto:'Bem-vindo(a) ao IEFP CRM — os seus dados de acesso',
@@ -2354,7 +2360,7 @@ function sendInvite(f,pwd){ if(!realSendOn()) return Promise.resolve({sent:false
     .then(()=>({sent:true})).catch(e=>({sent:false,reason:(typeof supaMsg==='function'?supaMsg(e):String(e&&e.text||e))})); }
 function formInv(){ const els=document.querySelectorAll('#modalForm [data-inv]'); const o={}; els.forEach(el=>o[el.dataset.inv]=el.value); return o; }
 function invitePreviewHTML(){ const base=Object.assign({},inviteTpl(),formInv());
-  const ctx={nome:'Zé Miguel',username:'zemiguel',password:genFormandoPwd('zemiguel')||'85213ZEMIGUEL',turma:TURMA||'12345678',login:inviteLoginURL()};
+  const ctx={nome:'Ana Mendes',username:'ana.mendes',password:genFormandoPwd('8236236@formacao.iefp.pt','Ana','Mendes'),turma:TURMA||'12345678',login:inviteLoginURL()};
   const merged=Object.assign({},base); ['saudacao','corpo','botaoLink','assinatura'].forEach(k=>merged[k]=inviteMerge(base[k],ctx));
   return emailHTML(merged,null,null,''); }
 function openInviteEditor(){ const t=inviteTpl(); editing={type:'__invite'};
@@ -2759,7 +2765,7 @@ function turmaUsersCardHTML(){
       <div class="field"><label>Apelido</label><input name="apelido"></div>
       <div class="field"><label>Email</label><input name="email" type="email"></div>
       <div class="field"><label>Utilizador (auto se vazio)</label><input name="username" placeholder="ex.: joao.silva"></div>
-      <div class="field"><label>Palavra-passe (auto se vazia)</label><input name="password" type="text" placeholder="vazio → nº + UTILIZADOR (ex.: 85213DV)"></div>
+      <div class="field"><label>Palavra-passe (auto se vazia)</label><input name="password" type="text" placeholder="vazio → nº do email + iniciais (ex.: 8236236AM)"></div>
       <div class="field"><label>Papel</label><select name="papel"><option>Formando</option><option>Formador</option></select></div>
       <div class="field full"><button type="button" class="btn" data-act="roster-add">${ic('users',16)} Adicionar à turma</button></div>
     </form>
@@ -2842,7 +2848,7 @@ function rosterAdd(){
   const nome=g('nome'), apelido=g('apelido'), email=g('email'); let username=g('username'); const papel=g('papel')||'Formando';
   if(!nome){ toast('Falta o nome','Indique o nome do formando','warn'); return; }
   if(!username) username=slugUser(nome,apelido);
-  const password=g('password')||genFormandoPwd(username);   // regra determinística se vazia
+  const password=g('password')||genFormandoPwd(email,nome,apelido,username);   // regra determinística se vazia
   const btn=f.querySelector('[data-act="roster-add"]'); if(btn){ btn.disabled=true; btn.textContent='A adicionar…'; }
   const reset=()=>{ const b=$('#rosterAddForm [data-act="roster-add"]'); if(b){ b.disabled=false; b.innerHTML=ic('users',16)+' Adicionar à turma'; } };
   supaAddFormando({username,password,nome,apelido,email,papel}).then(()=>{
@@ -4041,7 +4047,7 @@ document.addEventListener('click', e=>{
     case 'roster-invite': { const em=el.dataset.email||''; const un=el.dataset.username||''; const nm=el.dataset.nome||un;
       if(!em){ toast('Sem email','Este utilizador não tem email definido','warn'); break; }
       if(!realSendOn()){ toast('Ative o envio real','Definições → EmailJS (modo real) para enviar convites','warn'); break; }
-      const pwd=genFormandoPwd(un);
+      const pwd=genFormandoPwd(em,nm,el.dataset.apelido||'',un);
       if(!confirm('Reenviar convite a '+nm+' ('+em+')?\n\nA palavra-passe será reposta para a regra do sistema e enviada por email.')) break;
       supaResetPwd(el.dataset.id,pwd).then(()=>sendInvite({nome:nm,apelido:el.dataset.apelido||'',email:em,username:un},pwd))
         .then(r=>toast((r&&r.sent)?'Convite reenviado':'Falha no envio',em,(r&&r.sent)?'':'warn'))
