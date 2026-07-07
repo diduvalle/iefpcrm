@@ -609,12 +609,21 @@ begin
 end $$;
 
 -- Email do formador da turma (para destinatário/reply-to da submissão). Público.
+-- Usa o email ATUAL do administrador (perfil, editável); só recorre a criado_por
+-- (email de criação da turma) se o administrador não tiver email definido.
 create or replace function public.turma_formador(p_codigo text)
 returns json language sql security definer set search_path = public as $$
-  select json_build_object('email', t.criado_por,
-           'nome', (select trim(u.nome||' '||coalesce(u.apelido,'')) from public.utilizadores u
-                    where u.turma_id = t.id and u.papel = 'Administrador' order by u.criado_em limit 1))
-  from public.turmas t where t.codigo = p_codigo;
+  select json_build_object(
+    'email', coalesce(nullif(trim(adm.email), ''), t.criado_por),
+    'nome',  adm.nome_completo)
+  from public.turmas t
+  left join lateral (
+    select u.email, trim(u.nome||' '||coalesce(u.apelido,'')) as nome_completo
+    from public.utilizadores u
+    where u.turma_id = t.id and u.papel = 'Administrador'
+    order by u.criado_em limit 1
+  ) adm on true
+  where t.codigo = p_codigo;
 $$;
 
 -- ---------------------------------------------------------------------
