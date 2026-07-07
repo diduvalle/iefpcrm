@@ -265,6 +265,26 @@ begin
   return json_build_object('ok', true);
 end $$;
 
+-- O próprio utilizador atualiza o seu perfil (nome/apelido/email). Username e papel
+-- ficam de fora (só o admin os muda). Serve admin, formador e formando.
+create or replace function public.atualizar_meu_perfil(
+  p_token uuid, p_nome text, p_apelido text, p_email text
+) returns json
+language plpgsql security definer set search_path = public, extensions as $$
+declare caller public.utilizadores;
+begin
+  select * into caller from _user_from_token(p_token);
+  if caller.id is null then raise exception 'SESSAO_INVALIDA'; end if;
+  if coalesce(trim(p_nome),'') = '' then raise exception 'DADOS_EM_FALTA'; end if;
+  update utilizadores
+     set nome    = trim(p_nome),
+         apelido = coalesce(trim(p_apelido),''),
+         email   = coalesce(trim(p_email),'')
+   where id = caller.id;
+  return json_build_object('ok', true, 'id', caller.id,
+    'nome', trim(p_nome), 'apelido', coalesce(trim(p_apelido),''), 'email', coalesce(trim(p_email),''));
+end $$;
+
 -- RECUPERAÇÃO (pré-login): o utilizador define nova password com o seu CÓDIGO.
 -- Só funciona para contas que tenham recovery_hash (o formador, por criar_turma
 -- ou por gerar_recovery). Os formandos não têm → continuam a pedir ao formador.
@@ -614,6 +634,7 @@ grant execute on function public.criar_formando(uuid,text,text,text,text,text,te
 grant execute on function public.redefinir_password(uuid,uuid,text)               to anon, authenticated;
 grant execute on function public.remover_utilizador(uuid,uuid)                    to anon, authenticated;
 grant execute on function public.mudar_minha_password(uuid,text,text)             to anon, authenticated;
+grant execute on function public.atualizar_meu_perfil(uuid,text,text,text)        to anon, authenticated;
 grant execute on function public.recuperar_password(text,text,text,text)          to anon, authenticated;
 grant execute on function public.gerar_recovery(uuid)                             to anon, authenticated;
 grant execute on function public.logout(uuid)                                     to anon, authenticated;
