@@ -2791,15 +2791,21 @@ function turmaUsersCardHTML(){
 }
 function renderTurmaRoster(){
   const box=$('#turmaRoster'); if(!box) return;
-  supaRoster().then(list=>{
-    const me=currentUser(); list=list||[];
+  Promise.all([supaRoster(), supaListarSubmissoes().catch(()=>[])]).then(([list,subs])=>{
+    const me=currentUser(); list=list||[]; subs=subs||[];
+    const LIM=2, cont={}; subs.forEach(s=>{ const k=String(s.username||'').toLowerCase(); cont[k]=(cont[k]||0)+1; });
+    const entregaCell=u=>{ if(u.papel!=='Formando') return '<span class="muted" style="font-size:.72rem">-</span>';
+      const n=Math.min(cont[String(u.username||'').toLowerCase()]||0,LIM);
+      const st=n>=LIM?'background:var(--g600);color:#fff':(n>0?'background:var(--g100);color:var(--g600)':'background:var(--surface3);color:var(--muted)');
+      return `<span class="chip" style="${st};font-weight:700" title="Entregas submetidas por este formando">${ic('send',12)} ${n}/${LIM}</span>`; };
     const rows=list.map(u=>`<tr>
       <td class="cell-main">${esc(((u.nome||'')+' '+(u.apelido||'')).trim())}${me&&me.id===u.id?' <span class="tag">eu</span>':''}</td>
       <td><span class="chip">${ic('key',13)} ${esc(u.username)}</span></td>
       <td>${esc(u.email||'-')}</td>
       <td><span class="chip">${esc(u.papel)}</span></td>
+      <td>${entregaCell(u)}</td>
       <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="roster-pwd" data-id="${u.id}" data-nome="${esc(u.username)}">Repor palavra-passe</button>${me&&me.id===u.id?`<span class="btn-xs" style="color:var(--muted2)" title="A sua conta">${ic('lock',13)}</span>`:`<button class="btn-danger btn-xs" data-act="roster-del" data-id="${u.id}" data-nome="${esc(((u.nome||'')+' '+(u.apelido||'')).trim())}">✕</button><button class="btn-sec btn-xs" data-act="roster-invite" data-id="${u.id}" data-username="${esc(u.username)}" data-nome="${esc(u.nome||'')}" data-apelido="${esc(u.apelido||'')}" data-email="${esc(u.email||'')}" title="Repor palavra-passe (regra do sistema) e enviar o convite por email">${ic('send',13)} Reenviar convite</button>`}</div></td></tr>`).join('');
-    box.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Nome</th><th>Utilizador</th><th>Email</th><th>Papel</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="5" class="muted" style="padding:14px">Ainda sem utilizadores nesta turma. Adicione um formando ou importe a lista.</td></tr>`}</tbody></table></div><div class="muted" style="font-size:.76rem;margin-top:8px">${list.length} utilizador(es) · turma ${esc(TURMA)}</div>`;
+    box.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Nome</th><th>Utilizador</th><th>Email</th><th>Papel</th><th>Entregas</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="6" class="muted" style="padding:14px">Ainda sem utilizadores nesta turma. Adicione um formando ou importe a lista.</td></tr>`}</tbody></table></div><div class="muted" style="font-size:.76rem;margin-top:8px">${list.length} utilizador(es) · turma ${esc(TURMA)}</div>`;
   }).catch(e=>{ box.innerHTML=`<div class="callout warn" style="margin:0">${ic('alert',16)}<div class="ctxt">${esc(supaMsg(e))}</div></div>`; });
 }
 /* ---------- Entrega & validação de trabalhos (formador) ---------- */
@@ -4107,7 +4113,7 @@ document.addEventListener('click', async e=>{
     case 'gen': if(!canFeat('gerador')){ toast('Sem permissão','','warn'); break; } gerarExemplos(+el.dataset.n||0, +el.dataset.p||0, +el.dataset.e||0); break;
     case 'submit-work': openSubmitWork(); break;
     case 'download-trabalho': submitWork(); break;
-    case 'entregas-reload': renderEntregas(); break;
+    case 'entregas-reload': renderEntregas(); renderTurmaRoster(); break;
     case 'reload-analytics': { const b=$('#siteAnalytics'); if(b) b.innerHTML='<div class="muted" style="padding:6px 2px">A atualizar…</div>'; renderSiteAnalytics(); } break;
     case 'an-days': anDays=+el.dataset.d||14; anPaint(); break;
     case 'root-refresh': { const b=$(rootBoxSel); if(b) b.innerHTML='<div class="muted" style="padding:6px 2px">A atualizar…</div>'; renderRootPanel(); } break;
