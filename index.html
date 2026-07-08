@@ -944,14 +944,22 @@ function canSeeFinance(){ if(!state.settings.requireLogin) return true; const r=
 function money(n){ return canSeeFinance()?fmt(n):'🔒'; }
 
 /* ---------- desconto de loyalty + totais da proposta ---------- */
+/* Cadência de cada linha: 'Mensal'/'Anual' = recorrente (SaaS); resto = pontual (serviço).
+   O valor da venda (TCV) = pontual + recorrente × meses de fidelização. */
+function lineMonthly(l){ const q=+l.qtd||0, pr=+l.preco||0; const m=l.modelo||'Único'; return m==='Mensal'?q*pr : m==='Anual'?q*pr/12 : 0; }
+function lineOneOff(l){ const m=l.modelo||'Único'; return (m==='Mensal'||m==='Anual')?0:(+l.qtd||0)*(+l.preco||0); }
+function proposalCalc(p){ const linhas=p.linhas||[]; const meses=Math.max(1,+p.meses||12);
+  const pontual=linhas.reduce((s,l)=>s+lineOneOff(l),0);
+  const mrr=linhas.reduce((s,l)=>s+lineMonthly(l),0);
+  return {pontual, mrr, meses, recorrente:mrr*meses, sub:pontual+mrr*meses}; }
+/* Nível de fidelização da venda: da EMPRESA (as pessoas mudam de empresa); particular usa o contacto. */
+function dealTier(p){ if(p.empresaId){ const e=(state.empresas||[]).find(x=>x.id===p.empresaId); return e?e.loyalty:null; } const c=getC(p.clienteId); return c?c.loyalty:null; }
+function dealDiscount(p){ const lv=(state.loyalty||[]).find(l=>l.nome===dealTier(p)); return lv?Number(lv.desconto||0):0; }
 function clientDiscount(clienteId){ const c=getC(clienteId); if(!c) return 0; const lv=(state.loyalty||[]).find(l=>l.nome===c.loyalty); return lv?Number(lv.desconto||0):0; }
-function proposalTotals(p){
-  const sub=(p.linhas||[]).reduce((s,l)=>s+(+l.qtd||0)*(+l.preco||0),0);
-  const pct=clientDiscount(p.clienteId);
-  const desconto=sub*pct/100;
-  const iva=(p.linhas||[]).reduce((s,l)=>{ const net=(+l.qtd||0)*(+l.preco||0)*(1-pct/100); return s+net*(+l.iva||0)/100; },0);
-  return {sub, descontoPct:pct, desconto, base:sub-desconto, iva, total:sub-desconto+iva};
-}
+function proposalTotals(p){ const c=proposalCalc(p); const pct=dealDiscount(p); const meses=c.meses;
+  const desconto=c.sub*pct/100;
+  const iva=(p.linhas||[]).reduce((s,l)=>{ const tcvLine=lineOneOff(l)+lineMonthly(l)*meses; return s+tcvLine*(1-pct/100)*(+l.iva||0)/100; },0);
+  return {pontual:c.pontual, mrr:c.mrr, meses, recorrente:c.recorrente, sub:c.sub, descontoPct:pct, desconto, base:c.sub-desconto, iva, total:c.sub-desconto+iva}; }
 
 /* ---------- NAVEGAÇÃO ---------- */
 const NAV = [
@@ -1283,7 +1291,10 @@ function load(){
   // garantir que cada modelo tem blocos (construtor por blocos)
   (state.propostaTemplates||[]).forEach(t=>{ if(!Array.isArray(t.blocks)||!t.blocks.length) t.blocks=blocksFromLegacy(t); });
   // associar linhas de proposta ao catálogo (produtoId)
-  (state.propostas||[]).forEach(p=>{ (p.linhas||[]).forEach(l=>{ if(!l.produtoId){ const pr=(state.produtos||[]).find(x=>x.nome===l.descricao); if(pr) l.produtoId=pr.id; } }); });
+  (state.propostas||[]).forEach(p=>{ (p.linhas||[]).forEach(l=>{ if(!l.produtoId){ const pr=(state.produtos||[]).find(x=>x.nome===l.descricao); if(pr) l.produtoId=pr.id; } if(l.modelo==null){ const pr=(state.produtos||[]).find(x=>x.id===l.produtoId); l.modelo=pr?pr.modelo:'Único'; } });
+    // venda ancorada na EMPRESA (não no contacto); duração p/ SaaS recorrente
+    if(p.empresaId==null){ const cc=(state.clientes||[]).find(x=>x.id===p.clienteId); p.empresaId=cc?(cc.empresaId||''):''; }
+    if(p.meses==null) p.meses=12; });
   (state.clientes||[]).forEach(c=>{ if(!c.regiao) c.regiao='Continente'; });
   if(!Array.isArray(state.envios)) state.envios=[];
   if(!Array.isArray(state.automacoes)) state.automacoes=def.automacoes;
@@ -1319,10 +1330,14 @@ const LOSS_REASONS = ['Preço','Concorrência','Timing / adiado','Sem orçamento
 const stateColor = s => ({Criada:'grey',Enviada:'blue',Negociação:'amber',Ganha:'green',Perdida:'red'}[s]||'grey');
 const stateDot = s => ({Criada:'#86978d',Enviada:'#2563eb',Negociação:'#d97706',Ganha:'#00A651',Perdida:'#dc2626'}[s]||'#86978d');
 const clientValue = id => state.propostas.filter(p=>p.clienteId===id&&p.estado==='Ganha').reduce((s,p)=>s+propTotal(p),0);
-const clientVolume = id => state.propostas.filter(p=>p.clienteId===id&&p.estado==='Ganha').reduce((s,p)=>s+(p.linhas||[]).reduce((a,l)=>a+(+l.qtd||0)*(+l.preco||0)*(1+(+l.iva||0)/100),0),0);
+// volumes p/ fidelização: TCV líquido (sem desconto) — evita o ciclo desconto↔loyalty
+const empVolume = id => state.propostas.filter(p=>p.empresaId===id&&p.estado==='Ganha').reduce((s,p)=>s+proposalCalc(p).sub,0);
+const particularVolume = id => state.propostas.filter(p=>p.clienteId===id&&!p.empresaId&&p.estado==='Ganha').reduce((s,p)=>s+proposalCalc(p).sub,0);
 function recalcLoyalty(){
   const lv=[...state.loyalty].filter(x=>x.estado!=='Inativo').sort((a,b)=>a.minVolume-b.minVolume);
-  state.clientes.forEach(c=>{ const v=clientVolume(c.id); let n=lv[0]?.nome||'Bronze'; lv.forEach(x=>{ if(v>=x.minVolume) n=x.nome; }); c.loyalty=n; });
+  const tierFor=v=>{ let n=lv[0]?.nome||'Bronze'; lv.forEach(x=>{ if(v>=x.minVolume) n=x.nome; }); return n; };
+  (state.empresas||[]).forEach(e=>{ e.loyalty=tierFor(empVolume(e.id)); });                 // fidelização = da EMPRESA
+  state.clientes.forEach(c=>{ c.loyalty = c.empresaId ? (((state.empresas||[]).find(e=>e.id===c.empresaId)||{}).loyalty||tierFor(0)) : tierFor(particularVolume(c.id)); }); // contacto herda a da empresa; particular usa o seu
 }
 
 /* ---------- autenticação (DEMO pedagógica - não é segurança real) ---------- */
@@ -1696,7 +1711,8 @@ function pager(key,pg){
 
 /* ---------- EMPRESAS (Account) ---------- */
 function empContacts(id){ return state.clientes.filter(c=>c.empresaId===id); }
-function empValue(id){ return empContacts(id).reduce((s,c)=>s+clientValue(c.id),0); }
+function empValue(id){ return state.propostas.filter(p=>p.empresaId===id&&p.estado==='Ganha').reduce((s,p)=>s+propTotal(p),0); }
+function empProps(id){ return state.propostas.filter(p=>p.empresaId===id); }
 views.empresas = () => {
   const q=(state._q||'').toLowerCase();
   const list=state.empresas.filter(e=>!q||[e.numero,e.nome,e.nipc,e.cidade,e.setor].join(' ').toLowerCase().includes(q));
@@ -1737,9 +1753,10 @@ function openEmpresa360(id){
   const e=state.empresas.find(x=>x.id===id); if(!e) return;
   drawer360Emp=id;
   const contacts=empContacts(id);
-  const props=state.propostas.filter(p=>contacts.some(c=>c.id===p.clienteId));
+  const props=empProps(id);   // vendas ANCORADAS na empresa (não seguem o contacto)
   const ganhas=props.filter(p=>p.estado==='Ganha');
-  $('#drawerTitle').innerHTML=`<h3 style="font-size:1.1rem;font-weight:800">${esc(e.nome)}</h3><div class="sub" style="color:var(--muted);font-size:.82rem">${esc(e.numero||'')} · ${esc(e.setor||'-')} · ${esc(e.dimensao||'-')}</div>`;
+  const lyl=e.loyalty||'Bronze';
+  $('#drawerTitle').innerHTML=`<h3 style="font-size:1.1rem;font-weight:800">${esc(e.nome)} <span class="pill ${lyl==='Ouro'?'amber':lyl==='Prata'?'grey':'green'}" style="font-size:.66rem;vertical-align:middle">${esc(lyl)}</span></h3><div class="sub" style="color:var(--muted);font-size:.82rem">${esc(e.numero||'')} · ${esc(e.setor||'-')} · ${esc(e.dimensao||'-')}</div>`;
   $('#drawerBody').innerHTML=`
     <dl class="kv">
       <dt>NIPC / NIF</dt><dd>${esc(e.nipc||'-')}</dd>
@@ -3490,8 +3507,8 @@ let propDraft=null;
 function openPropModal(id){
   const isEdit=!!id;
   propDraft=isEdit?clone(state.propostas.find(x=>x.id===id)):{
-    id:uid('prop'),numero:nextProposalNumber(),titulo:'',clienteId:state.clientes[0]?.id||'',
-    criada:todayISO(),validade:addDays(todayISO(),30),estado:'Criada',linhas:[{produtoId:'',descricao:'',qtd:1,preco:0,iva:defaultIva()}]
+    id:uid('prop'),numero:nextProposalNumber(),titulo:'',clienteId:state.clientes[0]?.id||'',empresaId:(state.clientes[0]?.empresaId)||'',meses:12,
+    criada:todayISO(),validade:addDays(todayISO(),30),estado:'Criada',linhas:[{produtoId:'',descricao:'',qtd:1,preco:0,iva:defaultIva(),modelo:'Único'}]
   };
   // garantir produtoId nas linhas (associação ao catálogo)
   propDraft.linhas.forEach(l=>{ if(!l.produtoId){ const pr=state.produtos.find(x=>x.nome===l.descricao); if(pr) l.produtoId=pr.id; } });
@@ -3522,9 +3539,12 @@ function renderPropForm(){
       <div class="field full"><label>Detalhe do motivo (opcional)</label><input name="motivoPerdaNota" value="${esc(p.motivoPerdaNota||'')}" placeholder="ex.: concorrente 15% mais barato"></div>`:''}
       <div class="field full"><label>Título *</label><input name="titulo" value="${esc(p.titulo)}" ${locked?'readonly':''}></div>
       ${locked
-        ? `<div class="field"><label>Cliente</label><input value="${esc(comboLabel('clientes',p.clienteId)||'- nenhum -')}" readonly style="background:var(--surface3);color:var(--muted);cursor:not-allowed"><input type="hidden" name="clienteId" value="${esc(p.clienteId||'')}"></div>`
-        : `<div class="field combo" data-combo-src="clientes"><label>Cliente</label>${comboInner('clienteId','clientes',p.clienteId,'Escreva o nome do cliente…')}</div>`}
+        ? `<div class="field"><label>Empresa (cliente da venda)</label><input value="${esc(comboLabel('empresas',p.empresaId)||'- particular -')}" readonly style="background:var(--surface3);color:var(--muted);cursor:not-allowed"><input type="hidden" name="empresaId" value="${esc(p.empresaId||'')}"></div>
+           <div class="field"><label>Contacto</label><input value="${esc(comboLabel('clientes',p.clienteId)||'- nenhum -')}" readonly style="background:var(--surface3);color:var(--muted);cursor:not-allowed"><input type="hidden" name="clienteId" value="${esc(p.clienteId||'')}"></div>`
+        : `<div class="field combo" data-combo-src="empresas"><label>Empresa (cliente da venda)</label>${comboInner('empresaId','empresas',p.empresaId,'Escreva o nome ou NIPC da empresa…')}</div>
+           <div class="field combo" data-combo-src="clientes"><label>Contacto <span class="muted" style="font-weight:500;font-size:.78rem">(com quem se negoceia)</span></label>${comboInner('clienteId','clientes',p.clienteId,'Escreva o nome do contacto…')}</div>`}
       <div class="field"><label>Validade</label><input type="date" name="validade" value="${esc(p.validade)}" ${locked?'readonly':''}></div>
+      <div class="field"><label>Meses de fidelização <span class="muted" style="font-weight:500;font-size:.78rem">(SaaS recorrente)</span></label><input type="number" name="meses" min="1" step="1" value="${esc(p.meses||12)}" ${locked?'readonly':''}></div>
       <div class="field full"><label>Modelo de proposta (para exportar PDF)</label><select name="templateId">${opt(state.propostaTemplates.map(t=>({v:t.id,t:t.nome})),p.templateId||state.propostaTemplates[0]?.id)}</select></div>
     </div>
     <div class="divider" style="margin:18px 0 14px"></div>
@@ -3561,13 +3581,21 @@ function propTotalsHTML(p){
   const cli=getC(p.clienteId); const reg=cli?(cli.regiao||'Continente'):'Continente'; const okT=regiaoTaxas(reg);
   const mm=(p.linhas||[]).filter(l=>l.produtoId && okT.length && !okT.includes(Number(l.iva)));
   return `${mm.length?`<div class="callout warn" style="margin-top:12px;align-items:center">${ic('alert',16)}<div class="ctxt" style="flex:1"><strong>IVA fora da região do cliente (${esc(reg)}).</strong> ${mm.length} linha(s) usam uma taxa que não pertence a ${esc(reg)}. Taxas de ${esc(reg)}: ${okT.sort((a,b)=>b-a).map(x=>x+'%').join(', ')}.</div><button class="btn-sec btn-sm" type="button" data-act="fix-iva" style="flex:0 0 auto;white-space:nowrap">Corrigir para ${esc(reg)}</button></div>`:''}
-  <div class="totbox"><div class="row"><span class="muted">Subtotal</span><span>${fmt(t.sub)}</span></div>${t.desconto>0?`<div class="row" style="color:var(--g700)"><span>Desconto loyalty (${t.descontoPct}%)</span><span>− ${fmt(t.desconto)}</span></div>`:''}<div class="row"><span class="muted">IVA</span><span>${fmt(t.iva)}</span></div><div class="row grand"><span>Total</span><span>${fmt(t.total)}</span></div></div>`;
+  <div class="totbox">
+    <div class="row"><span class="muted">Serviços / pontual</span><span>${fmt(t.pontual)}</span></div>
+    ${t.mrr>0?`<div class="row"><span class="muted">SaaS recorrente</span><span>${fmt(t.mrr)}/mês × ${t.meses} = ${fmt(t.recorrente)}</span></div>`:''}
+    <div class="row"><span class="muted">Subtotal (TCV)</span><span>${fmt(t.sub)}</span></div>
+    ${t.desconto>0?`<div class="row" style="color:var(--g700)"><span>Desconto loyalty (${t.descontoPct}%)</span><span>− ${fmt(t.desconto)}</span></div>`:''}
+    <div class="row"><span class="muted">IVA</span><span>${fmt(t.iva)}</span></div>
+    <div class="row grand"><span>Total do contrato</span><span>${fmt(t.total)}</span></div>
+    ${t.mrr>0?`<div class="row" style="font-size:.76rem;color:var(--muted)"><span>Receita recorrente</span><span>MRR ${fmt(t.mrr)} · ARR ${fmt(t.mrr*12)}</span></div>`:''}
+  </div>`;
 }
 function syncDraftFromForm(){
   const f=$('#modalForm'); if(!f) return;
-  ['numero','titulo','clienteId','validade','estado','templateId','motivoPerda','motivoPerdaNota'].forEach(k=>{ const el=f.querySelector(`[name="${k}"]`); if(el) propDraft[k]=el.value; });
+  ['numero','titulo','empresaId','clienteId','validade','estado','templateId','motivoPerda','motivoPerdaNota','meses'].forEach(k=>{ const el=f.querySelector(`[name="${k}"]`); if(el) propDraft[k]=el.value; });
   $$('.line-row',f).forEach(row=>{ const i=+row.dataset.line; const L=propDraft.linhas[i]; if(!L)return;
-    const ps=row.querySelector('[data-l="produtoId"]'); if(ps){ L.produtoId=ps.value; const prod=state.produtos.find(x=>x.id===ps.value); L.descricao=prod?prod.nome:(L.descricao||''); }
+    const ps=row.querySelector('[data-l="produtoId"]'); if(ps){ L.produtoId=ps.value; const prod=state.produtos.find(x=>x.id===ps.value); L.descricao=prod?prod.nome:(L.descricao||''); L.modelo=prod?prod.modelo:(L.modelo||'Único'); }
     const q=row.querySelector('[data-l="qtd"]'); if(q)L.qtd=Number(q.value||0);
     const pr=row.querySelector('[data-l="preco"]'); if(pr)L.preco=Number(pr.value||0);
     const iv=row.querySelector('[data-l="iva"]'); if(iv)L.iva=Number(iv.value||0);
@@ -3576,6 +3604,8 @@ function syncDraftFromForm(){
 function refreshTotals(){ syncDraftFromForm(); const w=$('#propTotalsWrap'); if(w&&propDraft) w.innerHTML=propTotalsHTML(propDraft); }
 function savePropModal(){
   syncDraftFromForm();
+  // a venda ancora na EMPRESA; se só se escolheu o contacto, usa a empresa dele
+  if(!propDraft.empresaId && propDraft.clienteId){ const cc=getC(propDraft.clienteId); if(cc&&cc.empresaId) propDraft.empresaId=cc.empresaId; }
   if(!propDraft.titulo.trim()){ toast('Falta o título','Indique um título para a proposta','warn'); return; }
   propDraft.linhas=propDraft.linhas.filter(l=>l.produtoId);
   if(!propDraft.linhas.length){ toast('Sem artigos','Adicione pelo menos um artigo do catálogo','warn'); return; }
@@ -4279,9 +4309,10 @@ document.addEventListener('click', e=>{
   if(!e.target.closest('.notif-wrap')){ $('#notifPanel')?.classList.remove('open'); }
 });
 document.addEventListener('change', e=>{
-  if(propDraft && e.target.matches('[data-l="produtoId"]')){ syncDraftFromForm(); const row=e.target.closest('.line-row'); const i=+row.dataset.line; const prod=state.produtos.find(x=>x.id===e.target.value); if(prod){ const reg=(getC(propDraft.clienteId)||{}).regiao||'Continente'; propDraft.linhas[i].descricao=prod.nome; propDraft.linhas[i].preco=prod.preco; propDraft.linhas[i].iva=ivaForRegion(prod.iva,reg); } renderPropForm(); return; }
+  if(propDraft && e.target.matches('[data-l="produtoId"]')){ syncDraftFromForm(); const row=e.target.closest('.line-row'); const i=+row.dataset.line; const prod=state.produtos.find(x=>x.id===e.target.value); if(prod){ const reg=(getC(propDraft.clienteId)||{}).regiao||'Continente'; propDraft.linhas[i].descricao=prod.nome; propDraft.linhas[i].preco=prod.preco; propDraft.linhas[i].iva=ivaForRegion(prod.iva,reg); propDraft.linhas[i].modelo=prod.modelo; } renderPropForm(); return; }
   if(propDraft && e.target.matches('[data-l="iva"]')){ refreshTotals(); return; }
-  if(propDraft && e.target.name==='clienteId'){ refreshTotals(); return; }
+  if(propDraft && e.target.name==='clienteId'){ syncDraftFromForm(); const cc=getC(propDraft.clienteId); if(cc&&cc.empresaId&&!propDraft.empresaId){ propDraft.empresaId=cc.empresaId; renderPropForm(); } else refreshTotals(); return; }
+  if(propDraft && e.target.name==='empresaId'){ refreshTotals(); return; }
   if(emailDraft && (e.target.id==='emCor'||e.target.id==='emLogo'||e.target.dataset.em!=null)){ updateEmailPreview(); return; }
   if(sendDraft && e.target.dataset.send==='templateId'){ syncSendDraft(); renderSendForm(); return; }
   const fl=e.target.closest('[data-filter]'); if(fl){ if(fl.dataset.filter==='fFam'){state._fFam=fl.value;state._fSub='';} else state._fSub=fl.value; render(); return; }
@@ -4315,7 +4346,7 @@ document.addEventListener('keydown', e=>{
 }, true);
 document.addEventListener('input', e=>{
   if(e.target.closest('#modalForm')&&propDraft&&e.target.name==='estado'){ syncDraftFromForm(); renderPropForm(); return; }
-  if(e.target.closest('#modalForm')&&propDraft&&(e.target.dataset.l||['qtd','preco','iva'].includes(e.target.name))) refreshTotals();
+  if(e.target.closest('#modalForm')&&propDraft&&(e.target.dataset.l||['qtd','preco','iva','meses'].includes(e.target.name))) refreshTotals();
   if(tplDraft && e.target.dataset && e.target.dataset.bf!=null) applyBlockField(e.target);
   if(tplDraft && e.target.id==='tplName') tplDraft.nome=e.target.value;
   if(tplDraft && e.target.id==='tplCor'){ tplDraft.cor=e.target.value; updatePaper(); }
@@ -4591,8 +4622,8 @@ function gerarExemplos(nCli,nProp,nEmp){
   for(let i=0;i<nProp;i++){
     if(!state.clientes.length||!prods.length) break;
     const cli=gnRand(state.clientes); const nlin=1+Math.floor(Math.random()*3); const linhas=[];
-    for(let j=0;j<nlin;j++){ const pr=gnRand(prods); linhas.push({produtoId:pr.id,descricao:pr.nome,qtd:1+Math.floor(Math.random()*6),preco:pr.preco,iva:ivaForRegion(pr.iva,cli.regiao||'Continente')}); }
-    state.propostas.push({id:uid('prop'),numero:nextProposalNumber(),titulo:gnRand(['Implementação CRM','Plano Analytics','Suporte Premium','Workshop de equipa','Conformidade RGPD','Licenciamento anual'])+' - '+cli.empresa,clienteId:cli.id,criada:gnDate(),validade:addDays(todayISO(),30),estado:gnRand(['Criada','Enviada','Negociação','Negociação','Ganha','Ganha','Perdida']),templateId:seedTplId(),linhas,criadoPor:(currentUser()?currentUser().id:null),criadoEm:gnDate(),alteradoEm:todayISO(),fonte:'gerado'});
+    for(let j=0;j<nlin;j++){ const pr=gnRand(prods); linhas.push({produtoId:pr.id,descricao:pr.nome,qtd:1+Math.floor(Math.random()*6),preco:pr.preco,iva:ivaForRegion(pr.iva,cli.regiao||'Continente'),modelo:pr.modelo||'Único'}); }
+    state.propostas.push({id:uid('prop'),numero:nextProposalNumber(),titulo:gnRand(['Implementação CRM','Plano Analytics','Suporte Premium','Workshop de equipa','Conformidade RGPD','Licenciamento anual'])+' - '+cli.empresa,empresaId:cli.empresaId||'',clienteId:cli.id,meses:gnRand([12,12,24,36]),criada:gnDate(),validade:addDays(todayISO(),30),estado:gnRand(['Criada','Enviada','Negociação','Negociação','Ganha','Ganha','Perdida']),templateId:seedTplId(),linhas,criadoPor:(currentUser()?currentUser().id:null),criadoEm:gnDate(),alteradoEm:todayISO(),fonte:'gerado'});
   }
   recalcLoyalty(); save(); render(); toast('Exemplos gerados',`${nEmp} empresa(s) · ${nCli} contacto(s) · ${nProp} proposta(s)`);
 }
