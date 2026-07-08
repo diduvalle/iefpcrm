@@ -3697,7 +3697,7 @@ function savePropModal(closeAfter){
   if(isNew) fireAutomations('proposta-criada',{clienteId:stored.clienteId,proposta:stored});
   onPropStatusChange(stored, oldEstado, stored.estado);
   if(closeAfter){ closeModal(); render(); }
-  else { render(); renderPropForm(); }   // mantém a janela aberta para continuar a trabalhar
+  else { render(); renderPropForm(); const cx=$('.modal-foot [data-act="close-modal"]'); if(cx) cx.textContent='Fechar'; }   // guardado: janela fica aberta e "Cancelar" passa a "Fechar"
 }
 function onPropStatusChange(p, oldS, newS){
   if(!newS||newS===oldS) return;
@@ -3722,7 +3722,7 @@ function openPropPreview(){
   $('#previewBack').classList.add('open');
 }
 function closePreview(){ $('#previewBack').classList.remove('open'); }
-function closeModal(){ $('#modalBack').classList.remove('open'); editing=null; propDraft=null; groupDraft=null; sendDraft=null; autoDraft=null; }
+function closeModal(){ $('#modalBack').classList.remove('open'); editing=null; propDraft=null; groupDraft=null; sendDraft=null; autoDraft=null; { const cx=$('.modal-foot [data-act="close-modal"]'); if(cx) cx.textContent='Cancelar'; } }
 
 /* ---------- drawer ---------- */
 function openDrawer(){ $('#drawerBack').classList.add('open'); $('#drawer').classList.add('open'); }
