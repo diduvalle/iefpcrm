@@ -3479,7 +3479,7 @@ function saveProfile(){
   const fz=$('#modalForm [data-sigsize]'); if(fz) u.assinaturaSize=fz.value;
   save(); closeModal(); render(); toast('Perfil atualizado',`As suas alterações foram guardadas`);
 }
-function saveModal(){
+async function saveModal(){
   if(editing&&editing.type==='__profile') return saveProfile();
   if(editing&&editing.type==='__wizard') return wizardGenerate();
   if(editing&&editing.type==='__send') return doSendEmail(false);
@@ -3505,6 +3505,13 @@ function saveModal(){
   }
   if(type==='cliente' && String(obj.nif||'').trim() && !validNIF(obj.nif)){ toast('NIF inválido','O número de contribuinte não passou na validação do dígito de controlo','warn'); return; }
   if(type==='empresa' && String(obj.nipc||'').trim() && !validNIF(obj.nipc)){ toast('NIPC inválido','O número não passou na validação do dígito de controlo','warn'); return; }
+  // duplicados: evita base suja (NIPC único por empresa; email único por contacto)
+  if(type==='empresa'){ const dig=x=>String(x||'').replace(/\D/g,''); const nd=dig(obj.nipc);
+    const dup=nd && state.empresas.find(e=>e.id!==obj.id && dig(e.nipc)===nd);
+    if(dup){ if(await uiConfirm(`Já existe uma empresa com o NIPC ${obj.nipc}: "${dup.nome}". Abrir essa empresa em vez de criar uma duplicada?`,{title:'NIPC já registado',okText:'Abrir existente',icon:'building'})){ closeModal(); openEmpresa360(dup.id); } return; } }
+  if(type==='cliente'){ const em=String(obj.email||'').trim().toLowerCase();
+    const dup=em && state.clientes.find(c=>c.id!==obj.id && String(c.email||'').trim().toLowerCase()===em);
+    if(dup){ if(await uiConfirm(`Já existe um contacto com o email ${obj.email}: "${(dup.nome||'')+' '+(dup.apelido||'')}". Abrir esse contacto em vez de criar um duplicado?`,{title:'Email já registado',okText:'Abrir existente',icon:'users'})){ closeModal(); openClient360(dup.id); } return; } }
   if(sc.code) sc.code(obj);
   if(sc.after) sc.after(obj);
   const i=state[store].findIndex(x=>x.id===obj.id);
