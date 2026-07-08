@@ -1173,7 +1173,7 @@ function demoData(){
   const roles = {
     'Administrador':{modules:ALL_MOD.slice(),gestor:true},
     'Formador':{modules:ALL_MOD.slice(),gestor:true},
-    'Formando':{modules:ALL_MOD.filter(m=>m!=='definicoes'),gestor:false,ocultarFinanceiro:true,feats:['entidade','gerador','loyalty','origens','brand']},
+    'Formando':{modules:ALL_MOD.filter(m=>m!=='definicoes'),gestor:false,ocultarFinanceiro:true,feats:['entidade','gerador','loyalty','origens','funcoes','brand']},
   };
   const propostaTemplates = [
     {id:'pt1',nome:'Clássico IEFP',cor:'#006B3C',criadoPor:'u1',criadoEm:'2026-01-05',blocks:[
@@ -1296,7 +1296,9 @@ function load(){
   // migração de permissões: gestores veem tudo; Comercial ganha 'modelos' (formandos não, por defeito)
   Object.entries(state.roles||{}).forEach(([name,r])=>{ r.modules=r.modules||[]; if(r.gestor){ NAV_FLAT.forEach(n=>{ if(!r.modules.includes(n.id)) r.modules.push(n.id); }); } else if(name==='Comercial' && !r.modules.includes('modelos')) r.modules.push('modelos');
     // backfill de sub-permissões (feats): sessões antigas ficaram sem elas → repor o default do grupo (só se nunca foram definidas)
-    if(r.feats===undefined && def.roles[name] && def.roles[name].feats) r.feats=def.roles[name].feats.slice(); });
+    if(r.feats===undefined && def.roles[name] && def.roles[name].feats) r.feats=def.roles[name].feats.slice();
+    // 'funcoes' era gerido pela feat 'origens' → quem a tinha herda a nova feat (não perde a secção)
+    if(Array.isArray(r.feats) && r.feats.includes('origens') && !r.feats.includes('funcoes')) r.feats.push('funcoes'); });
   // garantir que cada modelo tem blocos (construtor por blocos)
   (state.propostaTemplates||[]).forEach(t=>{ if(!Array.isArray(t.blocks)||!t.blocks.length) t.blocks=blocksFromLegacy(t); });
   // associar linhas de proposta ao catálogo (produtoId)
@@ -1359,7 +1361,7 @@ function isAdmin(){ if(!state.settings.requireLogin) return true; const u=curren
 function can(mod){ if(!state.settings.requireLogin) return true; const r=currentRole(); return r?r.modules.includes(mod):false; }
 function isGestor(){ const r=currentRole(); return !!(r&&r.gestor); }
 /* Sub-permissões (sandbox): acesso a secções específicas das Definições sem dar o módulo completo. */
-const FEATS=[{k:'entidade',l:'Entidade'},{k:'gerador',l:'Gerador de dados'},{k:'loyalty',l:'Níveis de fidelização'},{k:'origens',l:'Origens de cliente'},{k:'brand',l:'Marca & Aparência'}];
+const FEATS=[{k:'entidade',l:'Entidade'},{k:'gerador',l:'Gerador de dados'},{k:'loyalty',l:'Níveis de fidelização'},{k:'origens',l:'Origens de cliente'},{k:'funcoes',l:'Função do contacto'},{k:'brand',l:'Marca & Aparência'}];
 function canFeat(key){ if(!state.settings.requireLogin) return true; if(isAdmin()||can('definicoes')) return true; const r=currentRole(); return !!(r&&r.feats&&r.feats.includes(key)); }
 function hasAnyFeat(){ if(isAdmin()||can('definicoes')) return true; const r=currentRole(); return !!(r&&r.feats&&r.feats.length); }
 function doLogin(username,password){
@@ -3055,7 +3057,7 @@ function defSandboxView(){ const s=state.settings; const secs=[];
   if(canFeat('gerador')) secs.push(secGerador());
   if(canFeat('loyalty')) secs.push(secLoyalty());
   if(canFeat('origens')) secs.push(secOrigens(s));
-  if(canFeat('origens')) secs.push(secFuncoes(s));
+  if(canFeat('funcoes')) secs.push(secFuncoes(s));
   if(canFeat('brand')) secs.push(secBrand(s));
   return `<div class="card card-pad"><div class="section-head" style="margin-bottom:6px"><div><h3>${ic('settings',18)} Personalizar o meu ambiente</h3><div class="sub">Modo sandbox - todas as alterações ficam <strong>só neste navegador</strong>. Personalize a sua empresa fictícia e os exemplos para os exercícios.</div></div></div></div>`+(secs.join('')||`<div class="card card-pad"><div class="empty">Sem secções disponíveis.</div></div>`); }
 
@@ -4275,8 +4277,8 @@ document.addEventListener('click', async e=>{
     case 'av-clear': { const hid=$('#modalForm [name="avatar"]'); if(hid) hid.value=''; const prev=$('#avPreview'); if(prev){ const fd=new FormData($('#modalForm')); prev.textContent=initialsOf({nome:fd.get('nome'),apelido:fd.get('apelido')}); } el.style.display='none'; } break;
     case 'add-origem': { if(!canFeat('origens')){ toast('Sem permissão','','warn'); break; } const v=($('#newOrigem')?.value||'').trim(); if(!v){ toast('Indique a origem','','warn'); break; } state.settings.origens=state.settings.origens||[]; if(state.settings.origens.some(o=>o.toLowerCase()===v.toLowerCase())){ toast('Já existe','','warn'); break; } state.settings.origens.push(v); save(); render(); toast('Origem adicionada',v); } break;
     case 'del-origem': { if(!canFeat('origens')){ toast('Sem permissão','','warn'); break; } const o=el.dataset.origem; state.settings.origens=(state.settings.origens||[]).filter(x=>x!==o); save(); render(); toast('Origem removida',o); } break;
-    case 'add-funcao': { if(!canFeat('origens')){ toast('Sem permissão','','warn'); break; } const v=($('#newFuncao')?.value||'').trim(); if(!v){ toast('Indique a função','','warn'); break; } state.settings.funcoes=funcoesList().slice(); if(state.settings.funcoes.some(o=>o.toLowerCase()===v.toLowerCase())){ toast('Já existe','','warn'); break; } state.settings.funcoes.push(v); save(); render(); toast('Função adicionada',v); } break;
-    case 'del-funcao': { if(!canFeat('origens')){ toast('Sem permissão','','warn'); break; } const o=el.dataset.funcao; state.settings.funcoes=funcoesList().filter(x=>x!==o); save(); render(); toast('Função removida',o); } break;
+    case 'add-funcao': { if(!canFeat('funcoes')){ toast('Sem permissão','','warn'); break; } const v=($('#newFuncao')?.value||'').trim(); if(!v){ toast('Indique a função','','warn'); break; } state.settings.funcoes=funcoesList().slice(); if(state.settings.funcoes.some(o=>o.toLowerCase()===v.toLowerCase())){ toast('Já existe','','warn'); break; } state.settings.funcoes.push(v); save(); render(); toast('Função adicionada',v); } break;
+    case 'del-funcao': { if(!canFeat('funcoes')){ toast('Sem permissão','','warn'); break; } const o=el.dataset.funcao; state.settings.funcoes=funcoesList().filter(x=>x!==o); save(); render(); toast('Função removida',o); } break;
     case 'email-new': openEmailEditor(); break;
     case 'email-edit': openEmailEditor(id); break;
     case 'email-del': e.stopPropagation(); delEmailTpl(id); break;
