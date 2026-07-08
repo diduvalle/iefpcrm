@@ -1724,6 +1724,10 @@ function pager(key,pg){
 function empContacts(id){ return state.clientes.filter(c=>c.empresaId===id); }
 function empValue(id){ return state.propostas.filter(p=>p.empresaId===id&&p.estado==='Ganha').reduce((s,p)=>s+propTotal(p),0); }
 function empProps(id){ return state.propostas.filter(p=>p.empresaId===id); }
+/* Agregação por CONTA (modelo Account): a venda é da empresa; particular = contacto sem empresa. */
+const accKeyOf = p => p.empresaId || ('c:'+(p.clienteId||''));
+const accNameOf = key => String(key).startsWith('c:') ? clientName(key.slice(2)) : ((state.empresas.find(e=>e.id===key)||{}).nome||'-');
+const accountsCount = () => (state.empresas||[]).length + (state.clientes||[]).filter(c=>!c.empresaId).length;
 views.empresas = () => {
   const q=(state._q||'').toLowerCase();
   const list=state.empresas.filter(e=>!q||[e.numero,e.nome,e.nipc,e.cidade,e.setor].join(' ').toLowerCase().includes(q));
@@ -2035,9 +2039,9 @@ function analyticsMetrics(from,to){
   const ganhas=props.filter(p=>p.estado==='Ganha');
   const fechadas=ganhas.length+props.filter(p=>p.estado==='Perdida').length;
   const receita=ganhas.reduce((s,p)=>s+propTotal(p),0);
-  const vbc={}; ganhas.forEach(p=>{vbc[p.clienteId]=(vbc[p.clienteId]||0)+propTotal(p);});
-  const semGanho=state.clientes.length-Object.keys(vbc).length;
-  return { receita, conv:fechadas?ganhas.length/fechadas*100:0, ticket:ganhas.length?receita/ganhas.length:0, churn:state.clientes.length?semGanho/state.clientes.length*100:0 };
+  const vba={}; ganhas.forEach(p=>{const k=accKeyOf(p); vba[k]=(vba[k]||0)+propTotal(p);});
+  const nAcc=accountsCount(); const semGanho=nAcc-Object.keys(vba).length;
+  return { receita, conv:fechadas?ganhas.length/fechadas*100:0, ticket:ganhas.length?receita/ganhas.length:0, churn:nAcc?semGanho/nAcc*100:0 };
 }
 
 /* ---------- AGENDA & TAREFAS ---------- */
@@ -2142,11 +2146,12 @@ views.analytics = () => {
   const conv=fechadas?ganhas.length/fechadas*100:0;
   const receita=ganhas.reduce((s,p)=>s+propTotal(p),0);
   const ticket=ganhas.length?receita/ganhas.length:0;
-  const valByClient={}; ganhas.forEach(p=>{ valByClient[p.clienteId]=(valByClient[p.clienteId]||0)+propTotal(p); });
-  const comGanho=Object.keys(valByClient).length;
-  const ltv=state.clientes.length?receita/state.clientes.length:0;
-  const semGanho=state.clientes.length-comGanho;
-  const churn=state.clientes.length?semGanho/state.clientes.length*100:0;
+  const valByAcc={}; ganhas.forEach(p=>{ const k=accKeyOf(p); valByAcc[k]=(valByAcc[k]||0)+propTotal(p); });
+  const comGanho=Object.keys(valByAcc).length;
+  const nAcc=accountsCount();
+  const ltv=nAcc?receita/nAcc:0;
+  const semGanho=nAcc-comGanho;
+  const churn=nAcc?semGanho/nAcc*100:0;
   const novos=state.clientes.filter(c=>inDateRange(c.criado,r.from,r.to)).length;
   const funnel=[
     {l:'Leads / Criadas',v:props.length,c:'#8dd3a6'},
@@ -2155,7 +2160,7 @@ views.analytics = () => {
     {l:'Ganhas',v:ganhas.length,c:'#006B3C'},
   ];
   const fmax=Math.max(...funnel.map(f=>f.v),1);
-  const topClients=Object.entries(valByClient).map(([id,v])=>({c:getC(id),v})).filter(x=>x.c).sort((a,b)=>b.v-a.v).slice(0,5);
+  const topClients=Object.entries(valByAcc).map(([k,v])=>({name:accNameOf(k),v})).sort((a,b)=>b.v-a.v).slice(0,5);
   const tmax=topClients[0]?.v||1;
   // --- pedagógicos avançados ---
   const lossR={}; perdidas.forEach(p=>{ const m=(p.motivoPerda||'').trim()||'(por classificar)'; lossR[m]=(lossR[m]||0)+1; });
@@ -2183,11 +2188,11 @@ views.analytics = () => {
     <div class="card card-pad">
       <div class="section-head" style="margin-bottom:16px"><div><h3>Funil de vendas ${infoTip('funil')}</h3><div class="sub">${act?'Propostas criadas no período':'Conversão entre etapas do pipeline'}</div></div></div>
       ${props.length?`<div class="funnel">${funnel.map((f,i)=>{const w=Math.max(8,f.v/fmax*100);const cv=i>0&&funnel[i-1].v?Math.round(f.v/funnel[i-1].v*100):100;return `<div class="funnel-row"><div class="funnel-bar" style="width:${w}%;background:${f.c}">${f.l} · ${f.v}</div><span class="funnel-meta">${i>0?`${cv}%`:''}</span></div>`;}).join('')}</div>`:empty('Sem propostas no período')}
-      <div class="callout info" style="margin-top:16px">${ic('alert',16)}<div class="ctxt"><strong>LTV médio ${infoTip('ltv')}:</strong> ${money(ltv)} por cliente. Uma redução do <em>churn</em> de 5% pode aumentar significativamente os lucros.</div></div>
+      <div class="callout info" style="margin-top:16px">${ic('alert',16)}<div class="ctxt"><strong>LTV médio ${infoTip('ltv')}:</strong> ${money(ltv)} por empresa. Uma redução do <em>churn</em> de 5% pode aumentar significativamente os lucros.</div></div>
     </div>
     <div class="card card-pad">
-      <div class="section-head" style="margin-bottom:14px"><div><h3>Top clientes</h3><div class="sub">Por valor ganho${act?' no período':''}</div></div></div>
-      <div class="mini-list">${topClients.length?topClients.map((x,i)=>`<div class="mini-item"><span class="ic">${i+1}</span><span class="grow"><strong>${esc(x.c.nome)} ${esc(x.c.apelido)}</strong><div class="progress" style="margin-top:6px"><i style="width:${x.v/tmax*100}%"></i></div></span><strong>${money(x.v)}</strong></div>`).join(''):empty('Sem dados no período')}</div>
+      <div class="section-head" style="margin-bottom:14px"><div><h3>Top empresas</h3><div class="sub">Por valor ganho${act?' no período':''}</div></div></div>
+      <div class="mini-list">${topClients.length?topClients.map((x,i)=>`<div class="mini-item"><span class="ic">${i+1}</span><span class="grow"><strong>${esc(x.name)}</strong><div class="progress" style="margin-top:6px"><i style="width:${x.v/tmax*100}%"></i></div></span><strong>${money(x.v)}</strong></div>`).join(''):empty('Sem dados no período')}</div>
     </div>
   </div>
   <div class="split eq">
@@ -3762,9 +3767,9 @@ function printAnalyticsReport(){
   const receita=ganhas.reduce((sm,p)=>sm+propTotal(p),0);
   const conv=fechadas?ganhas.length/fechadas*100:0;
   const ticket=ganhas.length?receita/ganhas.length:0;
-  const vbc={}; ganhas.forEach(p=>{vbc[p.clienteId]=(vbc[p.clienteId]||0)+propTotal(p);});
-  const churn=state.clientes.length?(state.clientes.length-Object.keys(vbc).length)/state.clientes.length*100:0;
-  const top=Object.entries(vbc).map(([id,v])=>({c:getC(id),v})).filter(x=>x.c).sort((a,b)=>b.v-a.v).slice(0,5);
+  const vba={}; ganhas.forEach(p=>{const k=accKeyOf(p); vba[k]=(vba[k]||0)+propTotal(p);});
+  const nAcc=accountsCount(); const churn=nAcc?(nAcc-Object.keys(vba).length)/nAcc*100:0;
+  const top=Object.entries(vba).map(([k,v])=>({name:accNameOf(k),v})).sort((a,b)=>b.v-a.v).slice(0,5);
   let prev=null,prevLabel='';
   if(act&&r.from&&r.to&&state._anCompare){ const len=daysBetween(r.from,r.to); const pt=addDays(r.from,-1); const pf=addDays(pt,-len); prev=analyticsMetrics(pf,pt); prevLabel=`${dPT(pf)} a ${dPT(pt)}`; }
   const vc=(cur,pv,inv)=>{ if(pv==null) return ''; const d=pv===0?(cur>0?100:0):(cur-pv)/pv*100; const col=Math.abs(d)<0.05?'#5f746b':((inv?d<0:d>0)?'#0f9d58':'#dc2626'); return `<span style="color:${col};font-weight:700;font-size:.8rem"> ${d>0?'▲':d<0?'▼':'•'} ${Math.abs(d).toLocaleString('pt-PT',{maximumFractionDigits:1})}%</span>`; };
@@ -3788,9 +3793,9 @@ function printAnalyticsReport(){
   </div>
   <h2>Funil de vendas</h2>
   ${funnel.map(f=>`<div class="fbar" style="width:${Math.max(12,f[1]/fmax*100)}%">${f[0]} · ${f[1]}</div>`).join('')}
-  <h2>Top clientes (por valor ganho)</h2>
-  <table><thead><tr><th>#</th><th>Cliente</th><th style="text-align:right">Valor</th></tr></thead><tbody>
-  ${top.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.c.nome)} ${esc(x.c.apelido||'')}</td><td style="text-align:right">${fmt(x.v)}</td></tr>`).join('')||'<tr><td colspan=3>Sem dados no período</td></tr>'}</tbody></table>
+  <h2>Top empresas (por valor ganho)</h2>
+  <table><thead><tr><th>#</th><th>Empresa</th><th style="text-align:right">Valor</th></tr></thead><tbody>
+  ${top.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.name)}</td><td style="text-align:right">${fmt(x.v)}</td></tr>`).join('')||'<tr><td colspan=3>Sem dados no período</td></tr>'}</tbody></table>
   <p class="muted" style="margin-top:30px;border-top:1px solid #dbe6df;padding-top:12px">Documento gerado pelo IEFP CRM - ferramenta pedagógica (UFCD 10868 - CRM Analytics).</p>
   </body></html>`);
 }
