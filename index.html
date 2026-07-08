@@ -1654,8 +1654,8 @@ views.dashboard = () => {
     <div class="dash-col">
       <div class="card card-pad">
         <div class="section-head" style="margin-bottom:14px"><div><h3>Propostas recentes</h3><div class="sub">Últimos movimentos do pipeline</div></div><a class="btn-sec btn-sm" href="#propostas">Ver todas</a></div>
-        <div class="table-wrap"><table><thead><tr><th>Número</th><th>Cliente</th><th>Estado</th><th class="t-right">Valor</th></tr></thead><tbody>
-          ${recent.map(p=>`<tr data-act="open-prop" data-id="${p.id}" style="cursor:pointer"><td><div class="cell-main">${esc(p.numero)}</div><div class="cell-sub">${esc(p.titulo)}</div></td><td>${esc(clientName(p.clienteId))}</td><td><span class="pill ${stateColor(p.estado)}">${p.estado}</span></td><td class="t-right"><strong>${money(propTotal(p))}</strong></td></tr>`).join('')}
+        <div class="table-wrap"><table><thead><tr><th>Número</th><th>Empresa</th><th>Estado</th><th class="t-right">Valor</th></tr></thead><tbody>
+          ${recent.map(p=>`<tr data-act="open-prop" data-id="${p.id}" style="cursor:pointer"><td><div class="cell-main">${esc(p.numero)}</div><div class="cell-sub">${esc(p.titulo)}</div></td><td>${esc(propAccount(p))}</td><td><span class="pill ${stateColor(p.estado)}">${p.estado}</span></td><td class="t-right"><strong>${money(propTotal(p))}</strong></td></tr>`).join('')}
         </tbody></table></div>
       </div>
       <div class="card card-pad">
@@ -1728,6 +1728,8 @@ function empProps(id){ return state.propostas.filter(p=>p.empresaId===id); }
 const accKeyOf = p => p.empresaId || ('c:'+(p.clienteId||''));
 const accNameOf = key => String(key).startsWith('c:') ? clientName(key.slice(2)) : ((state.empresas.find(e=>e.id===key)||{}).nome||'-');
 const accountsCount = () => (state.empresas||[]).length + (state.clientes||[]).filter(c=>!c.empresaId).length;
+// nome a mostrar numa proposta = a EMPRESA (cliente da venda); particular = o contacto
+function propAccount(p){ return p&&p.empresaId ? ((state.empresas.find(e=>e.id===p.empresaId)||{}).nome||'-') : clientName(p&&p.clienteId); }
 views.empresas = () => {
   const q=(state._q||'').toLowerCase();
   const list=state.empresas.filter(e=>!q||[e.numero,e.nome,e.nipc,e.cidade,e.setor].join(' ').toLowerCase().includes(q));
@@ -1947,13 +1949,13 @@ function kanbanHTML(){
     const items=state.propostas.filter(p=>p.estado===st);
     const tot=items.reduce((s,p)=>s+propTotal(p),0);
     return `<div class="kcol"><div class="kcol-head"><span><span class="dot" style="background:${stateDot(st)}"></span>${st}</span><span class="cnt">${items.length}</span></div>
-      <div class="klist" data-status="${st}">${items.map(p=>`<div class="kcard" draggable="true" data-id="${p.id}" data-act="open-prop"><span class="knum">${esc(p.numero)}</span><span class="ktitle">${esc(p.titulo)}</span><div class="kfoot"><span class="muted" style="font-size:.78rem">${esc(clientName(p.clienteId))}</span><span class="kval">${money(propTotal(p))}</span></div></div>`).join('')||'<div class="empty" style="padding:14px;font-size:.8rem">Vazio</div>'}</div>
+      <div class="klist" data-status="${st}">${items.map(p=>`<div class="kcard" draggable="true" data-id="${p.id}" data-act="open-prop"><span class="knum">${esc(p.numero)}</span><span class="ktitle">${esc(p.titulo)}</span><div class="kfoot"><span class="muted" style="font-size:.78rem">${esc(propAccount(p))}</span><span class="kval">${money(propTotal(p))}</span></div></div>`).join('')||'<div class="empty" style="padding:14px;font-size:.8rem">Vazio</div>'}</div>
       <div class="ktotal">${money(tot)}</div></div>`;
   }).join('')}</div>`;
 }
 function propTableHTML(){
-  return `<div class="table-wrap"><table><thead><tr><th>Número</th><th>Cliente</th><th>Criada</th><th>Validade</th><th class="t-right">Total</th><th>Estado</th><th></th></tr></thead><tbody>
-    ${state.propostas.length?state.propostas.map(p=>`<tr><td data-act="open-prop" data-id="${p.id}" style="cursor:pointer"><div class="cell-main">${esc(p.numero)}</div><div class="cell-sub">${esc(p.titulo)}</div></td><td>${esc(clientName(p.clienteId))}</td><td>${dPT(p.criada)}</td><td>${dPT(p.validade)}</td><td class="t-right"><strong>${money(propTotal(p))}</strong></td><td><span class="pill ${stateColor(p.estado)}">${p.estado}</span></td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="proposta" data-id="${p.id}">Editar</button><button class="btn-sec btn-xs" data-act="print-prop" data-id="${p.id}">${ic('print',13)} PDF</button><button class="btn-sec btn-xs" data-act="email-prop" data-id="${p.id}">${ic('mail',13)} Email</button></div></td></tr>`).join(''):`<tr><td colspan="7">${empty('Sem propostas')}</td></tr>`}
+  return `<div class="table-wrap"><table><thead><tr><th>Número</th><th>Empresa (cliente)</th><th>Criada</th><th>Validade</th><th class="t-right">Total</th><th>Estado</th><th></th></tr></thead><tbody>
+    ${state.propostas.length?state.propostas.map(p=>`<tr><td data-act="open-prop" data-id="${p.id}" style="cursor:pointer"><div class="cell-main">${esc(p.numero)}</div><div class="cell-sub">${esc(p.titulo)}</div></td><td><div class="cell-main">${esc(propAccount(p))}</div>${p.clienteId?`<div class="cell-sub">${esc(clientName(p.clienteId))}</div>`:''}</td><td>${dPT(p.criada)}</td><td>${dPT(p.validade)}</td><td class="t-right"><strong>${money(propTotal(p))}</strong></td><td><span class="pill ${stateColor(p.estado)}">${p.estado}</span></td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="proposta" data-id="${p.id}">Editar</button><button class="btn-sec btn-xs" data-act="print-prop" data-id="${p.id}">${ic('print',13)} PDF</button><button class="btn-sec btn-xs" data-act="email-prop" data-id="${p.id}">${ic('mail',13)} Email</button></div></td></tr>`).join(''):`<tr><td colspan="7">${empty('Sem propostas')}</td></tr>`}
   </tbody></table></div>`;
 }
 
@@ -2727,6 +2729,7 @@ async function doSendEmail(openMail){
   const sigT=sigHtmlToText((currentUser()||{}).assinatura);
   const body=mergeCtx((tpl?tpl.saudacao+'\n\n'+tpl.corpo+(tpl.botaoTexto&&tpl.botaoLink?'\n\n'+tpl.botaoTexto+': '+tpl.botaoLink:'')+(prop?'\n\n(Proposta '+prop.numero+' - exportável em PDF a partir do CRM)':'')+'\n\n'+tpl.assinatura:''),cli,prop)+(sigT?'\n\n'+mergeCtx(sigT,cli,prop):'');
   const ev=sendEmail({clienteId:cli.id, templateId:sendDraft.templateId, assunto:sendDraft.assunto, proposta:prop, origem:'Manual'});
+  if(prop) snapshotVersao(prop);   // grava a versão das condições enviadas
   const real=realSendOn(); ev.modo = real?'real':'simulado'; if(sendDraft.cc) ev.cc=sendDraft.cc; if(sendDraft.bcc) ev.bcc=sendDraft.bcc;
   const _cc=sendDraft.cc, _bcc=sendDraft.bcc;
   save(); closeModal(); render();
@@ -3548,6 +3551,35 @@ function openPropModal(id){
   renderPropForm();
   $('#modalBack').classList.add('open');
 }
+/* ---------- Versões da proposta (snapshot a cada envio) ---------- */
+function userLabel(id){ const u=(state.utilizadores||[]).find(x=>x.id===id); return u?((u.nome||'')+' '+(u.apelido||'')).trim():'-'; }
+function propVerSig(p){ return JSON.stringify({l:(p.linhas||[]).map(l=>[l.produtoId,l.qtd,l.preco,l.iva,l.modelo]),m:p.meses,e:p.empresaId,c:p.clienteId}); }
+function snapshotVersao(p){
+  p.versoes=p.versoes||[]; const sig=propVerSig(p); const last=p.versoes[p.versoes.length-1];
+  if(last && last.sig===sig){ last.data=todayISO(); last.reenvios=(last.reenvios||0)+1; return; }  // reenvio sem alterações
+  const doc=documentTotals(p);
+  p.versoes.push({ n:p.versoes.length+1, data:todayISO(), por:(currentUser()||{}).id||null, sig,
+    estado:p.estado, meses:p.meses, empresaId:p.empresaId, clienteId:p.clienteId, validade:p.validade, titulo:p.titulo,
+    linhas:clone(p.linhas||[]), doc:{sub:doc.sub, desconto:doc.desconto, descontoPct:doc.descontoPct, iva:doc.iva, total:doc.total} });
+}
+function versoesHTML(p){
+  const vs=(p.versoes||[]); if(!vs.length) return '';
+  return `<div class="divider" style="margin:18px 0 12px"></div>
+    <div class="section-head" style="margin-bottom:8px"><div><h3 style="font-size:.95rem">Histórico de envios (versões)</h3><div class="sub" style="font-size:.76rem">Cada envio grava as condições dessa altura - acesso às versões anteriores da negociação.</div></div></div>
+    ${vs.slice().reverse().map(v=>`<div style="border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden">
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2)">
+        <span class="chip">v${v.n}</span>
+        <div style="flex:1;min-width:0"><strong style="font-size:.84rem">${money(v.doc.total)}</strong> <span class="muted" style="font-size:.76rem">· ${(v.linhas||[]).length} linha(s) · ${esc(v.meses)} mês(es)${v.reenvios?` · reenviada ${v.reenvios}×`:''}</span><div class="muted" style="font-size:.74rem">${dtEnvio(v.data)} · ${esc(userLabel(v.por))} · estado: ${esc(v.estado||'-')}</div></div>
+        <button class="btn-sec btn-xs" type="button" data-act="toggle-versao" data-vn="${v.n}">Ver condições</button>
+      </div>
+      <div class="versao-det" data-vn="${v.n}" hidden style="padding:10px 12px">
+        <div class="table-wrap"><table><thead><tr><th>Artigo</th><th>Qtd</th><th>Preço</th><th>IVA</th><th>Cadência</th></tr></thead><tbody>
+        ${(v.linhas||[]).map(l=>`<tr><td>${esc(l.descricao||'-')}</td><td>${esc(l.qtd)}</td><td>${fmt(l.preco)}</td><td>${esc(l.iva)}%</td><td>${esc(l.modelo||'Único')}</td></tr>`).join('')||'<tr><td colspan="5" class="muted">Sem linhas</td></tr>'}
+        </tbody></table></div>
+        <div class="muted" style="font-size:.78rem;margin-top:6px">Subtotal ${fmt(v.doc.sub)}${v.doc.desconto>0?` · desconto ${v.doc.descontoPct}%`:''} · IVA ${fmt(v.doc.iva)} · <strong>Total ${fmt(v.doc.total)}</strong></div>
+      </div></div>`).join('')}`;
+}
+function dtEnvio(d){ return d?dPT(d):'-'; }
 function renderPropForm(){
   const p=propDraft;
   const locked=['Ganha','Perdida'].includes(p.estado);
@@ -3580,7 +3612,8 @@ function renderPropForm(){
     <div class="line-head"><span>Artigo (catálogo)</span><span>Qtd</span><span>Preço</span><span>IVA</span><span></span></div>
     <div class="lines" id="lines">${p.linhas.map((l,i)=>lineRow(l,i,locked)).join('')}</div>
     <div id="propTotalsWrap">${propTotalsHTML(p)}</div>
-    <div class="muted" style="font-size:.74rem;margin-top:14px;border-top:1px solid var(--border);padding-top:8px">${ic('users',12)} Criada por ${esc(aC?aC.nome+' '+(aC.apelido||''):'-')}${p.criadoEm?' em '+dPT(p.criadoEm):''} · Última alteração: ${esc(aA?aA.nome+' '+(aA.apelido||''):'-')}${p.alteradoEm?' em '+dPT(p.alteradoEm):''}</div>`;
+    <div class="muted" style="font-size:.74rem;margin-top:14px;border-top:1px solid var(--border);padding-top:8px">${ic('users',12)} Criada por ${esc(aC?aC.nome+' '+(aC.apelido||''):'-')}${p.criadoEm?' em '+dPT(p.criadoEm):''} · Última alteração: ${esc(aA?aA.nome+' '+(aA.apelido||''):'-')}${p.alteradoEm?' em '+dPT(p.alteradoEm):''}</div>
+    ${versoesHTML(p)}`;
   syncDraftFromForm();
 }
 function produtoOptions(sel){
@@ -4215,6 +4248,7 @@ document.addEventListener('click', async e=>{
     case 'prop-preview': openPropPreview(); break;
     case 'prop-pdf': if(propDraft){ if(!propDraft.linhas.some(l=>l.produtoId)){ toast('Sem artigos','Adicione artigos do catálogo para exportar','warn'); break; } persistPropDraft(); printProposal(propDraft.id); } break;
     case 'prop-email': if(propDraft){ persistPropDraft(); const pid=propDraft.id; closePreview(); closeModal(); openSendEmail(pid); } break;
+    case 'toggle-versao': { const d=$(`#modalForm .versao-det[data-vn="${el.dataset.vn}"]`); if(d){ d.hidden=!d.hidden; el.textContent=d.hidden?'Ver condições':'Ocultar'; } break; }
     case 'send-back': { const pid=sendDraft&&sendDraft.propostaId; closeModal(); if(pid) openModal('proposta',pid); } break;
     case 'mail-send': mailSend(); break;
     case 'mail-reset': mailDraft=defaultMailDraft(); render(); break;
