@@ -1731,8 +1731,10 @@ views.empresas = () => {
     ${pager('empresas',pg)}
   </div>`;
 };
+let drawer360Emp=null;  // empresa atualmente aberta na ficha 360 (p/ refrescar ao juntar pessoas)
 function openEmpresa360(id){
   const e=state.empresas.find(x=>x.id===id); if(!e) return;
+  drawer360Emp=id;
   const contacts=empContacts(id);
   const props=state.propostas.filter(p=>contacts.some(c=>c.id===p.clienteId));
   const ganhas=props.filter(p=>p.estado==='Ganha');
@@ -1747,8 +1749,8 @@ function openEmpresa360(id){
       <dt>Contacto geral</dt><dd>${esc(e.telefone||'-')} · ${esc(e.email||'-')}</dd>
     </dl>
     <div class="divider" style="margin:16px 0"></div>
-    <div class="section-head" style="margin-bottom:10px"><div><h3 style="font-size:.98rem">Contactos (${contacts.length})</h3></div><button class="btn-sec btn-sm" data-act="new" data-type="cliente">${ic('users',14)} Contacto</button></div>
-    ${contacts.length?contacts.map(c=>`<div data-act="open-client" data-id="${c.id}" style="cursor:pointer;display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--border)">${avatarHTML({nome:c.nome,apelido:c.apelido},34)}<div style="flex:1;min-width:0"><div class="cell-main">${esc(c.nome)} ${esc(c.apelido||'')}</div><div class="cell-sub">${esc(c.cargo||'Contacto')}${c.email?' · '+esc(c.email):''}</div></div><span class="pill ${c.loyalty==='Ouro'?'amber':c.loyalty==='Prata'?'grey':'green'}">${esc(c.loyalty||'Bronze')}</span></div>`).join(''):'<div class="muted" style="padding:6px 0">Sem contactos. Adicione um acima.</div>'}
+    <div class="section-head" style="margin-bottom:10px"><div><h3 style="font-size:.98rem">Pessoas de contacto (${contacts.length})</h3><div class="sub" style="font-size:.76rem">Quem contactar em cada tema (dono, financeiro, etc.)</div></div><button class="btn-sec btn-sm" data-act="new" data-type="cliente" data-empresa="${e.id}">${ic('users',14)} Pessoa</button></div>
+    ${contacts.length?contacts.map(c=>`<div data-act="open-client" data-id="${c.id}" style="cursor:pointer;display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--border)">${avatarHTML({nome:c.nome,apelido:c.apelido},34)}<div style="flex:1;min-width:0"><div class="cell-main">${esc(c.nome)} ${esc(c.apelido||'')}${c.funcao?` <span class="pill green" style="font-size:.66rem">${esc(c.funcao)}</span>`:''}</div><div class="cell-sub">${esc(c.cargo||'')}${c.cargo&&(c.email||c.telefone)?' · ':''}${esc(c.telefone||c.email||'')}</div></div><span class="pill ${c.loyalty==='Ouro'?'amber':c.loyalty==='Prata'?'grey':'green'}">${esc(c.loyalty||'Bronze')}</span></div>`).join(''):'<div class="muted" style="padding:6px 0">Sem pessoas de contacto. Adicione com o botão acima.</div>'}
     <div class="divider" style="margin:16px 0"></div>
     <div style="display:flex;gap:10px;text-align:center">
       <div style="flex:1;background:var(--surface2);border-radius:10px;padding:12px"><div class="muted" style="font-size:.74rem">Propostas</div><strong style="font-size:1.2rem">${props.length}</strong></div>
@@ -1798,7 +1800,7 @@ views.clientes = () => {
   </div>`;
 };
 
-function openClient360(id){
+function openClient360(id){ drawer360Emp=null;
   const c=getC(id); if(!c) return;
   const props=state.propostas.filter(p=>p.clienteId===id);
   const ganhas=props.filter(p=>p.estado==='Ganha');
@@ -3161,11 +3163,14 @@ views.definicoes = () => {
    ========================================================================= */
 const opt = (arr,val)=>arr.map(o=>`<option value="${esc(o.v)}" ${String(o.v)===String(val)?'selected':''}>${esc(o.t)}</option>`).join('');
 const refClientes = ()=>state.clientes.map(c=>({v:c.id,t:`${c.numero} · ${c.nome} ${c.apelido}`}));
+// Função da pessoa na empresa (a quem recorrer em cada tema) - modelo Account/Contact
+const FUNCOES=['','Dono / Sócio-gerente','Administração','Financeiro / Contabilidade','Comercial / Vendas','Compras','Marketing','Técnico / Operações','Recursos Humanos','Rececionista / Geral','Outro'];
 const SCHEMAS = {
   cliente:{store:'clientes',label:'Contacto',code:c=>{c.numero=c.numero||pad(++state.settings.numeroSeq,4);},after:c=>{ const e=state.empresas.find(x=>x.id===c.empresaId); if(e){ c.empresa=e.nome; if(!c.cidade)c.cidade=e.cidade; if(!c.regiao)c.regiao=e.regiao; } else if(!c.empresaId){ c.empresa=c.empresa||''; } },fields:[
     {n:'nome',l:'Nome',req:1},{n:'apelido',l:'Apelido',req:1},
     {n:'empresaId',l:'Empresa',type:'combo',src:'empresas',full:1,placeholder:'Escreva o nome ou NIPC da empresa…'},
     {n:'cargo',l:'Cargo / função',hint:'ex.: Diretor Comercial, Responsável de Compras'},
+    {n:'funcao',l:'Função na empresa',type:'select',opts:FUNCOES.map(x=>({v:x,t:x||'- não definida -'})),hint:'A quem recorrer nesta empresa (financeiro, dono, etc.)'},
     {n:'email',l:'Email',type:'email'},{n:'telefone',l:'Telefone',type:'tel'},
     {n:'nif',l:'NIF (pessoal)',hint:'9 dígitos - validado'},{n:'cidade',l:'Cidade'},
     {n:'regiao',l:'Região (IVA)',type:'select',opts:['Continente','Madeira','Açores'].map(x=>({v:x,t:x}))},
@@ -3339,11 +3344,11 @@ function fieldHTML(f,item){
 }
 
 let editing=null; // {type, id}
-function openModal(type, id=null){
+function openModal(type, id=null, preset=null){
   if(type==='proposta') return openPropModal(id);
   const sc=SCHEMAS[type]; if(!sc) return;
   const isEdit=!!id;
-  const item=isEdit?clone(state[sc.store].find(x=>x.id===id)):{};
+  const item=isEdit?clone(state[sc.store].find(x=>x.id===id)):(preset&&typeof preset==='object'?Object.assign({},preset):{});
   editing={type,id,store:sc.store};
   $('#modalTitle').textContent=(isEdit?'Editar ':(sc.fem?'Nova ':'Novo '))+sc.label.toLowerCase();
   $('#modalSub').textContent=isEdit?'A editar registo existente':'A criar novo registo';
@@ -3463,6 +3468,8 @@ function saveModal(){
   recalcLoyalty(); save(); closeModal(); render();
   toast(id?'Registo atualizado':'Registo criado', sc.label);
   if(isNew && type==='cliente') fireAutomations('novo-cliente',{clienteId:obj.id});
+  if(isNew && type==='empresa') openEmpresa360(obj.id);  // abre a ficha p/ adicionar logo as pessoas de contacto
+  if(type==='cliente' && drawer360Emp && $('#drawerBack').classList.contains('open')) openEmpresa360(drawer360Emp);  // refresca a ficha da empresa
 }
 
 /* ---------- modal de proposta (com linhas) ---------- */
@@ -3596,7 +3603,7 @@ function closeModal(){ $('#modalBack').classList.remove('open'); editing=null; p
 
 /* ---------- drawer ---------- */
 function openDrawer(){ $('#drawerBack').classList.add('open'); $('#drawer').classList.add('open'); }
-function closeDrawer(){ $('#drawerBack').classList.remove('open'); $('#drawer').classList.remove('open'); }
+function closeDrawer(){ $('#drawerBack').classList.remove('open'); $('#drawer').classList.remove('open'); drawer360Emp=null; }
 
 /* ---------- eliminar ---------- */
 const STORE_OF={cliente:'clientes',empresa:'empresas',tarefa:'tarefas',produto:'produtos',familia:'familias',subfamilia:'subfamilias',proposta:'propostas',utilizador:'utilizadores',loyalty:'loyalty',campanha:'campanhas',consentimento:'consentimentos',pedido:'pedidos',ropa:'ropa',violacao:'violacoes',automacao:'automacoes'};
@@ -4076,7 +4083,7 @@ document.addEventListener('click', async e=>{
   const act=el.dataset.act, type=el.dataset.type, id=el.dataset.id;
   // botões com data-stop não propagam para a linha
   switch(act){
-    case 'new': if(type==='loyalty'&&!canFeat('loyalty')){ toast('Sem permissão','','warn'); break; } openModal(type); break;
+    case 'new': if(type==='loyalty'&&!canFeat('loyalty')){ toast('Sem permissão','','warn'); break; } openModal(type, null, el.dataset.empresa?{empresaId:el.dataset.empresa}:null); break;
     case 'edit': e.stopPropagation(); if(type==='loyalty'&&!canFeat('loyalty')){ toast('Sem permissão','','warn'); break; } openModal(type,id); break;
     case 'delete': e.stopPropagation(); if(type==='loyalty'&&!canFeat('loyalty')){ toast('Sem permissão','','warn'); break; } deleteEntity(type,id); break;
     case 'open-client': if(!e.target.closest('[data-stop]')) openClient360(id); break;
@@ -4561,7 +4568,7 @@ function gerarExemplos(nCli,nProp,nEmp){
     const nome=gnRand(GN_NOMES), apelido=gnRand(GN_APELIDOS);
     const slug=(nome+'.'+apelido).toLowerCase().normalize('NFD').replace(/[^a-z.]/g,'');
     const emp=state.empresas.length?gnRand(state.empresas):null; const cid=emp?[emp.cidade,emp.regiao]:gnRand(GN_CID);
-    state.clientes.push({id:uid('cli'),numero:pad(++state.settings.numeroSeq,4),nome,apelido,empresaId:emp?emp.id:'',empresa:emp?emp.nome:'',cargo:gnRand(CARGOS),nif:gnNIF(),email:slug+Math.floor(Math.random()*90+10)+'@exemplo.pt',telefone:'9'+Math.floor(10000000+Math.random()*89999999),cidade:cid[0],regiao:cid[1],segmento:emp?emp.dimensao:gnRand(GN_SEG),origem:gnRand(state.settings.origens||['Website']),loyalty:'Bronze',criado:gnDate(),notas:'',fonte:'gerado'});
+    state.clientes.push({id:uid('cli'),numero:pad(++state.settings.numeroSeq,4),nome,apelido,empresaId:emp?emp.id:'',empresa:emp?emp.nome:'',cargo:gnRand(CARGOS),nif:gnNIF(),email:slug+Math.floor(Math.random()*90+10)+'@exemplo.pt',telefone:'9'+Math.floor(10000000+Math.random()*89999999),cidade:cid[0],regiao:cid[1],segmento:emp?emp.dimensao:gnRand(GN_SEG),origem:gnRand(state.settings.origens||['Website']),loyalty:'Bronze',criado:gnDate(),notas:'',funcao:gnRand(FUNCOES.filter(Boolean)),fonte:'gerado'});
   }
   const prods=state.produtos.filter(p=>p.estado!=='Indisponível');
   for(let i=0;i<nProp;i++){
