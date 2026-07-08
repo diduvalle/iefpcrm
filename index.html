@@ -3677,24 +3677,27 @@ function syncDraftFromForm(){
 function refreshTotals(){ syncDraftFromForm();
   $$('.line-row').forEach(row=>{ const L=propDraft&&propDraft.linhas[+row.dataset.line]; const t=row.querySelector('[data-l="linetotal"]'); if(L&&t) t.value=fmt(lineNet(L)); });
   const w=$('#propTotalsWrap'); if(w&&propDraft) w.innerHTML=propTotalsHTML(propDraft); }
-function savePropModal(){
+function savePropModal(closeAfter){
   syncDraftFromForm();
   // a venda ancora na EMPRESA; se só se escolheu o contacto, usa a empresa dele
   if(!propDraft.empresaId && propDraft.clienteId){ const cc=getC(propDraft.clienteId); if(cc&&cc.empresaId) propDraft.empresaId=cc.empresaId; }
   if(!propDraft.titulo.trim()){ toast('Falta o título','Indique um título para a proposta','warn'); return; }
-  propDraft.linhas=propDraft.linhas.filter(l=>l.produtoId);
-  if(!propDraft.linhas.length){ toast('Sem artigos','Adicione pelo menos um artigo do catálogo','warn'); return; }
+  if(!(propDraft.linhas||[]).some(l=>l.produtoId)){ toast('Sem artigos','Adicione pelo menos um artigo do catálogo','warn'); return; }
   const i=state.propostas.findIndex(x=>x.id===propDraft.id);
   const oldEstado=i>=0?state.propostas[i].estado:null;
   const uid2=currentUser()?currentUser().id:null;
   propDraft.alteradoPor=uid2; propDraft.alteradoEm=todayISO();
-  if(i<0){ propDraft.criadoPor=uid2; propDraft.criadoEm=todayISO(); if(!propDraft.fonte) propDraft.fonte='manual'; }
-  if(i>=0) state.propostas[i]=propDraft; else state.propostas.push(propDraft);
-  const savedProp=propDraft;
-  recalcLoyalty(); save(); closeModal(); render();
-  toast(i>=0?'Proposta atualizada':'Proposta criada', savedProp.numero);
-  if(i<0) fireAutomations('proposta-criada',{clienteId:savedProp.clienteId,proposta:savedProp});
-  onPropStatusChange(savedProp, oldEstado, savedProp.estado);
+  const isNew=i<0;
+  if(isNew){ propDraft.criadoPor=uid2; propDraft.criadoEm=todayISO(); if(!propDraft.fonte) propDraft.fonte='manual'; }
+  // grava uma CÓPIA no estado; propDraft continua a ser o rascunho editável (guardar não fecha)
+  const stored=clone(propDraft); stored.linhas=(stored.linhas||[]).filter(l=>l.produtoId);
+  if(i>=0) state.propostas[i]=stored; else state.propostas.push(stored);
+  recalcLoyalty(); save();
+  toast(isNew?'Proposta criada':'Proposta guardada', stored.numero);
+  if(isNew) fireAutomations('proposta-criada',{clienteId:stored.clienteId,proposta:stored});
+  onPropStatusChange(stored, oldEstado, stored.estado);
+  if(closeAfter){ closeModal(); render(); }
+  else { render(); renderPropForm(); }   // mantém a janela aberta para continuar a trabalhar
 }
 function onPropStatusChange(p, oldS, newS){
   if(!newS||newS===oldS) return;
