@@ -1241,6 +1241,7 @@ function load(){
   if(state.settings.requireLogin==null) state.settings.requireLogin=true;
   if(!Array.isArray(state.settings.ivaRates)||!state.settings.ivaRates.length) state.settings.ivaRates=def.settings.ivaRates;
   if(!Array.isArray(state.settings.origens)||!state.settings.origens.length) state.settings.origens=def.settings.origens;
+  if(!Array.isArray(state.settings.funcoes)||!state.settings.funcoes.length) state.settings.funcoes=FUNCOES.filter(Boolean);
   if(!state.settings.emailjs||typeof state.settings.emailjs!=='object') state.settings.emailjs=Object.assign({},EMAILJS_DEFAULT);
   if(state.settings.emailjs && !state.settings.emailjs.serviceId && !state.settings.emailjs.templateId && !state.settings.emailjs.publicKey) state.settings.emailjs=Object.assign({},EMAILJS_DEFAULT);
   { const _a=(state.settings.emailjs&&typeof state.settings.emailjs.ativo==='boolean')?state.settings.emailjs.ativo:true; state.settings.emailjs=Object.assign({},EMAILJS_DEFAULT,{ativo:_a}); }  // chaves SEMPRE fixas; só o modo é por-turma
@@ -1784,17 +1785,18 @@ views.clientes = () => {
         <button class="btn" data-act="new" data-type="cliente">${ic('users',16)} Novo cliente</button>
       </div>
     </div>
-    <div class="table-wrap"><table><thead><tr><th>N.º</th><th>Cliente</th><th>Empresa</th><th>Cidade</th><th>Segmento</th><th>Loyalty</th><th class="t-right">Valor</th><th></th></tr></thead><tbody>
+    <div class="table-wrap"><table><thead><tr><th>N.º</th><th>Cliente</th><th>Empresa</th><th>Função</th><th>Cidade</th><th>Segmento</th><th>Loyalty</th><th class="t-right">Valor</th><th></th></tr></thead><tbody>
       ${list.length?pg.slice.map(c=>`<tr data-act="open-client" data-id="${c.id}" style="cursor:pointer">
         <td class="muted">${esc(c.numero)}</td>
         <td><div class="cell-main">${esc(c.nome)} ${esc(c.apelido)}</div><div class="cell-sub">${esc(c.email)}</div></td>
         <td>${esc(c.empresa||'-')}</td>
+        <td>${c.funcao?`<span class="chip">${esc(c.funcao)}</span>`:'<span class="muted">-</span>'}</td>
         <td>${esc(c.cidade||'-')}</td>
         <td><span class="chip">${esc(c.segmento||'-')}</span></td>
         <td><span class="pill ${c.loyalty==='Ouro'?'amber':c.loyalty==='Prata'?'grey':'green'}">${esc(c.loyalty||'Bronze')}</span></td>
         <td class="t-right"><strong>${money(clientValue(c.id))}</strong></td>
         <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="cliente" data-id="${c.id}" data-stop>Editar</button></div></td>
-      </tr>`).join('') : `<tr><td colspan="8">${empty('Sem clientes','Crie o primeiro cliente para começar.')}</td></tr>`}
+      </tr>`).join('') : `<tr><td colspan="9">${empty('Sem clientes','Crie o primeiro cliente para começar.')}</td></tr>`}
     </tbody></table></div>
     ${pager('clientes',pg)}
   </div>`;
@@ -3007,6 +3009,11 @@ function secOrigens(s){ return `<div class="card card-pad">
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">${(s.origens||[]).map(o=>`<span class="chip" style="gap:8px">${esc(o)}<button data-act="del-origem" data-origem="${esc(o)}" style="border:0;background:none;cursor:pointer;color:var(--danger);font-weight:800;padding:0;line-height:1">✕</button></span>`).join('')||'<span class="muted">Sem origens</span>'}</div>
     <div class="toolbar"><div class="search-inp" style="flex:1;max-width:320px"><input id="newOrigem" placeholder="Nova origem (ex.: Evento)…"></div><button class="btn-sec" data-act="add-origem">+ Adicionar</button></div>
   </div>`; }
+function secFuncoes(s){ return `<div class="card card-pad">
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Funções de contacto</h3><div class="sub">Papéis disponíveis no campo "Função na empresa" da ficha de contacto - a quem recorrer em cada tema.</div></div></div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">${funcoesList().map(o=>`<span class="chip" style="gap:8px">${esc(o)}<button data-act="del-funcao" data-funcao="${esc(o)}" style="border:0;background:none;cursor:pointer;color:var(--danger);font-weight:800;padding:0;line-height:1">✕</button></span>`).join('')||'<span class="muted">Sem funções</span>'}</div>
+    <div class="toolbar"><div class="search-inp" style="flex:1;max-width:320px"><input id="newFuncao" placeholder="Nova função (ex.: Sócio, CEO)…"></div><button class="btn-sec" data-act="add-funcao">+ Adicionar</button></div>
+  </div>`; }
 function secBrand(s){ return `<div class="card card-pad">
     <div class="section-head" style="margin-bottom:14px"><div><h3>Marca & Aparência <span class="pill grey" style="font-size:.66rem;vertical-align:middle">Sandbox</span></h3><div class="sub">Personalize nome, cor, logótipo e fundo do login. ${isAdmin()?'Para replicar o CRM noutras utilizações (white-label).':'Fica só no seu navegador - personalize a sua empresa fictícia.'}</div></div></div>
     <div class="form-grid">
@@ -3022,6 +3029,7 @@ function defSandboxView(){ const s=state.settings; const secs=[];
   if(canFeat('gerador')) secs.push(secGerador());
   if(canFeat('loyalty')) secs.push(secLoyalty());
   if(canFeat('origens')) secs.push(secOrigens(s));
+  if(canFeat('origens')) secs.push(secFuncoes(s));
   if(canFeat('brand')) secs.push(secBrand(s));
   return `<div class="card card-pad"><div class="section-head" style="margin-bottom:6px"><div><h3>${ic('settings',18)} Personalizar o meu ambiente</h3><div class="sub">Modo sandbox - todas as alterações ficam <strong>só neste navegador</strong>. Personalize a sua empresa fictícia e os exemplos para os exercícios.</div></div></div></div>`+(secs.join('')||`<div class="card card-pad"><div class="empty">Sem secções disponíveis.</div></div>`); }
 
@@ -3129,6 +3137,7 @@ views.definicoes = () => {
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">${(s.origens||[]).map(o=>`<span class="chip" style="gap:8px">${esc(o)}<button data-act="del-origem" data-origem="${esc(o)}" style="border:0;background:none;cursor:pointer;color:var(--danger);font-weight:800;padding:0;line-height:1">✕</button></span>`).join('')||'<span class="muted">Sem origens</span>'}</div>
     <div class="toolbar"><div class="search-inp" style="flex:1;max-width:320px"><input id="newOrigem" placeholder="Nova origem (ex.: Evento)…"></div><button class="btn-sec" data-act="add-origem">+ Adicionar</button></div>
   </div>
+  ${secFuncoes(s)}
   ${isAdmin()?`<div class="card card-pad">
     <div class="section-head" style="margin-bottom:14px"><div><h3>Marca & Aparência <span class="pill grey" style="font-size:.66rem;vertical-align:middle">Admin</span></h3><div class="sub">Personalize nome, cor, logótipo e fundo do login - para replicar o CRM noutras utilizações (white-label).</div></div></div>
     <div class="form-grid">
@@ -3163,14 +3172,16 @@ views.definicoes = () => {
    ========================================================================= */
 const opt = (arr,val)=>arr.map(o=>`<option value="${esc(o.v)}" ${String(o.v)===String(val)?'selected':''}>${esc(o.t)}</option>`).join('');
 const refClientes = ()=>state.clientes.map(c=>({v:c.id,t:`${c.numero} · ${c.nome} ${c.apelido}`}));
-// Função da pessoa na empresa (a quem recorrer em cada tema) - modelo Account/Contact
+// Função da pessoa na empresa (a quem recorrer em cada tema) - modelo Account/Contact.
+// FUNCOES = lista PADRÃO; a lista ativa é editável em Definições (state.settings.funcoes).
 const FUNCOES=['','Dono / Sócio-gerente','Administração','Financeiro / Contabilidade','Comercial / Vendas','Compras','Marketing','Técnico / Operações','Recursos Humanos','Rececionista / Geral','Outro'];
+function funcoesList(){ const f=state.settings&&state.settings.funcoes; return (Array.isArray(f)&&f.length)?f:FUNCOES.filter(Boolean); }
 const SCHEMAS = {
   cliente:{store:'clientes',label:'Contacto',code:c=>{c.numero=c.numero||pad(++state.settings.numeroSeq,4);},after:c=>{ const e=state.empresas.find(x=>x.id===c.empresaId); if(e){ c.empresa=e.nome; if(!c.cidade)c.cidade=e.cidade; if(!c.regiao)c.regiao=e.regiao; } else if(!c.empresaId){ c.empresa=c.empresa||''; } },fields:[
     {n:'nome',l:'Nome',req:1},{n:'apelido',l:'Apelido',req:1},
     {n:'empresaId',l:'Empresa',type:'combo',src:'empresas',full:1,placeholder:'Escreva o nome ou NIPC da empresa…'},
     {n:'cargo',l:'Cargo / função',hint:'ex.: Diretor Comercial, Responsável de Compras'},
-    {n:'funcao',l:'Função na empresa',type:'select',opts:FUNCOES.map(x=>({v:x,t:x||'- não definida -'})),hint:'A quem recorrer nesta empresa (financeiro, dono, etc.)'},
+    {n:'funcao',l:'Função na empresa',type:'select',opts:()=>[''].concat(funcoesList()).map(x=>({v:x,t:x||'- não definida -'})),hint:'A quem recorrer nesta empresa (financeiro, dono, etc.)'},
     {n:'email',l:'Email',type:'email'},{n:'telefone',l:'Telefone',type:'tel'},
     {n:'nif',l:'NIF (pessoal)',hint:'9 dígitos - validado'},{n:'cidade',l:'Cidade'},
     {n:'regiao',l:'Região (IVA)',type:'select',opts:['Continente','Madeira','Açores'].map(x=>({v:x,t:x}))},
@@ -3309,9 +3320,17 @@ function comboRender(input){
 }
 function comboPick(optEl){
   const wrap=optEl.closest('.combo'); if(!wrap) return;
-  wrap.querySelector('input[type="hidden"]').value=optEl.dataset.val||'';
+  const hid=wrap.querySelector('input[type="hidden"]');
+  hid.value=optEl.dataset.val||'';
   wrap.querySelector('[data-combo-input]').value=optEl.dataset.none?'':optEl.textContent;
   comboClose(wrap);
+  hid.dispatchEvent(new Event('change',{bubbles:true}));  // formularios que reagem (ex.: totais da proposta)
+}
+// markup interno do combo (input escondido + pesquisa + menu) - reutilizavel fora do SCHEMAS
+function comboInner(name, src, value, placeholder){
+  return `<input type="hidden" name="${name}" value="${esc(value||'')}">
+    <input type="text" class="combo-input" data-combo-input value="${esc(comboLabel(src,value))}" placeholder="${esc(placeholder||'Escreva para procurar…')}" autocomplete="off" role="combobox" aria-expanded="false" aria-autocomplete="list">
+    <div class="combo-menu" data-combo-menu hidden></div>`;
 }
 function comboClose(wrap){ const m=wrap.querySelector('[data-combo-menu]'); if(m){ m.hidden=true; m.innerHTML=''; } const i=wrap.querySelector('[data-combo-input]'); if(i) i.setAttribute('aria-expanded','false'); }
 function comboSync(wrap){ // repõe o texto do input com o rótulo do valor selecionado (evita texto de pesquisa órfão)
@@ -3324,13 +3343,7 @@ function fieldHTML(f,item){
   const cls='field'+(f.full?' full':'');
   const hint=f.hint?`<span class="hint">${esc(f.hint)}</span>`:'';
   if(f.type==='combo'){
-    const label=comboLabel(f.src, v);
-    const ph=f.placeholder||'Escreva o nome ou NIPC…';
-    return `<div class="${cls} combo" data-combo-src="${esc(f.src)}">
-      <label>${esc(f.l)}${f.req?' *':''}</label>
-      <input type="hidden" name="${f.n}" value="${esc(v)}">
-      <input type="text" class="combo-input" data-combo-input value="${esc(label)}" placeholder="${esc(ph)}" autocomplete="off" role="combobox" aria-expanded="false" aria-autocomplete="list">
-      <div class="combo-menu" data-combo-menu hidden></div>${hint}</div>`;
+    return `<div class="${cls} combo" data-combo-src="${esc(f.src)}"><label>${esc(f.l)}${f.req?' *':''}</label>${comboInner(f.n,f.src,v,f.placeholder||'Escreva o nome ou NIPC…')}${hint}</div>`;
   }
   if(f.type==='select'){
     const opts=typeof f.opts==='function'?f.opts():f.opts;
@@ -3508,7 +3521,9 @@ function renderPropForm(){
       ${p.estado==='Perdida'?`<div class="field"><label>Motivo da perda ${infoTip('motivoperda')}</label><select name="motivoPerda">${opt([{v:'',t:'- selecione -'}].concat(LOSS_REASONS.map(x=>({v:x,t:x}))),p.motivoPerda||'')}</select></div>
       <div class="field full"><label>Detalhe do motivo (opcional)</label><input name="motivoPerdaNota" value="${esc(p.motivoPerdaNota||'')}" placeholder="ex.: concorrente 15% mais barato"></div>`:''}
       <div class="field full"><label>Título *</label><input name="titulo" value="${esc(p.titulo)}" ${locked?'readonly':''}></div>
-      <div class="field"><label>Cliente</label><select name="clienteId" ${locked?'disabled':''}>${opt(refClientes(),p.clienteId)}</select></div>
+      ${locked
+        ? `<div class="field"><label>Cliente</label><input value="${esc(comboLabel('clientes',p.clienteId)||'- nenhum -')}" readonly style="background:var(--surface3);color:var(--muted);cursor:not-allowed"><input type="hidden" name="clienteId" value="${esc(p.clienteId||'')}"></div>`
+        : `<div class="field combo" data-combo-src="clientes"><label>Cliente</label>${comboInner('clienteId','clientes',p.clienteId,'Escreva o nome do cliente…')}</div>`}
       <div class="field"><label>Validade</label><input type="date" name="validade" value="${esc(p.validade)}" ${locked?'readonly':''}></div>
       <div class="field full"><label>Modelo de proposta (para exportar PDF)</label><select name="templateId">${opt(state.propostaTemplates.map(t=>({v:t.id,t:t.nome})),p.templateId||state.propostaTemplates[0]?.id)}</select></div>
     </div>
@@ -4221,6 +4236,8 @@ document.addEventListener('click', async e=>{
     case 'av-clear': { const hid=$('#modalForm [name="avatar"]'); if(hid) hid.value=''; const prev=$('#avPreview'); if(prev){ const fd=new FormData($('#modalForm')); prev.textContent=initialsOf({nome:fd.get('nome'),apelido:fd.get('apelido')}); } el.style.display='none'; } break;
     case 'add-origem': { if(!canFeat('origens')){ toast('Sem permissão','','warn'); break; } const v=($('#newOrigem')?.value||'').trim(); if(!v){ toast('Indique a origem','','warn'); break; } state.settings.origens=state.settings.origens||[]; if(state.settings.origens.some(o=>o.toLowerCase()===v.toLowerCase())){ toast('Já existe','','warn'); break; } state.settings.origens.push(v); save(); render(); toast('Origem adicionada',v); } break;
     case 'del-origem': { if(!canFeat('origens')){ toast('Sem permissão','','warn'); break; } const o=el.dataset.origem; state.settings.origens=(state.settings.origens||[]).filter(x=>x!==o); save(); render(); toast('Origem removida',o); } break;
+    case 'add-funcao': { if(!canFeat('origens')){ toast('Sem permissão','','warn'); break; } const v=($('#newFuncao')?.value||'').trim(); if(!v){ toast('Indique a função','','warn'); break; } state.settings.funcoes=funcoesList().slice(); if(state.settings.funcoes.some(o=>o.toLowerCase()===v.toLowerCase())){ toast('Já existe','','warn'); break; } state.settings.funcoes.push(v); save(); render(); toast('Função adicionada',v); } break;
+    case 'del-funcao': { if(!canFeat('origens')){ toast('Sem permissão','','warn'); break; } const o=el.dataset.funcao; state.settings.funcoes=funcoesList().filter(x=>x!==o); save(); render(); toast('Função removida',o); } break;
     case 'email-new': openEmailEditor(); break;
     case 'email-edit': openEmailEditor(id); break;
     case 'email-del': e.stopPropagation(); delEmailTpl(id); break;
@@ -4568,7 +4585,7 @@ function gerarExemplos(nCli,nProp,nEmp){
     const nome=gnRand(GN_NOMES), apelido=gnRand(GN_APELIDOS);
     const slug=(nome+'.'+apelido).toLowerCase().normalize('NFD').replace(/[^a-z.]/g,'');
     const emp=state.empresas.length?gnRand(state.empresas):null; const cid=emp?[emp.cidade,emp.regiao]:gnRand(GN_CID);
-    state.clientes.push({id:uid('cli'),numero:pad(++state.settings.numeroSeq,4),nome,apelido,empresaId:emp?emp.id:'',empresa:emp?emp.nome:'',cargo:gnRand(CARGOS),nif:gnNIF(),email:slug+Math.floor(Math.random()*90+10)+'@exemplo.pt',telefone:'9'+Math.floor(10000000+Math.random()*89999999),cidade:cid[0],regiao:cid[1],segmento:emp?emp.dimensao:gnRand(GN_SEG),origem:gnRand(state.settings.origens||['Website']),loyalty:'Bronze',criado:gnDate(),notas:'',funcao:gnRand(FUNCOES.filter(Boolean)),fonte:'gerado'});
+    state.clientes.push({id:uid('cli'),numero:pad(++state.settings.numeroSeq,4),nome,apelido,empresaId:emp?emp.id:'',empresa:emp?emp.nome:'',cargo:gnRand(CARGOS),nif:gnNIF(),email:slug+Math.floor(Math.random()*90+10)+'@exemplo.pt',telefone:'9'+Math.floor(10000000+Math.random()*89999999),cidade:cid[0],regiao:cid[1],segmento:emp?emp.dimensao:gnRand(GN_SEG),origem:gnRand(state.settings.origens||['Website']),loyalty:'Bronze',criado:gnDate(),notas:'',funcao:gnRand(funcoesList()),fonte:'gerado'});
   }
   const prods=state.produtos.filter(p=>p.estado!=='Indisponível');
   for(let i=0;i<nProp;i++){
