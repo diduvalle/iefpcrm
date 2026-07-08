@@ -956,6 +956,15 @@ function proposalCalc(p){ const linhas=p.linhas||[]; const meses=Math.max(1,+p.m
 function dealTier(p){ if(p.empresaId){ const e=(state.empresas||[]).find(x=>x.id===p.empresaId); return e?e.loyalty:null; } const c=getC(p.clienteId); return c?c.loyalty:null; }
 function dealDiscount(p){ const lv=(state.loyalty||[]).find(l=>l.nome===dealTier(p)); return lv?Number(lv.desconto||0):0; }
 function clientDiscount(clienteId){ const c=getC(clienteId); if(!c) return 0; const lv=(state.loyalty||[]).find(l=>l.nome===c.loyalty); return lv?Number(lv.desconto||0):0; }
+/* Totais do DOCUMENTO do cliente (PDF/email): preços tal como se mostram - o SaaS
+   fica em €/mês (NÃO anualiza). O valor anualizado (TCV) é só estatística interna,
+   nunca vai para a proposta (100€/mês assusta menos que 1200€/ano). */
+function documentTotals(p){
+  const sub=(p.linhas||[]).reduce((s,l)=>s+(+l.qtd||0)*(+l.preco||0),0);
+  const pct=dealDiscount(p); const desconto=sub*pct/100;
+  const iva=(p.linhas||[]).reduce((s,l)=>{ const net=(+l.qtd||0)*(+l.preco||0)*(1-pct/100); return s+net*(+l.iva||0)/100; },0);
+  return {sub, descontoPct:pct, desconto, base:sub-desconto, iva, total:sub-desconto+iva};
+}
 function proposalTotals(p){ const c=proposalCalc(p); const pct=dealDiscount(p); const meses=c.meses;
   const desconto=c.sub*pct/100;
   const iva=(p.linhas||[]).reduce((s,l)=>{ const tcvLine=lineOneOff(l)+lineMonthly(l)*meses; return s+tcvLine*(1-pct/100)*(+l.iva||0)/100; },0);
@@ -2331,7 +2340,7 @@ const TRIGGERS=[
 ];
 const triggerLabel=v=>(TRIGGERS.find(t=>t.v===v)||{}).t||v;
 function mergeCtx(text, cliente, proposta){
-  const c=cliente||{}; const s=state.settings; const t=proposta?proposalTotals(proposta):{sub:0,iva:0,total:0,desconto:0};
+  const c=cliente||{}; const s=state.settings; const t=proposta?documentTotals(proposta):{sub:0,iva:0,total:0,desconto:0};
   const map={
     'cliente.nome':`${c.nome||''} ${c.apelido||''}`.trim()||'cliente','cliente.empresa':c.empresa||'','cliente.nif':c.nif||'','cliente.email':c.email||'','cliente.telefone':c.telefone||'','cliente.cidade':c.cidade||'',
     'proposta.numero':proposta?proposta.numero:'','proposta.titulo':proposta?proposta.titulo:'','proposta.validade':proposta?dPT(proposta.validade):'','proposta.total':proposta?fmt(t.total):'','proposta.subtotal':proposta?fmt(t.sub):'','proposta.iva':proposta?fmt(t.iva):'','proposta.desconto':proposta?fmt(t.desconto):'',
@@ -3670,7 +3679,7 @@ async function deleteEntity(type,id){
 /* ---------- impressão de proposta ---------- */
 /* substituição de tags {{cliente.x}} {{proposta.x}} {{entidade.x}} {{data}} */
 function mergeTags(text,p){
-  const c=getC(p.clienteId)||{}; const s=state.settings; const t=proposalTotals(p);
+  const c=getC(p.clienteId)||{}; const s=state.settings; const t=documentTotals(p);
   const map={
     'cliente.nome':`${c.nome||''} ${c.apelido||''}`.trim()||'-','cliente.empresa':c.empresa||'','cliente.nif':c.nif||'',
     'cliente.email':c.email||'','cliente.telefone':c.telefone||'','cliente.cidade':c.cidade||'',
@@ -5027,7 +5036,7 @@ function blockHTML(b,p,cor){
       const head=cols.map((h,i)=>`<th style="background:${cor};color:#fff;padding:9px;text-align:${i===0?'left':'right'};font-size:.74rem;text-transform:uppercase">${h}</th>`).join('');
       const rows=(p.linhas||[]).map(l=>{const cells=[esc(l.descricao),esc(l.qtd),fmt(l.preco)];if(b.mostrarIVA!==false)cells.push(esc(l.iva)+'%');cells.push(fmt((+l.qtd||0)*(+l.preco||0)*(1+(+l.iva||0)/100)));return `<tr>${cells.map((c,i)=>`<td style="padding:9px;border-bottom:1px solid #e2eae5;text-align:${i===0?'left':'right'}">${c}</td>`).join('')}</tr>`;}).join('');
       return `${b.titulo?`<h3 style="color:${cor};margin:16px 0 4px;font-size:1.02rem">${nl(b.titulo)}</h3>`:''}<table style="width:100%;border-collapse:collapse;margin:8px 0"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table>`; }
-    case 'totais':{ const t=proposalTotals(p); return `<div style="display:flex;justify-content:flex-end;margin:8px 0"><div style="min-width:250px">${b.mostrarSubtotal!==false?`<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:#5f746b">Subtotal</span><span>${fmt(t.sub)}</span></div>`:''}${t.desconto>0?`<div style="display:flex;justify-content:space-between;padding:3px 0;color:${cor}"><span>Desconto loyalty (${t.descontoPct}%)</span><span>− ${fmt(t.desconto)}</span></div>`:''}${b.mostrarIVA!==false?`<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:#5f746b">IVA</span><span>${fmt(t.iva)}</span></div>`:''}<div style="display:flex;justify-content:space-between;padding:8px 0 0;margin-top:4px;border-top:2px solid ${cor};font-weight:800;font-size:1.1rem;color:${cor}"><span>Total</span><span>${fmt(t.total)}</span></div></div></div>`; }
+    case 'totais':{ const t=documentTotals(p); return `<div style="display:flex;justify-content:flex-end;margin:8px 0"><div style="min-width:250px">${b.mostrarSubtotal!==false?`<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:#5f746b">Subtotal</span><span>${fmt(t.sub)}</span></div>`:''}${t.desconto>0?`<div style="display:flex;justify-content:space-between;padding:3px 0;color:${cor}"><span>Desconto loyalty (${t.descontoPct}%)</span><span>− ${fmt(t.desconto)}</span></div>`:''}${b.mostrarIVA!==false?`<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:#5f746b">IVA</span><span>${fmt(t.iva)}</span></div>`:''}<div style="display:flex;justify-content:space-between;padding:8px 0 0;margin-top:4px;border-top:2px solid ${cor};font-weight:800;font-size:1.1rem;color:${cor}"><span>Total</span><span>${fmt(t.total)}</span></div></div></div>`; }
     case 'condicoes': return `<div style="background:#f7faf8;border-left:3px solid ${cor};padding:11px 16px;border-radius:0 8px 8px 0;margin:14px 0;font-size:.85rem;color:#3a4d44;line-height:1.6">${nl(b.conteudo||'')}</div>`;
     case 'assinatura': return `<div style="margin:28px 0 8px;display:flex;justify-content:${b.alinhamento||'flex-start'}"><div style="border-top:1px solid #15302a;min-width:200px;padding-top:6px;text-align:center;font-size:.86rem">${nl(b.texto||'Assinatura')}</div></div>`;
     case 'divisor': return `<hr style="border:0;border-top:1px solid #e2eae5;margin:14px 0">`;
