@@ -455,8 +455,8 @@ td .cell-sub{font-size:.78rem;color:var(--muted)}
 
 /* ---------- LINE EDITOR ---------- */
 .lines{display:flex;flex-direction:column;gap:8px}
-.line-row{display:grid;grid-template-columns:2.4fr .7fr 1fr .7fr auto;gap:8px;align-items:end}
-.line-head{display:grid;grid-template-columns:2.4fr .7fr 1fr .7fr auto;gap:8px;font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:0 2px}
+.line-row{display:grid;grid-template-columns:2.2fr .6fr .9fr .7fr .9fr .7fr auto;gap:8px;align-items:end}
+.line-head{display:grid;grid-template-columns:2.2fr .6fr .9fr .7fr .9fr .7fr auto;gap:8px;font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:0 2px}
 .totbox{margin-top:14px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
 .totbox .row{display:flex;justify-content:space-between;font-size:.9rem}
 .totbox .row.grand{font-weight:800;font-size:1.08rem;color:var(--g700);border-top:1px solid var(--border);padding-top:8px;margin-top:4px}
@@ -946,8 +946,10 @@ function money(n){ return canSeeFinance()?fmt(n):'🔒'; }
 /* ---------- desconto de loyalty + totais da proposta ---------- */
 /* Cadência de cada linha: 'Mensal'/'Anual' = recorrente (SaaS); resto = pontual (serviço).
    O valor da venda (TCV) = pontual + recorrente × meses de fidelização. */
-function lineMonthly(l){ const q=+l.qtd||0, pr=+l.preco||0; const m=l.modelo||'Único'; return m==='Mensal'?q*pr : m==='Anual'?q*pr/12 : 0; }
-function lineOneOff(l){ const m=l.modelo||'Único'; return (m==='Mensal'||m==='Anual')?0:(+l.qtd||0)*(+l.preco||0); }
+function lineGross(l){ return (+l.qtd||0)*(+l.preco||0); }                               // qtd × preço
+function lineNet(l){ return lineGross(l)*(1-Math.min(100,Math.max(0,+l.desconto||0))/100); } // após desconto da linha
+function lineMonthly(l){ const m=l.modelo||'Único'; return m==='Mensal'?lineNet(l) : m==='Anual'?lineNet(l)/12 : 0; }
+function lineOneOff(l){ const m=l.modelo||'Único'; return (m==='Mensal'||m==='Anual')?0:lineNet(l); }
 function proposalCalc(p){ const linhas=p.linhas||[]; const meses=Math.max(1,+p.meses||12);
   const pontual=linhas.reduce((s,l)=>s+lineOneOff(l),0);
   const mrr=linhas.reduce((s,l)=>s+lineMonthly(l),0);
@@ -960,10 +962,18 @@ function clientDiscount(clienteId){ const c=getC(clienteId); if(!c) return 0; co
    fica em €/mês (NÃO anualiza). O valor anualizado (TCV) é só estatística interna,
    nunca vai para a proposta (100€/mês assusta menos que 1200€/ano). */
 function documentTotals(p){
-  const sub=(p.linhas||[]).reduce((s,l)=>s+(+l.qtd||0)*(+l.preco||0),0);
+  const sub=(p.linhas||[]).reduce((s,l)=>s+lineNet(l),0);
   const pct=dealDiscount(p); const desconto=sub*pct/100;
-  const iva=(p.linhas||[]).reduce((s,l)=>{ const net=(+l.qtd||0)*(+l.preco||0)*(1-pct/100); return s+net*(+l.iva||0)/100; },0);
+  const iva=(p.linhas||[]).reduce((s,l)=>s+lineNet(l)*(1-pct/100)*(+l.iva||0)/100,0);
   return {sub, descontoPct:pct, desconto, base:sub-desconto, iva, total:sub-desconto+iva};
+}
+/* PDF/documento: separa SETUP (pontual) de SUBSCRIÇÃO MENSAL (SaaS) - nunca o total dos 12 meses.
+   Mostra o recorrente em €/mês e o setup uma vez. Anual entra no bucket mensal (÷12). */
+function docSplit(p){
+  const pct=dealDiscount(p); const B={pontual:{gross:0,iva:0}, mensal:{gross:0,iva:0}};
+  (p.linhas||[]).forEach(l=>{ const rec=(l.modelo==='Mensal'||l.modelo==='Anual'); const val=rec?lineMonthly(l):lineOneOff(l); const b=rec?B.mensal:B.pontual; b.gross+=val; b.iva+=val*(1-pct/100)*(+l.iva||0)/100; });
+  [B.pontual,B.mensal].forEach(b=>{ b.desc=b.gross*pct/100; b.net=b.gross-b.desc; b.total=b.net+b.iva; });
+  B.pct=pct; return B;
 }
 function proposalTotals(p){ const c=proposalCalc(p); const pct=dealDiscount(p); const meses=c.meses;
   const desconto=c.sub*pct/100;
@@ -3609,7 +3619,7 @@ function renderPropForm(){
     <div class="divider" style="margin:18px 0 14px"></div>
     <div class="section-head" style="margin-bottom:6px"><h3 style="font-size:.95rem">Linhas da proposta ${infoTip('iva')}</h3>${locked?'':`<button class="btn-sec btn-sm" type="button" data-act="add-line">+ Linha</button>`}</div>
     <div class="muted" style="font-size:.78rem;margin-bottom:10px">Só é possível adicionar artigos do catálogo (Produtos). O IVA usa as taxas configuradas nas Definições.</div>
-    <div class="line-head"><span>Artigo (catálogo)</span><span>Qtd</span><span>Preço</span><span>IVA</span><span></span></div>
+    <div class="line-head"><span>Artigo (catálogo)</span><span>Qtd</span><span>Preço</span><span>Desc. %</span><span>Total</span><span>IVA</span><span></span></div>
     <div class="lines" id="lines">${p.linhas.map((l,i)=>lineRow(l,i,locked)).join('')}</div>
     <div id="propTotalsWrap">${propTotalsHTML(p)}</div>
     <div class="muted" style="font-size:.74rem;margin-top:14px;border-top:1px solid var(--border);padding-top:8px">${ic('users',12)} Criada por ${esc(aC?aC.nome+' '+(aC.apelido||''):'-')}${p.criadoEm?' em '+dPT(p.criadoEm):''} · Última alteração: ${esc(aA?aA.nome+' '+(aA.apelido||''):'-')}${p.alteradoEm?' em '+dPT(p.alteradoEm):''}</div>
@@ -3632,6 +3642,8 @@ function lineRow(l,i,locked){
     <div class="field"><select data-l="produtoId" ${d}>${produtoOptions(l.produtoId)}</select></div>
     <div class="field"><input data-l="qtd" type="number" step="any" min="0" value="${esc(l.qtd)}" ${d}></div>
     <div class="field"><input data-l="preco" type="number" step="any" min="0" value="${esc(l.preco)}" ${d}></div>
+    <div class="field"><input data-l="desconto" type="number" step="any" min="0" max="100" value="${esc(l.desconto||0)}" ${d}></div>
+    <div class="field"><input data-l="linetotal" value="${fmt(lineNet(l))}" readonly tabindex="-1" style="text-align:right;background:var(--surface3);color:var(--muted);cursor:default"></div>
     <div class="field"><select data-l="iva" ${d}>${ivaOptions(l.iva)}</select></div>
     ${locked?'<span></span>':`<button class="btn-danger btn-xs" type="button" data-act="del-line" data-i="${i}" style="height:38px">✕</button>`}
   </div>`;
@@ -3658,10 +3670,13 @@ function syncDraftFromForm(){
     const ps=row.querySelector('[data-l="produtoId"]'); if(ps){ L.produtoId=ps.value; const prod=state.produtos.find(x=>x.id===ps.value); L.descricao=prod?prod.nome:(L.descricao||''); L.modelo=prod?prod.modelo:(L.modelo||'Único'); }
     const q=row.querySelector('[data-l="qtd"]'); if(q)L.qtd=Number(q.value||0);
     const pr=row.querySelector('[data-l="preco"]'); if(pr)L.preco=Number(pr.value||0);
+    const dc=row.querySelector('[data-l="desconto"]'); if(dc)L.desconto=Number(dc.value||0);
     const iv=row.querySelector('[data-l="iva"]'); if(iv)L.iva=Number(iv.value||0);
   });
 }
-function refreshTotals(){ syncDraftFromForm(); const w=$('#propTotalsWrap'); if(w&&propDraft) w.innerHTML=propTotalsHTML(propDraft); }
+function refreshTotals(){ syncDraftFromForm();
+  $$('.line-row').forEach(row=>{ const L=propDraft&&propDraft.linhas[+row.dataset.line]; const t=row.querySelector('[data-l="linetotal"]'); if(L&&t) t.value=fmt(lineNet(L)); });
+  const w=$('#propTotalsWrap'); if(w&&propDraft) w.innerHTML=propTotalsHTML(propDraft); }
 function savePropModal(){
   syncDraftFromForm();
   // a venda ancora na EMPRESA; se só se escolheu o contacto, usa a empresa dele
@@ -5086,9 +5101,16 @@ function blockHTML(b,p,cor){
     case 'cliente': return `<div style="background:#f3faf6;border:1px solid #e2eae5;border-radius:10px;padding:13px 16px;margin:12px 0"><strong style="color:${cor}">${esc(b.titulo||'Cliente')}</strong><div style="margin-top:3px">${esc(mergeTags('{{cliente.nome}}',p))} · ${esc(mergeTags('{{cliente.empresa}}',p))}</div><div style="color:#5f746b;font-size:.84rem">${esc(mergeTags('{{cliente.email}}',p))} · NIF ${esc(mergeTags('{{cliente.nif}}',p))} · ${esc(mergeTags('{{cliente.telefone}}',p))}</div></div>`;
     case 'cotacao':{ const cols=['Descrição','Qtd','Preço']; if(b.mostrarIVA!==false)cols.push('IVA'); cols.push('Total');
       const head=cols.map((h,i)=>`<th style="background:${cor};color:#fff;padding:9px;text-align:${i===0?'left':'right'};font-size:.74rem;text-transform:uppercase">${h}</th>`).join('');
-      const rows=(p.linhas||[]).map(l=>{const cells=[esc(l.descricao),esc(l.qtd),fmt(l.preco)];if(b.mostrarIVA!==false)cells.push(esc(l.iva)+'%');cells.push(fmt((+l.qtd||0)*(+l.preco||0)*(1+(+l.iva||0)/100)));return `<tr>${cells.map((c,i)=>`<td style="padding:9px;border-bottom:1px solid #e2eae5;text-align:${i===0?'left':'right'}">${c}</td>`).join('')}</tr>`;}).join('');
+      const rows=(p.linhas||[]).map(l=>{const rec=(l.modelo==='Mensal'||l.modelo==='Anual');const sfx=rec?' /mês':'';const pu=l.modelo==='Anual'?(+l.preco||0)/12:(+l.preco||0);const lt=(rec?lineMonthly(l):lineOneOff(l))*(1+(+l.iva||0)/100);const desc=(+l.desconto||0)>0?` <span style="color:#5f746b;font-size:.85em">(−${esc(l.desconto)}%)</span>`:'';const cells=[esc(l.descricao),esc(l.qtd),fmt(pu)+sfx+desc];if(b.mostrarIVA!==false)cells.push(esc(l.iva)+'%');cells.push(fmt(lt)+sfx);return `<tr>${cells.map((c,i)=>`<td style="padding:9px;border-bottom:1px solid #e2eae5;text-align:${i===0?'left':'right'}">${c}</td>`).join('')}</tr>`;}).join('');
       return `${b.titulo?`<h3 style="color:${cor};margin:16px 0 4px;font-size:1.02rem">${nl(b.titulo)}</h3>`:''}<table style="width:100%;border-collapse:collapse;margin:8px 0"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table>`; }
-    case 'totais':{ const t=documentTotals(p); return `<div style="display:flex;justify-content:flex-end;margin:8px 0"><div style="min-width:250px">${b.mostrarSubtotal!==false?`<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:#5f746b">Subtotal</span><span>${fmt(t.sub)}</span></div>`:''}${t.desconto>0?`<div style="display:flex;justify-content:space-between;padding:3px 0;color:${cor}"><span>Desconto loyalty (${t.descontoPct}%)</span><span>− ${fmt(t.desconto)}</span></div>`:''}${b.mostrarIVA!==false?`<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:#5f746b">IVA</span><span>${fmt(t.iva)}</span></div>`:''}<div style="display:flex;justify-content:space-between;padding:8px 0 0;margin-top:4px;border-top:2px solid ${cor};font-weight:800;font-size:1.1rem;color:${cor}"><span>Total</span><span>${fmt(t.total)}</span></div></div></div>`; }
+    case 'totais':{ const S=docSplit(p);
+      const sec=(titulo,bk,mo)=>{ if(bk.gross<=0) return ''; const u=mo?' /mês':'';
+        return `<div style="margin-top:8px;font-weight:800;color:${cor};font-size:.9rem">${titulo}</div>
+        ${b.mostrarSubtotal!==false?`<div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:#5f746b">Subtotal</span><span>${fmt(bk.gross)}${u}</span></div>`:''}
+        ${bk.desc>0?`<div style="display:flex;justify-content:space-between;padding:2px 0;color:${cor}"><span>Desconto (${S.pct}%)</span><span>− ${fmt(bk.desc)}${u}</span></div>`:''}
+        ${b.mostrarIVA!==false?`<div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:#5f746b">IVA</span><span>${fmt(bk.iva)}${u}</span></div>`:''}
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-top:2px solid ${cor};font-weight:800;font-size:1.05rem;color:${cor}"><span>Total${mo?' mensal':''}</span><span>${fmt(bk.total)}${u}</span></div>`; };
+      return `<div style="display:flex;justify-content:flex-end;margin:8px 0"><div style="min-width:290px">${sec('Serviços / setup (pontual)',S.pontual,false)}${sec('Subscrição mensal (SaaS)',S.mensal,true)}</div></div>`; }
     case 'condicoes': return `<div style="background:#f7faf8;border-left:3px solid ${cor};padding:11px 16px;border-radius:0 8px 8px 0;margin:14px 0;font-size:.85rem;color:#3a4d44;line-height:1.6">${nl(b.conteudo||'')}</div>`;
     case 'assinatura': return `<div style="margin:28px 0 8px;display:flex;justify-content:${b.alinhamento||'flex-start'}"><div style="border-top:1px solid #15302a;min-width:200px;padding-top:6px;text-align:center;font-size:.86rem">${nl(b.texto||'Assinatura')}</div></div>`;
     case 'divisor': return `<hr style="border:0;border-top:1px solid #e2eae5;margin:14px 0">`;
