@@ -11,7 +11,7 @@ The proposal lines are the **items** - chosen from the **product catalogue** (th
 
 ## Totals (automatic)
 
-Subtotal → client's **loyalty discount** → **VAT** (recalculated proportionally) → **total**.
+Subtotal → **per-line discount** (free) → the company's **loyalty discount** → **VAT** (recalculated proportionally) → **total**.
 
 !!! warning "No catalogue, no lines"
     Each line points to a **product**. First create the items in **[Products](../produtos.md)**.

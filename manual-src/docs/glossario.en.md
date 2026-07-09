@@ -12,7 +12,7 @@
 | **Pipeline** | Set of proposals by stage (Kanban): Lead → Qualification → Negotiation → Won → Lost. |
 | **RoPA** | Records of Processing Activities (GDPR). |
 | **DSAR** | Request to exercise the rights of the data subject. |
-| **Loyalty** | Customer loyalty tier (Bronze/Silver/Gold), with an associated discount. |
+| **Loyalty** | The **company's** loyalty tier (Bronze/Silver/Gold), from its purchase volume; the contact inherits it. Gives a discount on proposals. |
 | **Stage / Lifecycle** | The lead's stage: Lead → MQL → SQL → Customer / Lost. |
 | **MQL** | *Marketing Qualified Lead* - a lead that has shown interest (opened/clicked). |
 | **SQL** | *Sales Qualified Lead* - a real opportunity, already with a proposal. |

@@ -25,7 +25,10 @@ Professional **Account / Contact** model (B2B): **Companies** are the legal enti
 - **Website**, **Phone**, **Email**, **Notes**.
 
 ### 360° profile
-Shows the **tax data**, the company's **contact list** and a summary of **proposals / won / value**.
+Shows the **tax data**, the company's **contact list**, the company's **loyalty tier** and a summary of **proposals / won / value won**. This is where the commercial history lives - because **the sale belongs to the company**, not the person.
+
+!!! note "Sales and loyalty belong to the **Company**, not the contact"
+    The sale (proposal) and its value are anchored to the **company**: a person can **change company** and the history **does not follow them** - it stays on the account where the deal happened. **Loyalty** (Bronze/Silver/Gold) is also the **company's**, computed from the **company's purchase volume**; each contact **inherits** their company's tier. A contact **without a company** (an individual) uses **their own** volume. The proposal **discount** always comes from the **account's** tier (the company, or the contact when they are an individual).
 
 ---
 
@@ -51,11 +54,12 @@ There is also a **Lead stage filter** (chips: All / Lead / MQL / SQL / Customer 
 - **Segment** - Lead / Micro / SME / Large Enterprise.
 - **Stage (lifecycle)** - **Lead** → **MQL** (*Marketing Qualified Lead*, has shown interest) → **SQL** (*Sales Qualified Lead*, a real opportunity with a proposal) → **Customer** / **Lost**. Qualifying the lead tells you the **next step**. The app **infers** the initial stage from proposals and email *engagement*.
 - **Source** - acquisition channel (editable list in Settings): Website, Referral, Trade fair, Email Campaign… - the basis of the **acquisition funnel** and **ROI by source** in Analytics.
-- **Loyalty** - Bronze / Silver / Gold (recalculated by purchase volume; gives a **discount** on proposals).
 - **Notes**.
 
+**Loyalty is not edited here**: it is **inherited from the company** (computed automatically from the company's purchase volume). See the note above.
+
 ### 360° profile
-Full data, **loyalty level**, the contact's **proposals** and history.
+Full data, the **loyalty level inherited from the company**, the **proposals** negotiated with the contact, and history.
 
 ---
 

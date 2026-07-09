@@ -12,7 +12,7 @@
 | **Pipeline** | Conjunto de propostas por estado (Kanban): Lead → Qualificação → Negociação → Ganha → Perdida. |
 | **RoPA** | Registo das Atividades de Tratamento (RGPD). |
 | **DSAR** | Pedido de exercício de direitos do titular dos dados. |
-| **Loyalty** | Nível de fidelização do cliente (Bronze/Prata/Ouro), com desconto associado. |
+| **Loyalty** | Nível de fidelização da **empresa** (Bronze/Prata/Ouro), pelo volume de compras dela; o contacto herda-o. Dá desconto nas propostas. |
 | **Fase / Ciclo de vida** | Etapa do lead: Lead → MQL → SQL → Cliente / Perdido. |
 | **MQL** | *Marketing Qualified Lead* - lead que já demonstrou interesse (abriu/clicou). |
 | **SQL** | *Sales Qualified Lead* - oportunidade real, já com proposta. |

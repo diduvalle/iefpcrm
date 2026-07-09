@@ -37,7 +37,7 @@
 5. Confirm the **Region** (it inherits the VAT logic). **Save**.
 
 !!! tip "Loyalty"
-    The **loyalty** level (Bronze/Silver/Gold) adjusts with purchase volume and gives an automatic **discount** on proposals.
+    The **loyalty** level (Bronze/Silver/Gold) belongs to the **company** - it adjusts with the company's purchase volume and the contact **inherits** it, giving an automatic **discount** on proposals.
 
 ---
 
@@ -55,7 +55,7 @@
 ## Step 4 · Build the proposal
 
 1. Click **Proposals** → **+ Proposal**.
-2. **Customer:** choose *Ana Costa* → the **loyalty discount** and the **region’s VAT** now apply.
+2. **Company and Contact:** choose the **company** (the anchor of the sale) and the contact *Ana Costa* - the **region's VAT** and the **company's loyalty discount** now apply. Set the **loyalty months** (SaaS).
 3. **Title:** *CRM licensing proposal*.
 4. **Line:** choose the item *CRM Pro License* → description/price/VAT fill in; set **Quantity 5**.
 5. Note the **Totals** block (subtotal, discount, VAT, total).

@@ -11,7 +11,7 @@ As linhas da proposta são os **artigos** - escolhidos do **catálogo de produto
 
 ## Totais (automáticos)
 
-Subtotal → **desconto de loyalty** do cliente → **IVA** (recalculado proporcionalmente) → **total**.
+Subtotal → **desconto por linha** (livre) → **desconto de loyalty** (da empresa) → **IVA** (recalculado proporcionalmente) → **total**.
 
 !!! warning "Sem catálogo, sem linhas"
     Cada linha aponta para um **produto**. Cria primeiro os artigos em **[Produtos](../produtos.md)**.

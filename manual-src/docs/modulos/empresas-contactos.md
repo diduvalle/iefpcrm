@@ -25,7 +25,10 @@ Modelo profissional **Account / Contact** (B2B): as **Empresas** são as entidad
 - **Website**, **Telefone**, **Email**, **Notas**.
 
 ### Ficha 360°
-Mostra os **dados fiscais**, a **lista de contactos** da empresa e um resumo de **propostas / ganhas / valor**.
+Mostra os **dados fiscais**, a **lista de contactos** da empresa, o **nível de loyalty** da empresa e um resumo de **propostas / ganhas / valor ganho**. É aqui que vive o histórico comercial - porque **a venda pertence à empresa**, não à pessoa.
+
+!!! note "As vendas e o loyalty são da **Empresa**, não do contacto"
+    A venda (proposta) e o valor ficam ancorados à **empresa**: uma pessoa pode **mudar de empresa** e o histórico **não vai com ela** - fica na conta onde o negócio aconteceu. O **loyalty** (Bronze/Prata/Ouro) também é da **empresa**, calculado pelo **volume de compras da empresa**; cada contacto **herda** o nível da sua empresa. Um contacto **sem empresa** (particular) usa o **seu próprio** volume. O **desconto** da proposta vem sempre do nível da **conta** (empresa ou, no particular, do contacto).
 
 ---
 
@@ -51,11 +54,12 @@ Há ainda um **filtro por Fase do lead** (chips: Todas / Lead / MQL / SQL / Clie
 - **Segmento** - Lead / Micro / PME / Grande Empresa.
 - **Fase (ciclo de vida)** - **Lead** → **MQL** (*Marketing Qualified Lead*, já demonstrou interesse) → **SQL** (*Sales Qualified Lead*, oportunidade real com proposta) → **Cliente** / **Perdido**. Qualificar o lead diz qual é o **próximo passo**. A app **infere** a fase inicial a partir das propostas e do *engagement* de email.
 - **Origem** - canal de aquisição (lista editável em Definições): Website, Recomendação, Feira, Campanha Email… - base do **funil de aquisição** e do **ROI por origem** no Analytics.
-- **Loyalty** - Bronze / Prata / Ouro (recalcula-se pelo volume de compras; dá **desconto** nas propostas).
 - **Notas**.
 
+O **loyalty não se edita aqui**: é **herdado da empresa** (calculado automaticamente pelo volume de compras da empresa). Ver a caixa acima.
+
 ### Ficha 360°
-Dados completos, **nível de loyalty**, **propostas** do contacto e histórico.
+Dados completos, o **nível de loyalty herdado da empresa**, as **propostas** negociadas com o contacto e o histórico.
 
 ---
 

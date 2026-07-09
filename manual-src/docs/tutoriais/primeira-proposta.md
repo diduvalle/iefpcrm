@@ -37,7 +37,7 @@
 5. Confirma a **Região** (herda a lógica de IVA). **Guardar**.
 
 !!! tip "Loyalty"
-    O nível de **loyalty** (Bronze/Prata/Ouro) ajusta-se com o volume de compras e dá **desconto** automático nas propostas.
+    O nível de **loyalty** (Bronze/Prata/Ouro) é da **empresa** - ajusta-se com o volume de compras dela e o contacto **herda-o**, dando **desconto** automático nas propostas.
 
 ---
 
@@ -55,7 +55,7 @@
 ## Passo 4 · Montar a proposta
 
 1. Clica **Propostas** → **+ Proposta**.
-2. **Cliente:** escolhe *Ana Costa* → o **desconto de loyalty** e o **IVA da região** passam a aplicar-se.
+2. **Empresa e Contacto:** escolhe a **empresa** (a âncora da venda) e o contacto *Ana Costa* - o **IVA da região** e o **desconto de loyalty da empresa** passam a aplicar-se. Define os **meses de fidelização** (SaaS).
 3. **Título:** *Proposta de licenciamento CRM*.
 4. **Linha:** escolhe o artigo *Licença CRM Pro* → descrição/preço/IVA preenchem-se; põe **Quantidade 5**.
 5. Repara no bloco **Totais** (subtotal, desconto, IVA, total).
