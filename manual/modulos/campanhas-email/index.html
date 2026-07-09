@@ -2397,11 +2397,16 @@
 <h3 id="automacoes-marketing-automation">Automações (marketing automation)<a class="headerlink" href="#automacoes-marketing-automation" title="Permanent link">¶</a></h3>
 <p>Regras <strong>gatilho → email</strong>:</p>
 <ul>
-<li><strong>Gatilho:</strong> novo cliente / proposta criada / proposta enviada / proposta ganha.</li>
-<li><strong>Condição de segmento</strong> (Todos / Micro / PME / Grande).</li>
+<li><strong>Gatilhos de ciclo de vida:</strong> novo cliente / proposta criada / proposta enviada / proposta ganha.</li>
+<li><strong>Gatilhos comportamentais</strong> (<em>nurturing</em>): o lead fica <strong>"quente"</strong> (score ≥ 70) / <strong>abre</strong> um email / <strong>clica</strong> num email / está <strong>sem contacto há N dias</strong>. Reagem ao comportamento do lead, não só a eventos internos.</li>
+<li><strong>Condições</strong> (todas têm de bater): por <strong>segmento</strong>, por <strong>fase</strong> (Lead/MQL/SQL/…) e por <strong>score</strong> (Frio/Morno/Quente). No gatilho <em>sem contacto</em> defines os <strong>dias</strong>.</li>
 <li><strong>Passos</strong> em sequência, cada um com <strong>atraso (dias)</strong> → vão para <strong>Agendados</strong>.</li>
 <li>Toggle <strong>Ativa/Inativa</strong> + contador de disparos.</li>
 </ul>
+<div class="admonition tip">
+<p class="admonition-title">Ver os gatilhos comportamentais a disparar</p>
+<p>No <strong>Histórico de envios</strong>, abre um email e usa <strong>Simular abertura</strong> ou <strong>Simular clique</strong>: o lead é marcado como aberto/clicado e a automação correspondente <strong>dispara à tua frente</strong> (o <em>email quente</em> também reavalia o score). Ideal para demonstrar o <em>nurturing</em> sem esperar por comportamento real.</p>
+</div>
 <h3 id="metricas">Métricas<a class="headerlink" href="#metricas" title="Permanent link">¶</a></h3>
 <p>Taxa de <strong>abertura</strong> e <strong>cliques</strong> por envio e agregadas.</p>
 <div class="admonition warning">

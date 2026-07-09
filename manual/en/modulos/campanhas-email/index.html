@@ -2397,11 +2397,16 @@
 <h3 id="automations-marketing-automation">Automations (marketing automation)<a class="headerlink" href="#automations-marketing-automation" title="Permanent link">¶</a></h3>
 <p><strong>Trigger → email</strong> rules:</p>
 <ul>
-<li><strong>Trigger:</strong> new customer / proposal created / proposal sent / proposal won.</li>
-<li><strong>Segment condition</strong> (All / Micro / SME / Large).</li>
+<li><strong>Lifecycle triggers:</strong> new customer / proposal created / proposal sent / proposal won.</li>
+<li><strong>Behavioural triggers</strong> (<em>nurturing</em>): the lead turns <strong>"hot"</strong> (score ≥ 70) / <strong>opens</strong> an email / <strong>clicks</strong> an email / has had <strong>no contact for N days</strong>. They react to the lead's behaviour, not only to internal events.</li>
+<li><strong>Conditions</strong> (all must match): by <strong>segment</strong>, by <strong>stage</strong> (Lead/MQL/SQL/…) and by <strong>score</strong> (Cold/Warm/Hot). The <em>no contact</em> trigger lets you set the <strong>days</strong>.</li>
 <li><strong>Steps</strong> in sequence, each with a <strong>delay (days)</strong> → they go to <strong>Scheduled</strong>.</li>
 <li><strong>Active/Inactive</strong> toggle + trigger counter.</li>
 </ul>
+<div class="admonition tip">
+<p class="admonition-title">See the behavioural triggers fire</p>
+<p>In <strong>Send history</strong>, open an email and use <strong>Simulate open</strong> or <strong>Simulate click</strong>: the lead is marked as opened/clicked and the matching automation <strong>fires right in front of you</strong> (the <em>hot lead</em> trigger also re-evaluates the score). Perfect for demonstrating <em>nurturing</em> without waiting for real behaviour.</p>
+</div>
 <h3 id="metrics">Metrics<a class="headerlink" href="#metrics" title="Permanent link">¶</a></h3>
 <p><strong>Open</strong> and <strong>click</strong> rate per send and aggregated.</p>
 <div class="admonition warning">
