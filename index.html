@@ -1866,6 +1866,8 @@ function openClient360(id){ drawer360Emp=null;
   const peds=state.pedidos.filter(x=>x.clienteId===id);
   const val=clientValue(id);
   const sc=leadScore(c); const si=scoreInfo(sc); const fz=c.fase||'Lead';
+  const emp=c.empresaId?(state.empresas||[]).find(e=>e.id===c.empresaId):null;
+  const lylTier=(emp?emp.loyalty:c.loyalty)||'Bronze'; const lylCls=lylTier==='Ouro'?'amber':lylTier==='Prata'?'grey':'green';
   $('#drawerTitle').innerHTML=`<h3 style="font-size:1.1rem;font-weight:800">${esc(c.nome)} ${esc(c.apelido)} <span class="pill ${faseColor(fz)}" style="font-size:.66rem;vertical-align:middle">${esc(fz)}</span> <span class="pill" style="background:${si.c}22;color:${si.c};font-size:.66rem;vertical-align:middle" title="Lead score">${si.l} ${sc}</span></h3><div class="sub" style="color:var(--muted);font-size:.82rem">Contacto n.º ${esc(c.numero)} · ${esc(c.empresa||'-')}</div>`;
   $('#drawerBody').innerHTML=`
     <div class="grid cols-2">
@@ -1881,7 +1883,7 @@ function openClient360(id){ drawer360Emp=null;
         <dt>Cidade</dt><dd>${esc(c.cidade||'-')}</dd>
         <dt>Segmento</dt><dd>${esc(c.segmento||'-')}</dd>
         <dt>Origem</dt><dd>${esc(c.origem||'-')}</dd>
-        <dt>Loyalty</dt><dd><span class="pill ${c.loyalty==='Ouro'?'amber':c.loyalty==='Prata'?'grey':'green'}">${esc(c.loyalty)}</span></dd>
+        <dt>Loyalty ${emp?'<span class="muted" style="font-weight:500;font-size:.76rem">(da empresa)</span>':'<span class="muted" style="font-weight:500;font-size:.76rem">(particular)</span>'}</dt><dd><span class="pill ${lylCls}">${esc(lylTier)}</span>${emp?` <span class="muted" style="font-size:.78rem">${esc(emp.nome)}</span>`:''}</dd>
         <dt>Cliente desde</dt><dd>${dPT(c.criado)}</dd>
       </dl>
       ${c.notas?`<div class="callout info" style="margin-top:12px">${ic('list',16)}<div class="ctxt">${esc(c.notas)}</div></div>`:''}
