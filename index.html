@@ -2366,7 +2366,12 @@ const TRIGGERS=[
   {v:'proposta-criada',t:'Quando é criada uma proposta'},
   {v:'proposta-enviada',t:'Quando uma proposta passa a "Enviada"'},
   {v:'proposta-ganha',t:'Quando uma proposta é "Ganha"'},
+  {v:'lead-quente',t:'Comportamental: lead fica "Quente" (score ≥ 70)'},
+  {v:'email-aberto',t:'Comportamental: o lead abre um email'},
+  {v:'email-clicado',t:'Comportamental: o lead clica num email'},
+  {v:'sem-contacto',t:'Comportamental: lead sem contacto há N dias'},
 ];
+const behavioralTriggers=['lead-quente','email-aberto','email-clicado','sem-contacto'];
 const triggerLabel=v=>(TRIGGERS.find(t=>t.v===v)||{}).t||v;
 function mergeCtx(text, cliente, proposta){
   const c=cliente||{}; const s=state.settings; const t=proposta?documentTotals(proposta):{sub:0,iva:0,total:0,desconto:0};
@@ -2399,7 +2404,7 @@ function sendEmail(o){
     assunto:o.assunto||(tpl?mergeCtx(tpl.assunto,c,o.proposta):''), templateId:o.templateId||null,
     anexo:o.proposta?{tipo:'proposta',propostaId:o.proposta.id,numero:o.proposta.numero}:null,
     origem:o.origem||'Manual', porUtilizador:currentUser()?currentUser().id:null, automacaoId:o.automacaoId||null, campanhaId:o.campanhaId||null, estado:'Enviado' };
-  state.envios.unshift(ev); return ev;
+  state.envios.unshift(ev); if(c) c._scFired=false; return ev;   // contactado → rearma o gatilho "sem contacto"
 }
 /* ---------- envio real opcional via EmailJS ---------- */
 function emailjsCfg(){ return state.settings.emailjs||{}; }
@@ -2485,6 +2490,8 @@ function fireAutomations(trigger, ctx){
   let fired=0, immediate=0, agendados=0; const cli=getC(ctx.clienteId);
   (state.automacoes||[]).filter(a=>a.estado==='Ativa'&&a.trigger===trigger).forEach(a=>{
     if(a.condSegmento && a.condSegmento!=='Todos' && (!cli || cli.segmento!==a.condSegmento)) return;
+    if(a.condFase && (!cli || (cli.fase||'Lead')!==a.condFase)) return;
+    if(a.condScore && (!cli || scoreInfo(leadScore(cli)).l!==a.condScore)) return;
     (a.passos||[]).forEach((p,idx)=>{
       if(!p.templateId) return;
       if((+p.atrasoDias||0)<=0){ sendEmail({clienteId:ctx.clienteId, templateId:p.templateId, proposta:(trigger!=='novo-cliente')?ctx.proposta:null, origem:'Automação', automacaoId:a.id}); immediate++; }
@@ -2496,10 +2503,20 @@ function fireAutomations(trigger, ctx){
   return fired;
 }
 function scheduleSend(o){ state.agendamentos.push({id:uid('ag'),dataAgendada:o.dataAgendada,clienteId:o.clienteId,templateId:o.templateId,propostaId:o.propostaId||null,automacaoId:o.automacaoId||null,nome:o.nome||'Agendado'}); }
+// gatilho comportamental: lead fica "Quente" (score ≥ 70) - dispara UMA vez; rearma se descer
+function maybeLeadQuente(clienteId){ const c=getC(clienteId); if(!c) return; const q=leadScore(c)>=70; if(q&&!c._quenteFired){ c._quenteFired=true; save(); fireAutomations('lead-quente',{clienteId}); } else if(!q&&c._quenteFired){ c._quenteFired=false; } }
+// gatilho comportamental: leads sem contacto há N dias (corre no processamento diário)
+function runSemContacto(){ const autos=(state.automacoes||[]).filter(a=>a.estado==='Ativa'&&a.trigger==='sem-contacto'); if(!autos.length) return 0; let n=0;
+  (state.clientes||[]).forEach(c=>{ if(c._scFired) return; if(['Cliente','Perdido'].includes(c.fase)) return;
+    const envs=state.envios.filter(e=>e.clienteId===c.id); const last=envs.length?envs.map(e=>e.data).sort().pop():c.criado; const dias=last?daysBetween(last,todayISO()):9999;
+    for(const a of autos){ if(a.condSegmento&&a.condSegmento!=='Todos'&&c.segmento!==a.condSegmento) continue; if(a.condFase&&(c.fase||'Lead')!==a.condFase) continue; if(a.condScore&&scoreInfo(leadScore(c)).l!==a.condScore) continue;
+      if(dias>=(+a.condDias||7)){ c._scFired=true; fireAutomations('sem-contacto',{clienteId:c.id}); n++; break; } } });
+  if(n) save(); return n; }
 function processAgendamentos(){
   const today=todayISO(); const due=(state.agendamentos||[]).filter(a=>a.dataAgendada<=today); let n=0;
   due.forEach(a=>{ const prop=a.propostaId?state.propostas.find(p=>p.id===a.propostaId):null; sendEmail({clienteId:a.clienteId,templateId:a.templateId,proposta:prop,origem:'Automação',automacaoId:a.automacaoId}); n++; });
   if(n){ state.agendamentos=state.agendamentos.filter(a=>a.dataAgendada>today); save(); }
+  n+=runSemContacto();
   return n;
 }
 function sendAgendamentoNow(id){
@@ -2750,6 +2767,7 @@ async function doSendEmail(openMail){
   const body=mergeCtx((tpl?tpl.saudacao+'\n\n'+tpl.corpo+(tpl.botaoTexto&&tpl.botaoLink?'\n\n'+tpl.botaoTexto+': '+tpl.botaoLink:'')+(prop?'\n\n(Proposta '+prop.numero+' - exportável em PDF a partir do CRM)':'')+'\n\n'+tpl.assinatura:''),cli,prop)+(sigT?'\n\n'+mergeCtx(sigT,cli,prop):'');
   const ev=sendEmail({clienteId:cli.id, templateId:sendDraft.templateId, assunto:sendDraft.assunto, proposta:prop, origem:'Manual'});
   if(prop) snapshotVersao(prop);   // grava a versão das condições enviadas
+  if(cli) maybeLeadQuente(cli.id);  // o email pode ter subido o score → gatilho comportamental
   const real=realSendOn(); ev.modo = real?'real':'simulado'; if(sendDraft.cc) ev.cc=sendDraft.cc; if(sendDraft.bcc) ev.bcc=sendDraft.bcc;
   const _cc=sendDraft.cc, _bcc=sendDraft.bcc;
   save(); closeModal(); render();
@@ -2767,14 +2785,14 @@ function openEnvio(id){
   const e=state.envios.find(x=>x.id===id); if(!e)return; const tpl=state.templates.find(t=>t.id===e.templateId); const cli=getC(e.clienteId); const prop=e.anexo?state.propostas.find(p=>p.id===e.anexo.propostaId):null;
   $('#drawerTitle').innerHTML=`<h3 style="font-size:1.05rem;font-weight:800">${esc(e.assunto||'Email')}</h3><div class="sub" style="color:var(--muted);font-size:.82rem">${dPT(e.data)} · ${esc(e.origem)}</div>`;
   $('#drawerBody').innerHTML=`<dl class="kv"><dt>Para</dt><dd>${esc(e.paraNome)} (${esc(e.paraEmail)})</dd><dt>Template</dt><dd>${esc(tpl?tpl.nome:'-')}</dd><dt>Anexo</dt><dd>${e.anexo?esc(e.anexo.numero)+'.pdf':'-'}</dd><dt>Estado</dt><dd><span class="pill green">${esc(e.estado)}</span></dd></dl><div class="divider" style="margin:14px 0"></div>${tpl?emailHTML(tpl,cli,prop):'<div class="empty">Template removido</div>'}`;
-  $('#drawerFoot').innerHTML=`${e.anexo&&prop?`<button class="btn-sec" data-act="print-prop" data-id="${prop.id}">${ic('print',16)} Ver PDF</button>`:''}<div style="flex:1"></div><button class="btn" data-act="resend-envio" data-id="${e.id}">${ic('send',16)} Reenviar</button>`;
+  $('#drawerFoot').innerHTML=`${e.anexo&&prop?`<button class="btn-sec" data-act="print-prop" data-id="${prop.id}">${ic('print',16)} Ver PDF</button>`:''}<div style="flex:1"></div>${e.clienteId&&!e.aberto?`<button class="btn-sec" data-act="sim-abrir" data-id="${e.id}" title="Simular que o lead abriu (dispara automações comportamentais)">${ic('eye',16)} Simular abertura</button>`:''}${e.clienteId&&!e.clicado?`<button class="btn-sec" data-act="sim-clique" data-id="${e.id}" title="Simular que o lead clicou">${ic('check',16)} Simular clique</button>`:''}<button class="btn" data-act="resend-envio" data-id="${e.id}">${ic('send',16)} Reenviar</button>`;
   openDrawer();
 }
 
 /* ---- editor de automação (sequência de passos) ---- */
 let autoDraft=null;
 function openAutoEditor(id){
-  autoDraft = id ? clone(state.automacoes.find(x=>x.id===id)) : {id:uid('au'),nome:'',trigger:'novo-cliente',condSegmento:'Todos',estado:'Ativa',disparos:0,criadoPor:(currentUser()?currentUser().id:null),passos:[{templateId:(state.templates[0]&&state.templates[0].id)||'',atrasoDias:0}]};
+  autoDraft = id ? clone(state.automacoes.find(x=>x.id===id)) : {id:uid('au'),nome:'',trigger:'novo-cliente',condSegmento:'Todos',condFase:'',condScore:'',condDias:7,estado:'Ativa',disparos:0,criadoPor:(currentUser()?currentUser().id:null),passos:[{templateId:(state.templates[0]&&state.templates[0].id)||'',atrasoDias:0}]};
   if(!Array.isArray(autoDraft.passos)||!autoDraft.passos.length) autoDraft.passos=[{templateId:(state.templates[0]&&state.templates[0].id)||'',atrasoDias:0}];
   editing={type:'__auto',id};
   $('#modalTitle').textContent=(id?'Editar ':'Nova ')+'automação';
@@ -2788,8 +2806,14 @@ function renderAutoForm(){
     <div class="form-grid">
       <div class="field full"><label>Nome *</label><input name="anome" value="${esc(d.nome)}"></div>
       <div class="field"><label>Evento (gatilho)</label><select name="atrigger">${TRIGGERS.map(t=>`<option value="${t.v}" ${t.v===d.trigger?'selected':''}>${esc(t.t)}</option>`).join('')}</select></div>
-      <div class="field"><label>Apenas para o segmento</label><select name="aseg">${['Todos','Micro','PME','Grande Empresa'].map(s=>`<option ${s===d.condSegmento?'selected':''}>${s}</option>`).join('')}</select></div>
       <div class="field"><label>Estado</label><select name="aestado"><option ${d.estado==='Ativa'?'selected':''}>Ativa</option><option ${d.estado==='Inativa'?'selected':''}>Inativa</option></select></div>
+      ${d.trigger==='sem-contacto'?`<div class="field full"><label>Dias sem contacto</label><input name="adias" type="number" min="1" step="1" value="${esc(d.condDias||7)}"><span class="hint">Dispara para leads sem email enviado há este nº de dias.</span></div>`:''}
+    </div>
+    <div class="muted" style="font-size:.74rem;margin:2px 0 8px">Condições (todas têm de bater - filtram a quem a automação se aplica):</div>
+    <div class="form-grid">
+      <div class="field"><label>Só p/ segmento</label><select name="aseg">${['Todos','Micro','PME','Grande Empresa'].map(s=>`<option ${s===d.condSegmento?'selected':''}>${s}</option>`).join('')}</select></div>
+      <div class="field"><label>Só p/ fase</label><select name="afase">${['Todas'].concat(FASES).map(s=>{const v=s==='Todas'?'':s;return `<option value="${v}" ${(d.condFase||'')===v?'selected':''}>${s}</option>`;}).join('')}</select></div>
+      <div class="field"><label>Só p/ score ${infoTip('leadscore')}</label><select name="ascore">${['Todos','Frio','Morno','Quente'].map(s=>{const v=s==='Todos'?'':s;return `<option value="${v}" ${(d.condScore||'')===v?'selected':''}>${s}</option>`;}).join('')}</select></div>
     </div>
     <div class="divider" style="margin:16px 0 12px"></div>
     <div class="section-head" style="margin-bottom:8px"><h3 style="font-size:.95rem">Sequência de emails</h3><button class="btn-sec btn-sm" type="button" data-act="auto-add-step">+ Passo</button></div>
@@ -2797,7 +2821,8 @@ function renderAutoForm(){
     <div id="autoSteps" style="display:flex;flex-direction:column;gap:8px">${d.passos.map((p,i)=>`<div class="line-row" data-step="${i}" style="grid-template-columns:1fr 130px auto"><div class="field"><select data-as="templateId">${tplOpts(p.templateId)}</select></div><div class="field"><input data-as="atrasoDias" type="number" min="0" step="1" value="${esc(p.atrasoDias||0)}"></div>${d.passos.length>1?`<button class="btn-danger btn-xs" type="button" data-act="auto-del-step" data-i="${i}" style="height:38px">✕</button>`:'<span></span>'}</div>`).join('')}</div>
     <div class="muted" style="font-size:.74rem;margin-top:8px">0 dias = envia imediatamente. Ex.: passo 1 (0d) → passo 2 (+3d) → passo 3 (+7d).</div>`;
 }
-function syncAutoDraft(){ const f=$('#modalForm'); if(!f||!autoDraft) return; autoDraft.nome=f.querySelector('[name="anome"]').value; autoDraft.trigger=f.querySelector('[name="atrigger"]').value; autoDraft.condSegmento=f.querySelector('[name="aseg"]').value; autoDraft.estado=f.querySelector('[name="aestado"]').value; $$('[data-step]',f).forEach(row=>{ const i=+row.dataset.step; if(!autoDraft.passos[i])return; const ts=row.querySelector('[data-as="templateId"]'); const at=row.querySelector('[data-as="atrasoDias"]'); if(ts)autoDraft.passos[i].templateId=ts.value; if(at)autoDraft.passos[i].atrasoDias=Number(at.value||0); }); }
+function syncAutoDraft(){ const f=$('#modalForm'); if(!f||!autoDraft) return; autoDraft.nome=f.querySelector('[name="anome"]').value; autoDraft.trigger=f.querySelector('[name="atrigger"]').value; autoDraft.condSegmento=f.querySelector('[name="aseg"]').value; autoDraft.estado=f.querySelector('[name="aestado"]').value;
+  { const fz=f.querySelector('[name="afase"]'); if(fz)autoDraft.condFase=fz.value; const scr=f.querySelector('[name="ascore"]'); if(scr)autoDraft.condScore=scr.value; const dd=f.querySelector('[name="adias"]'); if(dd)autoDraft.condDias=Number(dd.value||7); } $$('[data-step]',f).forEach(row=>{ const i=+row.dataset.step; if(!autoDraft.passos[i])return; const ts=row.querySelector('[data-as="templateId"]'); const at=row.querySelector('[data-as="atrasoDias"]'); if(ts)autoDraft.passos[i].templateId=ts.value; if(at)autoDraft.passos[i].atrasoDias=Number(at.value||0); }); }
 function saveAuto(){ syncAutoDraft(); if(!String(autoDraft.nome||'').trim()){ toast('Falta o nome','Indique o nome da automação','warn'); return; } autoDraft.passos=autoDraft.passos.filter(p=>p.templateId); if(!autoDraft.passos.length){ toast('Sem passos','Adicione pelo menos um email','warn'); return; } const i=state.automacoes.findIndex(x=>x.id===autoDraft.id); if(i>=0)state.automacoes[i]=autoDraft; else state.automacoes.push(autoDraft); const nm=autoDraft.nome; save(); autoDraft=null; closeModal(); render(); toast('Automação guardada',nm); }
 
 /* ---------- ALERTAS ---------- */
@@ -3710,6 +3735,7 @@ function savePropModal(closeAfter){
   toast(isNew?'Proposta criada':'Proposta guardada', stored.numero);
   if(isNew) fireAutomations('proposta-criada',{clienteId:stored.clienteId,proposta:stored});
   onPropStatusChange(stored, oldEstado, stored.estado);
+  maybeLeadQuente(stored.clienteId);   // proposta pode ter subido o score → gatilho comportamental
   if(closeAfter){ closeModal(); render(); }
   else { render(); renderPropForm(); const cx=$('.modal-foot [data-act="close-modal"]'); if(cx) cx.textContent='Fechar'; }   // guardado: janela fica aberta e "Cancelar" passa a "Fechar"
 }
@@ -4371,6 +4397,8 @@ document.addEventListener('click', async e=>{
     case 'send-open': doSendEmail(true); break;
     case 'open-envio': if(!e.target.closest('[data-stop]')||el.dataset.act==='open-envio') openEnvio(id); break;
     case 'resend-envio': { const ev=state.envios.find(x=>x.id===id); if(ev){ const n=sendEmail({clienteId:ev.clienteId, templateId:ev.templateId, assunto:ev.assunto, proposta:ev.anexo?state.propostas.find(p=>p.id===ev.anexo.propostaId):null, origem:'Manual'}); save(); closeDrawer(); render(); toast('Email reenviado',n.paraNome); } } break;
+    case 'sim-abrir': { const ev=state.envios.find(x=>x.id===id); if(ev){ ev.aberto=true; save(); if(ev.clienteId){ fireAutomations('email-aberto',{clienteId:ev.clienteId}); maybeLeadQuente(ev.clienteId); } openEnvio(id); render(); toast('Abertura simulada','Gatilho "email aberto" acionado'); } } break;
+    case 'sim-clique': { const ev=state.envios.find(x=>x.id===id); if(ev){ ev.aberto=true; ev.clicado=true; save(); if(ev.clienteId){ fireAutomations('email-clicado',{clienteId:ev.clienteId}); maybeLeadQuente(ev.clienteId); } openEnvio(id); render(); toast('Clique simulado','Gatilho "email clicado" acionado'); } } break;
     case 'toggle-auto': { const a=state.automacoes.find(x=>x.id===id); if(a){ a.estado=a.estado==='Ativa'?'Inativa':'Ativa'; save(); render(); toast('Automação '+(a.estado==='Ativa'?'ativada':'desativada'),a.nome); } } break;
     case 'auto-new': openAutoEditor(); break;
     case 'auto-edit': openAutoEditor(id); break;
@@ -4405,6 +4433,7 @@ document.addEventListener('click', e=>{
 document.addEventListener('change', e=>{
   if(propDraft && e.target.matches('[data-l="produtoId"]')){ syncDraftFromForm(); const row=e.target.closest('.line-row'); const i=+row.dataset.line; const prod=state.produtos.find(x=>x.id===e.target.value); if(prod){ const reg=(getC(propDraft.clienteId)||{}).regiao||'Continente'; propDraft.linhas[i].descricao=prod.nome; propDraft.linhas[i].preco=prod.preco; propDraft.linhas[i].iva=ivaForRegion(prod.iva,reg); propDraft.linhas[i].modelo=prod.modelo; } renderPropForm(); return; }
   if(propDraft && e.target.matches('[data-l="iva"]')){ refreshTotals(); return; }
+  if(autoDraft && e.target.name==='atrigger'){ syncAutoDraft(); renderAutoForm(); return; }
   if(propDraft && e.target.name==='clienteId'){ syncDraftFromForm(); const cc=getC(propDraft.clienteId); if(cc&&cc.empresaId&&!propDraft.empresaId){ propDraft.empresaId=cc.empresaId; renderPropForm(); } else refreshTotals(); return; }
   if(propDraft && e.target.name==='empresaId'){ refreshTotals(); return; }
   if(emailDraft && (e.target.id==='emCor'||e.target.id==='emLogo'||e.target.dataset.em!=null)){ updateEmailPreview(); return; }
