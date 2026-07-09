@@ -34,7 +34,9 @@ Shows the **tax data**, the company's **contact list** and a summary of **propos
 The people (the former "customers").
 
 ### The screen
-Same as companies: date filter, KPIs (number of contacts, average value - may appear 🔒), search, pagination, **+ Contact**. Click a row → **360° profile**.
+Same as companies: date filter, KPIs (number of contacts, average value - may appear 🔒, **Hot leads** with score ≥ 70), search, pagination, **+ Contact**. Click a row → **360° profile**.
+
+There is also a **Lead stage filter** (chips: All / Lead / MQL / SQL / Customer / Lost) and each row shows the **score badge** (Hot / Warm / Cold) next to the name - so you can prioritise your sales effort at a glance.
 
 ### Create / edit - field by field
 - **First name** and **Last name** *(name required)*.
@@ -43,7 +45,8 @@ Same as companies: date filter, KPIs (number of contacts, average value - may ap
 - **NIF** - validated (PT check digit).
 - **City** and **Region** - the region sets the **VAT rate** applicable on proposals.
 - **Segment** - Lead / Micro / SME / Large Enterprise.
-- **Source** - acquisition channel (editable list in Settings): Website, Referral, Trade fair, Email Campaign…
+- **Stage (lifecycle)** - **Lead** → **MQL** (*Marketing Qualified Lead*, has shown interest) → **SQL** (*Sales Qualified Lead*, a real opportunity with a proposal) → **Customer** / **Lost**. Qualifying the lead tells you the **next step**. The app **infers** the initial stage from proposals and email *engagement*.
+- **Source** - acquisition channel (editable list in Settings): Website, Referral, Trade fair, Email Campaign… - the basis of the **acquisition funnel** and **ROI by source** in Analytics.
 - **Loyalty** - Bronze / Silver / Gold (recalculated by purchase volume; gives a **discount** on proposals).
 - **Notes**.
 
@@ -64,7 +67,7 @@ Both **Contacts** and **Products** have **Import** + **Template**:
     In **Settings → Sample data generator** you can quickly create realistic companies, contacts and proposals (valid PT names/NIF) to practice without starting from scratch.
 
 !!! note "Pedagogy (UFCD 10868)"
-    You practice modeling the data of a real CRM (entity vs person), **data quality** (NIF/NIPC validation), **segmentation** and **loyalty** - the basis of customer analysis.
+    You practice modeling the data of a real CRM (entity vs person), **data quality** (NIF/NIPC validation), **segmentation**, **loyalty** and **lead management** (Lead → Customer lifecycle, *lead scoring*, qualification) - the basis of customer analysis.
 
 ## Related
 

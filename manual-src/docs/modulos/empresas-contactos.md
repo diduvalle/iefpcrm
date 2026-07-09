@@ -34,7 +34,9 @@ Mostra os **dados fiscais**, a **lista de contactos** da empresa e um resumo de 
 As pessoas (os antigos "clientes").
 
 ### O ecrã
-Igual ao das empresas: filtro temporal, KPIs (nº de contactos, valor médio - pode aparecer 🔒), pesquisa, paginação, **+ Contacto**. Clica numa linha → **ficha 360°**.
+Igual ao das empresas: filtro temporal, KPIs (nº de contactos, valor médio - pode aparecer 🔒, **Leads quentes** com score ≥ 70), pesquisa, paginação, **+ Contacto**. Clica numa linha → **ficha 360°**.
+
+Há ainda um **filtro por Fase do lead** (chips: Todas / Lead / MQL / SQL / Cliente / Perdido) e cada linha mostra o **selo de score** (Quente / Morno / Frio) ao lado do nome - para priorizares o esforço comercial de relance.
 
 ### Criar / editar - campo a campo
 - **Nome** e **Apelido** *(nome obrigatório)*.
@@ -43,7 +45,8 @@ Igual ao das empresas: filtro temporal, KPIs (nº de contactos, valor médio - p
 - **NIF** - validado (dígito de controlo PT).
 - **Cidade** e **Região** - a região define a **taxa de IVA** aplicável nas propostas.
 - **Segmento** - Lead / Micro / PME / Grande Empresa.
-- **Origem** - canal de aquisição (lista editável em Definições): Website, Recomendação, Feira, Campanha Email…
+- **Fase (ciclo de vida)** - **Lead** → **MQL** (*Marketing Qualified Lead*, já demonstrou interesse) → **SQL** (*Sales Qualified Lead*, oportunidade real com proposta) → **Cliente** / **Perdido**. Qualificar o lead diz qual é o **próximo passo**. A app **infere** a fase inicial a partir das propostas e do *engagement* de email.
+- **Origem** - canal de aquisição (lista editável em Definições): Website, Recomendação, Feira, Campanha Email… - base do **funil de aquisição** e do **ROI por origem** no Analytics.
 - **Loyalty** - Bronze / Prata / Ouro (recalcula-se pelo volume de compras; dá **desconto** nas propostas).
 - **Notas**.
 
@@ -64,7 +67,7 @@ Tanto em **Contactos** como em **Produtos** há **Importar** + **Modelo**:
     Em **Definições → Gerador de dados de exemplo** crias rapidamente empresas, contactos e propostas realistas (nomes/NIF PT válidos) para praticares sem partir de zero.
 
 !!! note "Pedagogia (UFCD 10868)"
-    Praticas a modelação de dados de um CRM real (entidade vs pessoa), a **qualidade de dados** (validação de NIF/NIPC), a **segmentação** e o **loyalty** - base da análise de clientes.
+    Praticas a modelação de dados de um CRM real (entidade vs pessoa), a **qualidade de dados** (validação de NIF/NIPC), a **segmentação**, o **loyalty** e a **gestão de leads** (ciclo de vida Lead → Cliente, *lead scoring*, qualificação) - base da análise de clientes.
 
 ## Relacionado
 

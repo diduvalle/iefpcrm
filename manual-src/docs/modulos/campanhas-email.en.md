@@ -52,10 +52,14 @@ Name, subject, color, show logo, greeting, body, button text/link, signature. Us
 ### Automations (marketing automation)
 **Trigger → email** rules:
 
-- **Trigger:** new customer / proposal created / proposal sent / proposal won.
-- **Segment condition** (All / Micro / SME / Large).
+- **Lifecycle triggers:** new customer / proposal created / proposal sent / proposal won.
+- **Behavioural triggers** (*nurturing*): the lead turns **"hot"** (score ≥ 70) / **opens** an email / **clicks** an email / has had **no contact for N days**. They react to the lead's behaviour, not only to internal events.
+- **Conditions** (all must match): by **segment**, by **stage** (Lead/MQL/SQL/…) and by **score** (Cold/Warm/Hot). The *no contact* trigger lets you set the **days**.
 - **Steps** in sequence, each with a **delay (days)** → they go to **Scheduled**.
 - **Active/Inactive** toggle + trigger counter.
+
+!!! tip "See the behavioural triggers fire"
+    In **Send history**, open an email and use **Simulate open** or **Simulate click**: the lead is marked as opened/clicked and the matching automation **fires right in front of you** (the *hot lead* trigger also re-evaluates the score). Perfect for demonstrating *nurturing* without waiting for real behaviour.
 
 ### Metrics
 **Open** and **click** rate per send and aggregated.

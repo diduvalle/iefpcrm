@@ -52,10 +52,14 @@ Nome, assunto, cor, mostrar logótipo, saudação, corpo, texto/​link do botã
 ### Automações (marketing automation)
 Regras **gatilho → email**:
 
-- **Gatilho:** novo cliente / proposta criada / proposta enviada / proposta ganha.
-- **Condição de segmento** (Todos / Micro / PME / Grande).
+- **Gatilhos de ciclo de vida:** novo cliente / proposta criada / proposta enviada / proposta ganha.
+- **Gatilhos comportamentais** (*nurturing*): o lead fica **"quente"** (score ≥ 70) / **abre** um email / **clica** num email / está **sem contacto há N dias**. Reagem ao comportamento do lead, não só a eventos internos.
+- **Condições** (todas têm de bater): por **segmento**, por **fase** (Lead/MQL/SQL/…) e por **score** (Frio/Morno/Quente). No gatilho *sem contacto* defines os **dias**.
 - **Passos** em sequência, cada um com **atraso (dias)** → vão para **Agendados**.
 - Toggle **Ativa/Inativa** + contador de disparos.
+
+!!! tip "Ver os gatilhos comportamentais a disparar"
+    No **Histórico de envios**, abre um email e usa **Simular abertura** ou **Simular clique**: o lead é marcado como aberto/clicado e a automação correspondente **dispara à tua frente** (o *email quente* também reavalia o score). Ideal para demonstrar o *nurturing* sem esperar por comportamento real.
 
 ### Métricas
 Taxa de **abertura** e **cliques** por envio e agregadas.

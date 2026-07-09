@@ -14,6 +14,8 @@ O módulo de **KPIs & Dashboards** - o foco da UFCD **10868**. Tudo respeita o *
 ## Os indicadores - um a um
 
 - **Funil de vendas** - conversão entre etapas do pipeline (ou propostas criadas no período).
+- **Funil de aquisição** - conversão dos **leads** ao longo do ciclo de vida (**Lead → MQL → SQL → Cliente**), com a % entre etapas. Complementa o funil de vendas: mede a **qualificação**, não a proposta.
+- **Aquisição por origem (ROI)** - tabela por **canal de origem** (Website, Recomendação, Feira, Campanha…) com **leads**, **clientes convertidos**, **taxa de conversão** e **valor gerado**. Mostra que canal traz os melhores clientes.
 - **Taxa de conversão** - % de propostas que chegam a *Ganha*.
 - **Ticket médio** - valor médio das propostas ganhas.
 - **Churn** - perda de clientes (menor é melhor).
@@ -31,7 +33,7 @@ O módulo de **KPIs & Dashboards** - o foco da UFCD **10868**. Tudo respeita o *
 Botão **Imprimir relatório** (no callout) → gera um PDF com **KPIs** (e comparação, se ativa), **funil** e **top clientes**, respeitando o período.
 
 !!! tip "Balões pedagógicos"
-    Vários indicadores têm o ícone **ⓘ** com a definição do conceito e a página dos slides (conversão, ticket, churn, funil, LTV, CAC, lead scoring).
+    Vários indicadores têm o ícone **ⓘ** com a definição do conceito e a página dos slides (conversão, ticket, churn, funil, funil de aquisição, origem, LTV, CAC, lead scoring, ciclo de vida do lead).
 
 !!! note "Dashboard vs Analytics"
     O **Dashboard** dá a visão rápida do dia; o **Analytics** é a análise aprofundada com comparações e exportação.
