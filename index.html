@@ -1317,6 +1317,8 @@ function load(){
     if(p.empresaId==null){ const cc=(state.clientes||[]).find(x=>x.id===p.clienteId); p.empresaId=cc?(cc.empresaId||''):''; }
     if(p.meses==null) p.meses=12; });
   (state.clientes||[]).forEach(c=>{ if(!c.regiao) c.regiao='Continente'; });
+  // fase do ciclo de vida (gestão de leads): inferir dos contactos existentes pela atividade
+  (state.clientes||[]).forEach(c=>{ if(c.fase==null){ const props=(state.propostas||[]).filter(p=>p.clienteId===c.id); const env=(state.envios||[]).filter(e=>e.clienteId===c.id); c.fase = props.some(p=>p.estado==='Ganha')?'Cliente' : props.length?'SQL' : (env.some(e=>e.aberto||e.clicado)?'MQL':'Lead'); } });
   if(!Array.isArray(state.envios)) state.envios=[];
   if(!Array.isArray(state.automacoes)) state.automacoes=def.automacoes;
   if(!Array.isArray(state.agendamentos)) state.agendamentos=[];
@@ -1811,14 +1813,15 @@ views.clientes = () => {
   const q=(state._q||'').toLowerCase();
   const rg=rangeOf('cli'); const act=!!(rg.from||rg.to);
   const base=act?state.clientes.filter(c=>inDateRange(c.criado,rg.from,rg.to)):state.clientes;
-  const list=base.filter(c=>!q||[c.numero,c.nome,c.apelido,c.empresa,c.email,c.cidade,c.segmento].join(' ').toLowerCase().includes(q));
+  const fase=state._faseFilter||'';
+  const list=base.filter(c=>!q||[c.numero,c.nome,c.apelido,c.empresa,c.email,c.cidade,c.segmento].join(' ').toLowerCase().includes(q)).filter(c=>!fase||(c.fase||'Lead')===fase);
   const pg=paginate(list,'clientes');
   return `
   <div class="grid cols-4">
-    ${kpi(act?'Novos clientes':'Total de clientes', fmtN(base.length), {icon:'users', sub:act?'no período':''})}
+    ${kpi(act?'Novos clientes':'Total de contactos', fmtN(base.length), {icon:'users', sub:act?'no período':''})}
+    ${kpi('Leads quentes '+infoTip('leadscore'), fmtN(base.filter(c=>leadScore(c)>=70).length), {icon:'target', sub:'score ≥ 70'})}
     ${kpi('Clientes Ouro '+infoTip('loyalty'), fmtN(base.filter(c=>c.loyalty==='Ouro').length), {icon:'trend', sub:'fidelização'})}
     ${kpi('Valor médio/cliente', money(base.reduce((s,c)=>s+clientValue(c.id),0)/(base.length||1)), {icon:'euro'})}
-    ${kpi('Segmentos ativos', fmtN(new Set(base.map(c=>c.segmento)).size), {icon:'target'})}
   </div>
   ${dateBar('cli', act?`${base.length} clientes registados no período`:'')}
   <div class="card card-pad">
@@ -1829,18 +1832,24 @@ views.clientes = () => {
         <button class="btn" data-act="new" data-type="cliente">${ic('users',16)} Novo cliente</button>
       </div>
     </div>
-    <div class="table-wrap"><table><thead><tr><th>N.º</th><th>Cliente</th><th>Empresa</th><th>Função</th><th>Cidade</th><th>Segmento</th><th>Loyalty</th><th class="t-right">Valor</th><th></th></tr></thead><tbody>
-      ${list.length?pg.slice.map(c=>`<tr data-act="open-client" data-id="${c.id}" style="cursor:pointer">
+    <div class="toolbar" style="gap:6px;margin-bottom:12px;flex-wrap:wrap">
+      <span class="muted" style="font-size:.78rem;font-weight:700;align-self:center">Fase do lead:</span>
+      <button class="btn-sec btn-sm" data-fasefilter=""${!fase?' style="border-color:var(--g400);color:var(--g700);background:var(--g100)"':''}>Todas (${base.length})</button>
+      ${FASES.map(f=>`<button class="btn-sec btn-sm" data-fasefilter="${f}"${fase===f?' style="border-color:var(--g400);color:var(--g700);background:var(--g100)"':''}>${f} (${base.filter(c=>(c.fase||'Lead')===f).length})</button>`).join('')}
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>N.º</th><th>Contacto</th><th>Empresa</th><th>Fase</th><th>Função</th><th>Cidade</th><th>Segmento</th><th>Loyalty</th><th class="t-right">Valor</th><th></th></tr></thead><tbody>
+      ${list.length?pg.slice.map(c=>{const sc=leadScore(c);const si=scoreInfo(sc);return `<tr data-act="open-client" data-id="${c.id}" style="cursor:pointer">
         <td class="muted">${esc(c.numero)}</td>
-        <td><div class="cell-main">${esc(c.nome)} ${esc(c.apelido)}</div><div class="cell-sub">${esc(c.email)}</div></td>
+        <td><div class="cell-main">${esc(c.nome)} ${esc(c.apelido)} <span class="pill" style="background:${si.c}22;color:${si.c};font-size:.64rem" title="Lead score ${sc}/100">${si.l} ${sc}</span></div><div class="cell-sub">${esc(c.email)}</div></td>
         <td>${esc(c.empresa||'-')}</td>
+        <td><span class="pill ${faseColor(c.fase||'Lead')}">${esc(c.fase||'Lead')}</span></td>
         <td>${c.funcao?`<span class="chip">${esc(c.funcao)}</span>`:'<span class="muted">-</span>'}</td>
         <td>${esc(c.cidade||'-')}</td>
         <td><span class="chip">${esc(c.segmento||'-')}</span></td>
         <td><span class="pill ${c.loyalty==='Ouro'?'amber':c.loyalty==='Prata'?'grey':'green'}">${esc(c.loyalty||'Bronze')}</span></td>
         <td class="t-right"><strong>${money(clientValue(c.id))}</strong></td>
         <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="cliente" data-id="${c.id}" data-stop>Editar</button></div></td>
-      </tr>`).join('') : `<tr><td colspan="9">${empty('Sem clientes','Crie o primeiro cliente para começar.')}</td></tr>`}
+      </tr>`;}).join('') : `<tr><td colspan="10">${empty('Sem contactos','Crie o primeiro contacto para começar.')}</td></tr>`}
     </tbody></table></div>
     ${pager('clientes',pg)}
   </div>`;
@@ -1853,7 +1862,8 @@ function openClient360(id){ drawer360Emp=null;
   const cons=state.consentimentos.filter(x=>x.clienteId===id);
   const peds=state.pedidos.filter(x=>x.clienteId===id);
   const val=clientValue(id);
-  $('#drawerTitle').innerHTML=`<h3 style="font-size:1.1rem;font-weight:800">${esc(c.nome)} ${esc(c.apelido)}</h3><div class="sub" style="color:var(--muted);font-size:.82rem">Cliente n.º ${esc(c.numero)} · ${esc(c.empresa||'-')}</div>`;
+  const sc=leadScore(c); const si=scoreInfo(sc); const fz=c.fase||'Lead';
+  $('#drawerTitle').innerHTML=`<h3 style="font-size:1.1rem;font-weight:800">${esc(c.nome)} ${esc(c.apelido)} <span class="pill ${faseColor(fz)}" style="font-size:.66rem;vertical-align:middle">${esc(fz)}</span> <span class="pill" style="background:${si.c}22;color:${si.c};font-size:.66rem;vertical-align:middle" title="Lead score">${si.l} ${sc}</span></h3><div class="sub" style="color:var(--muted);font-size:.82rem">Contacto n.º ${esc(c.numero)} · ${esc(c.empresa||'-')}</div>`;
   $('#drawerBody').innerHTML=`
     <div class="grid cols-2">
       ${kpi('Valor total', money(val), {icon:'euro'})}
@@ -3222,6 +3232,9 @@ const refClientes = ()=>state.clientes.map(c=>({v:c.id,t:`${c.numero} · ${c.nom
 // FUNCOES = lista PADRÃO; a lista ativa é editável em Definições (state.settings.funcoes).
 const FUNCOES=['','Dono / Sócio-gerente','Administração','Financeiro / Contabilidade','Comercial / Vendas','Compras','Marketing','Técnico / Operações','Recursos Humanos','Rececionista / Geral','Outro'];
 function funcoesList(){ const f=state.settings&&state.settings.funcoes; return (Array.isArray(f)&&f.length)?f:FUNCOES.filter(Boolean); }
+// Ciclo de vida do contacto (gestão de leads): Lead → MQL (interesse) → SQL (oportunidade) → Cliente
+const FASES=['Lead','MQL','SQL','Cliente','Perdido'];
+const faseColor=f=>({Lead:'grey',MQL:'blue',SQL:'amber',Cliente:'green',Perdido:'red'}[f]||'grey');
 const SCHEMAS = {
   cliente:{store:'clientes',label:'Contacto',code:c=>{c.numero=c.numero||pad(++state.settings.numeroSeq,4);},after:c=>{ const e=state.empresas.find(x=>x.id===c.empresaId); if(e){ c.empresa=e.nome; if(!c.cidade)c.cidade=e.cidade; if(!c.regiao)c.regiao=e.regiao; } else if(!c.empresaId){ c.empresa=c.empresa||''; } },fields:[
     {n:'nome',l:'Nome',req:1},{n:'apelido',l:'Apelido',req:1},
@@ -3232,6 +3245,7 @@ const SCHEMAS = {
     {n:'nif',l:'NIF (pessoal)',hint:'9 dígitos - validado'},{n:'cidade',l:'Cidade'},
     {n:'regiao',l:'Região (IVA)',type:'select',opts:['Continente','Madeira','Açores'].map(x=>({v:x,t:x}))},
     {n:'segmento',l:'Segmento',type:'select',opts:['Micro','PME','Grande Empresa'].map(x=>({v:x,t:x}))},
+    {n:'fase',l:'Fase (ciclo de vida)',type:'select',opts:FASES.map(x=>({v:x,t:x})),def:'Lead',hint:'Lead → MQL (demonstrou interesse) → SQL (oportunidade real) → Cliente'},
     {n:'origem',l:'Origem',type:'select',opts:()=>(state.settings.origens||[]).map(x=>({v:x,t:x}))},
     {n:'notas',l:'Notas',type:'textarea',full:1},
   ]},
@@ -4378,6 +4392,7 @@ document.addEventListener('click', async e=>{
 // tabs e filtros
 document.addEventListener('click', e=>{
   const pt=e.target.closest('[data-proptab]'); if(pt){ state._propTab=pt.dataset.proptab; render(); }
+  const ff=e.target.closest('[data-fasefilter]'); if(ff){ state._faseFilter=ff.dataset.fasefilter; render(); return; }
   const rt=e.target.closest('[data-rgpdtab]'); if(rt){ state._rgpdTab=rt.dataset.rgpdtab; render(); }
   const ct=e.target.closest('[data-comtab]'); if(ct){ state._comTab=ct.dataset.comtab; render(); }
   const ck=e.target.closest('[data-check]'); if(ck){ const i=ck.dataset.check; state.checklistRGPD[i]=!state.checklistRGPD[i]; save(); render(); }
@@ -4704,6 +4719,8 @@ function gerarExemplos(nCli,nProp,nEmp){
     for(let j=0;j<nlin;j++){ const pr=gnRand(prods); linhas.push({produtoId:pr.id,descricao:pr.nome,qtd:1+Math.floor(Math.random()*6),preco:pr.preco,iva:ivaForRegion(pr.iva,cli.regiao||'Continente'),modelo:pr.modelo||'Único'}); }
     state.propostas.push({id:uid('prop'),numero:nextProposalNumber(),titulo:gnRand(['Implementação CRM','Plano Analytics','Suporte Premium','Workshop de equipa','Conformidade RGPD','Licenciamento anual'])+' - '+cli.empresa,empresaId:cli.empresaId||'',clienteId:cli.id,meses:gnRand([12,12,24,36]),criada:gnDate(),validade:addDays(todayISO(),30),estado:gnRand(['Criada','Enviada','Negociação','Negociação','Ganha','Ganha','Perdida']),templateId:seedTplId(),linhas,criadoPor:(currentUser()?currentUser().id:null),criadoEm:gnDate(),alteradoEm:todayISO(),fonte:'gerado'});
   }
+  // fase do ciclo de vida dos contactos gerados (têm propostas/emails)
+  state.clientes.forEach(c=>{ if(c.fase==null){ const pr=state.propostas.filter(p=>p.clienteId===c.id); const ev=state.envios.filter(e=>e.clienteId===c.id); c.fase=pr.some(p=>p.estado==='Ganha')?'Cliente':pr.length?'SQL':(ev.some(e=>e.aberto||e.clicado)?'MQL':'Lead'); } });
   recalcLoyalty(); save(); render(); toast('Exemplos gerados',`${nEmp} empresa(s) · ${nCli} contacto(s) · ${nProp} proposta(s)`);
 }
 
