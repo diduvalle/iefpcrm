@@ -38,6 +38,10 @@ Igual ao das empresas: filtro temporal, KPIs (nº de contactos, valor médio - p
 
 Há ainda um **filtro por Fase do lead** (chips: Todas / Lead / MQL / SQL / Cliente / Perdido) e cada linha mostra o **selo de score** (Quente / Morno / Frio) ao lado do nome - para priorizares o esforço comercial de relance.
 
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/clientes.png"><source src="/manual/assets/videos/gestao-leads-pt.webm" type="video/webm"><source src="/manual/assets/videos/gestao-leads-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/gestao-leads-pt.vtt" srclang="pt" label="Português" default></video>
+
+*Gestão de leads: fase do ciclo de vida, lead scoring, filtro por fase e o funil de aquisição no Analytics.*
+
 ### Criar / editar - campo a campo
 - **Nome** e **Apelido** *(nome obrigatório)*.
 - **Empresa** - escolhe da lista de Empresas; **Cargo** na empresa.

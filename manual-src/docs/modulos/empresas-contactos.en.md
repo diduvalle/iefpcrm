@@ -38,6 +38,10 @@ Same as companies: date filter, KPIs (number of contacts, average value - may ap
 
 There is also a **Lead stage filter** (chips: All / Lead / MQL / SQL / Customer / Lost) and each row shows the **score badge** (Hot / Warm / Cold) next to the name - so you can prioritise your sales effort at a glance.
 
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/clientes.png"><source src="/manual/assets/videos/gestao-leads-en.webm" type="video/webm"><source src="/manual/assets/videos/gestao-leads-en.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/gestao-leads-en.vtt" srclang="en" label="English" default></video>
+
+*Lead management: lifecycle stage, lead scoring, the stage filter and the acquisition funnel in Analytics.*
+
 ### Create / edit - field by field
 - **First name** and **Last name** *(name required)*.
 - **Company** - pick from the Companies list; **Job title** at the company.

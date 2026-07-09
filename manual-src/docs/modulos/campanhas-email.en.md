@@ -61,6 +61,10 @@ Name, subject, color, show logo, greeting, body, button text/link, signature. Us
 !!! tip "See the behavioural triggers fire"
     In **Send history**, open an email and use **Simulate open** or **Simulate click**: the lead is marked as opened/clicked and the matching automation **fires right in front of you** (the *hot lead* trigger also re-evaluates the score). Perfect for demonstrating *nurturing* without waiting for real behaviour.
 
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/campanhas.png"><source src="/manual/assets/videos/automacao-comportamental-en.webm" type="video/webm"><source src="/manual/assets/videos/automacao-comportamental-en.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/automacao-comportamental-en.vtt" srclang="en" label="English" default></video>
+
+*Creating a behavioural automation (trigger "email opened" + stage and score conditions) and watching it fire with "Simulate open".*
+
 ### Metrics
 **Open** and **click** rate per send and aggregated.
 

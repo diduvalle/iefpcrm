@@ -61,6 +61,10 @@ Regras **gatilho → email**:
 !!! tip "Ver os gatilhos comportamentais a disparar"
     No **Histórico de envios**, abre um email e usa **Simular abertura** ou **Simular clique**: o lead é marcado como aberto/clicado e a automação correspondente **dispara à tua frente** (o *email quente* também reavalia o score). Ideal para demonstrar o *nurturing* sem esperar por comportamento real.
 
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/campanhas.png"><source src="/manual/assets/videos/automacao-comportamental-pt.webm" type="video/webm"><source src="/manual/assets/videos/automacao-comportamental-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/automacao-comportamental-pt.vtt" srclang="pt" label="Português" default></video>
+
+*Criar uma automação comportamental (gatilho "email aberto" + condições de fase e score) e vê-la disparar com "Simular abertura".*
+
 ### Métricas
 Taxa de **abertura** e **cliques** por envio e agregadas.
 
