@@ -4,7 +4,7 @@ O módulo de **KPIs & Dashboards** - o foco da UFCD **10868**. Tudo respeita o *
 
 <video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/analytics.png"><source src="/manual/assets/videos/analytics-pt.webm" type="video/webm"><source src="/manual/assets/videos/analytics-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/analytics-pt.vtt" srclang="pt" label="Português" default></video>
 
-*Funil de vendas, conversão, ticket médio, churn e top clientes (UFCD 10868).*
+*Funil de vendas, conversão, ticket médio, churn e top empresas (UFCD 10868).*
 
 ## Filtro e comparação
 
@@ -21,7 +21,7 @@ O módulo de **KPIs & Dashboards** - o foco da UFCD **10868**. Tudo respeita o *
 - **Churn** - perda de clientes (menor é melhor).
 - **Receita por mês** - barras das propostas ganhas no período.
 - **Vendas por estado** - distribuição por estado do pipeline.
-- **Top clientes** - por valor ganho.
+- **Top empresas** - por valor ganho (as vendas agregam-se por **empresa**, não por contacto).
 - **Análise de perdas** - agrupa os **motivos de perda** das propostas perdidas (barras + maior causa).
 - **CAC** - Custo de Aquisição de Cliente = **orçamento de marketing ÷ novos clientes**. Defines o orçamento no campo próprio (**Aplicar**).
 - **LTV / CAC** - rácio entre o valor do cliente e o custo de o adquirir; fica **verde quando ≥ 3:1** (saudável).
@@ -30,7 +30,7 @@ O módulo de **KPIs & Dashboards** - o foco da UFCD **10868**. Tudo respeita o *
 
 ## Exportar
 
-Botão **Imprimir relatório** (no callout) → gera um PDF com **KPIs** (e comparação, se ativa), **funil** e **top clientes**, respeitando o período.
+Botão **Imprimir relatório** (no callout) → gera um PDF com **KPIs** (e comparação, se ativa), **funil** e **top empresas**, respeitando o período.
 
 !!! tip "Balões pedagógicos"
     Vários indicadores têm o ícone **ⓘ** com a definição do conceito e a página dos slides (conversão, ticket, churn, funil, funil de aquisição, origem, LTV, CAC, lead scoring, ciclo de vida do lead).

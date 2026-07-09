@@ -4,7 +4,7 @@ The **KPIs & Dashboards** module - the focus of UFCD **10868**. Everything respe
 
 <video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/analytics.png"><source src="/manual/assets/videos/analytics-en.webm" type="video/webm"><source src="/manual/assets/videos/analytics-en.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/analytics-en.vtt" srclang="en" label="English" default></video>
 
-*Sales funnel, conversion, average ticket, churn and top clients (UFCD 10868).*
+*Sales funnel, conversion, average ticket, churn and top companies (UFCD 10868).*
 
 ## Filter and comparison
 
@@ -21,7 +21,7 @@ The **KPIs & Dashboards** module - the focus of UFCD **10868**. Everything respe
 - **Churn** - loss of customers (lower is better).
 - **Revenue per month** - bars of the proposals won in the period.
 - **Sales by status** - distribution by pipeline status.
-- **Top customers** - by value won.
+- **Top companies** - by value won (sales aggregate by **company**, not by contact).
 - **Loss analysis** - groups the **loss reasons** of lost proposals (bars + biggest cause).
 - **CAC** - Customer Acquisition Cost = **marketing budget ÷ new customers**. You set the budget in the dedicated field (**Apply**).
 - **LTV / CAC** - ratio between customer value and the cost of acquiring them; turns **green when ≥ 3:1** (healthy).
@@ -30,7 +30,7 @@ The **KPIs & Dashboards** module - the focus of UFCD **10868**. Everything respe
 
 ## Export
 
-**Print report** button (in the callout) → generates a PDF with **KPIs** (and comparison, if enabled), **funnel** and **top customers**, respecting the period.
+**Print report** button (in the callout) → generates a PDF with **KPIs** (and comparison, if enabled), **funnel** and **top companies**, respecting the period.
 
 !!! tip "Learning tooltips"
     Several indicators have the **ⓘ** icon with the definition of the concept and the slides page (conversion, ticket, churn, funnel, acquisition funnel, source, LTV, CAC, lead scoring, lead lifecycle).

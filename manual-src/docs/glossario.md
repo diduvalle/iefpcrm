@@ -9,7 +9,7 @@
 | **Entrega** | *Snapshot* do trabalho do formando, submetido ao formador (máx. 2). |
 | **Código de recuperação** | Código mostrado uma vez ao criar a turma; recupera a palavra-passe do formador. |
 | **Modelo de proposta** | Estrutura por blocos que define o aspeto do PDF da proposta. |
-| **Pipeline** | Conjunto de propostas por estado (Kanban): Lead → Qualificação → Negociação → Ganha → Perdida. |
+| **Pipeline** | Conjunto de propostas por estado (Kanban): Criada → Enviada → Negociação → Ganha / Perdida. |
 | **RoPA** | Registo das Atividades de Tratamento (RGPD). |
 | **DSAR** | Pedido de exercício de direitos do titular dos dados. |
 | **Loyalty** | Nível de fidelização da **empresa** (Bronze/Prata/Ouro), pelo volume de compras dela; o contacto herda-o. Dá desconto nas propostas. |

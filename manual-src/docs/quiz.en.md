@@ -19,7 +19,7 @@ window.QUIZ = [
     opts: ["To comply with the GDPR", "To target campaigns and messages at groups with similar characteristics", "To calculate VAT", "To generate the proposal PDF"],
     correct: 1, exp: "Segmentation groups by persona/segment for more targeted marketing." },
   { q: "In the IEFP CRM pipeline, what is the order of proposal stages?",
-    opts: ["Lead → Qualification → Negotiation → Won → Lost", "Won → Lost → Lead → Negotiation", "Negotiation → Lead → Won", "Lead → Won → Qualification → Lost"],
+    opts: ["Created → Sent → Negotiation → Won / Lost", "Won → Lost → Created → Negotiation", "Negotiation → Created → Won", "Created → Won → Sent → Lost"],
     correct: 0, exp: "It is the proposal Kanban sequence, from creation to close." },
   { q: "Under the GDPR, a valid consent must be:",
     opts: ["Verbal only", "Freely given, specific, informed and unambiguous", "Permanent and irrevocable", "Given by a third party on behalf of the data subject"],

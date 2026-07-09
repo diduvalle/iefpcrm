@@ -19,7 +19,7 @@ window.QUIZ = [
     opts: ["Para cumprir o RGPD", "Para direcionar campanhas e mensagens a grupos com características semelhantes", "Para calcular o IVA", "Para gerar o PDF da proposta"],
     correct: 1, exp: "A segmentação agrupa por persona/segmento para um marketing mais direcionado." },
   { q: "No pipeline do IEFP CRM, qual é a ordem dos estados das propostas?",
-    opts: ["Lead → Qualificação → Negociação → Ganha → Perdida", "Ganha → Perdida → Lead → Negociação", "Negociação → Lead → Ganha", "Lead → Ganha → Qualificação → Perdida"],
+    opts: ["Criada → Enviada → Negociação → Ganha / Perdida", "Ganha → Perdida → Criada → Negociação", "Negociação → Criada → Ganha", "Criada → Ganha → Enviada → Perdida"],
     correct: 0, exp: "É a sequência do Kanban de propostas, da criação ao fecho." },
   { q: "Um consentimento válido, no RGPD, deve ser:",
     opts: ["Apenas verbal", "Livre, específico, informado e inequívoco", "Permanente e irrevogável", "Dado por um terceiro em nome do titular"],

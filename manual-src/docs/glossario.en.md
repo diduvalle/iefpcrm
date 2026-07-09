@@ -9,7 +9,7 @@
 | **Submission** | *Snapshot* of the trainee's work, submitted to the trainer (max. 2). |
 | **Recovery code** | Code shown once when creating the class; recovers the trainer's password. |
 | **Proposal template** | Block-based structure that defines the look of the proposal PDF. |
-| **Pipeline** | Set of proposals by stage (Kanban): Lead → Qualification → Negotiation → Won → Lost. |
+| **Pipeline** | Set of proposals by status (Kanban): Created → Sent → Negotiation → Won / Lost. |
 | **RoPA** | Records of Processing Activities (GDPR). |
 | **DSAR** | Request to exercise the rights of the data subject. |
 | **Loyalty** | The **company's** loyalty tier (Bronze/Silver/Gold), from its purchase volume; the contact inherits it. Gives a discount on proposals. |
