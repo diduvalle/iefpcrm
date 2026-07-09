@@ -875,6 +875,9 @@ const INFO={
   catalogo:{t:'Catálogo (Família › Subfamília › Artigo)',x:'Estrutura hierárquica para organizar e codificar produtos/serviços automaticamente.',r:'Administração de CRM (10870)'},
   pedido:{t:'Pedido do titular (DSAR)',x:'Direitos: acesso, retificação, apagamento, portabilidade, oposição, limitação. Resposta em 1 mês.',r:'10870 · slide 110 (direitos dos titulares)'},
   agendado:{t:'Emails agendados',x:'Passos de sequências com atraso, à espera da data de envio - processados quando a data chega.',r:'Marketing automation (10868)'},
+  fase:{t:'Ciclo de vida do lead (Lead → Cliente)',x:'Etapa do contacto no funil: Lead → MQL (Marketing Qualified Lead, já demonstrou interesse - abriu/clicou) → SQL (Sales Qualified Lead, oportunidade real com proposta) → Cliente. Qualificar o lead diz qual é o próximo passo e onde investir o esforço comercial.',r:'Boa prática CRM - qualificação de leads (10868)'},
+  leadfunil:{t:'Funil de aquisição',x:'Conversão dos contactos ao longo do ciclo de vida (Lead → MQL → SQL → Cliente). Mostra onde os leads se perdem e a eficácia da qualificação. Complementa o funil de VENDAS (que mede por proposta).',r:'10868 · slide 122 (criar leads / funil)'},
+  gatilhos:{t:'Gatilhos comportamentais',x:'Automações despoletadas pelo COMPORTAMENTO do lead - abriu/clicou um email, ficou "quente" (score ≥ 70) ou está sem contacto há N dias - e não só por eventos de ciclo de vida. É a base do nurturing e do marketing automation moderno.',r:'10868 · slide 88 (marketing automatizado)'},
 };
 function infoTip(key){ const d=INFO[key]; if(!d) return ''; return `<span class="infotip" tabindex="0" role="button" aria-label="${esc(d.t)}"><span class="infotip-ic">${ic('info',12)}</span><span class="infotip-pop"><strong>${esc(d.t)}</strong><span class="ix">${esc(d.x)}</span><span class="ref">${ic(/^\s*\d{4,5}\b/.test(d.r||'')?'slides':'book',11)} ${esc(d.r)}</span></span></span>`; }
 /* grelha de glossário reutilizável: [termo, definição, referência ao slide] */
@@ -1833,7 +1836,7 @@ views.clientes = () => {
       </div>
     </div>
     <div class="toolbar" style="gap:6px;margin-bottom:12px;flex-wrap:wrap">
-      <span class="muted" style="font-size:.78rem;font-weight:700;align-self:center">Fase do lead:</span>
+      <span class="muted" style="font-size:.78rem;font-weight:700;align-self:center">Fase do lead ${infoTip('fase')}:</span>
       <button class="btn-sec btn-sm" data-fasefilter=""${!fase?' style="border-color:var(--g400);color:var(--g700);background:var(--g100)"':''}>Todas (${base.length})</button>
       ${FASES.map(f=>`<button class="btn-sec btn-sm" data-fasefilter="${f}"${fase===f?' style="border-color:var(--g400);color:var(--g700);background:var(--g100)"':''}>${f} (${base.filter(c=>(c.fase||'Lead')===f).length})</button>`).join('')}
     </div>
@@ -2215,6 +2218,16 @@ views.analytics = () => {
     <div class="card card-pad">
       <div class="section-head" style="margin-bottom:14px"><div><h3>Top empresas</h3><div class="sub">Por valor ganho${act?' no período':''}</div></div></div>
       <div class="mini-list">${topClients.length?topClients.map((x,i)=>`<div class="mini-item"><span class="ic">${i+1}</span><span class="grow"><strong>${esc(x.name)}</strong><div class="progress" style="margin-top:6px"><i style="width:${x.v/tmax*100}%"></i></div></span><strong>${money(x.v)}</strong></div>`).join(''):empty('Sem dados no período')}</div>
+    </div>
+  </div>
+  <div class="split eq">
+    <div class="card card-pad">
+      <div class="section-head" style="margin-bottom:16px"><div><h3>Funil de aquisição ${infoTip('leadfunil')}</h3><div class="sub">Ciclo de vida dos leads (Lead → Cliente)${act?' · criados no período':''}</div></div></div>
+      ${(()=>{ const lb=act?state.clientes.filter(c=>inDateRange(c.criado,r.from,r.to)):state.clientes; const ff=['Lead','MQL','SQL','Cliente'].map(f=>({f,v:lb.filter(c=>(c.fase||'Lead')===f).length})); const fm=Math.max(...ff.map(x=>x.v),1); const cores={Lead:'#8dd3a6',MQL:'#3cba6f',SQL:'#00A651',Cliente:'#006B3C'}; return lb.length?`<div class="funnel">${ff.map((x,i)=>{const w=Math.max(8,x.v/fm*100);const cv=i>0&&ff[i-1].v?Math.round(x.v/ff[i-1].v*100):100;return `<div class="funnel-row"><div class="funnel-bar" style="width:${w}%;background:${cores[x.f]}">${x.f} · ${x.v}</div><span class="funnel-meta">${i>0?cv+'%':''}</span></div>`;}).join('')}</div><div class="callout info" style="margin-top:16px">${ic('alert',16)}<div class="ctxt"><strong>Qualificar ${infoTip('fase')}:</strong> um lead avança Lead → MQL (interesse) → SQL (oportunidade) → Cliente. Saber a fase diz onde investir o esforço comercial.</div></div>`:empty('Sem contactos no período'); })()}
+    </div>
+    <div class="card card-pad">
+      <div class="section-head" style="margin-bottom:14px"><div><h3>Aquisição por origem ${infoTip('origem')}</h3><div class="sub">Que canal traz melhores clientes (ROI)</div></div></div>
+      ${(()=>{ const lb=act?state.clientes.filter(c=>inDateRange(c.criado,r.from,r.to)):state.clientes; const ag={}; lb.forEach(c=>{const o=c.origem||'(sem origem)';(ag[o]=ag[o]||{o,total:0,cli:0,val:0});ag[o].total++;if((c.fase||'')==='Cliente')ag[o].cli++;ag[o].val+=clientValue(c.id);}); const ls=Object.values(ag).sort((a,b)=>b.val-a.val).slice(0,7); return ls.length?`<div class="table-wrap"><table class="tbl"><thead><tr><th>Origem</th><th class="t-right">Leads</th><th class="t-right">Clientes</th><th class="t-right">Conv.</th><th class="t-right">Valor</th></tr></thead><tbody>${ls.map(x=>`<tr><td><strong>${esc(x.o)}</strong></td><td class="t-right">${x.total}</td><td class="t-right">${x.cli}</td><td class="t-right">${x.total?Math.round(x.cli/x.total*100):0}%</td><td class="t-right"><strong>${money(x.val)}</strong></td></tr>`).join('')}</tbody></table></div>`:empty('Sem dados no período'); })()}
     </div>
   </div>
   <div class="split eq">
@@ -2805,7 +2818,7 @@ function renderAutoForm(){
   $('#modalForm').innerHTML=`
     <div class="form-grid">
       <div class="field full"><label>Nome *</label><input name="anome" value="${esc(d.nome)}"></div>
-      <div class="field"><label>Evento (gatilho)</label><select name="atrigger">${TRIGGERS.map(t=>`<option value="${t.v}" ${t.v===d.trigger?'selected':''}>${esc(t.t)}</option>`).join('')}</select></div>
+      <div class="field"><label>Evento (gatilho) ${infoTip('gatilhos')}</label><select name="atrigger">${TRIGGERS.map(t=>`<option value="${t.v}" ${t.v===d.trigger?'selected':''}>${esc(t.t)}</option>`).join('')}</select></div>
       <div class="field"><label>Estado</label><select name="aestado"><option ${d.estado==='Ativa'?'selected':''}>Ativa</option><option ${d.estado==='Inativa'?'selected':''}>Inativa</option></select></div>
       ${d.trigger==='sem-contacto'?`<div class="field full"><label>Dias sem contacto</label><input name="adias" type="number" min="1" step="1" value="${esc(d.condDias||7)}"><span class="hint">Dispara para leads sem email enviado há este nº de dias.</span></div>`:''}
     </div>
