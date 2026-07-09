@@ -2329,7 +2329,11 @@
 <li><strong>Website</strong>, <strong>Phone</strong>, <strong>Email</strong>, <strong>Notes</strong>.</li>
 </ul>
 <h3 id="360-profile">360° profile<a class="headerlink" href="#360-profile" title="Permanent link">¶</a></h3>
-<p>Shows the <strong>tax data</strong>, the company's <strong>contact list</strong> and a summary of <strong>proposals / won / value</strong>.</p>
+<p>Shows the <strong>tax data</strong>, the company's <strong>contact list</strong>, the company's <strong>loyalty tier</strong> and a summary of <strong>proposals / won / value won</strong>. This is where the commercial history lives - because <strong>the sale belongs to the company</strong>, not the person.</p>
+<div class="admonition note">
+<p class="admonition-title">Sales and loyalty belong to the <strong>Company</strong>, not the contact</p>
+<p>The sale (proposal) and its value are anchored to the <strong>company</strong>: a person can <strong>change company</strong> and the history <strong>does not follow them</strong> - it stays on the account where the deal happened. <strong>Loyalty</strong> (Bronze/Silver/Gold) is also the <strong>company's</strong>, computed from the <strong>company's purchase volume</strong>; each contact <strong>inherits</strong> their company's tier. A contact <strong>without a company</strong> (an individual) uses <strong>their own</strong> volume. The proposal <strong>discount</strong> always comes from the <strong>account's</strong> tier (the company, or the contact when they are an individual).</p>
+</div>
 <hr>
 <h2 id="contacts">Contacts<a class="headerlink" href="#contacts" title="Permanent link">¶</a></h2>
 <p>The people (the former "customers").</p>
@@ -2349,11 +2353,11 @@
 <li><strong>Segment</strong> - Lead / Micro / SME / Large Enterprise.</li>
 <li><strong>Stage (lifecycle)</strong> - <strong>Lead</strong> → <strong>MQL</strong> (<em>Marketing Qualified Lead</em>, has shown interest) → <strong>SQL</strong> (<em>Sales Qualified Lead</em>, a real opportunity with a proposal) → <strong>Customer</strong> / <strong>Lost</strong>. Qualifying the lead tells you the <strong>next step</strong>. The app <strong>infers</strong> the initial stage from proposals and email <em>engagement</em>.</li>
 <li><strong>Source</strong> - acquisition channel (editable list in Settings): Website, Referral, Trade fair, Email Campaign… - the basis of the <strong>acquisition funnel</strong> and <strong>ROI by source</strong> in Analytics.</li>
-<li><strong>Loyalty</strong> - Bronze / Silver / Gold (recalculated by purchase volume; gives a <strong>discount</strong> on proposals).</li>
 <li><strong>Notes</strong>.</li>
 </ul>
+<p><strong>Loyalty is not edited here</strong>: it is <strong>inherited from the company</strong> (computed automatically from the company's purchase volume). See the note above.</p>
 <h3 id="360-profile_1">360° profile<a class="headerlink" href="#360-profile_1" title="Permanent link">¶</a></h3>
-<p>Full data, <strong>loyalty level</strong>, the contact's <strong>proposals</strong> and history.</p>
+<p>Full data, the <strong>loyalty level inherited from the company</strong>, the <strong>proposals</strong> negotiated with the contact, and history.</p>
 <hr>
 <h2 id="bulk-import-csv">Bulk import (CSV)<a class="headerlink" href="#bulk-import-csv" title="Permanent link">¶</a></h2>
 <p>Both <strong>Contacts</strong> and <strong>Products</strong> have <strong>Import</strong> + <strong>Template</strong>:</p>

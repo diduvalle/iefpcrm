@@ -2124,8 +2124,16 @@
 <td>Automático (<code>PROP-{ano}-{nº}</code>), só leitura - reinicia a cada ano.</td>
 </tr>
 <tr>
-<td><strong>Cliente</strong></td>
-<td>Escolhe da lista de contactos. Define o <strong>IVA por região</strong> e o <strong>desconto de loyalty</strong>.</td>
+<td><strong>Empresa (cliente da venda)</strong></td>
+<td>A <strong>empresa</strong> a quem se vende - é a <strong>âncora da venda</strong>. O valor, o loyalty e o desconto vivem aqui. Pesquisa por nome ou NIPC. <em>(Uma venda a um particular fica sem empresa.)</em></td>
+</tr>
+<tr>
+<td><strong>Contacto (com quem se negoceia)</strong></td>
+<td>A pessoa da empresa com quem se fala. Escolher o contacto <strong>auto-preenche a empresa</strong>. É informativo: se a pessoa <strong>mudar de empresa</strong>, a venda <strong>não vai com ela</strong> - fica na empresa.</td>
+</tr>
+<tr>
+<td><strong>Meses de fidelização</strong></td>
+<td>Duração do compromisso <strong>SaaS recorrente</strong>; entra no cálculo do valor total do contrato (TCV).</td>
 </tr>
 <tr>
 <td><strong>Título</strong></td>
@@ -2137,16 +2145,17 @@
 </tr>
 <tr>
 <td><strong>Estado</strong></td>
-<td>Lead / Qualificação / Negociação / Ganha / Perdida.</td>
+<td><strong>Criada / Enviada / Negociação / Ganha / Perdida.</strong> Ao passar a <em>Perdida</em> regista-se o <strong>motivo da perda</strong>.</td>
 </tr>
 </tbody>
 </table>
+<p>O <strong>IVA</strong> usa a <strong>região da empresa</strong> e o <strong>desconto</strong> vem do <strong>nível de loyalty da empresa</strong> (ou do contacto, se for particular) - ver <a href="../../empresas-contactos/">Empresas &amp; Contactos</a>.</p>
 <h2 id="passo-a-passo">Passo a passo<a class="headerlink" href="#passo-a-passo" title="Permanent link">¶</a></h2>
 <ol>
 <li><strong>Propostas → + Proposta</strong>.</li>
-<li>Escolhe o <strong>cliente</strong> (define IVA e desconto).</li>
-<li>Preenche <strong>título</strong> e <strong>validade</strong>.</li>
-<li>Adiciona as <strong><a href="../linhas/">linhas do catálogo</a></strong>.</li>
+<li>Escolhe a <strong>Empresa</strong> (âncora da venda) e o <strong>Contacto</strong> com quem negoceias.</li>
+<li>Define os <strong>meses de fidelização</strong> (SaaS), o <strong>título</strong> e a <strong>validade</strong>.</li>
+<li>Adiciona as <strong><a href="../linhas/">linhas do catálogo</a></strong> (cada uma é Único/pontual ou Mensal/Anual/recorrente).</li>
 <li><strong>Guardar</strong>.</li>
 </ol>
 <div class="admonition tip">

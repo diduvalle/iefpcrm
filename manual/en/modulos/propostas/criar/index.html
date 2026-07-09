@@ -2124,8 +2124,16 @@
 <td>Automatic (<code>PROP-{year}-{no.}</code>), read-only - resets each year.</td>
 </tr>
 <tr>
-<td><strong>Client</strong></td>
-<td>Choose from the contacts list. Sets the <strong>VAT by region</strong> and the <strong>loyalty discount</strong>.</td>
+<td><strong>Company (buyer)</strong></td>
+<td>The <strong>company</strong> you are selling to - the <strong>anchor of the sale</strong>. Value, loyalty and discount live here. Search by name or NIPC. <em>(A sale to an individual has no company.)</em></td>
+</tr>
+<tr>
+<td><strong>Contact (who you negotiate with)</strong></td>
+<td>The person at the company you talk to. Choosing the contact <strong>auto-fills the company</strong>. It is informative: if the person <strong>changes company</strong>, the sale <strong>does not follow them</strong> - it stays with the company.</td>
+</tr>
+<tr>
+<td><strong>Loyalty months</strong></td>
+<td>Duration of the <strong>recurring SaaS</strong> commitment; it feeds the total contract value (TCV).</td>
 </tr>
 <tr>
 <td><strong>Title</strong></td>
@@ -2137,16 +2145,17 @@
 </tr>
 <tr>
 <td><strong>Status</strong></td>
-<td>Lead / Qualification / Negotiation / Won / Lost.</td>
+<td><strong>Created / Sent / Negotiation / Won / Lost.</strong> Moving to <em>Lost</em> records the <strong>loss reason</strong>.</td>
 </tr>
 </tbody>
 </table>
+<p><strong>VAT</strong> uses the <strong>company's region</strong> and the <strong>discount</strong> comes from the <strong>company's loyalty tier</strong> (or the contact's, for an individual) - see <a href="../../empresas-contactos/">Companies &amp; Contacts</a>.</p>
 <h2 id="step-by-step">Step by step<a class="headerlink" href="#step-by-step" title="Permanent link">¶</a></h2>
 <ol>
 <li><strong>Proposals → + Proposal</strong>.</li>
-<li>Choose the <strong>client</strong> (sets VAT and discount).</li>
-<li>Fill in the <strong>title</strong> and <strong>validity</strong>.</li>
-<li>Add the <strong><a href="../linhas/">catalogue lines</a></strong>.</li>
+<li>Choose the <strong>Company</strong> (the anchor of the sale) and the <strong>Contact</strong> you negotiate with.</li>
+<li>Set the <strong>loyalty months</strong> (SaaS), the <strong>title</strong> and the <strong>validity</strong>.</li>
+<li>Add the <strong><a href="../linhas/">catalogue lines</a></strong> (each is One-off or Monthly/Annual/recurring).</li>
 <li><strong>Save</strong>.</li>
 </ol>
 <div class="admonition tip">
