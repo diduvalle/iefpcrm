@@ -1,13 +1,13 @@
 WEBVTT
 
-00:00:00.000 --> 00:00:05.336
+00:00:04.960 --> 00:00:10.296
 Para montar a turma, importas os formandos a partir de um ficheiro Excel.
 
-00:00:05.336 --> 00:00:09.575
+00:00:10.296 --> 00:00:14.535
 Antes de gravar, a plataforma mostra uma pré-visualização:
 
-00:00:09.575 --> 00:00:14.180
+00:00:14.535 --> 00:00:19.140
 cada linha aparece válida ou a vermelho, com o erro assinalado.
 
-00:00:14.180 --> 00:00:16.080
+00:00:19.140 --> 00:00:21.040
 Só as válidas são criadas.

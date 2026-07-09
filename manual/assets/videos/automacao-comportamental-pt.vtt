@@ -1,1 +1,14 @@
 WEBVTT
+
+00:00:05.060 --> 00:00:11.518
+A automação de marketing já não reage só a eventos internos - reage ao comportamento do lead.
+
+00:00:11.468 --> 00:00:20.674
+Criamos uma regra com o gatilho "o lead abre um email" e afinamos com condições: só para leads na fase M-Q-L e com pontuação quente.
+
+00:00:20.674 --> 00:00:28.955
+Depois, no histórico de emails, basta simular a abertura: a regra dispara na hora e envia o seguimento automático.
+
+00:00:28.955 --> 00:00:35.323
+É assim que se faz nurturing - a mensagem certa, no momento certo, de forma automática.
+

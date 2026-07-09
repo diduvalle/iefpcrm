@@ -1,1 +1,14 @@
 WEBVTT
+
+00:00:05.060 --> 00:00:11.247
+Marketing automation no longer reacts only to internal events - it reacts to the lead's behaviour.
+
+00:00:11.197 --> 00:00:19.804
+We create a rule with the trigger "the lead opens an email" and refine it with conditions: only for leads in the M-Q-L stage and with a hot score.
+
+00:00:19.804 --> 00:00:27.681
+Then, in the email history, we simply simulate the open: the rule fires instantly and sends the automatic follow-up.
+
+00:00:27.681 --> 00:00:33.059
+That is how nurturing works - the right message, at the right time, automatically.
+
