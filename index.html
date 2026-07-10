@@ -4365,7 +4365,8 @@ document.addEventListener('click', async e=>{
       const btn=el; const old=btn.innerHTML; btn.disabled=true; btn.textContent='A procurar…';
       nifLookup(nif).then(d=>{
         if(!d || d.error || !d.nome){ toast('Sem resultados', (d&&d.message)||'Não foi encontrada empresa para este NIPC.','warn'); return; }
-        const set=(n,val)=>{ const fld=$('#modalForm [name="'+n+'"]'); if(fld && val && !String(fld.value||'').trim()){ fld.value=val; } };
+        // sobrepõe os campos com os dados encontrados (só quando há valor - não apaga o que já lá está com vazios)
+        const set=(n,val)=>{ const fld=$('#modalForm [name="'+n+'"]'); if(fld && val) fld.value=val; };
         set('nome',d.nome); set('moradaFiscal',d.morada); set('codigoPostal',d.codigoPostal); set('cidade',d.cidade); set('cae',d.cae); set('website',d.website); set('telefone',d.telefone); set('email',d.email);
         toast('Empresa encontrada', d.nome+(d.cidade?' · '+d.cidade:''));
       }).catch(()=>{ toast('Pesquisa indisponível','A função "nif-lookup" ainda não está publicada no Supabase (ver instruções de deploy).','warn'); })
