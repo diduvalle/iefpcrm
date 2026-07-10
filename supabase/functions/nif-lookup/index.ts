@@ -66,8 +66,12 @@ Deno.serve(async (req) => {
     const { nif } = await req.json().catch(() => ({}));
     const clean = String(nif || "").replace(/\D/g, "");
     if (!/^\d{9}$/.test(clean)) return json({ error: "invalid", message: "NIPC inválido (9 dígitos)." }, 400);
+    // Cobertura ampla: tenta o nif.pt (todas as empresas PT) se houver chave;
+    // se falhar (ou sem chave), cai no VIES (só IVA intracomunitário, mas sem chave).
     const KEY = Deno.env.get("NIFPT_KEY");
-    const out = KEY ? await viaNIFpt(clean, KEY) : await viaVIES(clean);
+    let out: Record<string, unknown> | null = null;
+    if (KEY) { out = await viaNIFpt(clean, KEY); if (out && out.error) out = null; }
+    if (!out) out = await viaVIES(clean);
     return json(out);
   } catch (e) {
     return json({ error: "server", message: String(e) }, 500);
