@@ -1816,6 +1816,7 @@ views.empresas = () => {
   </div>`;
 };
 let drawer360Emp=null;  // empresa atualmente aberta na ficha 360 (p/ refrescar ao juntar pessoas)
+let drawer360Cli=null;  // contacto atualmente aberto na ficha 360 (p/ refrescar após editar)
 function openEmpresa360(id){
   const e=state.empresas.find(x=>x.id===id); if(!e) return;
   drawer360Emp=id;
@@ -1890,7 +1891,7 @@ views.clientes = () => {
   </div>`;
 };
 
-function openClient360(id){ drawer360Emp=null;
+function openClient360(id){ drawer360Emp=null; drawer360Cli=id;
   const c=getC(id); if(!c) return;
   const props=state.propostas.filter(p=>p.clienteId===id);
   const ganhas=props.filter(p=>p.estado==='Ganha');
@@ -1923,6 +1924,7 @@ function openClient360(id){ drawer360Emp=null;
         <dt>Função</dt><dd>${c.funcao?esc(c.funcao):'-'}</dd>
         <dt>Registado</dt><dd>${dPT(c.criado)}</dd>
       </dl>
+      ${(Array.isArray(c.contactosExtra)&&c.contactosExtra.length)?`<div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px"><div class="muted" style="font-size:.7rem;font-weight:800;letter-spacing:.04em;margin-bottom:6px">CONTACTOS ADICIONAIS</div>${c.contactosExtra.map(x=>{const val=String(x.valor||'');const link=x.tipo==='Email'?`<a href="mailto:${esc(val)}" style="color:var(--g700);text-decoration:underline;text-underline-offset:2px">${esc(val)}</a>`:`<a href="tel:${esc(val.replace(/\s/g,''))}" style="color:var(--g700)">${esc(val)}</a>`;return `<div style="display:flex;justify-content:space-between;gap:10px;padding:3px 0;font-size:.86rem"><span class="muted">${esc(x.rotulo||'')} · ${esc(x.tipo||'')}</span>${link}</div>`;}).join('')}</div>`:''}
       ${c.notas?`<div class="callout info" style="margin-top:12px">${ic('list',16)}<div class="ctxt">${esc(c.notas)}</div></div>`:''}
     </div>
     ${hist.length?`<div class="card card-pad"><h4 style="font-weight:800;margin-bottom:10px;font-size:.95rem">${ic('trend',15)} Histórico de empresa</h4><div class="mini-list">${hist.slice().reverse().map(h=>`<div class="mini-item"><span class="grow"><strong>${esc(h.de||'(nenhuma)')} → ${esc(h.para||'(nenhuma)')}</strong><span>${dPT(h.data)}</span></span></div>`).join('')}</div></div>`:''}
@@ -3364,6 +3366,7 @@ const SCHEMAS = {
     {n:'email',l:'Email',type:'email'},{n:'telefone',l:'Telefone',type:'tel'},
     {n:'nif',l:'NIF (pessoal)',hint:'9 dígitos - validado'},{n:'cidade',l:'Cidade'},
     {n:'regiao',l:'Região (IVA)',type:'select',opts:['Continente','Madeira','Açores'].map(x=>({v:x,t:x}))},
+    {n:'contactosExtra',l:'Contactos adicionais',type:'contactlist',full:1,hint:'Emails/telefones extra com rótulo (pessoal, profissional…). O email/telefone de cima é o principal (usado nos envios).'},
     {n:'notas',l:'Notas',type:'textarea',full:1},
   ]},
   empresa:{store:'empresas',label:'Empresa',fem:1,code:e=>{ if(!e.numero) e.numero='E'+pad(++state.settings.empSeq,3); },fields:[
@@ -3532,6 +3535,12 @@ function fieldHTML(f,item){
   }
   if(f.type==='avatar'){ const ini=initialsOf(item); return `<div class="${cls}"><label>${esc(f.l)}</label><div style="display:flex;align-items:center;gap:14px"><div id="avPreview" class="avatar" style="width:58px;height:58px;padding:0;overflow:hidden;font-size:1.15rem">${v?`<img src="${esc(v)}" style="width:100%;height:100%;object-fit:cover">`:esc(ini)}</div><label class="btn-sec btn-sm" style="cursor:pointer">${ic('image',15)} Carregar foto<input type="file" accept="image/*" data-avatar style="display:none"></label><input type="hidden" name="avatar" value="${esc(v)}"><button type="button" class="btn-ghost btn-sm" data-act="av-clear" ${v?'':'style="display:none"'}>Remover</button></div><span class="hint">Imagem quadrada recomendada - fica guardada no perfil do utilizador.</span></div>`; }
   if(f.type==='textarea') return `<div class="${cls}"><label>${esc(f.l)}</label><textarea name="${f.n}">${esc(v)}</textarea>${hint}</div>`;
+  if(f.type==='contactlist'){
+    const rows=Array.isArray(item[f.n])?item[f.n]:[];
+    const selHTML=(opts,val)=>opts.map(o=>`<option ${o===val?'selected':''}>${o}</option>`).join('');
+    const rowHTML=r=>`<div class="cx-row" style="display:flex;gap:8px;margin-bottom:8px;align-items:center"><select data-cx="tipo" style="flex:0 0 108px">${selHTML(['Email','Telefone'],r.tipo||'Email')}</select><select data-cx="rotulo" style="flex:0 0 130px">${selHTML(['Profissional','Pessoal','Outro'],r.rotulo||'Profissional')}</select><input data-cx="valor" value="${esc(r.valor||'')}" placeholder="email ou telefone" style="flex:1"><button type="button" class="btn-danger btn-xs" data-act="cx-del" style="height:38px" title="Remover">✕</button></div>`;
+    return `<div class="${cls}"><label>${esc(f.l)}</label><div id="cxList">${rows.map(rowHTML).join('')}</div><button type="button" class="btn-sec btn-sm" data-act="cx-add">+ Contacto</button>${hint}</div>`;
+  }
   const t=f.type||'text';
   if(t==='password') v=''; // nunca pré-preencher palavra-passe
   if(f.n==='nif'||f.n==='nipc'){ // feedback ao vivo (validade + tipo); no NIPC da empresa, botão de pesquisa real
@@ -3646,7 +3655,8 @@ async function saveModal(){
   const fd=new FormData($('#modalForm'));
   const cur=id?state[store].find(x=>x.id===id):null;
   const obj=cur?clone(cur):{id:uid(type.slice(0,3))};
-  sc.fields.forEach(f=>{ let v=fd.get(f.n); if(f.type==='number'||f.numeric)v=Number(v||0); obj[f.n]=v; });
+  sc.fields.forEach(f=>{ if(f.type==='contactlist') return; let v=fd.get(f.n); if(f.type==='number'||f.numeric)v=Number(v||0); obj[f.n]=v; });
+  { const cxf=sc.fields.find(f=>f.type==='contactlist'); if(cxf){ obj[cxf.n]=$$('#modalForm .cx-row').map(row=>({tipo:(row.querySelector('[data-cx="tipo"]')||{}).value||'Email',rotulo:(row.querySelector('[data-cx="rotulo"]')||{}).value||'Outro',valor:String((row.querySelector('[data-cx="valor"]')||{}).value||'').trim()})).filter(r=>r.valor); } }
   // validação simples
   const miss=sc.fields.filter(f=>f.req&&!String(obj[f.n]||'').trim());
   if(miss.length){ toast('Campos obrigatórios',miss.map(m=>m.l).join(', '),'warn'); return; }
@@ -3681,6 +3691,9 @@ async function saveModal(){
   if(isNew && !obj.fonte) obj.fonte='manual';   // criado à mão (distingue de 'gerado'/'base' na revisão do formador)
   if(i>=0) state[store][i]=obj; else state[store].push(obj);
   recalcLoyalty(); save(); closeModal(); render();
+  // se a ficha 360 desta conta/contacto estava aberta, refresca-a com os dados novos
+  if(type==='cliente' && drawer360Cli===obj.id) openClient360(obj.id);
+  else if(type==='empresa' && drawer360Emp===obj.id) openEmpresa360(obj.id);
   toast(id?'Registo atualizado':'Registo criado', sc.label);
   if(isNew && type==='cliente') fireAutomations('novo-cliente',{clienteId:obj.id});
   if(isNew && type==='empresa') openEmpresa360(obj.id);  // abre a ficha p/ adicionar logo as pessoas de contacto
@@ -3876,7 +3889,7 @@ function closeModal(){ $('#modalBack').classList.remove('open'); editing=null; p
 
 /* ---------- drawer ---------- */
 function openDrawer(){ $('#drawerBack').classList.add('open'); $('#drawer').classList.add('open'); }
-function closeDrawer(){ $('#drawerBack').classList.remove('open'); $('#drawer').classList.remove('open'); drawer360Emp=null; }
+function closeDrawer(){ $('#drawerBack').classList.remove('open'); $('#drawer').classList.remove('open'); drawer360Emp=null; drawer360Cli=null; }
 
 /* ---------- eliminar ---------- */
 const STORE_OF={cliente:'clientes',empresa:'empresas',tarefa:'tarefas',produto:'produtos',familia:'familias',subfamilia:'subfamilias',proposta:'propostas',utilizador:'utilizadores',loyalty:'loyalty',campanha:'campanhas',consentimento:'consentimentos',pedido:'pedidos',ropa:'ropa',violacao:'violacoes',automacao:'automacoes'};
@@ -4363,6 +4376,8 @@ document.addEventListener('click', async e=>{
     case 'open-empresa': if(!e.target.closest('[data-stop]')) openEmpresa360(id); break;
     case 'eni-create': createENI(id); break;
     case 'email-to': { mailDraft=defaultMailDraft(); mailDraft.clienteId=el.dataset.id||''; if(mailDraft.templateId) applyMailTemplate(); closeDrawer(); location.hash='#email'; setTimeout(render,0); const cc=getC(el.dataset.id); toast('Compositor de email', cc?('Para: '+cc.nome+' '+(cc.apelido||'')):'destinatário selecionado'); } break;
+    case 'cx-add': { const list=$('#cxList'); if(list){ const div=document.createElement('div'); div.className='cx-row'; div.style.cssText='display:flex;gap:8px;margin-bottom:8px;align-items:center'; div.innerHTML='<select data-cx="tipo" style="flex:0 0 108px"><option>Email</option><option>Telefone</option></select><select data-cx="rotulo" style="flex:0 0 130px"><option>Profissional</option><option>Pessoal</option><option>Outro</option></select><input data-cx="valor" placeholder="email ou telefone" style="flex:1"><button type="button" class="btn-danger btn-xs" data-act="cx-del" style="height:38px" title="Remover">✕</button>'; list.appendChild(div); const inp=div.querySelector('[data-cx="valor"]'); if(inp) inp.focus(); } } break;
+    case 'cx-del': { const row=el.closest('.cx-row'); if(row) row.remove(); } break;
     case 'nif-lookup': { const inp=$('#modalForm [name="nipc"]'); const nif=inp?String(inp.value||'').replace(/\D/g,''):'';
       if(!/^\d{9}$/.test(nif)){ toast('NIPC incompleto','Escreva os 9 dígitos do NIPC primeiro','warn'); break; }
       const btn=el; const old=btn.innerHTML; btn.disabled=true; btn.textContent='A procurar…';
