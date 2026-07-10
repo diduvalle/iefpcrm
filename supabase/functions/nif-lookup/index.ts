@@ -51,10 +51,11 @@ async function viaNIFpt(clean: string, key: string) {
     return { error: "not_found", message: (data && data.message) || "Empresa não encontrada." };
   }
   const rec = data.records[clean]; const c = rec.contacts || {};
+  const cae = Array.isArray(rec.cae) ? (rec.cae[0] || "") : (rec.cae || "");
   return {
     nif: clean, nome: rec.title || "", morada: rec.address || "",
     codigoPostal: [rec.pc4, rec.pc3].filter(Boolean).join("-"), cidade: rec.city || "",
-    cae: String(rec.cae || (rec.structure && rec.structure.nature) || ""), atividade: rec.activity || "",
+    cae: String(cae), atividade: rec.activity || "",
     estado: rec.status || "", website: c.website || "", telefone: c.phone || "", email: c.email || "", fonte: "nif.pt",
   };
 }
