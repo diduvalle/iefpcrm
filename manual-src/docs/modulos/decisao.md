@@ -2,6 +2,8 @@
 
 O ecrã **Decisão** transforma os dados do CRM em apoio à decisão: o que fazer a seguir, simulação de cenários, quem são os melhores clientes e quanto vais faturar. Cobre a UFCD 10869 - CRM, modelos de análise à decisão.
 
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/decisao.png"><source src="/manual/assets/videos/decisao-pt.webm" type="video/webm"><source src="/manual/assets/videos/decisao-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/decisao-pt.vtt" srclang="pt" label="Português" default></video>
+
 ## Próxima melhor ação (Next Best Action)
 
 Uma lista das ações com mais impacto, por conta, geradas por regras a partir do estado real:

@@ -2,6 +2,8 @@
 
 **High-value** proposals, or ones with **aggressive discounts**, should not reach the customer without a manager's sign-off. The CRM includes an **approval cycle**: when a proposal exceeds the rule, it is held until the **manager** decides.
 
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/aprovacao-propostas.png"><source src="/manual/assets/videos/aprovacao-propostas-en.webm" type="video/webm"><source src="/manual/assets/videos/aprovacao-propostas-en.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/aprovacao-propostas-en.vtt" srclang="en" label="English" default></video>
+
 ## Set the rule
 
 In **Settings → Proposal approval**:

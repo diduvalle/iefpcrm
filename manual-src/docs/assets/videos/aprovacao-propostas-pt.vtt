@@ -1,0 +1,11 @@
+WEBVTT
+
+00:00:04.960 --> 00:00:14.100
+Propostas de valor elevado devem ter o aval de um gestor. Aqui defines o limite de valor e o desconto máximo sem aprovação.
+
+00:00:14.100 --> 00:00:21.130
+Quando uma proposta ultrapassa a regra, o CRM retém-na e mostra-a no painel de aprovações pendentes.
+
+00:00:21.130 --> 00:00:29.940
+O gestor aprova ou rejeita. Ao aprovar, a proposta avança no pipeline e dispara as automações associadas.
+

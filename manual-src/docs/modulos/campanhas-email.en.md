@@ -68,6 +68,10 @@ Name, subject, color, show logo, greeting, body, button text/link, signature. Us
 ### Customer journeys
 The **Journeys** tab shows each automation as a **visual path**: `Start (event) → Wait N days → Email → …`. It is the same automation, seen as the path the lead travels over time (*nurturing*). Click **Edit journey** to change the steps.
 
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/jornadas.png"><source src="/manual/assets/videos/jornadas-en.webm" type="video/webm"><source src="/manual/assets/videos/jornadas-en.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/jornadas-en.vtt" srclang="en" label="English" default></video>
+
+*Customer journeys and the web-to-lead capture form.*
+
 ## Lead capture form (web-to-lead)
 
 At the bottom of the **Campaigns** screen there is a **lead capture form**. It simulates a website form (landing page): on **submit**, the data enters the CRM as:

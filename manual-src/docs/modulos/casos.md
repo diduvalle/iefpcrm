@@ -2,6 +2,8 @@
 
 O módulo **Casos** gere os pedidos de apoio dos clientes de ponta a ponta: registo, conversa, prazos (SLA) e satisfação (CSAT/NPS). Cobre a UFCD 10866 - gestão de vendas e serviços ao cliente.
 
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/casos.png"><source src="/manual/assets/videos/casos-pt.webm" type="video/webm"><source src="/manual/assets/videos/casos-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/casos-pt.vtt" srclang="pt" label="Português" default></video>
+
 ## Abrir um caso
 
 **Casos → Novo caso**. Preenche:

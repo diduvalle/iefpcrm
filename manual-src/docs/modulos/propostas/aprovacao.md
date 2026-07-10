@@ -2,6 +2,8 @@
 
 Propostas de **valor elevado** ou com **desconto agressivo** não devem seguir para o cliente sem o "OK" de um responsável. O CRM inclui um **ciclo de aprovação**: quando uma proposta ultrapassa a regra, fica retida até o **gestor** decidir.
 
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/aprovacao-propostas.png"><source src="/manual/assets/videos/aprovacao-propostas-pt.webm" type="video/webm"><source src="/manual/assets/videos/aprovacao-propostas-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/aprovacao-propostas-pt.vtt" srclang="pt" label="Português" default></video>
+
 ## Definir a regra
 
 Em **Definições → Aprovação de propostas**:

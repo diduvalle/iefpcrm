@@ -68,6 +68,10 @@ Regras **gatilho → email**:
 ### Jornadas do cliente
 O separador **Jornadas** mostra cada automação como um **percurso visual**: `Início (evento) → Esperar N dias → Email → …`. É a mesma automação, vista como o caminho que o lead percorre ao longo do tempo (*nurturing*). Clica **Editar jornada** para alterar os passos.
 
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/jornadas.png"><source src="/manual/assets/videos/jornadas-pt.webm" type="video/webm"><source src="/manual/assets/videos/jornadas-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/jornadas-pt.vtt" srclang="pt" label="Português" default></video>
+
+*Jornadas do cliente e formulário de captação web-to-lead.*
+
 ## Formulário de captação (web-to-lead)
 
 No fundo do ecrã **Campanhas** há um **formulário de captação**. Simula um formulário de site (landing page): ao **submeter**, os dados entram no CRM como:

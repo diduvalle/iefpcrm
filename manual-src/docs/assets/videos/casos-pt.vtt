@@ -1,0 +1,14 @@
+WEBVTT
+
+00:00:04.960 --> 00:00:12.040
+O módulo Casos gere os pedidos de apoio ao cliente, com canal, prioridade e prazo de SLA.
+
+00:00:12.040 --> 00:00:17.630
+Abrimos um caso para ver toda a conversa com o cliente e responder ao longo do tempo.
+
+00:00:17.630 --> 00:00:25.170
+Cada caso tem um prazo por prioridade, com um semáforo de SLA: no prazo, em risco ou violado.
+
+00:00:25.170 --> 00:00:34.410
+Ao fechar, o cliente responde ao inquérito de satisfação, e o Analytics resume o CSAT, o NPS e o cumprimento de SLA.
+
