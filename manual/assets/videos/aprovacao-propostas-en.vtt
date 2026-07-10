@@ -1,0 +1,11 @@
+WEBVTT
+
+00:00:04.960 --> 00:00:13.410
+High-value proposals should get a manager’s sign-off. Here you set the value limit and the maximum discount allowed without approval.
+
+00:00:13.410 --> 00:00:19.550
+When a proposal exceeds the rule, the CRM holds it and shows it in the pending approvals panel.
+
+00:00:19.550 --> 00:00:27.850
+The manager approves or rejects. On approval, the proposal moves forward in the pipeline and fires the linked automations.
+

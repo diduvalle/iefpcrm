@@ -1,0 +1,14 @@
+WEBVTT
+
+00:00:04.960 --> 00:00:11.900
+The Cases module handles customer support requests, with channel, priority and an SLA deadline.
+
+00:00:11.900 --> 00:00:16.990
+We open a case to see the whole conversation with the customer and reply over time.
+
+00:00:16.990 --> 00:00:24.070
+Each case has a deadline by priority, with an SLA traffic light: on time, at risk or breached.
+
+00:00:24.070 --> 00:00:33.210
+On closing, the customer answers the satisfaction survey, and Analytics summarises CSAT, NPS and SLA compliance.
+
