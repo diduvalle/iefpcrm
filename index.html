@@ -1015,7 +1015,7 @@ const NAV = [
     {id:'modelos',   label:'Modelos',   icon:'layout'},
   ]},
   {g:'Serviço ao cliente', items:[
-    {id:'casos', label:'Casos', icon:'support'},
+    {id:'casos', label:'Helpdesk', icon:'support'},
   ]},
   {g:'Marketing & Análise', items:[
     {id:'campanhas', label:'Campanhas', icon:'target'},
@@ -4633,6 +4633,7 @@ const HELP_MAP={
   empresas:'modulos/empresas-contactos/', clientes:'modulos/empresas-contactos/',
   produtos:'modulos/produtos/', propostas:'modulos/propostas/', modelos:'modulos/modelos/',
   campanhas:'modulos/campanhas-email/', email:'modulos/campanhas-email/', comunicacao:'modulos/campanhas-email/',
+  casos:'modulos/casos/', decisao:'modulos/decisao/',
   analytics:'modulos/analytics/', rgpd:'rgpd/', alertas:'modulos/alertas/', definicoes:'modulos/definicoes/'
 };
 function openHelp(){ try{ const v=currentView(); window.open(HELP_BASE+(HELP_MAP[v]||''),'_blank','noopener'); }catch(e){ window.open(HELP_BASE,'_blank','noopener'); } }
