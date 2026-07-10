@@ -169,6 +169,8 @@ language sql security definer set search_path = public as $$
 $$;
 
 -- Roster completo para a GESTÃO (só formador/admin; sem hash).
+-- (largar primeiro porque o tipo de retorno mudou ao acrescentar email2)
+drop function if exists public.listar_utilizadores(uuid);
 create or replace function public.listar_utilizadores(p_token uuid)
 returns table(id uuid, username text, nome text, apelido text,
               email text, email2 text, papel text, criado_em timestamptz)

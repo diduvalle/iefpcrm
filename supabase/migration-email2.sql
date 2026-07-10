@@ -4,7 +4,8 @@
 -- 1) coluna email2 (email pessoal; o principal é o do IEFP)
 alter table public.utilizadores add column if not exists email2 text default '';
 
--- 2) roster passa a devolver email2
+-- 2) roster passa a devolver email2 (largar primeiro: o tipo de retorno muda)
+drop function if exists public.listar_utilizadores(uuid);
 create or replace function public.listar_utilizadores(p_token uuid)
 returns table(id uuid, username text, nome text, apelido text,
               email text, email2 text, papel text, criado_em timestamptz)
