@@ -838,6 +838,7 @@ const I = {
   support:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="m5.6 5.6 3.3 3.3M15.1 15.1l3.3 3.3M18.4 5.6l-3.3 3.3M8.9 15.1l-3.3 3.3"/>',
   star:'<path d="m12 2 3 6.5 7 .9-5 4.9 1.3 7L12 18l-6.6 3.3L6.7 14l-5-4.9 7-.9z"/>',
   chat:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+  bulb:'<path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1v.2h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z"/>',
 };
 const ic = (k,s=18)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${I[k]||''}</svg>`;
 
@@ -1019,6 +1020,7 @@ const NAV = [
     {id:'campanhas', label:'Campanhas', icon:'target'},
     {id:'email',     label:'Email',     icon:'mail'},
     {id:'analytics', label:'Analytics', icon:'chart'},
+    {id:'decisao',   label:'Decisão',   icon:'bulb'},
   ]},
   {g:'Conformidade', items:[
     {id:'rgpd', label:'RGPD', icon:'shield'},
@@ -1302,6 +1304,7 @@ function load(){
   if(!Array.isArray(state.casos)) state.casos=[];
   if(state.settings.casoSeq==null) state.settings.casoSeq=(state.casos||[]).length;
   Object.values(state.roles||{}).forEach(r=>{ if(r&&Array.isArray(r.modules)&&!r.modules.includes('casos')&&(r.gestor||r.modules.includes('clientes'))) r.modules.push('casos'); });
+  Object.values(state.roles||{}).forEach(r=>{ if(r&&Array.isArray(r.modules)&&!r.modules.includes('decisao')&&(r.gestor||r.modules.includes('analytics'))) r.modules.push('decisao'); });
   if(!Array.isArray(state.settings.ivaRates)||!state.settings.ivaRates.length) state.settings.ivaRates=def.settings.ivaRates;
   if(!Array.isArray(state.settings.origens)||!state.settings.origens.length) state.settings.origens=def.settings.origens;
   if(!Array.isArray(state.settings.funcoes)||!state.settings.funcoes.length) state.settings.funcoes=FUNCOES.filter(Boolean);
@@ -2379,6 +2382,91 @@ function aiSuggestEmail(c){
   if(won) return `Olá ${nome},\n\nFoi um prazer trabalhar consigo${emp}. Queria saber como está a correr e se há algo em que possamos ajudar a dar o próximo passo.\n\nTenho disponibilidade esta semana para uma breve conversa - diga-me o melhor horário.\n\nCom os melhores cumprimentos,\n${ent}`;
   return `Olá ${nome},\n\nReparei no interesse demonstrado nas nossas soluções${emp}. Preparei algumas ideias que podem fazer sentido para os vossos objetivos e gostava de as partilhar.\n\nFazia-lhe sentido uma curta apresentação de 15 minutos esta semana?\n\nCom os melhores cumprimentos,\n${ent}`;
 }
+/* ---------- MODELOS DE DECISÃO (UFCD 10869): NBA · What-If · RFM · Forecast ---------- */
+const FASE_PROB={Criada:.2,Enviada:.4,'Negociação':.7};
+function forecastPonderado(){ let exp=0,total=0; const det={Criada:0,Enviada:0,'Negociação':0};
+  (state.propostas||[]).filter(p=>['Criada','Enviada','Negociação'].includes(p.estado)).forEach(p=>{ const v=propTotal(p); total+=v; exp+=v*(FASE_PROB[p.estado]||0); det[p.estado]+=v; });
+  return {exp,total,det}; }
+function nextBestActions(){ const out=[]; const hoje=todayISO();
+  accountList().forEach(a=>{
+    const props=state.propostas.filter(p=>p.empresaId===a.id);
+    const abertas=props.filter(p=>['Criada','Enviada','Negociação'].includes(p.estado));
+    const ganhas=props.filter(p=>p.estado==='Ganha');
+    const casosAb=(state.casos||[]).filter(c=>casoAberto(c)&&((c.empresaId===a.id)||((getC(c.clienteId)||{}).empresaId===a.id)));
+    const slaV=casosAb.find(c=>casoSla(c).estado==='violado');
+    if(slaV){ out.push({empId:a.id,nome:a.nome,accao:'Resolver caso em atraso',motivo:'Caso "'+slaV.assunto+'" com SLA violado',pri:3}); }
+    if((a.score>=70)&&['Lead','MQL'].includes(a.fase)){ out.push({empId:a.id,nome:a.nome,accao:'Contactar lead quente',motivo:'Lead score '+a.score+'/100 ainda por qualificar',pri:3}); }
+    if((a.fase==='SQL')&&!abertas.length){ out.push({empId:a.id,nome:a.nome,accao:'Criar proposta',motivo:'Oportunidade qualificada (SQL) sem proposta em aberto',pri:3}); }
+    const parada=abertas.find(p=>p.estado==='Enviada'&&daysBetween(p.alteradoEm||p.criada,hoje)>14);
+    if(parada){ out.push({empId:a.id,nome:a.nome,accao:'Fazer follow-up',motivo:'Proposta '+parada.numero+' enviada há mais de 14 dias sem fecho',pri:2}); }
+    if(ganhas.length){ const ult=ganhas.map(p=>p.criada).sort().pop(); if(daysBetween(ult,hoje)>90&&!abertas.length){ out.push({empId:a.id,nome:a.nome,accao:'Reativar cliente',motivo:'Sem novas compras há mais de 90 dias',pri:2}); } }
+  });
+  const seen={}; const dedup=[]; out.sort((x,y)=>y.pri-x.pri).forEach(o=>{ if(!seen[o.empId]){ seen[o.empId]=1; dedup.push(o); } });
+  return dedup.slice(0,8); }
+function rfmData(){ const hoje=todayISO();
+  return accountList().map(a=>{ const ganhas=state.propostas.filter(p=>p.empresaId===a.id&&p.estado==='Ganha'); const F=ganhas.length; const M=ganhas.reduce((s,p)=>s+propTotal(p),0); const ult=ganhas.map(p=>p.criada).sort().pop(); const R=ult?daysBetween(ult,hoje):null; return {emp:a,R,F,M,ult}; }).filter(x=>x.F>0); }
+function rfmSeg(x){ const rS=x.R==null?1:(x.R<=30?3:(x.R<=90?2:1)); const fS=x.F>=3?3:(x.F>=2?2:1); const mS=x.M>=5000?3:(x.M>=1500?2:1);
+  let seg; if(rS>=3&&fS+mS>=5) seg='Campeões'; else if(fS+mS>=4&&rS>=2) seg='Leais'; else if(rS<=1&&fS+mS>=4) seg='Em risco'; else if(rS<=1) seg='Adormecidos'; else seg='Em desenvolvimento';
+  return {seg,rS,fS,mS}; }
+const RFM_COR={'Campeões':'green','Leais':'blue','Em desenvolvimento':'amber','Em risco':'red','Adormecidos':'grey'};
+function whatifBase(){ const ganhas=state.propostas.filter(p=>p.estado==='Ganha'); const receita=ganhas.reduce((s,p)=>s+propTotal(p),0); const ticket=ganhas.length?receita/ganhas.length:1000; const fechadas=state.propostas.filter(p=>['Ganha','Perdida'].includes(p.estado)).length; const conv=fechadas?ganhas.length/fechadas*100:20; const leads=accountList().length; return {receita,ticket,conv:conv||20,leads:leads||1}; }
+function recalcWhatIf(){ const b=whatifBase(); const gv=k=>{ const el=$('[data-whatif="'+k+'"]'); return el?Number(el.value):0; };
+  const dPreco=gv('preco'),dConv=gv('conv'),dLeads=gv('leads');
+  const lbl=(k,txt)=>{ const el=$('#wl-'+k); if(el) el.textContent=txt; };
+  lbl('preco',(dPreco>0?'+':'')+dPreco+'%'); lbl('conv',(dConv>0?'+':'')+dConv+'%'); lbl('leads',(dLeads>0?'+':'')+dLeads+'%');
+  const convNova=Math.max(0,Math.min(100,b.conv*(1+dConv/100)));
+  const leadsNovos=Math.round(b.leads*(1+dLeads/100));
+  const ticketNovo=b.ticket*(1+dPreco/100);
+  const negocios=leadsNovos*convNova/100;
+  const receitaProj=negocios*ticketNovo;
+  const baseReceita=b.leads*(b.conv/100)*b.ticket;
+  const delta=baseReceita?((receitaProj-baseReceita)/baseReceita*100):0;
+  const out=$('#whatifOut'); if(out) out.innerHTML=`
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <div style="flex:1;min-width:110px;background:var(--surface2);border-radius:10px;padding:12px;text-align:center"><div class="muted" style="font-size:.7rem">Negócios previstos</div><strong style="font-size:1.2rem">${negocios.toFixed(1)}</strong></div>
+      <div style="flex:1;min-width:110px;background:var(--surface2);border-radius:10px;padding:12px;text-align:center"><div class="muted" style="font-size:.7rem">Conversão</div><strong style="font-size:1.2rem">${convNova.toFixed(1)}%</strong></div>
+      <div style="flex:1;min-width:110px;background:var(--g100);border-radius:10px;padding:12px;text-align:center"><div class="muted" style="font-size:.7rem">Receita projetada</div><strong style="font-size:1.2rem;color:var(--g700)">${money(receitaProj)}</strong></div>
+    </div>
+    <div class="muted" style="font-size:.8rem;margin-top:10px">Face ao cenário base (${money(baseReceita)}): <strong style="color:${delta>=0?'var(--g700)':'#dc2626'}">${delta>0?'+':''}${delta.toFixed(0)}%</strong></div>`;
+}
+views.decisao = () => {
+  const nba=nextBestActions();
+  const fc=forecastPonderado();
+  const rfm=rfmData().map(x=>Object.assign(x,rfmSeg(x))).sort((a,b)=>b.M-a.M);
+  const segCount={}; rfm.forEach(x=>{ segCount[x.seg]=(segCount[x.seg]||0)+1; });
+  return `
+  <div class="callout green">${ic('bulb',18)}<div style="flex:1"><strong>UFCD 10869 - Modelos de análise à decisão</strong><span class="ctxt">Recomendações inteligentes, simulação de cenários, segmentação RFM e previsão de vendas, a partir dos dados do CRM.</span></div></div>
+  <div class="card card-pad">
+    <div class="section-head" style="margin-bottom:14px"><div><h3>${ic('bulb',16)} Próxima melhor ação (Next Best Action)</h3><div class="sub">O CRM sugere a ação com mais impacto para cada conta</div></div></div>
+    ${nba.length?`<div class="mini-list">${nba.map(o=>`<div class="mini-item"><span class="ic" style="background:${o.pri>=3?'#00A65122':'#d9770622'};color:${o.pri>=3?'#00A651':'#d97706'}">${ic('bulb')}</span><span class="grow"><strong>${esc(o.accao)} · ${esc(o.nome)}</strong><span>${esc(o.motivo)}</span></span><button class="btn-sec btn-xs" data-act="open-empresa" data-id="${o.empId}">Abrir</button></div>`).join('')}</div>`:empty('Sem recomendações','Tudo em dia - nenhuma ação prioritária.')}
+  </div>
+  <div class="split eq">
+    <div class="card card-pad">
+      <div class="section-head" style="margin-bottom:14px"><div><h3>Simulador What-If</h3><div class="sub">Arraste para simular o impacto no negócio</div></div></div>
+      <div class="field"><label>Variação de preço <span id="wl-preco" class="chip">0%</span></label><input type="range" data-whatif="preco" min="-30" max="30" step="5" value="0" style="width:100%"></div>
+      <div class="field"><label>Variação da taxa de conversão <span id="wl-conv" class="chip">0%</span></label><input type="range" data-whatif="conv" min="-50" max="50" step="5" value="0" style="width:100%"></div>
+      <div class="field"><label>Variação do nº de leads <span id="wl-leads" class="chip">0%</span></label><input type="range" data-whatif="leads" min="-50" max="100" step="10" value="0" style="width:100%"></div>
+      <div id="whatifOut" style="margin-top:14px"></div>
+    </div>
+    <div class="card card-pad">
+      <div class="section-head" style="margin-bottom:14px"><div><h3>Previsão de vendas (forecast)</h3><div class="sub">Pipeline aberto ponderado pela probabilidade de cada fase</div></div></div>
+      <div style="display:flex;gap:10px;margin-bottom:14px">
+        <div style="flex:1;background:var(--surface2);border-radius:10px;padding:14px;text-align:center"><div class="muted" style="font-size:.72rem">Pipeline total</div><strong style="font-size:1.3rem">${money(fc.total)}</strong></div>
+        <div style="flex:1;background:var(--g100);border-radius:10px;padding:14px;text-align:center"><div class="muted" style="font-size:.72rem">Receita esperada</div><strong style="font-size:1.3rem;color:var(--g700)">${money(fc.exp)}</strong></div>
+      </div>
+      <div class="mini-list">${['Criada','Enviada','Negociação'].map(f=>`<div class="mini-item"><span class="grow"><strong>${f}</strong><span>probabilidade ${Math.round(FASE_PROB[f]*100)}%</span></span><span>${money(fc.det[f]||0)} → <strong style="color:var(--g700)">${money((fc.det[f]||0)*FASE_PROB[f])}</strong></span></div>`).join('')}</div>
+      <div class="callout info" style="margin-top:12px">${ic('info',16)}<div class="ctxt">A receita esperada pondera cada proposta pela probabilidade típica de fecho da sua fase - uma previsão mais realista do que somar todo o pipeline.</div></div>
+    </div>
+  </div>
+  <div class="card card-pad">
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Segmentação RFM</h3><div class="sub">Recência · Frequência · Valor Monetário - quem são os melhores clientes</div></div></div>
+    <div class="toolbar" style="margin-bottom:12px;gap:6px;flex-wrap:wrap">${Object.keys(RFM_COR).map(s=>segCount[s]?`<span class="pill ${RFM_COR[s]}">${s}: ${segCount[s]}</span>`:'').join('')||'<span class="muted">Sem clientes com compras</span>'}</div>
+    ${rfm.length?`<div class="table-wrap"><table><thead><tr><th>Empresa</th><th>Segmento RFM</th><th class="t-right">Recência</th><th class="t-right">Frequência</th><th class="t-right">Valor</th></tr></thead><tbody>
+    ${rfm.map(x=>`<tr data-act="open-empresa" data-id="${x.emp.id}" style="cursor:pointer"><td><div class="cell-main">${esc(x.emp.nome)}</div></td><td><span class="pill ${RFM_COR[x.seg]}">${x.seg}</span></td><td class="t-right">${x.R==null?'-':x.R+' d'}</td><td class="t-right">${x.F}</td><td class="t-right"><strong>${money(x.M)}</strong></td></tr>`).join('')}
+    </tbody></table></div>`:empty('Sem dados RFM','Ainda não há empresas com compras ganhas.')}
+    <div class="callout info" style="margin-top:12px">${ic('info',16)}<div class="ctxt"><strong>RFM</strong> classifica os clientes por há quanto tempo compraram (Recência), quantas vezes (Frequência) e quanto (Valor). Os <strong>Campeões</strong> merecem fidelização; os <strong>Em risco</strong> merecem reativação.</div></div>
+  </div>`;
+};
 views.analytics = () => {
   const r=rangeOf('an'); const act=!!(r.from||r.to);
   const props = act ? state.propostas.filter(p=>inDateRange(p.criada,r.from,r.to)) : state.propostas.slice();
@@ -2728,6 +2816,7 @@ function openInviteEditor(){ const t=inviteTpl(); editing={type:'__invite'};
   $('#modalBack').classList.add('open'); }
 function saveInviteTpl(){ state.settings.inviteTemplate=Object.assign({},inviteTpl(),formInv()); save(); closeModal(); toast('Modelo guardado','Convite de formando'); }
 document.addEventListener('input',e=>{ if(e.target&&e.target.dataset&&e.target.dataset.inv!=null){ const p=$('#invPreview'); if(p) p.innerHTML=invitePreviewHTML(); } });
+document.addEventListener('input',e=>{ if(e.target&&e.target.dataset&&e.target.dataset.whatif!=null){ recalcWhatIf(); } });
 function sendTestEmailJS(){
   if(!emailjsActive()){ toast('Configure primeiro','Preencha os 3 campos e ative o modo real','warn'); return; }
   const to=(currentUser()&&currentUser().email)||state.settings.email||''; if(!to){ toast('Sem destinatário','Defina o email da entidade','warn'); return; }
@@ -4400,6 +4489,7 @@ function render(){
   if(v==='definicoes') makeDefCollapsible();
   if(v==='definicoes' && isAdmin()) renderSiteAnalytics();
   if(v==='definicoes' && rootSession) renderRootPanel('#rootPanel');
+  if(v==='decisao') recalcWhatIf();
   startI18n();
 }
 /* ---------- Mini-painel de analítica do site (Definições) ---------- */
