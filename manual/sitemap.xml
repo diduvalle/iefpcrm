@@ -183,6 +183,13 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://iefpcrm.cr0x.org/manual/en/modulos/propostas/"/>
     </url>
     <url>
+        <loc>https://iefpcrm.cr0x.org/manual/modulos/propostas/aprovacao/</loc>
+        <lastmod>2026-07-10</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://iefpcrm.cr0x.org/manual/modulos/propostas/aprovacao/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://iefpcrm.cr0x.org/manual/en/modulos/propostas/aprovacao/"/>
+    </url>
+    <url>
         <loc>https://iefpcrm.cr0x.org/manual/modulos/propostas/criar/</loc>
         <lastmod>2026-07-10</lastmod>
         <changefreq>daily</changefreq>
@@ -475,6 +482,13 @@
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://iefpcrm.cr0x.org/manual/en/modulos/propostas/"/>
         <xhtml:link rel="alternate" hreflang="pt" href="https://iefpcrm.cr0x.org/manual/modulos/propostas/"/>
+    </url>
+    <url>
+        <loc>https://iefpcrm.cr0x.org/manual/en/modulos/propostas/aprovacao/</loc>
+        <lastmod>2026-07-10</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://iefpcrm.cr0x.org/manual/en/modulos/propostas/aprovacao/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://iefpcrm.cr0x.org/manual/modulos/propostas/aprovacao/"/>
     </url>
     <url>
         <loc>https://iefpcrm.cr0x.org/manual/en/modulos/propostas/criar/</loc>
