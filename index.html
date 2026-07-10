@@ -1284,6 +1284,7 @@ function load(){
   if(!state.checklistRGPD||typeof state.checklistRGPD!=='object') state.checklistRGPD={};
   if(!state.settings) state.settings=def.settings;
   if(state.settings.requireLogin==null) state.settings.requireLogin=true;
+  if(!state.settings.aprovacao||typeof state.settings.aprovacao!=='object') state.settings.aprovacao={ativo:true,limite:5000,descontoMax:15};
   if(!Array.isArray(state.settings.ivaRates)||!state.settings.ivaRates.length) state.settings.ivaRates=def.settings.ivaRates;
   if(!Array.isArray(state.settings.origens)||!state.settings.origens.length) state.settings.origens=def.settings.origens;
   if(!Array.isArray(state.settings.funcoes)||!state.settings.funcoes.length) state.settings.funcoes=FUNCOES.filter(Boolean);
@@ -1375,6 +1376,17 @@ const PROP_STATES = ['Criada','Enviada','Negociação','Ganha','Perdida'];
 const LOSS_REASONS = ['Preço','Concorrência','Timing / adiado','Sem orçamento','Sem resposta','Necessidade mudou','Funcionalidades','Outro'];
 const stateColor = s => ({Criada:'grey',Enviada:'blue',Negociação:'amber',Ganha:'green',Perdida:'red'}[s]||'grey');
 const stateDot = s => ({Criada:'#86978d',Enviada:'#2563eb',Negociação:'#d97706',Ganha:'#00A651',Perdida:'#dc2626'}[s]||'#86978d');
+/* ---------- Ciclo de aprovação de propostas (UFCD 10865 - approval mechanisms) ---------- */
+const APROV_ALVOS = ['Enviada','Negociação','Ganha'];   // estados que exigem a proposta desbloqueada
+function propMaxDesc(p){ return (p.linhas||[]).reduce((m,l)=>Math.max(m,Number(l.desconto||0)),0); }
+function aprovRule(){ return state.settings.aprovacao||{ativo:false}; }
+function needsAprovacao(p){ const a=aprovRule(); if(!a.ativo) return false; const tcv=proposalTotals(p).sub; return tcv>(+a.limite||0) || propMaxDesc(p)>(+a.descontoMax||100); }
+function aprovState(p){ return (p.aprovacao&&p.aprovacao.estado)||''; }
+function propBloqueada(p){ return needsAprovacao(p) && aprovState(p)!=='aprovada'; }
+function aprovMotivo(p){ const a=aprovRule(); const r=[]; const tcv=proposalTotals(p).sub; if(tcv>(+a.limite||0)) r.push('TCV '+money(tcv)+' acima do limite '+money(+a.limite||0)); const md=propMaxDesc(p); if(md>(+a.descontoMax||100)) r.push('desconto '+md+'% acima do máximo '+(+a.descontoMax||0)+'%'); return r.join(' · '); }
+function canAprovar(){ return !state.settings.requireLogin || isAdmin() || isGestor(); }
+function propsAprovacaoPendente(){ return state.propostas.filter(p=>aprovState(p)==='pendente'); }
+function aprovBadge(p){ const st=aprovState(p); if(st==='pendente') return '<span class="pill amber" style="font-size:.62rem" title="Aguarda aprovação do gestor">Aguarda aprovação</span>'; if(st==='rejeitada') return '<span class="pill red" style="font-size:.62rem" title="'+esc((p.aprovacao&&p.aprovacao.nota)||'Rejeitada pelo gestor')+'">Rejeitada</span>'; if(st==='aprovada') return '<span class="pill green" style="font-size:.62rem" title="Aprovada pelo gestor">Aprovada</span>'; return ''; }
 const clientValue = id => state.propostas.filter(p=>p.clienteId===id&&p.estado==='Ganha').reduce((s,p)=>s+propTotal(p),0);
 // volumes p/ fidelização: TCV líquido (sem desconto) — evita o ciclo desconto↔loyalty
 const empVolume = id => state.propostas.filter(p=>p.empresaId===id&&p.estado==='Ganha').reduce((s,p)=>s+proposalCalc(p).sub,0);
@@ -2001,6 +2013,7 @@ views.propostas = () => {
     ${kpi('Ganhas', fmtN(state.propostas.filter(p=>p.estado==='Ganha').length), {icon:'check', sub:money(state.propostas.filter(p=>p.estado==='Ganha').reduce((s,p)=>s+propTotal(p),0))})}
     ${kpi('A expirar (15 d)', fmtN(state.propostas.filter(p=>p.validade&&!['Ganha','Perdida'].includes(p.estado)&&daysBetween(todayISO(),p.validade)<=15&&daysBetween(todayISO(),p.validade)>=0).length), {icon:'bell', sub:'validade próxima'})}
   </div>
+  ${aprovacaoPanelHTML()}
   <div class="card card-pad">
     <div class="section-head" style="margin-bottom:16px">
       <div class="tabs"><button class="tab ${tab==='kanban'?'active':''}" data-proptab="kanban">Kanban</button><button class="tab ${tab==='tabela'?'active':''}" data-proptab="tabela">Tabela</button></div>
@@ -2009,18 +2022,29 @@ views.propostas = () => {
     ${tab==='kanban'?kanbanHTML():propTableHTML()}
   </div>`;
 };
+function aprovacaoPanelHTML(){
+  const pend=propsAprovacaoPendente();
+  if(!pend.length) return '';
+  const podeDecidir=canAprovar();
+  return `<div class="card card-pad" style="border-left:3px solid #d97706">
+    <div class="section-head" style="margin-bottom:12px"><div><h3 style="font-size:.95rem">${ic('bell',16)} Aprovações pendentes <span class="pill amber" style="font-size:.66rem">${pend.length}</span></h3><div class="sub">Propostas que excedem a regra e aguardam decisão do gestor${podeDecidir?'':' - só o gestor pode aprovar ou rejeitar'}.</div></div></div>
+    <div class="table-wrap"><table><thead><tr><th>Proposta</th><th>Empresa</th><th class="t-right">Total</th><th>Motivo</th><th></th></tr></thead><tbody>
+    ${pend.map(p=>`<tr><td data-act="open-prop" data-id="${p.id}" style="cursor:pointer"><div class="cell-main">${esc(p.numero)}</div><div class="cell-sub">${esc(p.titulo)}</div></td><td>${esc(propAccount(p))}</td><td class="t-right"><strong>${money(propTotal(p))}</strong></td><td class="muted" style="font-size:.78rem">${esc((p.aprovacao&&p.aprovacao.motivo)||'-')}</td><td>${podeDecidir?`<div class="row-actions"><button class="btn btn-xs" data-act="aprovar-prop" data-id="${p.id}">${ic('check',13)} Aprovar</button><button class="btn-danger btn-xs" data-act="rejeitar-prop" data-id="${p.id}">Rejeitar</button></div>`:`<span class="pill amber" style="font-size:.62rem">Aguarda gestor</span>`}</td></tr>`).join('')}
+    </tbody></table></div>
+  </div>`;
+}
 function kanbanHTML(){
   return `<div class="kanban">${PROP_STATES.map(st=>{
     const items=state.propostas.filter(p=>p.estado===st);
     const tot=items.reduce((s,p)=>s+propTotal(p),0);
     return `<div class="kcol"><div class="kcol-head"><span><span class="dot" style="background:${stateDot(st)}"></span>${st}</span><span class="cnt">${items.length}</span></div>
-      <div class="klist" data-status="${st}">${items.map(p=>`<div class="kcard" draggable="true" data-id="${p.id}" data-act="open-prop"><span class="knum">${esc(p.numero)}</span><span class="ktitle">${esc(p.titulo)}</span><div class="kfoot"><span class="muted" style="font-size:.78rem">${esc(propAccount(p))}</span><span class="kval">${money(propTotal(p))}</span></div></div>`).join('')||'<div class="empty" style="padding:14px;font-size:.8rem">Vazio</div>'}</div>
+      <div class="klist" data-status="${st}">${items.map(p=>`<div class="kcard" draggable="true" data-id="${p.id}" data-act="open-prop"><span class="knum">${esc(p.numero)}</span><span class="ktitle">${esc(p.titulo)}</span>${aprovBadge(p)?`<div style="margin:4px 0 0">${aprovBadge(p)}</div>`:''}<div class="kfoot"><span class="muted" style="font-size:.78rem">${esc(propAccount(p))}</span><span class="kval">${money(propTotal(p))}</span></div></div>`).join('')||'<div class="empty" style="padding:14px;font-size:.8rem">Vazio</div>'}</div>
       <div class="ktotal">${money(tot)}</div></div>`;
   }).join('')}</div>`;
 }
 function propTableHTML(){
   return `<div class="table-wrap"><table><thead><tr><th>Número</th><th>Empresa (cliente)</th><th>Criada</th><th>Validade</th><th class="t-right">Total</th><th>Estado</th><th></th></tr></thead><tbody>
-    ${state.propostas.length?state.propostas.map(p=>`<tr><td data-act="open-prop" data-id="${p.id}" style="cursor:pointer"><div class="cell-main">${esc(p.numero)}</div><div class="cell-sub">${esc(p.titulo)}</div></td><td><div class="cell-main">${esc(propAccount(p))}</div>${p.clienteId?`<div class="cell-sub">${esc(clientName(p.clienteId))}</div>`:''}</td><td>${dPT(p.criada)}</td><td>${dPT(p.validade)}</td><td class="t-right"><strong>${money(propTotal(p))}</strong></td><td><span class="pill ${stateColor(p.estado)}">${p.estado}</span></td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="proposta" data-id="${p.id}">Editar</button><button class="btn-sec btn-xs" data-act="print-prop" data-id="${p.id}">${ic('print',13)} PDF</button><button class="btn-sec btn-xs" data-act="email-prop" data-id="${p.id}">${ic('mail',13)} Email</button></div></td></tr>`).join(''):`<tr><td colspan="7">${empty('Sem propostas')}</td></tr>`}
+    ${state.propostas.length?state.propostas.map(p=>`<tr><td data-act="open-prop" data-id="${p.id}" style="cursor:pointer"><div class="cell-main">${esc(p.numero)}</div><div class="cell-sub">${esc(p.titulo)}</div></td><td><div class="cell-main">${esc(propAccount(p))}</div>${p.clienteId?`<div class="cell-sub">${esc(clientName(p.clienteId))}</div>`:''}</td><td>${dPT(p.criada)}</td><td>${dPT(p.validade)}</td><td class="t-right"><strong>${money(propTotal(p))}</strong></td><td><span class="pill ${stateColor(p.estado)}">${p.estado}</span>${aprovBadge(p)?' '+aprovBadge(p):''}</td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="proposta" data-id="${p.id}">Editar</button><button class="btn-sec btn-xs" data-act="print-prop" data-id="${p.id}">${ic('print',13)} PDF</button><button class="btn-sec btn-xs" data-act="email-prop" data-id="${p.id}">${ic('mail',13)} Email</button></div></td></tr>`).join(''):`<tr><td colspan="7">${empty('Sem propostas')}</td></tr>`}
   </tbody></table></div>`;
 }
 
@@ -3219,6 +3243,7 @@ function defSandboxView(){ const s=state.settings; const secs=[];
 /* ---------- DEFINIÇÕES ---------- */
 views.definicoes = () => {
   const s=state.settings;
+  const aprov=s.aprovacao||{ativo:true,limite:5000,descontoMax:15};
   if(!(isAdmin()||can('definicoes'))) return defSandboxView();
   const pgu=paginate(state.utilizadores,'utilizadores');
   return `
@@ -3236,6 +3261,15 @@ views.definicoes = () => {
         <div class="field"><label>Cidade</label><input data-set="cidade" value="${esc(s.cidade)}"></div>
         <div class="field full"><label>Encarregado de Proteção de Dados (EPD)</label><input data-set="epd" value="${esc(s.epd)}"></div>
       </div>
+    </div>
+    <div class="card card-pad">
+      <div class="section-head" style="margin-bottom:16px"><div><h3>Aprovação de propostas</h3><div class="sub">Ciclo de aprovação: propostas acima do limite de valor ou com desconto elevado precisam de decisão do gestor antes de avançar no pipeline.</div></div><button class="btn" data-act="save-aprovacao">Guardar</button></div>
+      <div class="form-grid">
+        <div class="field full"><label style="cursor:pointer"><input type="checkbox" name="aprovAtivo" ${aprov.ativo?'checked':''} style="vertical-align:-2px;margin-right:8px;width:15px;height:15px;accent-color:var(--g600)">Exigir aprovação do gestor</label></div>
+        <div class="field"><label>Limite de valor (TCV) sem aprovação (€)</label><input type="number" name="aprovLimite" min="0" step="100" value="${esc(aprov.limite)}"></div>
+        <div class="field"><label>Desconto máximo por linha sem aprovação (%)</label><input type="number" name="aprovDescontoMax" min="0" max="100" step="1" value="${esc(aprov.descontoMax)}"></div>
+      </div>
+      <div class="callout info" style="margin-top:14px">${ic('info',16)}<div class="ctxt">Acima destes valores, quando a proposta passa a Enviada/Negociação/Ganha, fica retida em "Aprovações pendentes" (ecrã Propostas) até o gestor aprovar ou rejeitar.</div></div>
     </div>
     <div class="card card-pad">
       <div class="section-head" style="margin-bottom:16px"><div><h3>Dados & backup</h3><div class="sub">Importação / exportação (UFCD 10870)</div></div></div>
@@ -3759,6 +3793,12 @@ function renderPropForm(){
   const aC=state.utilizadores.find(u=>u.id===p.criadoPor), aA=state.utilizadores.find(u=>u.id===p.alteradoPor);
   $('#modalForm').innerHTML=`
     ${locked?`<div class="callout warn" style="margin-bottom:14px;align-items:center">${ic('lock',16)}<div class="ctxt" style="flex:1"><strong>Proposta fechada (${esc(p.estado)}).</strong> As linhas estão bloqueadas. Para alterar, reabra a proposta.</div><button class="btn-sec btn-sm" type="button" data-act="reopen-prop" style="flex:0 0 auto">Reabrir</button></div>`:''}
+    ${(()=>{ const st=aprovState(p);
+      if(st==='pendente') return `<div class="callout warn" style="margin-bottom:14px;align-items:center">${ic('bell',16)}<div class="ctxt" style="flex:1"><strong>Aguarda aprovação do gestor.</strong> ${esc(p.aprovacao.motivo||'')}. Fica retida em "Criada" até ser aprovada.</div></div>`;
+      if(st==='rejeitada') return `<div class="callout warn" style="margin-bottom:14px;align-items:center">${ic('alert',16)}<div class="ctxt" style="flex:1"><strong>Aprovação rejeitada pelo gestor.</strong>${p.aprovacao.nota?' Motivo: '+esc(p.aprovacao.nota)+'.':''} Ajuste a proposta e volte a submeter.</div></div>`;
+      if(st==='aprovada') return `<div class="callout info" style="margin-bottom:14px;align-items:center">${ic('check',16)}<div class="ctxt" style="flex:1"><strong>Aprovada pelo gestor.</strong> Pode avançar no pipeline.</div></div>`;
+      if(needsAprovacao(p)) return `<div class="callout info" style="margin-bottom:14px;align-items:center">${ic('info',16)}<div class="ctxt" style="flex:1">Excede a regra de aprovação (${esc(aprovMotivo(p))}). Ao passar a Enviada/Negociação/Ganha, segue para aprovação do gestor.</div></div>`;
+      return ''; })()}
     <div class="toolbar" style="margin-bottom:14px;justify-content:flex-end;gap:8px">
       <button class="btn-sec btn-sm" type="button" data-act="prop-preview">${ic('eye',15)} Pré-visualizar</button>
       <button class="btn-sec btn-sm" type="button" data-act="prop-pdf">${ic('print',15)} Descarregar PDF</button>
@@ -3854,11 +3894,18 @@ function savePropModal(closeAfter){
   propDraft.alteradoPor=uid2; propDraft.alteradoEm=todayISO();
   const isNew=i<0;
   if(isNew){ propDraft.criadoPor=uid2; propDraft.criadoEm=todayISO(); if(!propDraft.fonte) propDraft.fonte='manual'; }
+  // ciclo de aprovação (10865): se o estado-alvo excede a regra e não está aprovada, retém em "Criada" e pede aprovação ao gestor
+  let enviadaAprovacao=false;
+  if(APROV_ALVOS.includes(propDraft.estado) && propBloqueada(propDraft)){
+    propDraft.aprovacao={estado:'pendente', alvo:propDraft.estado, pedidaPor:uid2, pedidaEm:todayISO(), motivo:aprovMotivo(propDraft)};
+    propDraft.estado='Criada'; enviadaAprovacao=true;
+  }
   // grava uma CÓPIA no estado; propDraft continua a ser o rascunho editável (guardar não fecha)
   const stored=clone(propDraft); stored.linhas=(stored.linhas||[]).filter(l=>l.produtoId);
   if(i>=0) state.propostas[i]=stored; else state.propostas.push(stored);
   recalcLoyalty(); save();
-  toast(isNew?'Proposta criada':'Proposta guardada', stored.numero);
+  if(enviadaAprovacao) toast('Enviada para aprovação', stored.numero+' aguarda decisão do gestor','warn');
+  else toast(isNew?'Proposta criada':'Proposta guardada', stored.numero);
   { const acc=propAccObj(stored); if(acc) advanceFase(acc, stored.estado==='Ganha'?'Cliente':'SQL'); save(); }   // proposta ⇒ a CONTA avança p/ SQL (ganha ⇒ Cliente)
   if(isNew) fireAutomations('proposta-criada',{clienteId:stored.clienteId,proposta:stored});
   onPropStatusChange(stored, oldEstado, stored.estado);
@@ -4399,6 +4446,8 @@ document.addEventListener('click', async e=>{
       .finally(()=>{ btn.disabled=false; btn.innerHTML=old; });
     } break;
     case 'open-prop': openModal('proposta',id); break;
+    case 'aprovar-prop': { const p=state.propostas.find(x=>x.id===id); if(!p||!canAprovar()) break; const alvo=(p.aprovacao&&p.aprovacao.alvo)||'Enviada'; const old=p.estado; p.aprovacao=Object.assign({},p.aprovacao,{estado:'aprovada',decididaPor:(currentUser()||{}).id||null,decididaEm:todayISO()}); p.estado=alvo; save(); onPropStatusChange(p,old,alvo); render(); toast('Proposta aprovada',p.numero+' avança para '+alvo); } break;
+    case 'rejeitar-prop': { const p=state.propostas.find(x=>x.id===id); if(!p||!canAprovar()) break; uiPrompt('Motivo da rejeição (opcional). O comercial vê esta nota na proposta.','',{title:'Rejeitar proposta',okText:'Rejeitar'}).then(nota=>{ if(nota===false||nota==null) return; p.aprovacao=Object.assign({},p.aprovacao,{estado:'rejeitada',decididaPor:(currentUser()||{}).id||null,decididaEm:todayISO(),nota:nota||''}); save(); render(); toast('Proposta rejeitada',p.numero); }); } break;
     case 'print-prop': e.stopPropagation(); printProposal(id); break;
     case 'modal-save': saveModal(); break;
     case 'modal-delete': { const ed=Object.assign({},editing); const gname=groupDraft&&groupDraft.orig; const aid=autoDraft&&autoDraft.id; closeModal(); if(ed.type==='__group'){ if(gname) delGroup(gname); } else if(ed.type==='__auto'){ if(aid){ state.automacoes=state.automacoes.filter(x=>x.id!==aid); save(); render(); toast('Automação eliminada'); } } else if(ed.type&&ed.id&&STORE_OF[ed.type]) deleteEntity(ed.type,ed.id); } break;
@@ -4435,6 +4484,7 @@ document.addEventListener('click', async e=>{
     case 'tpl-up': e.stopPropagation(); moveBlock(+el.dataset.i,-1); break;
     case 'tpl-down': e.stopPropagation(); moveBlock(+el.dataset.i,1); break;
     case 'tpl-delblock': e.stopPropagation(); delBlock(+el.dataset.i); break;
+    case 'save-aprovacao': { const A=state.settings.aprovacao||{}; const ck=$('[name="aprovAtivo"]'); const lm=$('[name="aprovLimite"]'); const dm=$('[name="aprovDescontoMax"]'); A.ativo=!!(ck&&ck.checked); A.limite=Math.max(0,Number((lm&&lm.value)||0)); A.descontoMax=Math.max(0,Math.min(100,Number((dm&&dm.value)||0))); state.settings.aprovacao=A; save(); toast('Regra de aprovação guardada'); render(); } break;
     case 'tpl-save': saveTpl(); break;
     case 'tpl-cancel': cancelTpl(); break;
     case 'tpl-test': syncTplMeta(); openPrint(proposalDocHTML(tplDraft, exemploProp())); break;

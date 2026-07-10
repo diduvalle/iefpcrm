@@ -14,6 +14,7 @@ As propostas organizam-se por **estado**, em colunas que podes arrastar.
 - Cada coluna mostra o **total** ao fundo.
 - Largar em **Perdida** pede o **[motivo da perda](perda.md)**.
 - Propostas **Ganha/Perdida** ficam **bloqueadas** (só leitura).
+- Propostas de valor elevado podem exigir **[aprovação do gestor](aprovacao.md)** antes de avançar.
 
 ## Reabrir
 

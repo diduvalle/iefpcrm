@@ -14,6 +14,7 @@ Proposals are organised by **status**, in columns you can drag.
 - Each column shows the **total** at the bottom.
 - Dropping into **Lost** prompts for the **[loss reason](perda.md)**.
 - **Won/Lost** proposals are **locked** (read-only).
+- High-value proposals may require **[manager approval](aprovacao.md)** before advancing.
 
 ## Reopen
 
