@@ -15,7 +15,8 @@ A via mais rápida para uma turma inteira.
     |---|---|---|
     | `nome` | ✅ | Primeiro nome |
     | `apelido` | ✅ | |
-    | `email` | ✅ | Email **IEFP** do formando (aparece nas entregas) |
+    | `email` | ✅ | Email **IEFP** do formando (o principal; gera o utilizador e a palavra-passe) |
+    | `email_pessoal` | - | Email pessoal (opcional) - o **convite vai para os dois** |
     | `username` | ✅ | O login (ex.: `joao.silva`) |
     | `password` | - | Pode ficar vazia → usa a *palavra-passe inicial* |
     | `papel` | - | `Formando` (predefinido) ou `Formador` |

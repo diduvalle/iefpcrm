@@ -1448,7 +1448,7 @@ function supaMsg(e){ const m=(e&&e.message)||String(e); return SUPA_ERR[m]||m; }
 // Espelha um utilizador do Supabase no state local (para permissões/currentUser funcionarem)
 function ingestSupaUser(u){
   if(!u||!u.id) return;
-  const rec={id:u.id,username:u.username,nome:u.nome,apelido:u.apelido||'',email:u.email||'',papel:u.papel||'Formando',estado:'Ativo',password:'(supabase)'};
+  const rec={id:u.id,username:u.username,nome:u.nome,apelido:u.apelido||'',email:u.email||'',email2:u.email2||'',papel:u.papel||'Formando',estado:'Ativo',password:'(supabase)'};
   const lu=state.utilizadores.find(x=>x.id===u.id);
   if(lu) Object.assign(lu,rec); else state.utilizadores.push(rec);
   save();
@@ -2536,10 +2536,14 @@ function buildInviteTpl(f,pwd){ const u=currentUser()||{}; const forNome=((u.nom
   const ctx={nome:((f.nome||'')+' '+(f.apelido||'')).trim()||f.username||'',username:f.username||'',password:pwd||'',turma:TURMA||'',login:inviteLoginURL(),formador:forNome,emaildoformador:u.email||''};
   const t=inviteTpl(),out=Object.assign({},t); ['assunto','saudacao','corpo','botaoLink','assinatura'].forEach(k=>out[k]=inviteMerge(t[k],ctx)); return out; }
 function inviteBodyText(t){ const parts=[t.saudacao,t.corpo]; if(t.botaoTexto&&t.botaoLink) parts.push(t.botaoTexto+':\n'+t.botaoLink); if(t.assinatura) parts.push(t.assinatura); return parts.filter(Boolean).join('\n\n'); }
-function sendInvite(f,pwd){ if(!realSendOn()) return Promise.resolve({sent:false,reason:'emailjs'}); if(!f||!f.email) return Promise.resolve({sent:false,reason:'noemail'});
+function sendInvite(f,pwd){ if(!realSendOn()) return Promise.resolve({sent:false,reason:'emailjs'});
+  // envia para os DOIS emails (IEFP + pessoal), únicos e sem vazios
+  const emails=[f&&f.email, f&&f.email2].map(x=>String(x||'').trim()).filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i);
+  if(!emails.length) return Promise.resolve({sent:false,reason:'noemail'});
   const tpl=buildInviteTpl(f,pwd);   // EmailJS trata {{message}} como TEXTO → enviamos texto (não HTML)
-  return sendViaEmailJS({toEmail:f.email,toName:((f.nome||'')+' '+(f.apelido||'')).trim()||f.username,subject:tpl.assunto,message:inviteBodyText(tpl)})
-    .then(()=>({sent:true})).catch(e=>({sent:false,reason:(typeof supaMsg==='function'?supaMsg(e):String(e&&e.text||e))})); }
+  const toName=((f.nome||'')+' '+(f.apelido||'')).trim()||f.username;
+  return Promise.all(emails.map(em=>sendViaEmailJS({toEmail:em,toName,subject:tpl.assunto,message:inviteBodyText(tpl)})))
+    .then(()=>({sent:true,count:emails.length})).catch(e=>({sent:false,reason:(typeof supaMsg==='function'?supaMsg(e):String(e&&e.text||e))})); }
 function formInv(){ const els=document.querySelectorAll('#modalForm [data-inv]'); const o={}; els.forEach(el=>o[el.dataset.inv]=el.value); return o; }
 function invitePreviewHTML(){ const f={nome:'Maria',apelido:'Silva',username:'1234567',email:'1234567@exemplo.pt'};
   const t=buildInviteTpl(f,genFormandoPwd(f.email,f.nome,f.apelido,f.username));
@@ -2943,7 +2947,7 @@ views.alertas = () => {
 
 /* ---------- Supabase Fase 2: gestão de formandos (turma) ---------- */
 async function supaRoster(){ return await supaRpc('listar_utilizadores',{p_token:supaToken()}); }
-async function supaAddFormando(p){ return await supaRpc('criar_formando',{p_token:supaToken(),p_username:p.username,p_password:p.password,p_nome:p.nome,p_apelido:p.apelido||'',p_email:p.email||'',p_papel:p.papel||'Formando'}); }
+async function supaAddFormando(p){ return await supaRpc('criar_formando',{p_token:supaToken(),p_username:p.username,p_password:p.password,p_nome:p.nome,p_apelido:p.apelido||'',p_email:p.email||'',p_papel:p.papel||'Formando',p_email2:p.email2||''}); }
 async function supaRemove(id){ return await supaRpc('remover_utilizador',{p_token:supaToken(),p_user_id:id}); }
 async function supaResetPwd(id,pwd){ return await supaRpc('redefinir_password',{p_token:supaToken(),p_user_id:id,p_nova_password:pwd}); }
 async function supaMudarMinhaPwd(atual,nova){ return await supaRpc('mudar_minha_password',{p_token:supaToken(),p_atual:atual,p_nova:nova}); }
@@ -2975,7 +2979,8 @@ function turmaUsersCardHTML(){
     <form id="rosterAddForm" onsubmit="return false" class="form-grid" style="margin-bottom:18px">
       <div class="field"><label>Nome *</label><input name="nome" placeholder="primeiro nome"></div>
       <div class="field"><label>Apelido</label><input name="apelido"></div>
-      <div class="field"><label>Email</label><input name="email" type="email"></div>
+      <div class="field"><label>Email (IEFP)</label><input name="email" type="email" placeholder="nº@formacao.iefp.pt"></div>
+      <div class="field"><label>Email pessoal <span class="muted" style="font-weight:500;font-size:.78rem">(opcional)</span></label><input name="email2" type="email" placeholder="o convite vai para os dois"></div>
       <div class="field"><label>Utilizador (auto se vazio)</label><input name="username" placeholder="ex.: joao.silva"></div>
       <div class="field"><label>Palavra-passe (auto se vazia)</label><input name="password" type="text" placeholder="vazio → nº do email + iniciais (ex.: 1234567BR)"></div>
       <div class="field"><label>Papel</label><select name="papel"><option>Formando</option><option>Formador</option></select></div>
@@ -2996,10 +3001,10 @@ function renderTurmaRoster(){
     const rows=list.map(u=>`<tr>
       <td class="cell-main">${esc(((u.nome||'')+' '+(u.apelido||'')).trim())}${me&&me.id===u.id?' <span class="tag">eu</span>':''}</td>
       <td><span class="chip">${ic('key',13)} ${esc(u.username)}</span></td>
-      <td>${esc(u.email||'-')}</td>
+      <td><div class="cell-main">${esc(u.email||'-')}</div>${u.email2?`<div class="cell-sub">${esc(u.email2)} <span class="muted">(pessoal)</span></div>`:''}</td>
       <td><span class="chip">${esc(u.papel)}</span></td>
       <td>${entregaCell(u)}</td>
-      <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="roster-pwd" data-id="${u.id}" data-nome="${esc(u.username)}">Repor palavra-passe</button>${me&&me.id===u.id?`<span class="btn-xs" style="color:var(--muted2)" title="A sua conta">${ic('lock',13)}</span>`:`<button class="btn-danger btn-xs" data-act="roster-del" data-id="${u.id}" data-nome="${esc(((u.nome||'')+' '+(u.apelido||'')).trim())}">✕</button><button class="btn-sec btn-xs" data-act="roster-invite" data-id="${u.id}" data-username="${esc(u.username)}" data-nome="${esc(u.nome||'')}" data-apelido="${esc(u.apelido||'')}" data-email="${esc(u.email||'')}" title="Repor palavra-passe (regra do sistema) e enviar o convite por email">${ic('send',13)} Reenviar convite</button>`}</div></td></tr>`).join('');
+      <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="roster-pwd" data-id="${u.id}" data-nome="${esc(u.username)}">Repor palavra-passe</button>${me&&me.id===u.id?`<span class="btn-xs" style="color:var(--muted2)" title="A sua conta">${ic('lock',13)}</span>`:`<button class="btn-danger btn-xs" data-act="roster-del" data-id="${u.id}" data-nome="${esc(((u.nome||'')+' '+(u.apelido||'')).trim())}">✕</button><button class="btn-sec btn-xs" data-act="roster-invite" data-id="${u.id}" data-username="${esc(u.username)}" data-nome="${esc(u.nome||'')}" data-apelido="${esc(u.apelido||'')}" data-email="${esc(u.email||'')}" data-email2="${esc(u.email2||'')}" title="Repor palavra-passe (regra do sistema) e enviar o convite por email">${ic('send',13)} Reenviar convite</button>`}</div></td></tr>`).join('');
     box.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Nome</th><th>Utilizador</th><th>Email</th><th>Papel</th><th>Entregas</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="6" class="muted" style="padding:14px">Ainda sem utilizadores nesta turma. Adicione um formando ou importe a lista.</td></tr>`}</tbody></table></div><div class="muted" style="font-size:.76rem;margin-top:8px">${list.length} utilizador(es) · turma ${esc(TURMA)}</div>`;
   }).catch(e=>{ box.innerHTML=`<div class="callout warn" style="margin:0">${ic('alert',16)}<div class="ctxt">${esc(supaMsg(e))}</div></div>`; });
 }
@@ -3078,19 +3083,19 @@ function printEntregaProp(propId){
 function rosterAdd(){
   const f=$('#rosterAddForm'); if(!f) return;
   const g=n=>((f.querySelector('[name="'+n+'"]')||{}).value||'').trim();
-  const nome=g('nome'), apelido=g('apelido'), email=g('email'); let username=g('username'); const papel=g('papel')||'Formando';
+  const nome=g('nome'), apelido=g('apelido'), email=g('email'), email2=g('email2'); let username=g('username'); const papel=g('papel')||'Formando';
   if(!nome){ toast('Falta o nome','Indique o nome do formando','warn'); return; }
   if(!username) username=emailNum(email)||slugUser(nome,apelido);   // nº do email (único) se disponível
   const password=g('password')||genFormandoPwd(email,nome,apelido,username);   // regra determinística se vazia
   const btn=f.querySelector('[data-act="roster-add"]'); if(btn){ btn.disabled=true; btn.textContent='A adicionar…'; }
   const reset=()=>{ const b=$('#rosterAddForm [data-act="roster-add"]'); if(b){ b.disabled=false; b.innerHTML=ic('users',16)+' Adicionar à turma'; } };
-  supaAddFormando({username,password,nome,apelido,email,papel}).then(()=>{
+  supaAddFormando({username,password,nome,apelido,email,email2,papel}).then(()=>{
     toast('Adicionado à turma',username);
-    sendInvite({nome,apelido,email,username},password).then(r=>{
-      if(r.sent) toast('Convite enviado',email);
-      else if(email&&r.reason==='emailjs') toast('Convite por enviar','Ative o envio real (Definições → EmailJS)','warn');
+    sendInvite({nome,apelido,email,email2,username},password).then(r=>{
+      if(r.sent) toast('Convite enviado', r.count>1?[email,email2].filter(Boolean).join(' + '):email);
+      else if((email||email2)&&r.reason==='emailjs') toast('Convite por enviar','Ative o envio real (Definições → EmailJS)','warn');
     });
-    ['nome','apelido','email','username','password'].forEach(n=>{const el=f.querySelector('[name="'+n+'"]'); if(el) el.value='';}); renderTurmaRoster(); reset();
+    ['nome','apelido','email','email2','username','password'].forEach(n=>{const el=f.querySelector('[name="'+n+'"]'); if(el) el.value='';}); renderTurmaRoster(); reset();
   }).catch(e=>{ toast('Erro',supaMsg(e),'err'); reset(); });
 }
 let importDraft=null;
@@ -3100,7 +3105,7 @@ function importTurmaCSV(file){
     let rows; try{ rows=parseCSV(e.target.result); }catch(err){ toast('Erro no ficheiro','Verifique o formato','err'); return; }
     if(!rows||rows.length<2){ toast('Ficheiro vazio','Use o modelo e preencha pelo menos uma linha','warn'); return; }
     const head=rows[0].map(h=>h.trim().toLowerCase()); const idx=n=>head.indexOf(n);
-    const c={nome:idx('nome'),apelido:idx('apelido'),email:idx('email'),username:idx('username'),password:idx('password'),papel:idx('papel')};
+    const c={nome:idx('nome'),apelido:idx('apelido'),email:idx('email'),email2:idx('email_pessoal'),username:idx('username'),password:idx('password'),papel:idx('papel')};
     if(c.nome<0||c.apelido<0||c.email<0){ toast('Cabeçalho inválido','Precisa das colunas nome, apelido e email (use o Modelo)','err'); return; }
     toast('A validar…','','');
     supaRoster().then(roster=>{
@@ -3108,7 +3113,7 @@ function importTurmaCSV(file){
       const seen=new Set();
       importDraft=rows.slice(1).filter(cols=>cols.some(v=>(v||'').trim())).map((cols,i)=>{
         const g=k=>c[k]>=0?(cols[c[k]]||'').trim():'';
-        const nome=g('nome'), apelido=g('apelido'), email=g('email');
+        const nome=g('nome'), apelido=g('apelido'), email=g('email'), email2=g('email2');
         let username=g('username'); let password=g('password'); let papel=g('papel')||'Formando';
         if(papel!=='Formador'&&papel!=='Formando') papel='Formando';
         if(username.charAt(0)==='=') username='';   // fórmula por avaliar (não aberto no Excel)
@@ -3121,7 +3126,7 @@ function importTurmaCSV(file){
         if(!apelido) errs.push('apelido');
         if(!email) errs.push('email em falta'); else if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) errs.push('email inválido');
         if(username){ if(seen.has(username)) errs.push('repetido no ficheiro'); else seen.add(username); if(existing.has(username)) errs.push('já existe na turma'); }
-        return {i:i+2, nome, apelido, email, username, password, papel, errs};
+        return {i:i+2, nome, apelido, email, email2, username, password, papel, errs};
       });
       openImportPreview();
     }).catch(err=>{ toast('Não foi possível validar',supaMsg(err),'err'); });
@@ -3145,8 +3150,8 @@ function confirmImport(){
   const sv=$('[data-act="modal-save"]'); if(sv){ sv.disabled=true; sv.textContent='A importar…'; }
   (async()=>{
     let ok=0,fail=0,inv=0; const errs=[];
-    for(const r of valid){ try{ await supaAddFormando({username:r.username,password:r.password,nome:r.nome,apelido:r.apelido,email:r.email,papel:r.papel}); ok++;
-      try{ const ir=await sendInvite({nome:r.nome,apelido:r.apelido,email:r.email,username:r.username},r.password); if(ir.sent) inv++; }catch(_){}
+    for(const r of valid){ try{ await supaAddFormando({username:r.username,password:r.password,nome:r.nome,apelido:r.apelido,email:r.email,email2:r.email2,papel:r.papel}); ok++;
+      try{ const ir=await sendInvite({nome:r.nome,apelido:r.apelido,email:r.email,email2:r.email2,username:r.username},r.password); if(ir.sent) inv++; }catch(_){}
     } catch(e){ fail++; errs.push(r.username+': '+supaMsg(e)); } }
     importDraft=null; closeModal(); renderTurmaRoster();
     toast('Importação concluída',`${ok} criado(s)${inv?` · ${inv} convite(s) enviado(s)`:''}${fail?` · ${fail} falhou(aram)`:''}`,fail?'warn':'ok');
@@ -4489,13 +4494,13 @@ document.addEventListener('click', async e=>{
     case 'roster-add': rosterAdd(); break;
     case 'roster-del': { const nm=el.dataset.nome||''; if(await uiConfirm('O acesso de '+nm+' deixa de funcionar. Os dados locais do próprio computador não são afetados.',{title:'Remover da turma?',danger:true,okText:'Remover'})){ supaRemove(el.dataset.id).then(()=>{ toast('Removido',nm); renderTurmaRoster(); }).catch(er=>toast('Erro',supaMsg(er),'err')); } break; }
     case 'roster-pwd': { const p=await uiPrompt('Nova palavra-passe para "'+(el.dataset.nome||'')+'":','',{title:'Repor palavra-passe'}); if(p&&p.trim()){ supaResetPwd(el.dataset.id,p.trim()).then(()=>toast('Palavra-passe reposta',el.dataset.nome)).catch(er=>toast('Erro',supaMsg(er),'err')); } break; }
-    case 'roster-invite': { const em=el.dataset.email||''; const un=el.dataset.username||''; const nm=el.dataset.nome||un;
-      if(!em){ toast('Sem email','Este utilizador não tem email definido','warn'); break; }
+    case 'roster-invite': { const em=el.dataset.email||''; const em2=el.dataset.email2||''; const un=el.dataset.username||''; const nm=el.dataset.nome||un;
+      const dests=[em,em2].filter(Boolean); if(!dests.length){ toast('Sem email','Este utilizador não tem email definido','warn'); break; }
       if(!realSendOn()){ toast('Ative o envio real','Definições → EmailJS (modo real) para enviar convites','warn'); break; }
       const pwd=genFormandoPwd(em,nm,el.dataset.apelido||'',un);
-      if(!(await uiConfirm('A palavra-passe de '+nm+' será reposta para a regra do sistema e enviada para '+em+'.',{title:'Reenviar convite?',okText:'Reenviar',icon:'send'}))) break;
-      supaResetPwd(el.dataset.id,pwd).then(()=>sendInvite({nome:nm,apelido:el.dataset.apelido||'',email:em,username:un},pwd))
-        .then(r=>toast((r&&r.sent)?'Convite reenviado':'Falha no envio',em,(r&&r.sent)?'':'warn'))
+      if(!(await uiConfirm('A palavra-passe de '+nm+' será reposta para a regra do sistema e enviada para '+dests.join(' + ')+'.',{title:'Reenviar convite?',okText:'Reenviar',icon:'send'}))) break;
+      supaResetPwd(el.dataset.id,pwd).then(()=>sendInvite({nome:nm,apelido:el.dataset.apelido||'',email:em,email2:em2,username:un},pwd))
+        .then(r=>toast((r&&r.sent)?'Convite reenviado':'Falha no envio',dests.join(' + '),(r&&r.sent)?'':'warn'))
         .catch(er=>toast('Erro',supaMsg(er),'err')); break; }
     case 'invite-editor': openInviteEditor(); break;
     case 'inv-reset': { const t=INVITE_DEFAULT; document.querySelectorAll('#modalForm [data-inv]').forEach(el=>{ if(t[el.dataset.inv]!=null) el.value=t[el.dataset.inv]; }); const p=$('#invPreview'); if(p) p.innerHTML=invitePreviewHTML(); toast('Reposto','Modelo predefinido'); break; }
@@ -4828,7 +4833,7 @@ function importUsersCSV(file){
   r.onload=e=>{ try{
     const rows=parseCSV(e.target.result); if(rows.length<2) throw 0;
     const head=rows[0].map(h=>h.trim().toLowerCase()); const idx=n=>head.indexOf(n);
-    const c={nome:idx('nome'),apelido:idx('apelido'),email:idx('email'),username:idx('username'),password:idx('password'),papel:idx('papel')};
+    const c={nome:idx('nome'),apelido:idx('apelido'),email:idx('email'),email2:idx('email_pessoal'),username:idx('username'),password:idx('password'),papel:idx('papel')};
     if(c.nome<0||c.username<0){ toast('Ficheiro inválido','Faltam as colunas "nome" e "username"','err'); return; }
     let added=0,skipped=0;
     rows.slice(1).forEach(cols=>{
@@ -4836,7 +4841,7 @@ function importUsersCSV(file){
       const username=g('username'), nome=g('nome'); if(!username||!nome){skipped++;return;}
       if(state.utilizadores.some(u=>(u.username||'').toLowerCase()===username.toLowerCase())){skipped++;return;}
       let papel=g('papel')||'Formando'; if(!state.roles[papel]) papel='Formando';
-      state.utilizadores.push({id:uid('usr'),nome,apelido:g('apelido'),email:g('email'),username,password:hashPwd(g('password')||'1234'),papel,estado:'Ativo'});
+      state.utilizadores.push({id:uid('usr'),nome,apelido:g('apelido'),email:g('email'),email2:g('email2'),username,password:hashPwd(g('password')||'1234'),papel,estado:'Ativo'});
       added++;
     });
     save(); render(); toast('Formandos importados',`${added} ativo(s)${skipped?` · ${skipped} ignorado(s)`:''}`);
@@ -4846,12 +4851,12 @@ function importUsersCSV(file){
 function downloadUserTemplate(){
   const cc=v=>{ v=String(v); return /[";\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; };
   const N=60;
-  const ex=[['Beatriz','Rocha','1234567@formacao.iefp.pt'],['Bruno','Ribeiro','1234568@formacao.iefp.pt']]; // 2 exemplos fictícios (repare: iniciais BR iguais → utilizador usa o nº, único)
-  const lines=['nome;apelido;email;username;password;papel'];
-  for(let r=2;r<=N+1;r++){ const e=ex[r-2]||['','',''];
-    const uForm=`=SE(C${r}="";"";ESQUERDA(C${r};LOCALIZAR("@";C${r})-1))`;                                   // utilizador = nº do email (único)
+  const ex=[['Beatriz','Rocha','1234567@formacao.iefp.pt','beatriz.rocha@gmail.com'],['Bruno','Ribeiro','1234568@formacao.iefp.pt','']]; // 2 exemplos fictícios (email_pessoal é opcional; o convite vai para os dois)
+  const lines=['nome;apelido;email;email_pessoal;username;password;papel'];
+  for(let r=2;r<=N+1;r++){ const e=ex[r-2]||['','','',''];
+    const uForm=`=SE(C${r}="";"";ESQUERDA(C${r};LOCALIZAR("@";C${r})-1))`;                                   // utilizador = nº do email IEFP (único)
     const pForm=`=SE(C${r}="";"";ESQUERDA(C${r};LOCALIZAR("@";C${r})-1)&ESQUERDA(A${r};1)&ESQUERDA(B${r};1))`; // password = nº + iniciais (nomes já vêm capitalizados)
-    lines.push([cc(e[0]),cc(e[1]),cc(e[2]),cc(uForm),cc(pForm),(e[2]?'Formando':'')].join(';'));
+    lines.push([cc(e[0]),cc(e[1]),cc(e[2]),cc(e[3]||''),cc(uForm),cc(pForm),(e[2]?'Formando':'')].join(';'));
   }
   const blob=new Blob(['﻿'+lines.join('\n')+'\n'],{type:'text/csv;charset=utf-8'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='modelo-formandos.csv'; a.click(); URL.revokeObjectURL(a.href);

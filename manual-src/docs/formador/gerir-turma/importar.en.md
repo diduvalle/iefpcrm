@@ -15,7 +15,8 @@ The fastest route for a whole class.
     |---|---|---|
     | `nome` | ✅ | First name |
     | `apelido` | ✅ | |
-    | `email` | ✅ | The trainee's **IEFP** email (appears in submissions) |
+    | `email` | ✅ | The trainee's **IEFP** email (the primary one; derives username and password) |
+    | `email_pessoal` | - | Personal email (optional) - the **invite goes to both** |
     | `username` | ✅ | The login (e.g.: `joao.silva`) |
     | `password` | - | Can be left empty → uses the *initial password* |
     | `papel` | - | `Formando` (default) or `Formador` |
