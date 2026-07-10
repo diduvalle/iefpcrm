@@ -52,12 +52,16 @@ As pessoas - um **diretório**, como as **páginas amarelas**. O contacto **não
 ### Criar / editar - campo a campo
 - **Nome** e **Apelido** *(nome obrigatório)*.
 - **Empresa** - escolhe da lista de Empresas (pode ficar **sem empresa** - fica só no diretório; para lhe vender, cria a empresa a partir da ficha); **Cargo** e **Função** (a quem recorrer: dono, financeiro…).
-- **Email**, **Telefone**, **NIF (pessoal)** - validado.
+- **Email**, **Telefone** (principais - usados nos envios), **NIF (pessoal)** - validado.
+- **Contactos adicionais** - lista com quantos emails/telefones quiseres, cada um com **tipo** (Email/Telefone) e **rótulo** (Pessoal / Profissional / Outro). Útil quando a pessoa tem contactos pessoais e profissionais.
 - **Cidade** e **Região**.
 - **Notas**.
 
 ### Ficha 360°
-Mostra o cartão **Conta · Empresa** (a fase, o loyalty e o valor **da empresa**, com atalho para a ficha dela), a **ficha da pessoa** (contactos, cargo, função), o **histórico de empresa** (moveu-se de A → B) e as **propostas negociadas com esta pessoa**.
+Mostra o cartão **Conta · Empresa** (a fase, o loyalty e o valor **da empresa**, com atalho para a ficha dela), a **ficha da pessoa** (contactos, cargo, função), os **contactos adicionais**, o **histórico de empresa** (moveu-se de A → B) e as **propostas negociadas com esta pessoa**.
+
+!!! tip "Atalhos"
+    Clica no **email** da ficha para abrir o compositor do CRM já com o contacto como destinatário; clica no **telefone** para ligar (`tel:`). Na empresa, o botão **Procurar** (no NIPC) preenche a ficha a partir dos registos oficiais.
 
 ---
 

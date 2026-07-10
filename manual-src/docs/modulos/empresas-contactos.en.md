@@ -52,12 +52,16 @@ The people - a **directory**, like the **Yellow Pages**. A contact **has no** sa
 ### Create / edit - field by field
 - **First name** and **Last name** *(name required)*.
 - **Company** - pick from the Companies list (can be left **without a company** - it stays in the directory only; to sell to them, create the company from the profile); **Job title** and **Role** (who to turn to: owner, finance…).
-- **Email**, **Phone**, **NIF (personal)** - validated.
+- **Email**, **Phone** (primary - used for sending), **NIF (personal)** - validated.
+- **Additional contacts** - a list with as many emails/phones as you need, each with a **type** (Email/Phone) and a **label** (Personal / Work / Other). Useful when a person has personal and professional contacts.
 - **City** and **Region**.
 - **Notes**.
 
 ### 360° profile
-Shows the **Account · Company** card (the **company's** stage, loyalty and value, with a shortcut to its profile), the **person's details** (contacts, job title, role), the **company history** (moved from A → B) and the **proposals negotiated with this person**.
+Shows the **Account · Company** card (the **company's** stage, loyalty and value, with a shortcut to its profile), the **person's details** (contacts, job title, role), the **additional contacts**, the **company history** (moved from A → B) and the **proposals negotiated with this person**.
+
+!!! tip "Shortcuts"
+    Click the **email** on the profile to open the CRM composer with the contact already set as recipient; click the **phone** to call (`tel:`). On a company, the **Look up** button (on the NIPC) fills the profile from the official records.
 
 ---
 
