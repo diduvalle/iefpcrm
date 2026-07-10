@@ -141,6 +141,13 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://iefpcrm.cr0x.org/manual/en/modulos/campanhas-email/"/>
     </url>
     <url>
+        <loc>https://iefpcrm.cr0x.org/manual/modulos/casos/</loc>
+        <lastmod>2026-07-10</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://iefpcrm.cr0x.org/manual/modulos/casos/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://iefpcrm.cr0x.org/manual/en/modulos/casos/"/>
+    </url>
+    <url>
         <loc>https://iefpcrm.cr0x.org/manual/modulos/dashboard-agenda/</loc>
         <lastmod>2026-07-10</lastmod>
         <changefreq>daily</changefreq>
@@ -440,6 +447,13 @@
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://iefpcrm.cr0x.org/manual/en/modulos/campanhas-email/"/>
         <xhtml:link rel="alternate" hreflang="pt" href="https://iefpcrm.cr0x.org/manual/modulos/campanhas-email/"/>
+    </url>
+    <url>
+        <loc>https://iefpcrm.cr0x.org/manual/en/modulos/casos/</loc>
+        <lastmod>2026-07-10</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://iefpcrm.cr0x.org/manual/en/modulos/casos/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://iefpcrm.cr0x.org/manual/modulos/casos/"/>
     </url>
     <url>
         <loc>https://iefpcrm.cr0x.org/manual/en/modulos/dashboard-agenda/</loc>
