@@ -1836,7 +1836,7 @@ function openEmpresa360(id){
       <dt>Morada fiscal</dt><dd>${esc(e.moradaFiscal||'-')}${(e.codigoPostal||e.cidade)?`<br>${esc(e.codigoPostal||'')} ${esc(e.cidade||'')}`:''}</dd>
       <dt>Região (IVA)</dt><dd>${esc(e.regiao||'-')}</dd>
       <dt>Website</dt><dd>${esc(e.website||'-')}</dd>
-      <dt>Contacto geral</dt><dd>${esc(e.telefone||'-')} · ${esc(e.email||'-')}</dd>
+      <dt>Contacto geral</dt><dd>${e.telefone?`<a href="tel:${esc(String(e.telefone).replace(/\s/g,''))}" style="color:var(--g700)" title="Ligar">${esc(e.telefone)}</a>`:'-'} · ${e.email?`<a href="mailto:${esc(e.email)}" style="color:var(--g700);text-decoration:underline;text-underline-offset:2px" title="Escrever email">${esc(e.email)}</a>`:'-'}</dd>
     </dl>
     <div class="divider" style="margin:16px 0"></div>
     <div class="section-head" style="margin-bottom:10px"><div><h3 style="font-size:.98rem">Pessoas de contacto (${contacts.length})</h3><div class="sub" style="font-size:.76rem">Quem contactar em cada tema (dono, financeiro, etc.)</div></div><button class="btn-sec btn-sm" data-act="new" data-type="cliente" data-empresa="${e.id}">${ic('users',14)} Pessoa</button></div>
@@ -1915,8 +1915,8 @@ function openClient360(id){ drawer360Emp=null;
     <div class="card card-pad">
       <h4 style="font-weight:800;margin-bottom:10px;font-size:.95rem">Ficha da pessoa</h4>
       <dl class="kv">
-        <dt>Email</dt><dd>${esc(c.email||'-')}</dd>
-        <dt>Telefone</dt><dd>${esc(c.telefone||'-')}</dd>
+        <dt>Email</dt><dd>${c.email?`<a data-act="email-to" data-id="${id}" style="cursor:pointer;color:var(--g700);text-decoration:underline;text-underline-offset:2px" title="Escrever email no CRM">${esc(c.email)}</a>`:'-'}</dd>
+        <dt>Telefone</dt><dd>${c.telefone?`<a href="tel:${esc(String(c.telefone).replace(/\s/g,''))}" style="color:var(--g700)" title="Ligar">${esc(c.telefone)}</a>`:'-'}</dd>
         <dt>NIF (pessoal)</dt><dd>${esc(c.nif||'-')}</dd>
         <dt>Cidade</dt><dd>${esc(c.cidade||'-')}</dd>
         <dt>Cargo</dt><dd>${esc(c.cargo||'-')}</dd>
@@ -4362,6 +4362,7 @@ document.addEventListener('click', async e=>{
     case 'open-client': if(!e.target.closest('[data-stop]')) openClient360(id); break;
     case 'open-empresa': if(!e.target.closest('[data-stop]')) openEmpresa360(id); break;
     case 'eni-create': createENI(id); break;
+    case 'email-to': { mailDraft=defaultMailDraft(); mailDraft.clienteId=el.dataset.id||''; if(mailDraft.templateId) applyMailTemplate(); closeDrawer(); location.hash='#email'; setTimeout(render,0); const cc=getC(el.dataset.id); toast('Compositor de email', cc?('Para: '+cc.nome+' '+(cc.apelido||'')):'destinatário selecionado'); } break;
     case 'nif-lookup': { const inp=$('#modalForm [name="nipc"]'); const nif=inp?String(inp.value||'').replace(/\D/g,''):'';
       if(!/^\d{9}$/.test(nif)){ toast('NIPC incompleto','Escreva os 9 dígitos do NIPC primeiro','warn'); break; }
       const btn=el; const old=btn.innerHTML; btn.disabled=true; btn.textContent='A procurar…';
