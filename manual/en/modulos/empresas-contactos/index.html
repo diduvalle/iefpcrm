@@ -2312,52 +2312,53 @@
 <p><em>The Contacts tab - full record and 360° view of each client.</em></p>
 <hr>
 <h2 id="companies">Companies<a class="headerlink" href="#companies" title="Permanent link">¶</a></h2>
+<p>The <strong>company is the commercial account</strong>: this is where the sale, the value, the loyalty and <strong>lead management</strong> live.</p>
 <h3 id="the-screen">The screen<a class="headerlink" href="#the-screen" title="Permanent link">¶</a></h3>
 <ul>
-<li><strong>Date filter</strong> + <strong>KPIs</strong> (number of companies, associated value).</li>
-<li><strong>Search</strong>, <strong>pagination</strong> and the <strong>+ Company</strong> button.</li>
-<li>Click a <strong>row</strong> to open the <strong>360° profile</strong>.</li>
+<li><strong>KPIs</strong>: number of companies, <strong>Hot leads</strong> (score ≥ 70), <strong>Customers</strong> (stage = Customer) and <strong>value won</strong>.</li>
+<li><strong>Lead stage filter</strong> (chips: All / Lead / MQL / SQL / Customer / Lost) and, on each row, the <strong>score badge</strong> (Hot / Warm / Cold).</li>
+<li><strong>Search</strong>, <strong>pagination</strong> and <strong>+ Company</strong>. Click a <strong>row</strong> → <strong>360° profile</strong>.</li>
 </ul>
+<video class="iefp-video" controls="" preload="metadata" playsinline="" poster="/manual/assets/screens/clientes.png"><source src="/manual/assets/videos/gestao-leads-en.webm" type="video/webm"><source src="/manual/assets/videos/gestao-leads-en.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/gestao-leads-en.vtt" srclang="en" label="English" default=""></video>
+
+<p><em>Lead management on the company: lifecycle stage, lead score, the stage filter and the acquisition funnel.</em></p>
 <h3 id="create-edit-field-by-field">Create / edit - field by field<a class="headerlink" href="#create-edit-field-by-field" title="Permanent link">¶</a></h3>
 <ul>
 <li><strong>Name</strong> (legal name) <em>required</em>.</li>
 <li><strong>NIPC</strong> - validated (check digit). <em>Blocks saving if invalid.</em></li>
 <li><strong>CAE</strong> and <strong>Sector</strong>.</li>
-<li><strong>Size</strong> - Micro / SME / Large Enterprise.</li>
+<li><strong>Size (segment)</strong> - Micro / SME / Large Enterprise.</li>
+<li><strong>Stage (lifecycle)</strong> - <strong>Lead</strong> → <strong>MQL</strong> (<em>Marketing Qualified Lead</em>, one of its people has shown interest) → <strong>SQL</strong> (<em>Sales Qualified Lead</em>, a real opportunity with a proposal) → <strong>Customer</strong> / <strong>Lost</strong>. The app <strong>infers</strong> the stage and <strong>advances it</strong> on its own: email <em>engagement</em> → MQL, proposal → SQL, won → Customer.</li>
+<li><strong>Source (acquisition)</strong> - the channel the company came through (Website, Referral, Trade fair, Email Campaign…) - the basis of the <strong>acquisition funnel</strong> and <strong>ROI by source</strong> in Analytics.</li>
 <li><strong>Tax address</strong>, <strong>Postal code</strong>, <strong>City</strong>.</li>
-<li><strong>Region</strong> - Mainland / Madeira / Azores (affects the VAT on its contacts' proposals).</li>
+<li><strong>Region</strong> - Mainland / Madeira / Azores (affects the VAT on proposals).</li>
 <li><strong>Website</strong>, <strong>Phone</strong>, <strong>Email</strong>, <strong>Notes</strong>.</li>
 </ul>
 <h3 id="360-profile">360° profile<a class="headerlink" href="#360-profile" title="Permanent link">¶</a></h3>
-<p>Shows the <strong>tax data</strong>, the company's <strong>contact list</strong>, the company's <strong>loyalty tier</strong> and a summary of <strong>proposals / won / value won</strong>. This is where the commercial history lives - because <strong>the sale belongs to the company</strong>, not the person.</p>
+<p>Shows the company's <strong>lead stage</strong> and <strong>lead score</strong> (which <strong>aggregates the engagement of all its people</strong>), the <strong>source</strong>, the <strong>loyalty</strong>, the <strong>tax data</strong>, the <strong>list of people</strong> and a summary of <strong>proposals / won / value won</strong>.</p>
 <div class="admonition note">
-<p class="admonition-title">Sales and loyalty belong to the <strong>Company</strong>, not the contact</p>
-<p>The sale (proposal) and its value are anchored to the <strong>company</strong>: a person can <strong>change company</strong> and the history <strong>does not follow them</strong> - it stays on the account where the deal happened. <strong>Loyalty</strong> (Bronze/Silver/Gold) is also the <strong>company's</strong>, computed from the <strong>company's purchase volume</strong>; each contact <strong>inherits</strong> their company's tier. A contact <strong>without a company</strong> (an individual) uses <strong>their own</strong> volume. The proposal <strong>discount</strong> always comes from the <strong>account's</strong> tier (the company, or the contact when they are an individual).</p>
+<p class="admonition-title">Lead management and value belong to the <strong>Company</strong>, not the contact</p>
+<p>The sale (proposal), the <strong>value</strong>, the <strong>loyalty</strong>, the <strong>segment</strong> (size) and the <strong>lead stage</strong> all belong to the <strong>company</strong>. A person can <strong>change company</strong> and the history <strong>does not follow them</strong> - it stays on the account where the deal happened. The company's <strong>lead score</strong> rises when <strong>any of its people</strong> opens/clicks emails; the one who <strong>closes</strong> the sale is a contact (recorded on the proposal), but the deal is the company's. A contact <strong>without a company</strong> (an individual) is a <strong>one-person account</strong> - there the stage, loyalty and value fall on the person.</p>
 </div>
 <hr>
 <h2 id="contacts">Contacts<a class="headerlink" href="#contacts" title="Permanent link">¶</a></h2>
-<p>The people (the former "customers").</p>
+<p>The people - a <strong>directory</strong>, like the <strong>Yellow Pages</strong>. A contact <strong>has no</strong> sale, value, loyalty or segment of its own (that belongs to the company); it holds the <strong>identity</strong>, the <strong>current company</strong>, the <strong>job title/role</strong> and the <strong>history of company changes</strong>.</p>
 <h3 id="the-screen_1">The screen<a class="headerlink" href="#the-screen_1" title="Permanent link">¶</a></h3>
-<p>Same as companies: date filter, KPIs (number of contacts, average value - may appear 🔒, <strong>Hot leads</strong> with score ≥ 70), search, pagination, <strong>+ Contact</strong>. Click a row → <strong>360° profile</strong>.</p>
-<p>There is also a <strong>Lead stage filter</strong> (chips: All / Lead / MQL / SQL / Customer / Lost) and each row shows the <strong>score badge</strong> (Hot / Warm / Cold) next to the name - so you can prioritise your sales effort at a glance.</p>
-<video class="iefp-video" controls="" preload="metadata" playsinline="" poster="/manual/assets/screens/clientes.png"><source src="/manual/assets/videos/gestao-leads-en.webm" type="video/webm"><source src="/manual/assets/videos/gestao-leads-en.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/gestao-leads-en.vtt" srclang="en" label="English" default=""></video>
-
-<p><em>Lead management: lifecycle stage, lead scoring, the stage filter and the acquisition funnel in Analytics.</em></p>
+<ul>
+<li><strong>KPIs</strong>: total contacts, <strong>linked to a company</strong>, <strong>individuals</strong> and <strong>distinct companies</strong>.</li>
+<li><strong>Search</strong>, <strong>pagination</strong> and <strong>+ Contact</strong>. Click a row → <strong>360° profile</strong>.</li>
+<li>Each row shows the <strong>company</strong> (with the <strong>company's lead stage</strong>, as a reference), the <strong>job title/role</strong> and the phone.</li>
+</ul>
 <h3 id="create-edit-field-by-field_1">Create / edit - field by field<a class="headerlink" href="#create-edit-field-by-field_1" title="Permanent link">¶</a></h3>
 <ul>
 <li><strong>First name</strong> and <strong>Last name</strong> <em>(name required)</em>.</li>
-<li><strong>Company</strong> - pick from the Companies list; <strong>Job title</strong> at the company.</li>
-<li><strong>Email</strong>, <strong>Phone</strong>.</li>
-<li><strong>NIF</strong> - validated (PT check digit).</li>
-<li><strong>City</strong> and <strong>Region</strong> - the region sets the <strong>VAT rate</strong> applicable on proposals.</li>
-<li><strong>Segment</strong> - Lead / Micro / SME / Large Enterprise.</li>
-<li><strong>Stage (lifecycle)</strong> - <strong>Lead</strong> → <strong>MQL</strong> (<em>Marketing Qualified Lead</em>, has shown interest) → <strong>SQL</strong> (<em>Sales Qualified Lead</em>, a real opportunity with a proposal) → <strong>Customer</strong> / <strong>Lost</strong>. Qualifying the lead tells you the <strong>next step</strong>. The app <strong>infers</strong> the initial stage from proposals and email <em>engagement</em>.</li>
-<li><strong>Source</strong> - acquisition channel (editable list in Settings): Website, Referral, Trade fair, Email Campaign… - the basis of the <strong>acquisition funnel</strong> and <strong>ROI by source</strong> in Analytics.</li>
+<li><strong>Company</strong> - pick from the Companies list (can be left <strong>without a company</strong> = individual); <strong>Job title</strong> and <strong>Role</strong> (who to turn to: owner, finance…).</li>
+<li><strong>Email</strong>, <strong>Phone</strong>, <strong>NIF (personal)</strong> - validated.</li>
+<li><strong>City</strong> and <strong>Region</strong>.</li>
 <li><strong>Notes</strong>.</li>
 </ul>
-<p><strong>Loyalty is not edited here</strong>: it is <strong>inherited from the company</strong> (computed automatically from the company's purchase volume). See the note above.</p>
 <h3 id="360-profile_1">360° profile<a class="headerlink" href="#360-profile_1" title="Permanent link">¶</a></h3>
-<p>Full data, the <strong>loyalty level inherited from the company</strong>, the <strong>proposals</strong> negotiated with the contact, and history.</p>
+<p>Shows the <strong>Account · Company</strong> card (the <strong>company's</strong> stage, loyalty and value, with a shortcut to its profile), the <strong>person's details</strong> (contacts, job title, role), the <strong>company history</strong> (moved from A → B) and the <strong>proposals negotiated with this person</strong>.</p>
 <hr>
 <h2 id="bulk-import-csv">Bulk import (CSV)<a class="headerlink" href="#bulk-import-csv" title="Permanent link">¶</a></h2>
 <p>Both <strong>Contacts</strong> and <strong>Products</strong> have <strong>Import</strong> + <strong>Template</strong>:</p>

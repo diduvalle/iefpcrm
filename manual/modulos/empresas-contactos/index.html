@@ -2312,52 +2312,53 @@
 <p><em>O separador Contactos - ficha completa e visão 360° de cada cliente.</em></p>
 <hr>
 <h2 id="empresas">Empresas<a class="headerlink" href="#empresas" title="Permanent link">¶</a></h2>
+<p>A <strong>empresa é a conta comercial</strong>: é aqui que vive a venda, o valor, o loyalty e a <strong>gestão de leads</strong>.</p>
 <h3 id="o-ecra">O ecrã<a class="headerlink" href="#o-ecra" title="Permanent link">¶</a></h3>
 <ul>
-<li><strong>Filtro temporal</strong> + <strong>KPIs</strong> (nº de empresas, valor associado).</li>
-<li><strong>Pesquisa</strong>, <strong>paginação</strong> e o botão <strong>+ Empresa</strong>.</li>
-<li>Clica numa <strong>linha</strong> para abrir a <strong>ficha 360°</strong>.</li>
+<li><strong>KPIs</strong>: nº de empresas, <strong>Leads quentes</strong> (score ≥ 70), <strong>Clientes</strong> (fase = Cliente) e <strong>valor ganho</strong>.</li>
+<li><strong>Filtro por Fase do lead</strong> (chips: Todas / Lead / MQL / SQL / Cliente / Perdido) e, em cada linha, o <strong>selo de score</strong> (Quente / Morno / Frio).</li>
+<li><strong>Pesquisa</strong>, <strong>paginação</strong> e <strong>+ Empresa</strong>. Clica numa <strong>linha</strong> → <strong>ficha 360°</strong>.</li>
 </ul>
+<video class="iefp-video" controls="" preload="metadata" playsinline="" poster="/manual/assets/screens/clientes.png"><source src="/manual/assets/videos/gestao-leads-pt.webm" type="video/webm"><source src="/manual/assets/videos/gestao-leads-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/gestao-leads-pt.vtt" srclang="pt" label="Português" default=""></video>
+
+<p><em>Gestão de leads na empresa: fase do ciclo de vida, lead score, filtro por fase e o funil de aquisição.</em></p>
 <h3 id="criar-editar-campo-a-campo">Criar / editar - campo a campo<a class="headerlink" href="#criar-editar-campo-a-campo" title="Permanent link">¶</a></h3>
 <ul>
 <li><strong>Nome</strong> (razão social) <em>obrigatório</em>.</li>
 <li><strong>NIPC</strong> - validado (dígito de controlo). <em>Bloqueia gravar se inválido.</em></li>
 <li><strong>CAE</strong> e <strong>Setor</strong>.</li>
-<li><strong>Dimensão</strong> - Micro / PME / Grande Empresa.</li>
+<li><strong>Dimensão (segmento)</strong> - Micro / PME / Grande Empresa.</li>
+<li><strong>Fase (ciclo de vida)</strong> - <strong>Lead</strong> → <strong>MQL</strong> (<em>Marketing Qualified Lead</em>, uma das suas pessoas demonstrou interesse) → <strong>SQL</strong> (<em>Sales Qualified Lead</em>, oportunidade real com proposta) → <strong>Cliente</strong> / <strong>Perdido</strong>. A app <strong>infere</strong> a fase e <strong>avança-a</strong> sozinha: <em>engagement</em> de email → MQL, proposta → SQL, ganha → Cliente.</li>
+<li><strong>Origem (aquisição)</strong> - canal por onde a empresa chegou (Website, Recomendação, Feira, Campanha Email…) - base do <strong>funil de aquisição</strong> e do <strong>ROI por origem</strong> no Analytics.</li>
 <li><strong>Morada fiscal</strong>, <strong>Código postal</strong>, <strong>Cidade</strong>.</li>
-<li><strong>Região</strong> - Continente / Madeira / Açores (influencia o IVA das propostas dos seus contactos).</li>
+<li><strong>Região</strong> - Continente / Madeira / Açores (influencia o IVA das propostas).</li>
 <li><strong>Website</strong>, <strong>Telefone</strong>, <strong>Email</strong>, <strong>Notas</strong>.</li>
 </ul>
 <h3 id="ficha-360">Ficha 360°<a class="headerlink" href="#ficha-360" title="Permanent link">¶</a></h3>
-<p>Mostra os <strong>dados fiscais</strong>, a <strong>lista de contactos</strong> da empresa, o <strong>nível de loyalty</strong> da empresa e um resumo de <strong>propostas / ganhas / valor ganho</strong>. É aqui que vive o histórico comercial - porque <strong>a venda pertence à empresa</strong>, não à pessoa.</p>
+<p>Mostra a <strong>fase de lead</strong> e o <strong>lead score</strong> da empresa (que <strong>agrega o engagement de todas as suas pessoas</strong>), a <strong>origem</strong>, o <strong>loyalty</strong>, os <strong>dados fiscais</strong>, a <strong>lista de pessoas</strong> e um resumo de <strong>propostas / ganhas / valor ganho</strong>.</p>
 <div class="admonition note">
-<p class="admonition-title">As vendas e o loyalty são da <strong>Empresa</strong>, não do contacto</p>
-<p>A venda (proposta) e o valor ficam ancorados à <strong>empresa</strong>: uma pessoa pode <strong>mudar de empresa</strong> e o histórico <strong>não vai com ela</strong> - fica na conta onde o negócio aconteceu. O <strong>loyalty</strong> (Bronze/Prata/Ouro) também é da <strong>empresa</strong>, calculado pelo <strong>volume de compras da empresa</strong>; cada contacto <strong>herda</strong> o nível da sua empresa. Um contacto <strong>sem empresa</strong> (particular) usa o <strong>seu próprio</strong> volume. O <strong>desconto</strong> da proposta vem sempre do nível da <strong>conta</strong> (empresa ou, no particular, do contacto).</p>
+<p class="admonition-title">A gestão de leads e o valor são da <strong>Empresa</strong>, não do contacto</p>
+<p>A venda (proposta), o <strong>valor</strong>, o <strong>loyalty</strong>, o <strong>segmento</strong> (dimensão) e a <strong>fase de lead</strong> são todos da <strong>empresa</strong>. Uma pessoa pode <strong>mudar de empresa</strong> e o histórico <strong>não vai com ela</strong> - fica na conta onde o negócio aconteceu. O <strong>lead score</strong> da empresa sobe quando <strong>qualquer uma das suas pessoas</strong> abre/clica emails; quem <strong>fecha</strong> a venda é um contacto (fica registado na proposta), mas o negócio é da empresa. Um contacto <strong>sem empresa</strong> (particular) é uma <strong>conta de uma só pessoa</strong> - aí a fase, o loyalty e o valor caem na própria pessoa.</p>
 </div>
 <hr>
 <h2 id="contactos">Contactos<a class="headerlink" href="#contactos" title="Permanent link">¶</a></h2>
-<p>As pessoas (os antigos "clientes").</p>
+<p>As pessoas - um <strong>diretório</strong>, como as <strong>páginas amarelas</strong>. O contacto <strong>não tem</strong> venda, valor, loyalty nem segmento próprios (isso é da empresa); guarda a <strong>identidade</strong>, a <strong>empresa atual</strong>, o <strong>cargo/função</strong> e o <strong>histórico de mudanças de empresa</strong>.</p>
 <h3 id="o-ecra_1">O ecrã<a class="headerlink" href="#o-ecra_1" title="Permanent link">¶</a></h3>
-<p>Igual ao das empresas: filtro temporal, KPIs (nº de contactos, valor médio - pode aparecer 🔒, <strong>Leads quentes</strong> com score ≥ 70), pesquisa, paginação, <strong>+ Contacto</strong>. Clica numa linha → <strong>ficha 360°</strong>.</p>
-<p>Há ainda um <strong>filtro por Fase do lead</strong> (chips: Todas / Lead / MQL / SQL / Cliente / Perdido) e cada linha mostra o <strong>selo de score</strong> (Quente / Morno / Frio) ao lado do nome - para priorizares o esforço comercial de relance.</p>
-<video class="iefp-video" controls="" preload="metadata" playsinline="" poster="/manual/assets/screens/clientes.png"><source src="/manual/assets/videos/gestao-leads-pt.webm" type="video/webm"><source src="/manual/assets/videos/gestao-leads-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/gestao-leads-pt.vtt" srclang="pt" label="Português" default=""></video>
-
-<p><em>Gestão de leads: fase do ciclo de vida, lead scoring, filtro por fase e o funil de aquisição no Analytics.</em></p>
+<ul>
+<li><strong>KPIs</strong>: total de contactos, <strong>ligados a empresa</strong>, <strong>particulares</strong> e <strong>empresas distintas</strong>.</li>
+<li><strong>Pesquisa</strong>, <strong>paginação</strong> e <strong>+ Contacto</strong>. Clica numa linha → <strong>ficha 360°</strong>.</li>
+<li>Cada linha mostra a <strong>empresa</strong> (com a <strong>fase de lead da empresa</strong>, como referência), o <strong>cargo/função</strong> e o telefone.</li>
+</ul>
 <h3 id="criar-editar-campo-a-campo_1">Criar / editar - campo a campo<a class="headerlink" href="#criar-editar-campo-a-campo_1" title="Permanent link">¶</a></h3>
 <ul>
 <li><strong>Nome</strong> e <strong>Apelido</strong> <em>(nome obrigatório)</em>.</li>
-<li><strong>Empresa</strong> - escolhe da lista de Empresas; <strong>Cargo</strong> na empresa.</li>
-<li><strong>Email</strong>, <strong>Telefone</strong>.</li>
-<li><strong>NIF</strong> - validado (dígito de controlo PT).</li>
-<li><strong>Cidade</strong> e <strong>Região</strong> - a região define a <strong>taxa de IVA</strong> aplicável nas propostas.</li>
-<li><strong>Segmento</strong> - Lead / Micro / PME / Grande Empresa.</li>
-<li><strong>Fase (ciclo de vida)</strong> - <strong>Lead</strong> → <strong>MQL</strong> (<em>Marketing Qualified Lead</em>, já demonstrou interesse) → <strong>SQL</strong> (<em>Sales Qualified Lead</em>, oportunidade real com proposta) → <strong>Cliente</strong> / <strong>Perdido</strong>. Qualificar o lead diz qual é o <strong>próximo passo</strong>. A app <strong>infere</strong> a fase inicial a partir das propostas e do <em>engagement</em> de email.</li>
-<li><strong>Origem</strong> - canal de aquisição (lista editável em Definições): Website, Recomendação, Feira, Campanha Email… - base do <strong>funil de aquisição</strong> e do <strong>ROI por origem</strong> no Analytics.</li>
+<li><strong>Empresa</strong> - escolhe da lista de Empresas (pode ficar <strong>sem empresa</strong> = particular); <strong>Cargo</strong> e <strong>Função</strong> (a quem recorrer: dono, financeiro…).</li>
+<li><strong>Email</strong>, <strong>Telefone</strong>, <strong>NIF (pessoal)</strong> - validado.</li>
+<li><strong>Cidade</strong> e <strong>Região</strong>.</li>
 <li><strong>Notas</strong>.</li>
 </ul>
-<p>O <strong>loyalty não se edita aqui</strong>: é <strong>herdado da empresa</strong> (calculado automaticamente pelo volume de compras da empresa). Ver a caixa acima.</p>
 <h3 id="ficha-360_1">Ficha 360°<a class="headerlink" href="#ficha-360_1" title="Permanent link">¶</a></h3>
-<p>Dados completos, o <strong>nível de loyalty herdado da empresa</strong>, as <strong>propostas</strong> negociadas com o contacto e o histórico.</p>
+<p>Mostra o cartão <strong>Conta · Empresa</strong> (a fase, o loyalty e o valor <strong>da empresa</strong>, com atalho para a ficha dela), a <strong>ficha da pessoa</strong> (contactos, cargo, função), o <strong>histórico de empresa</strong> (moveu-se de A → B) e as <strong>propostas negociadas com esta pessoa</strong>.</p>
 <hr>
 <h2 id="importar-em-massa-csv">Importar em massa (CSV)<a class="headerlink" href="#importar-em-massa-csv" title="Permanent link">¶</a></h2>
 <p>Tanto em <strong>Contactos</strong> como em <strong>Produtos</strong> há <strong>Importar</strong> + <strong>Modelo</strong>:</p>
