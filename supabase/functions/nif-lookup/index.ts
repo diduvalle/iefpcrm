@@ -44,19 +44,32 @@ async function viaVIES(clean: string) {
   return { nif: clean, nome: d.name, morada, codigoPostal: cp, cidade, cae: "", atividade: "", estado: "", website: "", telefone: "", email: "", fonte: "VIES" };
 }
 
+// limpa HTML/entidades do campo "atividade" (o nif.pt às vezes devolve com tags)
+function stripHtml(s: string) {
+  return String(s || "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&nbsp;/g, " ")
+    .replace(/&aacute;/g, "á").replace(/&agrave;/g, "à").replace(/&acirc;/g, "â").replace(/&atilde;/g, "ã").replace(/&eacute;/g, "é").replace(/&ecirc;/g, "ê").replace(/&iacute;/g, "í").replace(/&oacute;/g, "ó").replace(/&ocirc;/g, "ô").replace(/&otilde;/g, "õ").replace(/&uacute;/g, "ú").replace(/&ccedil;/g, "ç")
+    .replace(/&Aacute;/g, "Á").replace(/&Eacute;/g, "É").replace(/&Iacute;/g, "Í").replace(/&Oacute;/g, "Ó").replace(/&Uacute;/g, "Ú").replace(/&Ccedil;/g, "Ç").replace(/&Atilde;/g, "Ã").replace(/&Otilde;/g, "Õ")
+    .replace(/\s+/g, " ").trim();
+}
 async function viaNIFpt(clean: string, key: string) {
   const r = await fetch(`https://www.nif.pt/?json=1&q=${clean}&key=${encodeURIComponent(key)}`);
   const data = await r.json().catch(() => null);
   if (!data || data.result !== "success" || !data.records || !data.records[clean]) {
     return { error: "not_found", message: (data && data.message) || "Empresa não encontrada." };
   }
-  const rec = data.records[clean]; const c = rec.contacts || {};
+  const rec = data.records[clean]; const c = rec.contacts || {}; const st = rec.structure || {}; const geo = rec.geo || {};
   const cae = Array.isArray(rec.cae) ? (rec.cae[0] || "") : (rec.cae || "");
+  let capital = "";
+  if (st.capital) { try { capital = Number(st.capital).toLocaleString("pt-PT") + " " + (st.capital_currency || "EUR"); } catch (_e) { capital = String(st.capital) + " " + (st.capital_currency || "EUR"); } }
+  const NAT: Record<string, string> = { SA: "SA", LDA: "Lda", UNI: "Unipessoal", ENI: "ENI (nome individual)", COOP: "Cooperativa", ACE: "ACE", SGPS: "SGPS" };
   return {
     nif: clean, nome: rec.title || "", morada: rec.address || "",
     codigoPostal: [rec.pc4, rec.pc3].filter(Boolean).join("-"), cidade: rec.city || "",
-    cae: String(cae), atividade: rec.activity || "",
-    estado: rec.status || "", website: c.website || "", telefone: c.phone || "", email: c.email || "", fonte: "nif.pt",
+    cae: String(cae), atividade: stripHtml(rec.activity), natureza: (NAT[st.nature] || st.nature || ""),
+    estado: rec.status || "", capital, concelho: geo.county || "", freguesia: geo.parish || "", dataConstituicao: rec.start_date || "",
+    website: c.website || "", telefone: c.phone || "", email: c.email || "", fonte: "nif.pt",
   };
 }
 

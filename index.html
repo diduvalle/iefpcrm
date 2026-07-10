@@ -3372,12 +3372,14 @@ const SCHEMAS = {
     {n:'cae',l:'CAE (código de atividade)'},
     {n:'setor',l:'Setor',type:'select',opts:['Comércio','Indústria','Serviços','Hotelaria','Restauração','Saúde','Tecnologia','Construção','Educação','Transportes','Outro'].map(x=>({v:x,t:x}))},
     {n:'dimensao',l:'Dimensão (segmento)',type:'select',opts:['Micro','PME','Grande Empresa'].map(x=>({v:x,t:x}))},
+    {n:'natureza',l:'Natureza jurídica',hint:'SA · Lda · Unipessoal · ENI (preenche-se com Procurar)'},
     {n:'fase',l:'Fase (ciclo de vida)',type:'select',opts:FASES.map(x=>({v:x,t:x})),def:'Lead',hint:'Lead → MQL (demonstrou interesse) → SQL (oportunidade real) → Cliente'},
     {n:'origem',l:'Origem (aquisição)',type:'select',opts:()=>[''].concat(state.settings.origens||[]).map(x=>({v:x,t:x||'- não definida -'})),hint:'Canal por onde a empresa chegou - base do funil e do ROI'},
     {n:'moradaFiscal',l:'Morada fiscal',full:1},
     {n:'codigoPostal',l:'Código postal'},{n:'cidade',l:'Cidade'},
     {n:'regiao',l:'Região (IVA)',type:'select',opts:['Continente','Madeira','Açores'].map(x=>({v:x,t:x}))},
     {n:'website',l:'Website'},{n:'telefone',l:'Telefone',type:'tel'},{n:'email',l:'Email',type:'email'},
+    {n:'atividade',l:'Atividade / objeto social',type:'textarea',full:1,hint:'O que a empresa faz (preenche-se com Procurar)'},
     {n:'notas',l:'Notas',type:'textarea',full:1},
   ]},
   tarefa:{store:'tarefas',label:'Tarefa',fem:1,fields:[
@@ -4367,7 +4369,10 @@ document.addEventListener('click', async e=>{
         if(!d || d.error || !d.nome){ toast('Sem resultados', (d&&d.message)||'Não foi encontrada empresa para este NIPC.','warn'); return; }
         // sobrepõe os campos com os dados encontrados (só quando há valor - não apaga o que já lá está com vazios)
         const set=(n,val)=>{ const fld=$('#modalForm [name="'+n+'"]'); if(fld && val) fld.value=val; };
-        set('nome',d.nome); set('moradaFiscal',d.morada); set('codigoPostal',d.codigoPostal); set('cidade',d.cidade); set('cae',d.cae); set('website',d.website); set('telefone',d.telefone); set('email',d.email);
+        set('nome',d.nome); set('moradaFiscal',d.morada); set('codigoPostal',d.codigoPostal); set('cidade',d.cidade); set('cae',d.cae); set('website',d.website); set('telefone',d.telefone); set('email',d.email); set('atividade',d.atividade); set('natureza',d.natureza);
+        // extras (estado/capital/localização/data) → uma linha nas Notas, sem duplicar em nova pesquisa
+        { const ex=[]; if(d.estado)ex.push('Estado: '+d.estado); if(d.capital)ex.push('Capital: '+d.capital); if(d.concelho||d.freguesia)ex.push('Local: '+[d.concelho,d.freguesia].filter(Boolean).join(' / ')); if(d.dataConstituicao)ex.push('Constituída: '+d.dataConstituicao);
+          if(ex.length){ const nf=$('#modalForm [name="notas"]'); if(nf){ const M='› Registo: '; const linhas=String(nf.value||'').split('\n').filter(l=>l.trim()&&!l.startsWith(M)); linhas.push(M+ex.join(' · ')+' (via '+(d.fonte||'')+')'); nf.value=linhas.join('\n'); } } }
         toast('Empresa encontrada', d.nome+(d.cidade?' · '+d.cidade:''));
       }).catch(()=>{ toast('Pesquisa indisponível','A função "nif-lookup" ainda não está publicada no Supabase (ver instruções de deploy).','warn'); })
       .finally(()=>{ btn.disabled=false; btn.innerHTML=old; });
