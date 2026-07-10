@@ -839,6 +839,7 @@ const I = {
   star:'<path d="m12 2 3 6.5 7 .9-5 4.9 1.3 7L12 18l-6.6 3.3L6.7 14l-5-4.9 7-.9z"/>',
   chat:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
   bulb:'<path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1v.2h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
 };
 const ic = (k,s=18)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${I[k]||''}</svg>`;
 
@@ -1270,7 +1271,7 @@ function demoData(){
   [clientes, propostas, propostaTemplates, templates, prods].forEach(arr=>(arr||[]).forEach(x=>{ if(x && !x.fonte) x.fonte='base'; }));
   return {
     settings:{entidade:'IEFP CRM - Centro de Formação',nif:'600000000',email:'iefpcrm@cr0x.org',telefone:'210 000 000',cidade:'Lisboa',epd:'Rita Sousa',numeroSeq:6,requireLogin:true,
-      origens:['Website','Recomendação','Feira','Campanha Email','Redes Sociais','Outro'],
+      origens:['Website','Recomendação','Feira','Campanha Email','Redes Sociais','Formulário','Outro'],
       emailjs:Object.assign({},EMAILJS_DEFAULT),
       baseURL:'base.json', entregaURL:'',
       ivaRates:[
@@ -1307,6 +1308,7 @@ function load(){
   Object.values(state.roles||{}).forEach(r=>{ if(r&&Array.isArray(r.modules)&&!r.modules.includes('decisao')&&(r.gestor||r.modules.includes('analytics'))) r.modules.push('decisao'); });
   if(!Array.isArray(state.settings.ivaRates)||!state.settings.ivaRates.length) state.settings.ivaRates=def.settings.ivaRates;
   if(!Array.isArray(state.settings.origens)||!state.settings.origens.length) state.settings.origens=def.settings.origens;
+  if(Array.isArray(state.settings.origens)&&!state.settings.origens.includes('Formulário')){ const io=state.settings.origens.indexOf('Outro'); if(io>=0) state.settings.origens.splice(io,0,'Formulário'); else state.settings.origens.push('Formulário'); }
   if(!Array.isArray(state.settings.funcoes)||!state.settings.funcoes.length) state.settings.funcoes=FUNCOES.filter(Boolean);
   if(!state.settings.emailjs||typeof state.settings.emailjs!=='object') state.settings.emailjs=Object.assign({},EMAILJS_DEFAULT);
   if(state.settings.emailjs && !state.settings.emailjs.serviceId && !state.settings.emailjs.templateId && !state.settings.emailjs.publicKey) state.settings.emailjs=Object.assign({},EMAILJS_DEFAULT);
@@ -2199,6 +2201,17 @@ views.campanhas = () => {
       <div class="persona-card"><div class="pav">🏨</div><div><strong>Zé Miguel · 40 anos</strong><div class="muted" style="font-size:.82rem">Hoteleiro independente · procura automatização de processos e fidelização. Canal: LinkedIn. Orçamento médio.</div></div></div>
       <p class="muted" style="font-size:.8rem;margin-top:10px">A <strong>persona</strong> representa o cliente ideal e orienta a comunicação (UFCD 10868 - hiperpersonalização).</p>
     </div>
+  </div>
+  <div class="card card-pad">
+    <div class="section-head" style="margin-bottom:14px"><div><h3>${ic('target',16)} Formulário de captação (web-to-lead)</h3><div class="sub">Simula um formulário do site: quem submete entra no CRM como contacto + empresa, com origem "Formulário" e fase Lead (UFCD 10867)</div></div></div>
+    <div class="form-grid">
+      <div class="field"><label>Nome *</label><input id="wl-nome" placeholder="ex.: Helena Marques"></div>
+      <div class="field"><label>Email *</label><input id="wl-email" type="email" placeholder="ex.: helena@empresa.pt"></div>
+      <div class="field"><label>Empresa</label><input id="wl-empresa" placeholder="ex.: Marques & Filhos"></div>
+      <div class="field full"><label>Mensagem</label><input id="wl-msg" placeholder="O que o lead pretende (opcional)"></div>
+    </div>
+    <div class="toolbar" style="margin-top:12px"><button class="btn" data-act="form-submit-lead">${ic('send',16)} Submeter (simular)</button></div>
+    <div class="callout info" style="margin-top:14px">${ic('alert',16)}<div class="ctxt">Num site real, este formulário estaria numa landing page e enviaria os dados para o CRM. Aqui a submissão cria o <strong>lead</strong> e dispara as automações de "novo cliente".</div></div>
   </div>`;
 };
 function segmentBreakdown(){
@@ -2899,9 +2912,30 @@ views.comunicacao = () => {
     <button class="tab ${tab==='agendados'?'active':''}" data-comtab="agendados">Agendados${state.agendamentos.length?` (${state.agendamentos.length})`:''}</button>
     <button class="tab ${tab==='templates'?'active':''}" data-comtab="templates">Templates de email</button>
     <button class="tab ${tab==='automacoes'?'active':''}" data-comtab="automacoes">Automações</button>
+    <button class="tab ${tab==='jornadas'?'active':''}" data-comtab="jornadas">Jornadas</button>
   </div>
-  ${tab==='historico'?comHistorico():tab==='agendados'?comAgendados():tab==='templates'?comTemplates():comAutomacoes()}`;
+  ${tab==='historico'?comHistorico():tab==='agendados'?comAgendados():tab==='templates'?comTemplates():tab==='jornadas'?comJornadas():comAutomacoes()}`;
 };
+function journeyNode(icon,titulo,sub,cor){ return `<div style="flex:0 0 auto;min-width:118px;max-width:170px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;text-align:center"><div style="color:${cor||'var(--g600)'}">${ic(icon,18)}</div><div style="font-weight:800;font-size:.8rem;margin-top:4px">${esc(titulo)}</div>${sub?`<div class="muted" style="font-size:.7rem;white-space:normal">${esc(sub)}</div>`:''}</div>`; }
+function journeyHTML(a){
+  const passos=(a.passos||[]);
+  const nodes=[journeyNode('bell','Início',triggerLabel(a.trigger),'#d97706')];
+  passos.forEach(p=>{ const t=state.templates.find(x=>x.id===p.templateId); const atr=+p.atrasoDias||0; if(atr>0) nodes.push(journeyNode('clock','Esperar',atr+' dia(s)','#2563eb')); nodes.push(journeyNode('mail','Email',(t?t.nome:'-'),'#00A651')); });
+  const cond=a.condSegmento&&a.condSegmento!=='Todos'?`só ${a.condSegmento}`:(a.condFase?`fase ${a.condFase}`:(a.condScore?`score ${a.condScore}`:'todos'));
+  const arrow=`<div style="flex:0 0 auto;align-self:center;color:var(--muted);font-size:1.1rem">→</div>`;
+  return `<div style="border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap"><div><strong>${esc(a.nome)}</strong> <span class="pill ${a.estado==='Ativa'?'green':'grey'}" style="font-size:.62rem">${esc(a.estado)}</span></div><div class="muted" style="font-size:.76rem">Condição: ${esc(cond)} · ${fmtN(a.disparos||0)} disparos</div></div>
+    <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:6px">${nodes.map((n,i)=>i<nodes.length-1?n+arrow:n).join('')}</div>
+    <div class="toolbar" style="margin-top:10px"><button class="btn-sec btn-xs" data-act="auto-edit" data-id="${a.id}">Editar jornada</button></div>
+  </div>`;
+}
+function comJornadas(){
+  const autos=state.automacoes||[];
+  return `<div class="card card-pad">
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Jornadas do cliente</h3><div class="sub">As automações vistas como um percurso: evento → esperas → emails. Cada jornada nutre o lead ao longo do tempo (UFCD 10867).</div></div><button class="btn" data-act="auto-new">+ Automação</button></div>
+    ${autos.length?autos.map(a=>journeyHTML(a)).join(''):empty('Sem jornadas','Crie uma automação para ver a jornada.')}
+  </div>`;
+}
 function comHistorico(){
   const list=[...state.envios].sort((a,b)=>(b.data||'').localeCompare(a.data||''));
   return `<div class="card card-pad">
@@ -4683,6 +4717,20 @@ document.addEventListener('click', async e=>{
     case 'aprovar-prop': { const p=state.propostas.find(x=>x.id===id); if(!p||!canAprovar()) break; const alvo=(p.aprovacao&&p.aprovacao.alvo)||'Enviada'; const old=p.estado; p.aprovacao=Object.assign({},p.aprovacao,{estado:'aprovada',decididaPor:(currentUser()||{}).id||null,decididaEm:todayISO()}); p.estado=alvo; save(); onPropStatusChange(p,old,alvo); render(); toast('Proposta aprovada',p.numero+' avança para '+alvo); } break;
     case 'rejeitar-prop': { const p=state.propostas.find(x=>x.id===id); if(!p||!canAprovar()) break; uiPrompt('Motivo da rejeição (opcional). O comercial vê esta nota na proposta.','',{title:'Rejeitar proposta',okText:'Rejeitar'}).then(nota=>{ if(nota===false||nota==null) return; p.aprovacao=Object.assign({},p.aprovacao,{estado:'rejeitada',decididaPor:(currentUser()||{}).id||null,decididaEm:todayISO(),nota:nota||''}); save(); render(); toast('Proposta rejeitada',p.numero); }); } break;
     case 'print-prop': e.stopPropagation(); printProposal(id); break;
+    case 'form-submit-lead': {
+      const gv=id2=>{ const el=$('#'+id2); return el?String(el.value||'').trim():''; };
+      const nome=gv('wl-nome'), email=gv('wl-email'), empNome=gv('wl-empresa'), msg=gv('wl-msg');
+      if(!nome||!email){ toast('Faltam dados','Preencha pelo menos nome e email','warn'); break; }
+      if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ toast('Email inválido','','warn'); break; }
+      let empId='';
+      if(empNome){ const e={id:uid('emp'),nome:empNome,fase:'Lead',origem:'Formulário',dimensao:'Micro',criado:todayISO(),fonte:'form'}; if(SCHEMAS.empresa.code) SCHEMAS.empresa.code(e); state.empresas.push(e); empId=e.id; }
+      const partes=nome.split(/\s+/); const prim=partes.shift(); const apel=partes.join(' ');
+      const c={id:uid('cli'),numero:pad(++state.settings.numeroSeq,4),nome:prim,apelido:apel,email:email,empresaId:empId,empresa:empNome,origem:'Formulário',criado:todayISO(),notas:msg?('Mensagem do formulário: '+msg):'',fonte:'form'};
+      state.clientes.push(c); recalcLoyalty(); save(); render();
+      toast('Lead captado',nome+' entrou via formulário');
+      fireAutomations('novo-cliente',{clienteId:c.id});
+      openClient360(c.id);
+    } break;
     case 'open-caso': openCaso360(id); break;
     case 'caso-filtro': state._casoEstado=el.dataset.estado||''; render(); break;
     case 'caso-estado': { const c=(state.casos||[]).find(x=>x.id===id); if(!c) break; c.estado=el.dataset.estado; c.atualizado=todayISO(); save(); openCaso360(c.id); render(); } break;

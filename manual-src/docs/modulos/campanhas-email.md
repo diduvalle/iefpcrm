@@ -65,6 +65,19 @@ Regras **gatilho → email**:
 
 *Criar uma automação comportamental (gatilho "email aberto" + condições de fase e score) e vê-la disparar com "Simular abertura".*
 
+### Jornadas do cliente
+O separador **Jornadas** mostra cada automação como um **percurso visual**: `Início (evento) → Esperar N dias → Email → …`. É a mesma automação, vista como o caminho que o lead percorre ao longo do tempo (*nurturing*). Clica **Editar jornada** para alterar os passos.
+
+## Formulário de captação (web-to-lead)
+
+No fundo do ecrã **Campanhas** há um **formulário de captação**. Simula um formulário de site (landing page): ao **submeter**, os dados entram no CRM como:
+
+- um **contacto** novo, com **origem "Formulário"**;
+- a respetiva **empresa** (se indicada), criada em **fase Lead**;
+- disparo das automações de **novo cliente**.
+
+Assim demonstra-se o **web-to-lead**: como um lead que preenche um formulário online chega automaticamente ao funil. A origem "Formulário" aparece depois no **funil de aquisição** e no **ROI por origem** (Analytics).
+
 ### Métricas
 Taxa de **abertura** e **cliques** por envio e agregadas.
 

@@ -65,6 +65,19 @@ Name, subject, color, show logo, greeting, body, button text/link, signature. Us
 
 *Creating a behavioural automation (trigger "email opened" + stage and score conditions) and watching it fire with "Simulate open".*
 
+### Customer journeys
+The **Journeys** tab shows each automation as a **visual path**: `Start (event) → Wait N days → Email → …`. It is the same automation, seen as the path the lead travels over time (*nurturing*). Click **Edit journey** to change the steps.
+
+## Lead capture form (web-to-lead)
+
+At the bottom of the **Campaigns** screen there is a **lead capture form**. It simulates a website form (landing page): on **submit**, the data enters the CRM as:
+
+- a new **contact**, with **origin "Form"**;
+- its **company** (if given), created in **Lead** stage;
+- firing the **new customer** automations.
+
+This demonstrates **web-to-lead**: how a lead filling in an online form reaches the funnel automatically. The "Form" origin then shows up in the **acquisition funnel** and the **ROI by origin** (Analytics).
+
 ### Metrics
 **Open** and **click** rate per send and aggregated.
 
