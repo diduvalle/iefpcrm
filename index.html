@@ -248,7 +248,7 @@ a{text-decoration:none;color:inherit}
 .split{display:grid;grid-template-columns:1.55fr 1fr;gap:16px;align-items:start}
 .split.eq{align-items:stretch}
 .split.eq>.card{display:flex;flex-direction:column}
-.dash-cols{display:grid;grid-template-columns:1.55fr 1fr;gap:16px;align-items:start}
+.dash-cols{display:grid;grid-template-columns:1.55fr 1fr;gap:16px;align-items:stretch}
 .dash-col{display:flex;flex-direction:column;gap:16px;min-width:0}
 @media(max-width:900px){.dash-cols{grid-template-columns:1fr}}
 .barchart{width:100%}
@@ -1683,10 +1683,10 @@ function donut(segs, size=148){
   return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--surface3)" stroke-width="20"/>${arcs}<text x="${cx}" y="${cy-2}" text-anchor="middle" font-size="22" font-weight="800" fill="var(--text)">${fmtN(total)}</text><text x="${cx}" y="${cy+16}" text-anchor="middle" font-size="10" fill="var(--muted)">TOTAL</text></svg>`;
 }
 function barShort(v){ if(!v) return ''; return v>=1000?(v/1000).toFixed(v>=10000?0:1).replace('.',',')+'k€':Math.round(v)+'€'; }
-function bars(data, h=150){
+function bars(data, h=150, fill){
   const max=Math.max(...data.map(d=>d.v),1);
-  return `<div class="barchart">
-    <div class="barchart-plot" style="height:${h}px">
+  return `<div class="barchart"${fill?' style="flex:1;display:flex;flex-direction:column"':''}>
+    <div class="barchart-plot" style="${fill?`flex:1;min-height:${h}px`:`height:${h}px`}">
       ${data.map(d=>{const p=Math.round(d.v/max*100); return `<div class="barchart-col" title="${esc(d.l)}: ${money(d.v)}"><div class="barchart-val">${barShort(d.v)}</div><div class="barchart-fill" style="height:${d.v?Math.max(3,p):0}%"></div></div>`;}).join('')}
     </div>
     <div class="barchart-labels">${data.map(d=>`<div>${esc(d.l)}</div>`).join('')}</div>
@@ -1743,45 +1743,48 @@ views.dashboard = () => {
   </div>
 
   <div class="dash-cols">
-    <div class="dash-col">
-      <div class="card card-pad">
-        <div class="section-head" style="margin-bottom:14px"><div><h3>Propostas recentes</h3><div class="sub">Últimos movimentos do pipeline</div></div><a class="btn-sec btn-sm" href="#propostas">Ver todas</a></div>
-        <div class="table-wrap"><table><thead><tr><th>Número</th><th>Empresa</th><th>Estado</th><th class="t-right">Valor</th></tr></thead><tbody>
-          ${recent.map(p=>`<tr data-act="open-prop" data-id="${p.id}" style="cursor:pointer"><td><div class="cell-main">${esc(p.numero)}</div><div class="cell-sub">${esc(p.titulo)}</div></td><td>${esc(propAccount(p))}</td><td><span class="pill ${stateColor(p.estado)}">${p.estado}</span></td><td class="t-right"><strong>${money(propTotal(p))}</strong></td></tr>`).join('')}
-        </tbody></table></div>
-      </div>
-      <div class="card card-pad">
-        <div class="section-head" style="margin-bottom:12px"><div><h3>Receita ganha por mês</h3><div class="sub">Propostas com estado "Ganha"</div></div></div>
-        ${bars(monthlyRevenue(props),168)}
+    <div class="card card-pad">
+      <div class="section-head" style="margin-bottom:14px"><div><h3>Propostas recentes</h3><div class="sub">Últimos movimentos do pipeline</div></div><a class="btn-sec btn-sm" href="#propostas">Ver todas</a></div>
+      <div class="table-wrap"><table><thead><tr><th>Número</th><th>Empresa</th><th>Estado</th><th class="t-right">Valor</th></tr></thead><tbody>
+        ${recent.map(p=>`<tr data-act="open-prop" data-id="${p.id}" style="cursor:pointer"><td><div class="cell-main">${esc(p.numero)}</div><div class="cell-sub">${esc(p.titulo)}</div></td><td>${esc(propAccount(p))}</td><td><span class="pill ${stateColor(p.estado)}">${p.estado}</span></td><td class="t-right"><strong>${money(propTotal(p))}</strong></td></tr>`).join('')}
+      </tbody></table></div>
+    </div>
+    <div class="card card-pad" style="display:flex;flex-direction:column">
+      <div class="section-head" style="margin-bottom:10px"><div><h3>Pipeline por estado ${infoTip('pipeline')}</h3><div class="sub">Distribuição das propostas</div></div></div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center">
+        <div style="display:flex;justify-content:center;margin:6px 0 14px">${donut(donutSegs)}</div>
+        <div class="legend" style="justify-content:center">${donutSegs.map(s=>`<span><i style="background:${s.c}"></i>${s.l} · ${s.v}</span>`).join('')}</div>
       </div>
     </div>
-    <div class="dash-col">
-      <div class="card card-pad">
-        <div class="section-head" style="margin-bottom:10px"><div><h3>Pipeline por estado ${infoTip('pipeline')}</h3><div class="sub">Distribuição das propostas</div></div></div>
-        <div style="display:flex;justify-content:center;margin:6px 0 14px">${donut(donutSegs)}</div>
-        <div class="legend">${donutSegs.map(s=>`<span><i style="background:${s.c}"></i>${s.l} · ${s.v}</span>`).join('')}</div>
-      </div>
-      <div class="card card-pad">
-        <div class="section-head" style="margin-bottom:12px"><div><h3>Atalhos pedagógicos</h3><div class="sub">UFCD 10868 · 10870</div></div></div>
-        <div class="mini-list">
-          <a class="mini-item" href="#analytics"><span class="ic">${ic('chart')}</span><span class="grow"><strong>KPIs & Dashboards</strong><span>Conversão, churn, LTV, funil de vendas</span></span></a>
-          <a class="mini-item" href="#empresas"><span class="ic">${ic('building')}</span><span class="grow"><strong>Empresas & Contactos</strong><span>Modelo Account/Contact, dados fiscais</span></span></a>
-          <a class="mini-item" href="#agenda"><span class="ic">${ic('calendar')}</span><span class="grow"><strong>Agenda & Tarefas</strong><span>Calendário e follow-ups</span></span></a>
-          <a class="mini-item" href="#email"><span class="ic">${ic('mail')}</span><span class="grow"><strong>Email & Automação</strong><span>Envio, métricas e IA</span></span></a>
-          <a class="mini-item" href="#rgpd" style="border-bottom:0"><span class="ic">${ic('shield')}</span><span class="grow"><strong>Conformidade RGPD</strong><span>Consentimentos, direitos, RoPA</span></span></a>
-        </div>
+    <div class="card card-pad" style="display:flex;flex-direction:column">
+      <div class="section-head" style="margin-bottom:12px"><div><h3>Receita ganha por mês</h3><div class="sub">Propostas com estado "Ganha"</div></div></div>
+      ${bars(monthlyRevenue(props),190,true)}
+    </div>
+    <div class="card card-pad" style="display:flex;flex-direction:column">
+      <div class="section-head" style="margin-bottom:12px"><div><h3>Atalhos pedagógicos</h3><div class="sub">UFCD 10868 · 10870</div></div></div>
+      <div class="mini-list" style="flex:1;display:flex;flex-direction:column;justify-content:space-between">
+        <a class="mini-item" href="#analytics"><span class="ic">${ic('chart')}</span><span class="grow"><strong>KPIs & Dashboards</strong><span>Conversão, churn, LTV, funil de vendas</span></span></a>
+        <a class="mini-item" href="#empresas"><span class="ic">${ic('building')}</span><span class="grow"><strong>Empresas & Contactos</strong><span>Modelo Account/Contact, dados fiscais</span></span></a>
+        <a class="mini-item" href="#casos"><span class="ic">${ic('support')}</span><span class="grow"><strong>Serviço ao cliente</strong><span>Casos, SLA e satisfação (CSAT/NPS)</span></span></a>
+        <a class="mini-item" href="#decisao"><span class="ic">${ic('bulb')}</span><span class="grow"><strong>Modelos de decisão</strong><span>Next best action, What-If, RFM</span></span></a>
+        <a class="mini-item" href="#rgpd" style="border-bottom:0"><span class="ic">${ic('shield')}</span><span class="grow"><strong>Conformidade RGPD</strong><span>Consentimentos, direitos, RoPA</span></span></a>
       </div>
     </div>
   </div>`;
 };
 function monthlyRevenue(props){
   props=props||state.propostas;
-  const m={}; const names=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  props.filter(p=>p.estado==='Ganha').forEach(p=>{ const mi=+(p.criada||'').slice(5,7)-1; if(mi>=0){m[mi]=(m[mi]||0)+propTotal(p);} });
-  const keys=Object.keys(m).map(Number).sort((a,b)=>a-b);
-  if(!keys.length) return [{l:'-',v:0}];
-  const lo=Math.min(...keys), hi=Math.max(...keys); const out=[];
-  for(let i=lo;i<=hi;i++) out.push({l:names[i],v:m[i]||0});
+  const names=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const m={};  // chave absoluta ano*12+mês (aguenta várias anos)
+  props.filter(p=>p.estado==='Ganha').forEach(p=>{ const d=(p.criada||''); const yr=+d.slice(0,4), mi=+d.slice(5,7)-1; if(yr&&mi>=0){ const k=yr*12+mi; m[k]=(m[k]||0)+propTotal(p); } });
+  const now=todayISO(); const nowKey=(+now.slice(0,4))*12+(+now.slice(5,7)-1);
+  const dk=Object.keys(m).map(Number);
+  let hi=dk.length?Math.max(nowKey,...dk):nowKey;
+  let lo=dk.length?Math.min(...dk):nowKey-5;
+  if(hi-lo<5) lo=hi-5;                 // janela mínima de 6 meses para o gráfico não ficar "vazio"
+  if(hi-lo>11) lo=hi-11;               // no máximo 12 meses
+  const out=[];
+  for(let k=lo;k<=hi;k++) out.push({l:names[((k%12)+12)%12], v:m[k]||0});
   return out;
 }
 
