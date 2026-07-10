@@ -930,6 +930,21 @@ function validNIF(nif){
   let c=11-(s%11); if(c>=10) c=0;
   return c===Number(nif[8]);
 }
+// Tipo de entidade a partir do 1.º/2.º dígito do NIF/NIPC (regra da AT) - 100% offline
+function nifTipo(n){ n=String(n||'').replace(/\D/g,''); if(!n) return ''; const d=n[0], d2=n.slice(0,2);
+  if('123'.includes(d)) return 'Pessoa singular';
+  if(d2==='45') return 'Pessoa singular (não residente)';
+  if(d==='5') return 'Pessoa coletiva (empresa)';
+  if(d==='6') return 'Administração Pública';
+  if(['70','71','72','74','75','77','78','79'].includes(d2)) return 'Outras entidades';
+  if(d==='8') return 'Empresário em nome individual';
+  if(d==='9') return 'Pessoa coletiva (outros regimes)';
+  return 'Tipo desconhecido';
+}
+// texto de feedback ao vivo do campo NIF/NIPC (validade + tipo)
+function nifLiveHTML(v){ const n=String(v||'').replace(/\D/g,''); if(!n) return '9 dígitos - validado pelo dígito de controlo';
+  if(n.length<9) return `${n.length}/9 dígitos${n[0]?' · '+nifTipo(n):''}`;
+  return validNIF(n) ? `✓ NIF válido · ${nifTipo(n)}` : '✗ dígito de controlo inválido'; }
 
 /* ---------- IVA por região ---------- */
 function ivaTipo(taxa){ const r=ivaRates().find(x=>Number(x.taxa)===Number(taxa)); return r?r.tipo:'Normal'; }
@@ -3511,6 +3526,9 @@ function fieldHTML(f,item){
   if(f.type==='textarea') return `<div class="${cls}"><label>${esc(f.l)}</label><textarea name="${f.n}">${esc(v)}</textarea>${hint}</div>`;
   const t=f.type||'text';
   if(t==='password') v=''; // nunca pré-preencher palavra-passe
+  if(f.n==='nif'||f.n==='nipc'){ // feedback ao vivo: validade do dígito de controlo + tipo de entidade
+    return `<div class="${cls}"><label>${esc(f.l)}${f.req?' *':''}</label><input type="text" name="${f.n}" value="${esc(v)}" inputmode="numeric" maxlength="9" data-niffield><span class="hint" data-niflive>${esc(nifLiveHTML(v))}</span></div>`;
+  }
   return `<div class="${cls}"><label>${esc(f.l)}${f.req?' *':''}</label><input type="${t}" name="${f.n}" value="${esc(v)}" ${t==='number'?'step="any"':''} ${t==='password'?'autocomplete="new-password"':''}>${hint}</div>`;
 }
 
@@ -4552,6 +4570,7 @@ document.addEventListener('keydown', e=>{
   else if(e.key==='Enter'){ e.preventDefault(); const first=wrap.querySelector('[data-combo-menu] .combo-opt:not([data-none="1"])')||wrap.querySelector('[data-combo-menu] .combo-opt'); if(first) comboPick(first); }
 }, true);
 document.addEventListener('input', e=>{
+  if(e.target.matches&&e.target.matches('[data-niffield]')){ const fld=e.target.closest('.field'); const live=fld&&fld.querySelector('[data-niflive]'); if(live){ const dg=String(e.target.value||'').replace(/\D/g,''); live.textContent=nifLiveHTML(e.target.value); live.style.color = (!dg||dg.length<9)?'' : (validNIF(e.target.value)?'var(--g600)':'var(--danger)'); } }
   if(e.target.closest('#modalForm')&&propDraft&&e.target.name==='estado'){ syncDraftFromForm(); renderPropForm(); return; }
   if(e.target.closest('#modalForm')&&propDraft&&(e.target.dataset.l||['qtd','preco','iva','meses'].includes(e.target.name))) refreshTotals();
   if(tplDraft && e.target.dataset && e.target.dataset.bf!=null) applyBlockField(e.target);
