@@ -835,6 +835,9 @@ const I = {
   percent:'<path d="M19 5 5 19M6.5 6.5h.01M17.5 17.5h.01"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
   book:'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
   slides:'<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
+  support:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="m5.6 5.6 3.3 3.3M15.1 15.1l3.3 3.3M18.4 5.6l-3.3 3.3M8.9 15.1l-3.3 3.3"/>',
+  star:'<path d="m12 2 3 6.5 7 .9-5 4.9 1.3 7L12 18l-6.6 3.3L6.7 14l-5-4.9 7-.9z"/>',
+  chat:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
 };
 const ic = (k,s=18)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${I[k]||''}</svg>`;
 
@@ -1008,6 +1011,9 @@ const NAV = [
     {id:'propostas', label:'Propostas', icon:'doc'},
     {id:'agenda',    label:'Agenda',    icon:'calendar'},
     {id:'modelos',   label:'Modelos',   icon:'layout'},
+  ]},
+  {g:'Serviço ao cliente', items:[
+    {id:'casos', label:'Casos', icon:'support'},
   ]},
   {g:'Marketing & Análise', items:[
     {id:'campanhas', label:'Campanhas', icon:'target'},
@@ -1249,6 +1255,14 @@ function demoData(){
     {id:'ev3',data:'2026-05-05',aberto:true,clicado:true,clienteId:'cl2',paraEmail:'marta@costaeventos.pt',paraNome:'Marta Costa',assunto:'A sua proposta PROP-2026-003 - IEFP CRM',templateId:'t1',anexo:{tipo:'proposta',propostaId:'p3',numero:'PROP-2026-003'},origem:'Manual',porUtilizador:'u2',estado:'Enviado'},
     {id:'ev4',data:'2026-05-21',aberto:false,clicado:false,clienteId:'cl6',paraEmail:'ana@rodriguesclinica.pt',paraNome:'Ana Rodrigues',assunto:'Bem-vindo(a) à IEFP CRM',templateId:'t4',anexo:null,origem:'Automação',automacaoId:'au1',estado:'Enviado'},
   ];
+  const casos = [
+    {id:'cs1',numero:'CASO-2026-001',assunto:'Erro no cálculo de IVA regional (Madeira)',clienteId:'cl3',canal:'Email',prioridade:'Alta',estado:'Em curso',responsavelId:'u2',aberto:'2026-07-06',atualizado:'2026-07-08',mensagens:[{de:'cliente',autor:'Ricardo Nunes',texto:'As faturas estão a sair com IVA de 23% em vez dos 22% da Madeira.',data:'2026-07-06'},{de:'agente',autor:'Carlos Lopes',texto:'Obrigado pelo reporte. A verificar a configuração de taxas regionais da conta.',data:'2026-07-08'}]},
+    {id:'cs2',numero:'CASO-2026-002',assunto:'Pedido de formação para a nova equipa comercial',clienteId:'cl1',canal:'Telefone',prioridade:'Média',estado:'Novo',responsavelId:'',aberto:'2026-07-09',atualizado:'2026-07-09',mensagens:[{de:'cliente',autor:'João Silva',texto:'Entraram 4 comerciais novos. Podemos agendar uma sessão de onboarding ao CRM?',data:'2026-07-09'}]},
+    {id:'cs3',numero:'CASO-2026-003',assunto:'Dúvida sobre exportação de dados (RGPD)',clienteId:'cl6',canal:'Portal',prioridade:'Baixa',estado:'À espera',responsavelId:'u3',aberto:'2026-07-02',atualizado:'2026-07-04',mensagens:[{de:'cliente',autor:'Ana Rodrigues',texto:'Um titular pediu os dados dele. Em que formato os posso exportar?',data:'2026-07-02'},{de:'agente',autor:'Rita Sousa',texto:'Pode exportar em CSV/JSON no Portal do Titular. Fico a aguardar a confirmação do pedido.',data:'2026-07-04'}]},
+    {id:'cs4',numero:'CASO-2026-004',assunto:'Licença não ativou após pagamento',clienteId:'cl2',canal:'Chat',prioridade:'Urgente',estado:'Resolvido',responsavelId:'u2',aberto:'2026-06-28',atualizado:'2026-06-29',fechado:'2026-06-29',csat:5,mensagens:[{de:'cliente',autor:'Marta Costa',texto:'Paguei mas a licença Pro continua inativa. Preciso de aceder hoje.',data:'2026-06-28'},{de:'agente',autor:'Carlos Lopes',texto:'Ativação forçada feita. Já tem acesso. Pedimos desculpa pelo atraso.',data:'2026-06-29'}]},
+    {id:'cs5',numero:'CASO-2026-005',assunto:'Fatura com dados fiscais errados',clienteId:'cl5',canal:'Email',prioridade:'Média',estado:'Fechado',responsavelId:'u3',aberto:'2026-06-20',atualizado:'2026-06-24',fechado:'2026-06-24',csat:4,nps:9,mensagens:[{de:'cliente',autor:'Pedro Ferreira',texto:'A morada fiscal na fatura está desatualizada.',data:'2026-06-20'},{de:'agente',autor:'Rita Sousa',texto:'Corrigido e emitida nota de crédito + nova fatura.',data:'2026-06-24'}]},
+    {id:'cs6',numero:'CASO-2026-006',assunto:'Como configurar automações de email?',clienteId:'cl4',canal:'Email',prioridade:'Baixa',estado:'Fechado',responsavelId:'u2',aberto:'2026-06-15',atualizado:'2026-06-17',fechado:'2026-06-17',csat:3,nps:6,mensagens:[{de:'cliente',autor:'Sofia Almeida',texto:'Não percebo como criar uma sequência de boas-vindas.',data:'2026-06-15'},{de:'agente',autor:'Carlos Lopes',texto:'Enviei um guia passo a passo do módulo Comunicação → Automações.',data:'2026-06-17'}]},
+  ];
   propostas.forEach((p,i)=>{ p.templateId = p.templateId || (i%2 ? 'pt2' : 'pt1'); p.criadoPor='u2'; p.alteradoPor='u2'; p.alteradoEm=p.criada; });
   // origem 'base': tudo o que vem no arranque (o formador distingue depois do que o formando cria/gera)
   [clientes, propostas, propostaTemplates, templates, prods].forEach(arr=>(arr||[]).forEach(x=>{ if(x && !x.fonte) x.fonte='base'; }));
@@ -1268,7 +1282,7 @@ function demoData(){
         {id:'iva8',regiao:'Açores',tipo:'Intermédia',taxa:9},
         {id:'iva9',regiao:'Açores',tipo:'Reduzida',taxa:4},
       ]},
-    familias:fams, subfamilias:subs, produtos:prods, clientes, propostas,
+    familias:fams, subfamilias:subs, produtos:prods, clientes, propostas, casos,
     consentimentos, pedidos, ropa, violacoes, campanhas, utilizadores, loyalty, templates,
     roles, propostaTemplates, envios, automacoes, agendamentos, checklistRGPD:{}
   };
@@ -1285,6 +1299,9 @@ function load(){
   if(!state.settings) state.settings=def.settings;
   if(state.settings.requireLogin==null) state.settings.requireLogin=true;
   if(!state.settings.aprovacao||typeof state.settings.aprovacao!=='object') state.settings.aprovacao={ativo:true,limite:5000,descontoMax:15};
+  if(!Array.isArray(state.casos)) state.casos=[];
+  if(state.settings.casoSeq==null) state.settings.casoSeq=(state.casos||[]).length;
+  Object.values(state.roles||{}).forEach(r=>{ if(r&&Array.isArray(r.modules)&&!r.modules.includes('casos')&&(r.gestor||r.modules.includes('clientes'))) r.modules.push('casos'); });
   if(!Array.isArray(state.settings.ivaRates)||!state.settings.ivaRates.length) state.settings.ivaRates=def.settings.ivaRates;
   if(!Array.isArray(state.settings.origens)||!state.settings.origens.length) state.settings.origens=def.settings.origens;
   if(!Array.isArray(state.settings.funcoes)||!state.settings.funcoes.length) state.settings.funcoes=FUNCOES.filter(Boolean);
@@ -1387,6 +1404,23 @@ function aprovMotivo(p){ const a=aprovRule(); const r=[]; const tcv=proposalTota
 function canAprovar(){ return !state.settings.requireLogin || isAdmin() || isGestor(); }
 function propsAprovacaoPendente(){ return state.propostas.filter(p=>aprovState(p)==='pendente'); }
 function aprovBadge(p){ const st=aprovState(p); if(st==='pendente') return '<span class="pill amber" style="font-size:.62rem" title="Aguarda aprovação do gestor">Aguarda aprovação</span>'; if(st==='rejeitada') return '<span class="pill red" style="font-size:.62rem" title="'+esc((p.aprovacao&&p.aprovacao.nota)||'Rejeitada pelo gestor')+'">Rejeitada</span>'; if(st==='aprovada') return '<span class="pill green" style="font-size:.62rem" title="Aprovada pelo gestor">Aprovada</span>'; return ''; }
+/* ---------- Serviço ao cliente / Casos (UFCD 10866) ---------- */
+const CASO_ESTADOS=['Novo','Em curso','À espera','Resolvido','Fechado'];
+const CASO_PRIORIDADES=['Baixa','Média','Alta','Urgente'];
+const CASO_CANAIS=['Email','Telefone','Chat','Portal','Presencial'];
+const SLA_DIAS={Urgente:1,Alta:2,'Média':4,Baixa:7};
+const casoPrioCor=p=>({Baixa:'grey','Média':'blue',Alta:'amber',Urgente:'red'}[p]||'grey');
+const casoEstadoCor=e=>({Novo:'blue','Em curso':'amber','À espera':'grey',Resolvido:'green',Fechado:'grey'}[e]||'grey');
+function casoAberto(c){ return !['Resolvido','Fechado'].includes(c.estado); }
+function slaDias(p){ return SLA_DIAS[p]||4; }
+function casoPrazo(c){ return addDays(c.aberto||todayISO(), slaDias(c.prioridade)); }
+function casoSla(c){ if(!casoAberto(c)) return {estado:'-',dias:null}; const d=daysBetween(todayISO(), casoPrazo(c)); if(d<0) return {estado:'violado',dias:d}; if(d<=1) return {estado:'risco',dias:d}; return {estado:'ok',dias:d}; }
+function casoSlaBadge(c){ const s=casoSla(c); if(s.estado==='violado') return `<span class="pill red" style="font-size:.62rem" title="Prazo ultrapassado há ${Math.abs(s.dias)} dia(s)">SLA violado</span>`; if(s.estado==='risco') return `<span class="pill amber" style="font-size:.62rem" title="Faltam ${s.dias} dia(s)">SLA em risco</span>`; if(s.estado==='ok') return `<span class="pill green" style="font-size:.62rem" title="Faltam ${s.dias} dia(s)">No prazo</span>`; return ''; }
+function casoAccount(c){ if(c.empresaId){ const e=(state.empresas||[]).find(x=>x.id===c.empresaId); if(e) return e.nome; } const cli=getC(c.clienteId); if(cli){ if(cli.empresaId){ const e=(state.empresas||[]).find(x=>x.id===cli.empresaId); if(e) return e.nome; } return ((cli.nome||'')+' '+(cli.apelido||'')).trim(); } return '-'; }
+function casoResponsavel(c){ const u=(state.utilizadores||[]).find(x=>x.id===c.responsavelId); return u?((u.nome||'')+' '+(u.apelido||'')).trim():''; }
+function casosAbertos(){ return (state.casos||[]).filter(casoAberto); }
+function csatMedia(){ const arr=(state.casos||[]).filter(c=>c.csat!=null).map(c=>+c.csat); return arr.length? arr.reduce((s,x)=>s+x,0)/arr.length : null; }
+function npsScore(){ const arr=(state.casos||[]).filter(c=>c.nps!=null).map(c=>+c.nps); if(!arr.length) return null; const prom=arr.filter(x=>x>=9).length, det=arr.filter(x=>x<=6).length; return Math.round((prom-det)/arr.length*100); }
 const clientValue = id => state.propostas.filter(p=>p.clienteId===id&&p.estado==='Ganha').reduce((s,p)=>s+propTotal(p),0);
 // volumes p/ fidelização: TCV líquido (sem desconto) — evita o ciclo desconto↔loyalty
 const empVolume = id => state.propostas.filter(p=>p.empresaId===id&&p.estado==='Ganha').reduce((s,p)=>s+proposalCalc(p).sub,0);
@@ -2048,6 +2082,88 @@ function propTableHTML(){
   </tbody></table></div>`;
 }
 
+/* ---------- SERVIÇO AO CLIENTE / CASOS (10866) ---------- */
+views.casos = () => {
+  const filtroE = state._casoEstado||'';
+  let list = (state.casos||[]).slice();
+  if(filtroE) list=list.filter(c=>c.estado===filtroE);
+  list.sort((a,b)=>{ const oa=casoAberto(a)?0:1, ob=casoAberto(b)?0:1; if(oa!==ob) return oa-ob; return (casoPrazo(a)<casoPrazo(b)?-1:1); });
+  const abertos=casosAbertos();
+  const emRisco=abertos.filter(c=>['risco','violado'].includes(casoSla(c).estado)).length;
+  const csat=csatMedia(); const nps=npsScore();
+  return `
+  <div class="grid cols-4">
+    ${kpi('Casos abertos', fmtN(abertos.length), {icon:'support', sub:(state.casos||[]).length+' no total'})}
+    ${kpi('SLA em risco', fmtN(emRisco), {icon:'bell', sub:'a precisar de atenção'})}
+    ${kpi('CSAT médio', csat!=null?csat.toFixed(1)+'/5':'-', {icon:'star', sub:'satisfação (1-5)'})}
+    ${kpi('NPS', nps!=null?(nps>0?'+'+nps:''+nps):'-', {icon:'trend', sub:'recomendação (-100 a 100)'})}
+  </div>
+  <div class="card card-pad">
+    <div class="section-head" style="margin-bottom:14px">
+      <div><h3>Casos de apoio</h3><div class="sub">Pedidos de serviço ao cliente, com SLA por prioridade e satisfação (CSAT/NPS)</div></div>
+      <button class="btn" data-act="new" data-type="caso">${ic('support',16)} Novo caso</button>
+    </div>
+    <div class="toolbar" style="margin-bottom:12px;gap:6px;flex-wrap:wrap">
+      <button class="chip ${!filtroE?'active':''}" data-act="caso-filtro" data-estado="">Todos</button>
+      ${CASO_ESTADOS.map(e=>`<button class="chip ${filtroE===e?'active':''}" data-act="caso-filtro" data-estado="${e}">${e}</button>`).join('')}
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>Caso</th><th>Empresa</th><th>Canal</th><th>Prioridade</th><th>Estado</th><th>SLA</th><th>Responsável</th><th>Atualizado</th></tr></thead><tbody>
+    ${list.length?list.map(c=>`<tr data-act="open-caso" data-id="${c.id}" style="cursor:pointer">
+      <td><div class="cell-main">${esc(c.numero)}</div><div class="cell-sub">${esc(c.assunto)}</div></td>
+      <td>${esc(casoAccount(c))}</td>
+      <td><span class="chip">${esc(c.canal||'-')}</span></td>
+      <td><span class="pill ${casoPrioCor(c.prioridade)}">${esc(c.prioridade||'-')}</span></td>
+      <td><span class="pill ${casoEstadoCor(c.estado)}">${esc(c.estado)}</span></td>
+      <td>${casoSlaBadge(c)||'<span class="muted">-</span>'}</td>
+      <td class="muted" style="font-size:.82rem">${esc(casoResponsavel(c)||'- por atribuir -')}</td>
+      <td class="muted">${dPT(c.atualizado||c.aberto)}</td>
+    </tr>`).join(''):`<tr><td colspan="8">${empty('Sem casos')}</td></tr>`}
+    </tbody></table></div>
+  </div>`;
+};
+let drawer360Caso=null;
+function openCaso360(id){ drawer360Emp=null; drawer360Cli=null; drawer360Caso=id;
+  const c=(state.casos||[]).find(x=>x.id===id); if(!c) return;
+  const cli=getC(c.clienteId);
+  $('#drawerTitle').innerHTML=`<h3 style="font-size:1.1rem;font-weight:800">${esc(c.assunto)} <span class="pill ${casoEstadoCor(c.estado)}" style="font-size:.66rem;vertical-align:middle">${esc(c.estado)}</span></h3><div class="sub" style="color:var(--muted);font-size:.82rem">${esc(c.numero)} · ${esc(casoAccount(c))}${cli?' · '+esc(((cli.nome||'')+' '+(cli.apelido||'')).trim()):''}</div>`;
+  $('#drawerBody').innerHTML=`
+    <div class="card card-pad">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+        <span class="pill ${casoPrioCor(c.prioridade)}">${esc(c.prioridade)}</span>
+        <span class="chip">${ic('support',12)} ${esc(c.canal)}</span>
+        ${casoSlaBadge(c)}
+        ${casoAberto(c)?`<span class="muted" style="font-size:.78rem">Prazo SLA: ${dPT(casoPrazo(c))}</span>`:''}
+      </div>
+      <dl class="kv">
+        <dt>Responsável</dt><dd>${esc(casoResponsavel(c)||'- por atribuir -')}</dd>
+        <dt>Aberto</dt><dd>${dPT(c.aberto)}</dd>
+        ${c.fechado?`<dt>Fechado</dt><dd>${dPT(c.fechado)}</dd>`:''}
+        ${c.csat!=null?`<dt>Satisfação (CSAT)</dt><dd>${'★'.repeat(c.csat)}${'☆'.repeat(Math.max(0,5-c.csat))} (${c.csat}/5)</dd>`:''}
+        ${c.nps!=null?`<dt>NPS</dt><dd>${c.nps}/10</dd>`:''}
+      </dl>
+    </div>
+    <div class="card card-pad">
+      <h4 style="font-weight:800;font-size:.95rem;margin-bottom:10px">${ic('chat',15)} Conversa</h4>
+      <div>${(c.mensagens||[]).map(m=>`<div style="margin-bottom:10px;padding:10px 12px;border-radius:10px;background:${m.de==='agente'?'var(--g100)':'var(--surface2)'}"><div style="font-size:.7rem;font-weight:800;color:var(--muted);letter-spacing:.03em">${m.de==='agente'?'AGENTE':'CLIENTE'} · ${esc(m.autor||'')} · ${dPT(m.data)}</div><div style="font-size:.88rem;margin-top:3px;white-space:pre-wrap">${esc(m.texto)}</div></div>`).join('')||'<div class="muted">Sem mensagens.</div>'}</div>
+      ${casoAberto(c)?`<div style="margin-top:12px">
+        <textarea id="casoReply" rows="3" placeholder="Escreva a resposta ao cliente…" style="width:100%;resize:vertical"></textarea>
+        <div class="toolbar" style="margin-top:8px"><button class="btn" data-act="caso-reply" data-id="${c.id}">${ic('send',15)} Responder</button></div>
+      </div>`:''}
+    </div>
+    ${casoAberto(c)?`<div class="card card-pad">
+      <h4 style="font-weight:800;font-size:.95rem;margin-bottom:10px">Estado & SLA</h4>
+      <div class="toolbar" style="gap:6px;flex-wrap:wrap;margin-bottom:12px">${['Novo','Em curso','À espera'].map(e=>`<button class="chip ${c.estado===e?'active':''}" data-act="caso-estado" data-id="${c.id}" data-estado="${e}">${e}</button>`).join('')}</div>
+      <div class="toolbar"><button class="btn" data-act="caso-resolver" data-id="${c.id}">${ic('check',15)} Marcar resolvido</button></div>
+    </div>`:(c.estado==='Resolvido'?`<div class="card card-pad">
+      <h4 style="font-weight:800;font-size:.95rem;margin-bottom:8px">Fecho & satisfação</h4>
+      <p class="muted" style="font-size:.82rem;margin-bottom:10px">Registe a satisfação do cliente (CSAT 1-5 e NPS 0-10) ao fechar o caso.</p>
+      <div class="toolbar" style="gap:8px"><button class="btn" data-act="caso-fechar" data-id="${c.id}">${ic('star',15)} Fechar com inquérito</button><button class="btn-sec" data-act="caso-reabrir" data-id="${c.id}">Reabrir</button></div>
+    </div>`:`<div class="card card-pad"><div class="muted" style="font-size:.85rem">Caso fechado.${c.csat!=null?' CSAT '+c.csat+'/5.':''}${c.nps!=null?' NPS '+c.nps+'/10.':''}</div><div class="toolbar" style="margin-top:10px"><button class="btn-sec" data-act="caso-reabrir" data-id="${c.id}">Reabrir</button></div></div>`)}
+  `;
+  $('#drawerFoot').innerHTML=`<button class="btn-sec" data-act="edit" data-type="caso" data-id="${c.id}">${ic('cog',15)} Editar dados do caso</button>`;
+  $('#drawerBack').classList.add('open'); $('#drawer').classList.add('open');
+}
+
 /* ---------- CAMPANHAS ---------- */
 views.campanhas = () => {
   const segs=segmentBreakdown();
@@ -2340,6 +2456,22 @@ views.analytics = () => {
       <div class="section-head" style="margin-bottom:10px"><div><h3>Vendas por estado</h3></div></div>
       <div style="display:flex;justify-content:center">${donut(PROP_STATES.map(s=>({l:s,v:props.filter(p=>p.estado===s).length,c:stateDot(s)})))}</div>
       <div class="legend" style="margin-top:12px;justify-content:center">${PROP_STATES.map(s=>`<span><i style="background:${stateDot(s)}"></i>${s}</span>`).join('')}</div>
+    </div>
+  </div>
+  <div class="split eq">
+    <div class="card card-pad">
+      <div class="section-head" style="margin-bottom:14px"><div><h3>Satisfação do serviço</h3><div class="sub">CSAT e NPS dos casos de apoio ao cliente</div></div></div>
+      ${(()=>{ const cs=csatMedia(); const np=npsScore(); const fechados=(state.casos||[]).filter(c=>!casoAberto(c)).length; return `
+        <div style="display:flex;gap:12px">
+          <div style="flex:1;background:var(--surface2);border-radius:10px;padding:14px;text-align:center"><div class="muted" style="font-size:.72rem">CSAT médio</div><strong style="font-size:1.5rem">${cs!=null?cs.toFixed(1)+'/5':'-'}</strong><div class="muted" style="font-size:.72rem">${cs!=null?'★'.repeat(Math.round(cs)):'sem dados'}</div></div>
+          <div style="flex:1;background:var(--surface2);border-radius:10px;padding:14px;text-align:center"><div class="muted" style="font-size:.72rem">NPS</div><strong style="font-size:1.5rem;color:${np!=null&&np>=0?'var(--g700)':'#dc2626'}">${np!=null?(np>0?'+'+np:''+np):'-'}</strong><div class="muted" style="font-size:.72rem">promotores − detratores</div></div>
+        </div>
+        <div class="callout info" style="margin-top:14px">${ic('info',16)}<div class="ctxt"><strong>CSAT</strong> mede a satisfação imediata (1-5); o <strong>NPS</strong> a probabilidade de recomendação (-100 a +100). Base: ${fechados} caso(s) fechado(s).</div></div>`; })()}
+    </div>
+    <div class="card card-pad">
+      <div class="section-head" style="margin-bottom:14px"><div><h3>Casos por estado</h3><div class="sub">Carga de serviço e cumprimento de SLA</div></div></div>
+      ${(()=>{ const byE=CASO_ESTADOS.map(e=>({e,v:(state.casos||[]).filter(c=>c.estado===e).length})); const mx=Math.max(...byE.map(x=>x.v),1); const ab=casosAbertos(); const violados=ab.filter(c=>casoSla(c).estado==='violado').length; const slaOk=ab.length?Math.round((ab.length-violados)/ab.length*100):100; return `<div class="mini-list">${byE.map(x=>`<div class="mini-item"><span class="grow"><strong>${x.e}</strong><div class="progress" style="margin-top:6px"><i style="width:${x.v/mx*100}%"></i></div></span><strong>${x.v}</strong></div>`).join('')}</div>
+        <div class="callout ${slaOk>=80?'green':'warn'}" style="margin-top:14px">${ic('bell',16)}<div class="ctxt"><strong>SLA cumprido: ${slaOk}%</strong> dos casos abertos dentro do prazo${violados?` (${violados} violado(s))`:''}.</div></div>`; })()}
     </div>
   </div>
   <div class="split eq">
@@ -3434,6 +3566,16 @@ const SCHEMAS = {
     {n:'estado',l:'Estado',type:'select',opts:['Pendente','Concluída'].map(x=>({v:x,t:x}))},
     {n:'notas',l:'Notas',type:'textarea',full:1},
   ]},
+  caso:{store:'casos',label:'Caso',fem:0,code:c=>{ if(!c.numero){ c.numero='CASO-'+todayISO().slice(0,4)+'-'+pad(++state.settings.casoSeq,3); } if(!c.aberto){ c.aberto=todayISO(); if(!Array.isArray(c.mensagens)) c.mensagens=[]; const primeira=String(c.descricao||'').trim(); if(primeira){ c.mensagens.push({de:'cliente',autor:(clientName(c.clienteId)||'Cliente'),texto:primeira,data:todayISO()}); } } c.atualizado=todayISO(); delete c.descricao; },fields:[
+    {n:'assunto',l:'Assunto',req:1,full:1},
+    {n:'empresaId',l:'Empresa',type:'combo',src:'empresas',placeholder:'Escreva o nome ou NIPC…'},
+    {n:'clienteId',l:'Contacto',type:'combo',src:'clientes',placeholder:'Escreva o nome do contacto…'},
+    {n:'canal',l:'Canal',type:'select',opts:CASO_CANAIS.map(x=>({v:x,t:x})),def:'Email'},
+    {n:'prioridade',l:'Prioridade',type:'select',opts:CASO_PRIORIDADES.map(x=>({v:x,t:x})),def:'Média'},
+    {n:'responsavelId',l:'Responsável',type:'select',opts:()=>[{v:'',t:'- por atribuir -'}].concat((state.utilizadores||[]).map(u=>({v:u.id,t:((u.nome||'')+' '+(u.apelido||'')).trim()})))},
+    {n:'estado',l:'Estado',type:'select',opts:CASO_ESTADOS.map(x=>({v:x,t:x})),def:'Novo'},
+    {n:'descricao',l:'Descrição (primeira mensagem)',type:'textarea',full:1,hint:'O que o cliente reportou - fica como a 1.ª entrada da conversa.'},
+  ]},
   produto:{store:'produtos',label:'Artigo',code:p=>{const sub=getSub(p.subfamiliaId);const base=sub?sub.codigo:'00';const n=state.produtos.filter(x=>String(x.codigo||'').startsWith(base)&&x.id!==p.id).length+1;if(!p.codigo)p.codigo=base+pad(n,3);},fields:[
     {n:'nome',l:'Designação do artigo',req:1,full:1},
     {n:'familiaId',l:'Família',type:'select',opts:()=>state.familias.map(f=>({v:f.id,t:`${f.codigo} ${f.nome}`}))},
@@ -3733,9 +3875,11 @@ async function saveModal(){
   // se a ficha 360 desta conta/contacto estava aberta, refresca-a com os dados novos
   if(type==='cliente' && drawer360Cli===obj.id) openClient360(obj.id);
   else if(type==='empresa' && drawer360Emp===obj.id) openEmpresa360(obj.id);
+  else if(type==='caso' && drawer360Caso===obj.id) openCaso360(obj.id);
   toast(id?'Registo atualizado':'Registo criado', sc.label);
   if(isNew && type==='cliente') fireAutomations('novo-cliente',{clienteId:obj.id});
   if(isNew && type==='empresa') openEmpresa360(obj.id);  // abre a ficha p/ adicionar logo as pessoas de contacto
+  if(isNew && type==='caso') openCaso360(obj.id);  // abre o caso recém-criado
   if(type==='cliente' && drawer360Emp && $('#drawerBack').classList.contains('open')) openEmpresa360(drawer360Emp);  // refresca a ficha da empresa
 }
 
@@ -3941,10 +4085,10 @@ function closeModal(){ $('#modalBack').classList.remove('open'); editing=null; p
 
 /* ---------- drawer ---------- */
 function openDrawer(){ $('#drawerBack').classList.add('open'); $('#drawer').classList.add('open'); }
-function closeDrawer(){ $('#drawerBack').classList.remove('open'); $('#drawer').classList.remove('open'); drawer360Emp=null; drawer360Cli=null; }
+function closeDrawer(){ $('#drawerBack').classList.remove('open'); $('#drawer').classList.remove('open'); drawer360Emp=null; drawer360Cli=null; drawer360Caso=null; const df=$('#drawerFoot'); if(df) df.innerHTML=''; }
 
 /* ---------- eliminar ---------- */
-const STORE_OF={cliente:'clientes',empresa:'empresas',tarefa:'tarefas',produto:'produtos',familia:'familias',subfamilia:'subfamilias',proposta:'propostas',utilizador:'utilizadores',loyalty:'loyalty',campanha:'campanhas',consentimento:'consentimentos',pedido:'pedidos',ropa:'ropa',violacao:'violacoes',automacao:'automacoes'};
+const STORE_OF={cliente:'clientes',empresa:'empresas',tarefa:'tarefas',produto:'produtos',familia:'familias',subfamilia:'subfamilias',proposta:'propostas',caso:'casos',utilizador:'utilizadores',loyalty:'loyalty',campanha:'campanhas',consentimento:'consentimentos',pedido:'pedidos',ropa:'ropa',violacao:'violacoes',automacao:'automacoes'};
 async function deleteEntity(type,id){
   const store=STORE_OF[type]; if(!store) return;
   const item=state[store].find(x=>x.id===id);
@@ -4449,6 +4593,13 @@ document.addEventListener('click', async e=>{
     case 'aprovar-prop': { const p=state.propostas.find(x=>x.id===id); if(!p||!canAprovar()) break; const alvo=(p.aprovacao&&p.aprovacao.alvo)||'Enviada'; const old=p.estado; p.aprovacao=Object.assign({},p.aprovacao,{estado:'aprovada',decididaPor:(currentUser()||{}).id||null,decididaEm:todayISO()}); p.estado=alvo; save(); onPropStatusChange(p,old,alvo); render(); toast('Proposta aprovada',p.numero+' avança para '+alvo); } break;
     case 'rejeitar-prop': { const p=state.propostas.find(x=>x.id===id); if(!p||!canAprovar()) break; uiPrompt('Motivo da rejeição (opcional). O comercial vê esta nota na proposta.','',{title:'Rejeitar proposta',okText:'Rejeitar'}).then(nota=>{ if(nota===false||nota==null) return; p.aprovacao=Object.assign({},p.aprovacao,{estado:'rejeitada',decididaPor:(currentUser()||{}).id||null,decididaEm:todayISO(),nota:nota||''}); save(); render(); toast('Proposta rejeitada',p.numero); }); } break;
     case 'print-prop': e.stopPropagation(); printProposal(id); break;
+    case 'open-caso': openCaso360(id); break;
+    case 'caso-filtro': state._casoEstado=el.dataset.estado||''; render(); break;
+    case 'caso-estado': { const c=(state.casos||[]).find(x=>x.id===id); if(!c) break; c.estado=el.dataset.estado; c.atualizado=todayISO(); save(); openCaso360(c.id); render(); } break;
+    case 'caso-reply': { const c=(state.casos||[]).find(x=>x.id===id); if(!c) break; const ta=$('#casoReply'); const txt=ta?String(ta.value||'').trim():''; if(!txt){ toast('Escreva uma resposta','','warn'); break; } c.mensagens=c.mensagens||[]; const u=currentUser()||{}; c.mensagens.push({de:'agente',autor:((u.nome||'Agente')+' '+(u.apelido||'')).trim(),texto:txt,data:todayISO()}); if(c.estado==='Novo') c.estado='Em curso'; c.atualizado=todayISO(); save(); openCaso360(c.id); toast('Resposta registada'); } break;
+    case 'caso-resolver': { const c=(state.casos||[]).find(x=>x.id===id); if(!c) break; c.estado='Resolvido'; c.atualizado=todayISO(); save(); openCaso360(c.id); render(); toast('Caso resolvido','Feche com o inquérito de satisfação'); } break;
+    case 'caso-reabrir': { const c=(state.casos||[]).find(x=>x.id===id); if(!c) break; c.estado='Em curso'; c.fechado=null; c.atualizado=todayISO(); save(); openCaso360(c.id); render(); toast('Caso reaberto'); } break;
+    case 'caso-fechar': { const c=(state.casos||[]).find(x=>x.id===id); if(!c) break; uiPrompt('Satisfação do cliente (CSAT) de 1 a 5:','5',{title:'Inquérito de satisfação'}).then(cs=>{ if(cs===false||cs==null) return; const csat=Math.max(1,Math.min(5,Math.round(Number(cs)||0)))||null; uiPrompt('Recomendação do cliente (NPS) de 0 a 10:','9',{title:'Inquérito NPS'}).then(np=>{ const nps=(np===false||np==null||String(np).trim()==='')?null:Math.max(0,Math.min(10,Math.round(Number(np)||0))); if(csat!=null) c.csat=csat; if(nps!=null) c.nps=nps; c.estado='Fechado'; c.fechado=todayISO(); c.atualizado=todayISO(); save(); openCaso360(c.id); render(); toast('Caso fechado','CSAT '+csat+'/5'+(nps!=null?' · NPS '+nps:'')); }); }); } break;
     case 'modal-save': saveModal(); break;
     case 'modal-delete': { const ed=Object.assign({},editing); const gname=groupDraft&&groupDraft.orig; const aid=autoDraft&&autoDraft.id; closeModal(); if(ed.type==='__group'){ if(gname) delGroup(gname); } else if(ed.type==='__auto'){ if(aid){ state.automacoes=state.automacoes.filter(x=>x.id!==aid); save(); render(); toast('Automação eliminada'); } } else if(ed.type&&ed.id&&STORE_OF[ed.type]) deleteEntity(ed.type,ed.id); } break;
     case 'login': submitLogin(); break;

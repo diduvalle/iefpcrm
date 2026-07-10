@@ -104,11 +104,12 @@ plugins:
             "5.4.5 Enviar por email": "5.4.5 Send by email"
             "5.4.6 Motivo de perda": "5.4.6 Loss reason"
             "5.4.7 Aprovação de propostas": "5.4.7 Proposal approval"
-            "5.5 Modelos de Proposta": "5.5 Proposal Templates"
-            "5.6 Campanhas & Email": "5.6 Campaigns & Email"
-            "5.7 Analytics": "5.7 Analytics"
-            "5.8 Alertas": "5.8 Alerts"
-            "5.9 Definições": "5.9 Settings"
+            "5.5 Serviço ao cliente": "5.5 Customer service"
+            "5.6 Modelos de Proposta": "5.6 Proposal Templates"
+            "5.7 Campanhas & Email": "5.7 Campaigns & Email"
+            "5.8 Analytics": "5.8 Analytics"
+            "5.9 Alertas": "5.9 Alerts"
+            "5.10 Definições": "5.10 Settings"
             "6. RGPD & Pedagogia": "6. GDPR & Pedagogy"
             "6.1 Consentimentos": "6.1 Consents"
             "6.2 Pedidos (DSAR)": "6.2 Requests (DSAR)"
@@ -185,11 +186,12 @@ nav:
           - 5.4.5 Enviar por email: modulos/propostas/email.md
           - 5.4.6 Motivo de perda: modulos/propostas/perda.md
           - 5.4.7 Aprovação de propostas: modulos/propostas/aprovacao.md
-      - 5.5 Modelos de Proposta: modulos/modelos.md
-      - 5.6 Campanhas & Email: modulos/campanhas-email.md
-      - 5.7 Analytics: modulos/analytics.md
-      - 5.8 Alertas: modulos/alertas.md
-      - 5.9 Definições: modulos/definicoes.md
+      - 5.5 Serviço ao cliente: modulos/casos.md
+      - 5.6 Modelos de Proposta: modulos/modelos.md
+      - 5.7 Campanhas & Email: modulos/campanhas-email.md
+      - 5.8 Analytics: modulos/analytics.md
+      - 5.9 Alertas: modulos/alertas.md
+      - 5.10 Definições: modulos/definicoes.md
   - 6. RGPD & Pedagogia:
       - rgpd/index.md
       - 6.1 Consentimentos: rgpd/consentimentos.md
