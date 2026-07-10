@@ -36,7 +36,7 @@ A **empresa é a conta comercial**: é aqui que vive a venda, o valor, o loyalty
 Mostra a **fase de lead** e o **lead score** da empresa (que **agrega o engagement de todas as suas pessoas**), a **origem**, o **loyalty**, os **dados fiscais**, a **lista de pessoas** e um resumo de **propostas / ganhas / valor ganho**.
 
 !!! note "A gestão de leads e o valor são da **Empresa**, não do contacto"
-    A venda (proposta), o **valor**, o **loyalty**, o **segmento** (dimensão) e a **fase de lead** são todos da **empresa**. Uma pessoa pode **mudar de empresa** e o histórico **não vai com ela** - fica na conta onde o negócio aconteceu. O **lead score** da empresa sobe quando **qualquer uma das suas pessoas** abre/clica emails; quem **fecha** a venda é um contacto (fica registado na proposta), mas o negócio é da empresa. Um contacto **sem empresa** (particular) é uma **conta de uma só pessoa** - aí a fase, o loyalty e o valor caem na própria pessoa.
+    A venda (proposta), o **valor**, o **loyalty**, o **segmento** (dimensão) e a **fase de lead** são todos da **empresa**. Uma pessoa pode **mudar de empresa** e o histórico **não vai com ela** - fica na conta onde o negócio aconteceu. O **lead score** da empresa sobe quando **qualquer uma das suas pessoas** abre/clica emails; quem **fecha** a venda é um contacto (fica registado na proposta), mas o negócio é da empresa. Para um cliente em **nome individual (ENI)**, cria-se a **empresa a partir do contacto** (botão na ficha, um clique) - continua a ser uma empresa. Um contacto **sem empresa** é apenas uma entrada no **diretório**, sem venda, fase nem valor.
 
 ---
 
@@ -51,7 +51,7 @@ As pessoas - um **diretório**, como as **páginas amarelas**. O contacto **não
 
 ### Criar / editar - campo a campo
 - **Nome** e **Apelido** *(nome obrigatório)*.
-- **Empresa** - escolhe da lista de Empresas (pode ficar **sem empresa** = particular); **Cargo** e **Função** (a quem recorrer: dono, financeiro…).
+- **Empresa** - escolhe da lista de Empresas (pode ficar **sem empresa** - fica só no diretório; para lhe vender, cria a empresa a partir da ficha); **Cargo** e **Função** (a quem recorrer: dono, financeiro…).
 - **Email**, **Telefone**, **NIF (pessoal)** - validado.
 - **Cidade** e **Região**.
 - **Notas**.

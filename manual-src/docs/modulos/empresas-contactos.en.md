@@ -36,7 +36,7 @@ The **company is the commercial account**: this is where the sale, the value, th
 Shows the company's **lead stage** and **lead score** (which **aggregates the engagement of all its people**), the **source**, the **loyalty**, the **tax data**, the **list of people** and a summary of **proposals / won / value won**.
 
 !!! note "Lead management and value belong to the **Company**, not the contact"
-    The sale (proposal), the **value**, the **loyalty**, the **segment** (size) and the **lead stage** all belong to the **company**. A person can **change company** and the history **does not follow them** - it stays on the account where the deal happened. The company's **lead score** rises when **any of its people** opens/clicks emails; the one who **closes** the sale is a contact (recorded on the proposal), but the deal is the company's. A contact **without a company** (an individual) is a **one-person account** - there the stage, loyalty and value fall on the person.
+    The sale (proposal), the **value**, the **loyalty**, the **segment** (size) and the **lead stage** all belong to the **company**. A person can **change company** and the history **does not follow them** - it stays on the account where the deal happened. The company's **lead score** rises when **any of its people** opens/clicks emails; the one who **closes** the sale is a contact (recorded on the proposal), but the deal is the company's. For a **sole trader (ENI)**, create the **company from the contact** (a one-click button on the profile) - it is still a company. A contact **without a company** is just a **directory** entry, with no sale, stage or value.
 
 ---
 
@@ -51,7 +51,7 @@ The people - a **directory**, like the **Yellow Pages**. A contact **has no** sa
 
 ### Create / edit - field by field
 - **First name** and **Last name** *(name required)*.
-- **Company** - pick from the Companies list (can be left **without a company** = individual); **Job title** and **Role** (who to turn to: owner, finance…).
+- **Company** - pick from the Companies list (can be left **without a company** - it stays in the directory only; to sell to them, create the company from the profile); **Job title** and **Role** (who to turn to: owner, finance…).
 - **Email**, **Phone**, **NIF (personal)** - validated.
 - **City** and **Region**.
 - **Notes**.
