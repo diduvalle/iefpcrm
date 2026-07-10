@@ -1419,6 +1419,12 @@ const SUPA_TOKEN_KEY='iefp-supa'+TURMA_SFX;
 let _supa=null;
 function supa(){ if(!_supa && window.supabase){ try{ _supa=window.supabase.createClient(SUPA_URL,SUPA_KEY); }catch(e){} } return _supa; }
 async function supaRpc(fn,args){ const c=supa(); if(!c) throw new Error('SEM_LIGACAO'); const {data,error}=await c.rpc(fn,args); if(error) throw error; return data; }
+// Pesquisa de dados de empresa por NIPC via Edge Function (proxy do nif.pt; a chave fica no servidor)
+async function nifLookup(nif){
+  const res=await fetch(SUPA_URL+'/functions/v1/nif-lookup',{method:'POST',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json'},body:JSON.stringify({nif})});
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  return res.json();
+}
 function supaSession(){ try{ return JSON.parse(localStorage.getItem(SUPA_TOKEN_KEY)||'null'); }catch(e){ return null; } }
 function setSupaSession(s){ try{ s?localStorage.setItem(SUPA_TOKEN_KEY,JSON.stringify(s)):localStorage.removeItem(SUPA_TOKEN_KEY); }catch(e){} }
 function supaToken(){ const s=supaSession(); return s&&s.token||null; }
@@ -3526,8 +3532,9 @@ function fieldHTML(f,item){
   if(f.type==='textarea') return `<div class="${cls}"><label>${esc(f.l)}</label><textarea name="${f.n}">${esc(v)}</textarea>${hint}</div>`;
   const t=f.type||'text';
   if(t==='password') v=''; // nunca pré-preencher palavra-passe
-  if(f.n==='nif'||f.n==='nipc'){ // feedback ao vivo: validade do dígito de controlo + tipo de entidade
-    return `<div class="${cls}"><label>${esc(f.l)}${f.req?' *':''}</label><input type="text" name="${f.n}" value="${esc(v)}" inputmode="numeric" maxlength="9" data-niffield><span class="hint" data-niflive>${esc(nifLiveHTML(v))}</span></div>`;
+  if(f.n==='nif'||f.n==='nipc'){ // feedback ao vivo (validade + tipo); no NIPC da empresa, botão de pesquisa real
+    const lookup = f.n==='nipc' ? `<button type="button" class="btn-sec btn-sm" data-act="nif-lookup" title="Procurar os dados da empresa pelo NIPC">${ic('eye',15)} Procurar</button>` : '';
+    return `<div class="${cls}"><label>${esc(f.l)}${f.req?' *':''}</label><div style="display:flex;gap:8px;align-items:stretch"><input type="text" name="${f.n}" value="${esc(v)}" inputmode="numeric" maxlength="9" data-niffield style="flex:1">${lookup}</div><span class="hint" data-niflive>${esc(nifLiveHTML(v))}</span></div>`;
   }
   return `<div class="${cls}"><label>${esc(f.l)}${f.req?' *':''}</label><input type="${t}" name="${f.n}" value="${esc(v)}" ${t==='number'?'step="any"':''} ${t==='password'?'autocomplete="new-password"':''}>${hint}</div>`;
 }
@@ -4353,6 +4360,17 @@ document.addEventListener('click', async e=>{
     case 'open-client': if(!e.target.closest('[data-stop]')) openClient360(id); break;
     case 'open-empresa': if(!e.target.closest('[data-stop]')) openEmpresa360(id); break;
     case 'eni-create': createENI(id); break;
+    case 'nif-lookup': { const inp=$('#modalForm [name="nipc"]'); const nif=inp?String(inp.value||'').replace(/\D/g,''):'';
+      if(!/^\d{9}$/.test(nif)){ toast('NIPC incompleto','Escreva os 9 dígitos do NIPC primeiro','warn'); break; }
+      const btn=el; const old=btn.innerHTML; btn.disabled=true; btn.textContent='A procurar…';
+      nifLookup(nif).then(d=>{
+        if(!d || d.error || !d.nome){ toast('Sem resultados', (d&&d.message)||'Não foi encontrada empresa para este NIPC.','warn'); return; }
+        const set=(n,val)=>{ const fld=$('#modalForm [name="'+n+'"]'); if(fld && val && !String(fld.value||'').trim()){ fld.value=val; } };
+        set('nome',d.nome); set('moradaFiscal',d.morada); set('codigoPostal',d.codigoPostal); set('cidade',d.cidade); set('cae',d.cae); set('website',d.website); set('telefone',d.telefone); set('email',d.email);
+        toast('Empresa encontrada', d.nome+(d.cidade?' · '+d.cidade:''));
+      }).catch(()=>{ toast('Pesquisa indisponível','A função "nif-lookup" ainda não está publicada no Supabase (ver instruções de deploy).','warn'); })
+      .finally(()=>{ btn.disabled=false; btn.innerHTML=old; });
+    } break;
     case 'open-prop': openModal('proposta',id); break;
     case 'print-prop': e.stopPropagation(); printProposal(id); break;
     case 'modal-save': saveModal(); break;
