@@ -875,8 +875,8 @@ const INFO={
   catalogo:{t:'Catálogo (Família › Subfamília › Artigo)',x:'Estrutura hierárquica para organizar e codificar produtos/serviços automaticamente.',r:'Administração de CRM (10870)'},
   pedido:{t:'Pedido do titular (DSAR)',x:'Direitos: acesso, retificação, apagamento, portabilidade, oposição, limitação. Resposta em 1 mês.',r:'10870 · slide 110 (direitos dos titulares)'},
   agendado:{t:'Emails agendados',x:'Passos de sequências com atraso, à espera da data de envio - processados quando a data chega.',r:'Marketing automation (10868)'},
-  fase:{t:'Ciclo de vida do lead (Lead → Cliente)',x:'Etapa do contacto no funil: Lead → MQL (Marketing Qualified Lead, já demonstrou interesse - abriu/clicou) → SQL (Sales Qualified Lead, oportunidade real com proposta) → Cliente. Qualificar o lead diz qual é o próximo passo e onde investir o esforço comercial.',r:'Boa prática CRM - qualificação de leads (10868)'},
-  leadfunil:{t:'Funil de aquisição',x:'Conversão dos contactos ao longo do ciclo de vida (Lead → MQL → SQL → Cliente). Mostra onde os leads se perdem e a eficácia da qualificação. Complementa o funil de VENDAS (que mede por proposta).',r:'10868 · slide 122 (criar leads / funil)'},
+  fase:{t:'Ciclo de vida do lead (Lead → Cliente)',x:'Etapa da EMPRESA (a conta) no funil: Lead → MQL (Marketing Qualified Lead, uma das suas pessoas demonstrou interesse - abriu/clicou) → SQL (Sales Qualified Lead, oportunidade real com proposta) → Cliente. A fase é da empresa porque a venda é da empresa; qualificar diz onde investir o esforço comercial.',r:'Boa prática CRM - qualificação de leads (10868)'},
+  leadfunil:{t:'Funil de aquisição',x:'Conversão das EMPRESAS ao longo do ciclo de vida (Lead → MQL → SQL → Cliente). Mostra onde as contas se perdem e a eficácia da qualificação. Complementa o funil de VENDAS (que mede por proposta).',r:'10868 · slide 122 (criar leads / funil)'},
   gatilhos:{t:'Gatilhos comportamentais',x:'Automações despoletadas pelo COMPORTAMENTO do lead - abriu/clicou um email, ficou "quente" (score ≥ 70) ou está sem contacto há N dias - e não só por eventos de ciclo de vida. É a base do nurturing e do marketing automation moderno.',r:'10868 · slide 88 (marketing automatizado)'},
 };
 function infoTip(key){ const d=INFO[key]; if(!d) return ''; return `<span class="infotip" tabindex="0" role="button" aria-label="${esc(d.t)}"><span class="infotip-ic">${ic('info',12)}</span><span class="infotip-pop"><strong>${esc(d.t)}</strong><span class="ix">${esc(d.x)}</span><span class="ref">${ic(/^\s*\d{4,5}\b/.test(d.r||'')?'slides':'book',11)} ${esc(d.r)}</span></span></span>`; }
@@ -1320,8 +1320,13 @@ function load(){
     if(p.empresaId==null){ const cc=(state.clientes||[]).find(x=>x.id===p.clienteId); p.empresaId=cc?(cc.empresaId||''):''; }
     if(p.meses==null) p.meses=12; });
   (state.clientes||[]).forEach(c=>{ if(!c.regiao) c.regiao='Continente'; });
-  // fase do ciclo de vida (gestão de leads): inferir dos contactos existentes pela atividade
-  (state.clientes||[]).forEach(c=>{ if(c.fase==null){ const props=(state.propostas||[]).filter(p=>p.clienteId===c.id); const env=(state.envios||[]).filter(e=>e.clienteId===c.id); c.fase = props.some(p=>p.estado==='Ganha')?'Cliente' : props.length?'SQL' : (env.some(e=>e.aberto||e.clicado)?'MQL':'Lead'); } });
+  // MODELO DE CONTA: fase/origem (gestão de leads) vivem na EMPRESA; contacto = diretório.
+  (state.empresas||[]).forEach(e=>{
+    if(e.fase==null){ const props=(state.propostas||[]).filter(p=>p.empresaId===e.id); const ids=(state.clientes||[]).filter(c=>c.empresaId===e.id).map(c=>c.id); const env=(state.envios||[]).filter(x=>ids.includes(x.clienteId)); e.fase = props.some(p=>p.estado==='Ganha')?'Cliente' : props.length?'SQL' : (env.some(x=>x.aberto||x.clicado)?'MQL':'Lead'); }
+    if(e.origem==null){ const c=(state.clientes||[]).find(x=>x.empresaId===e.id && x.origem); e.origem = c?c.origem:''; }
+  });
+  // particular (contacto sem empresa) = a conta é a própria pessoa: mantém a sua fase
+  (state.clientes||[]).forEach(c=>{ if(!c.empresaId && c.fase==null){ const props=(state.propostas||[]).filter(p=>p.clienteId===c.id); const env=(state.envios||[]).filter(e=>e.clienteId===c.id); c.fase = props.some(p=>p.estado==='Ganha')?'Cliente' : props.length?'SQL' : (env.some(e=>e.aberto||e.clicado)?'MQL':'Lead'); } });
   if(!Array.isArray(state.envios)) state.envios=[];
   if(!Array.isArray(state.automacoes)) state.automacoes=def.automacoes;
   if(!Array.isArray(state.agendamentos)) state.agendamentos=[];
@@ -1745,37 +1750,46 @@ const accNameOf = key => String(key).startsWith('c:') ? clientName(key.slice(2))
 const accountsCount = () => (state.empresas||[]).length + (state.clientes||[]).filter(c=>!c.empresaId).length;
 // nome a mostrar numa proposta = a EMPRESA (cliente da venda); particular = o contacto
 function propAccount(p){ return p&&p.empresaId ? ((state.empresas.find(e=>e.id===p.empresaId)||{}).nome||'-') : clientName(p&&p.clienteId); }
+// objeto da CONTA de uma proposta (empresa, ou o contacto se particular) - p/ avançar a fase de lead
+function propAccObj(p){ return p&&p.empresaId ? ((state.empresas||[]).find(e=>e.id===p.empresaId)||null) : getC(p&&p.clienteId); }
 views.empresas = () => {
   const q=(state._q||'').toLowerCase();
-  const list=state.empresas.filter(e=>!q||[e.numero,e.nome,e.nipc,e.cidade,e.setor].join(' ').toLowerCase().includes(q));
+  const fase=state._faseFilter||'';
+  const all=state.empresas;
+  const list=all.filter(e=>!q||[e.numero,e.nome,e.nipc,e.cidade,e.setor].join(' ').toLowerCase().includes(q)).filter(e=>!fase||(e.fase||'Lead')===fase);
   const pg=paginate(list,'empresas');
-  const totalContacts=state.clientes.filter(c=>c.empresaId).length;
   return `
   <div class="grid cols-4">
-    ${kpi('Empresas', fmtN(state.empresas.length), {icon:'building'})}
-    ${kpi('Contactos ligados', fmtN(totalContacts), {icon:'users', sub:'em todas as empresas'})}
-    ${canSeeFinance()?kpi('Valor ganho (total)', money(state.empresas.reduce((s,e)=>s+empValue(e.id),0)), {icon:'euro'}):kpi('Propostas', fmtN(state.propostas.length), {icon:'doc'})}
-    ${kpi('Setores ativos', fmtN(new Set(state.empresas.map(e=>e.setor).filter(Boolean)).size), {icon:'target'})}
+    ${kpi('Empresas', fmtN(all.length), {icon:'building'})}
+    ${kpi('Leads quentes '+infoTip('leadscore'), fmtN(all.filter(e=>empLeadScore(e)>=70).length), {icon:'target', sub:'score ≥ 70'})}
+    ${kpi('Clientes '+infoTip('fase'), fmtN(all.filter(e=>(e.fase||'Lead')==='Cliente').length), {icon:'check', sub:'fase = Cliente'})}
+    ${canSeeFinance()?kpi('Valor ganho (total)', money(all.reduce((s,e)=>s+empValue(e.id),0)), {icon:'euro'}):kpi('Propostas', fmtN(state.propostas.length), {icon:'doc'})}
   </div>
   <div class="card card-pad">
     <div class="section-head" style="margin-bottom:16px">
-      <div><h3>Empresas ${infoTip('empresa')}</h3><div class="sub">Entidades com dados fiscais (NIPC, morada fiscal, CAE). Clique para ver a ficha e os contactos associados.</div></div>
+      <div><h3>Empresas ${infoTip('empresa')}</h3><div class="sub">A conta comercial: dados fiscais, fase do lead, loyalty e valor. Clique para ver a ficha e as pessoas.</div></div>
       <div class="toolbar">
         <div class="search-inp">${ic('eye',15)}<input type="search" placeholder="Filtrar empresas…" data-search value="${esc(state._q||'')}"></div>
         <button class="btn" data-act="new" data-type="empresa">${ic('building',16)} Nova empresa</button>
       </div>
     </div>
-    <div class="table-wrap"><table><thead><tr><th>N.º</th><th>Empresa</th><th>NIPC</th><th>Setor / Dimensão</th><th>Localização</th><th class="t-center">Contactos</th>${canSeeFinance()?'<th class="t-right">Valor</th>':''}<th></th></tr></thead><tbody>
-      ${list.length?pg.slice.map(e=>{const nc=empContacts(e.id).length;return `<tr data-act="open-empresa" data-id="${e.id}" style="cursor:pointer">
+    <div class="toolbar" style="gap:6px;margin-bottom:12px;flex-wrap:wrap">
+      <span class="muted" style="font-size:.78rem;font-weight:700;align-self:center">Fase do lead ${infoTip('fase')}:</span>
+      <button class="btn-sec btn-sm" data-fasefilter=""${!fase?' style="border-color:var(--g400);color:var(--g700);background:var(--g100)"':''}>Todas (${all.length})</button>
+      ${FASES.map(f=>`<button class="btn-sec btn-sm" data-fasefilter="${f}"${fase===f?' style="border-color:var(--g400);color:var(--g700);background:var(--g100)"':''}>${f} (${all.filter(e=>(e.fase||'Lead')===f).length})</button>`).join('')}
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>N.º</th><th>Empresa</th><th>Fase</th><th>Setor / Dimensão</th><th>Origem</th><th class="t-center">Pessoas</th><th>Loyalty</th>${canSeeFinance()?'<th class="t-right">Valor</th>':''}<th></th></tr></thead><tbody>
+      ${list.length?pg.slice.map(e=>{const nc=empContacts(e.id).length;const sc=empLeadScore(e);const si=scoreInfo(sc);const fz=e.fase||'Lead';const lyl=e.loyalty||'Bronze';return `<tr data-act="open-empresa" data-id="${e.id}" style="cursor:pointer">
         <td class="muted">${esc(e.numero||'-')}</td>
-        <td><div class="cell-main">${esc(e.nome)}</div><div class="cell-sub">${esc(e.website||e.email||'')}</div></td>
-        <td>${esc(e.nipc||'-')}</td>
+        <td><div class="cell-main">${esc(e.nome)} <span class="pill" style="background:${si.c}22;color:${si.c};font-size:.62rem" title="Lead score ${sc}/100">${si.l} ${sc}</span></div><div class="cell-sub">${esc(e.cidade||'')}${e.regiao&&e.regiao!=='Continente'?' · '+esc(e.regiao):''}</div></td>
+        <td><span class="pill ${faseColor(fz)}">${esc(fz)}</span></td>
         <td><span class="chip">${esc(e.setor||'-')}</span> <span class="pill grey">${esc(e.dimensao||'-')}</span></td>
-        <td>${esc(e.cidade||'-')}${e.regiao&&e.regiao!=='Continente'?` <span class="pill amber">${esc(e.regiao)}</span>`:''}</td>
+        <td>${e.origem?`<span class="chip">${esc(e.origem)}</span>`:'<span class="muted">-</span>'}</td>
         <td class="t-center"><strong>${nc}</strong></td>
+        <td><span class="pill ${lyl==='Ouro'?'amber':lyl==='Prata'?'grey':'green'}">${esc(lyl)}</span></td>
         ${canSeeFinance()?`<td class="t-right"><strong>${money(empValue(e.id))}</strong></td>`:''}
         <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="empresa" data-id="${e.id}" data-stop>Editar</button></div></td>
-      </tr>`;}).join(''):`<tr><td colspan="8">${empty('Sem empresas','Crie a primeira empresa, ou adicione contactos com empresa associada.')}</td></tr>`}
+      </tr>`;}).join(''):`<tr><td colspan="9">${empty('Sem empresas','Crie a primeira empresa, ou adicione contactos com empresa associada.')}</td></tr>`}
     </tbody></table></div>
     ${pager('empresas',pg)}
   </div>`;
@@ -1787,10 +1801,15 @@ function openEmpresa360(id){
   const contacts=empContacts(id);
   const props=empProps(id);   // vendas ANCORADAS na empresa (não seguem o contacto)
   const ganhas=props.filter(p=>p.estado==='Ganha');
-  const lyl=e.loyalty||'Bronze';
-  $('#drawerTitle').innerHTML=`<h3 style="font-size:1.1rem;font-weight:800">${esc(e.nome)} <span class="pill ${lyl==='Ouro'?'amber':lyl==='Prata'?'grey':'green'}" style="font-size:.66rem;vertical-align:middle">${esc(lyl)}</span></h3><div class="sub" style="color:var(--muted);font-size:.82rem">${esc(e.numero||'')} · ${esc(e.setor||'-')} · ${esc(e.dimensao||'-')}</div>`;
+  const lyl=e.loyalty||'Bronze'; const fz=e.fase||'Lead'; const sc=empLeadScore(e); const si=scoreInfo(sc);
+  $('#drawerTitle').innerHTML=`<h3 style="font-size:1.1rem;font-weight:800">${esc(e.nome)} <span class="pill ${faseColor(fz)}" style="font-size:.66rem;vertical-align:middle">${esc(fz)}</span> <span class="pill" style="background:${si.c}22;color:${si.c};font-size:.66rem;vertical-align:middle" title="Lead score">${si.l} ${sc}</span></h3><div class="sub" style="color:var(--muted);font-size:.82rem">${esc(e.numero||'')} · ${esc(e.setor||'-')} · ${esc(e.dimensao||'-')} · <span class="pill ${lyl==='Ouro'?'amber':lyl==='Prata'?'grey':'green'}" style="font-size:.62rem">${esc(lyl)}</span></div>`;
   $('#drawerBody').innerHTML=`
     <dl class="kv">
+      <dt>Fase (lead) ${infoTip('fase')}</dt><dd><span class="pill ${faseColor(fz)}">${esc(fz)}</span></dd>
+      <dt>Lead score</dt><dd><span class="pill" style="background:${si.c}22;color:${si.c}">${si.l} · ${sc}/100</span> <span class="muted" style="font-size:.76rem">agrega o engagement das pessoas</span></dd>
+      <dt>Origem (aquisição)</dt><dd>${esc(e.origem||'-')}</dd>
+      <dt>Segmento (dimensão)</dt><dd>${esc(e.dimensao||'-')}</dd>
+      <dt>Loyalty</dt><dd><span class="pill ${lyl==='Ouro'?'amber':lyl==='Prata'?'grey':'green'}">${esc(lyl)}</span></dd>
       <dt>NIPC / NIF</dt><dd>${esc(e.nipc||'-')}</dd>
       <dt>CAE</dt><dd>${esc(e.cae||'-')}</dd>
       <dt>Morada fiscal</dt><dd>${esc(e.moradaFiscal||'-')}${(e.codigoPostal||e.cidade)?`<br>${esc(e.codigoPostal||'')} ${esc(e.cidade||'')}`:''}</dd>
@@ -1800,7 +1819,7 @@ function openEmpresa360(id){
     </dl>
     <div class="divider" style="margin:16px 0"></div>
     <div class="section-head" style="margin-bottom:10px"><div><h3 style="font-size:.98rem">Pessoas de contacto (${contacts.length})</h3><div class="sub" style="font-size:.76rem">Quem contactar em cada tema (dono, financeiro, etc.)</div></div><button class="btn-sec btn-sm" data-act="new" data-type="cliente" data-empresa="${e.id}">${ic('users',14)} Pessoa</button></div>
-    ${contacts.length?contacts.map(c=>`<div data-act="open-client" data-id="${c.id}" style="cursor:pointer;display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--border)">${avatarHTML({nome:c.nome,apelido:c.apelido},34)}<div style="flex:1;min-width:0"><div class="cell-main">${esc(c.nome)} ${esc(c.apelido||'')}${c.funcao?` <span class="pill green" style="font-size:.66rem">${esc(c.funcao)}</span>`:''}</div><div class="cell-sub">${esc(c.cargo||'')}${c.cargo&&(c.email||c.telefone)?' · ':''}${esc(c.telefone||c.email||'')}</div></div><span class="pill ${c.loyalty==='Ouro'?'amber':c.loyalty==='Prata'?'grey':'green'}">${esc(c.loyalty||'Bronze')}</span></div>`).join(''):'<div class="muted" style="padding:6px 0">Sem pessoas de contacto. Adicione com o botão acima.</div>'}
+    ${contacts.length?contacts.map(c=>`<div data-act="open-client" data-id="${c.id}" style="cursor:pointer;display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--border)">${avatarHTML({nome:c.nome,apelido:c.apelido},34)}<div style="flex:1;min-width:0"><div class="cell-main">${esc(c.nome)} ${esc(c.apelido||'')}${c.funcao?` <span class="pill green" style="font-size:.66rem">${esc(c.funcao)}</span>`:''}</div><div class="cell-sub">${esc(c.cargo||'')}${c.cargo&&(c.email||c.telefone)?' · ':''}${esc(c.telefone||c.email||'')}</div></div><span class="muted" style="font-size:.72rem">${ic('chevron-right',15)}</span></div>`).join(''):'<div class="muted" style="padding:6px 0">Sem pessoas de contacto. Adicione com o botão acima.</div>'}
     <div class="divider" style="margin:16px 0"></div>
     <div style="display:flex;gap:10px;text-align:center">
       <div style="flex:1;background:var(--surface2);border-radius:10px;padding:12px"><div class="muted" style="font-size:.74rem">Propostas</div><strong style="font-size:1.2rem">${props.length}</strong></div>
@@ -1816,43 +1835,35 @@ views.clientes = () => {
   const q=(state._q||'').toLowerCase();
   const rg=rangeOf('cli'); const act=!!(rg.from||rg.to);
   const base=act?state.clientes.filter(c=>inDateRange(c.criado,rg.from,rg.to)):state.clientes;
-  const fase=state._faseFilter||'';
-  const list=base.filter(c=>!q||[c.numero,c.nome,c.apelido,c.empresa,c.email,c.cidade,c.segmento].join(' ').toLowerCase().includes(q)).filter(c=>!fase||(c.fase||'Lead')===fase);
+  const list=base.filter(c=>!q||[c.numero,c.nome,c.apelido,c.empresa,c.email,c.cidade,c.cargo,c.funcao].join(' ').toLowerCase().includes(q));
   const pg=paginate(list,'clientes');
+  const comEmp=base.filter(c=>c.empresaId).length;
   return `
   <div class="grid cols-4">
-    ${kpi(act?'Novos clientes':'Total de contactos', fmtN(base.length), {icon:'users', sub:act?'no período':''})}
-    ${kpi('Leads quentes '+infoTip('leadscore'), fmtN(base.filter(c=>leadScore(c)>=70).length), {icon:'target', sub:'score ≥ 70'})}
-    ${kpi('Clientes Ouro '+infoTip('loyalty'), fmtN(base.filter(c=>c.loyalty==='Ouro').length), {icon:'trend', sub:'fidelização'})}
-    ${kpi('Valor médio/cliente', money(base.reduce((s,c)=>s+clientValue(c.id),0)/(base.length||1)), {icon:'euro'})}
+    ${kpi(act?'Novos contactos':'Total de contactos', fmtN(base.length), {icon:'users', sub:act?'no período':''})}
+    ${kpi('Ligados a empresa', fmtN(comEmp), {icon:'building'})}
+    ${kpi('Particulares', fmtN(base.length-comEmp), {icon:'user', sub:'sem empresa'})}
+    ${kpi('Empresas distintas', fmtN(new Set(base.filter(c=>c.empresaId).map(c=>c.empresaId)).size), {icon:'target'})}
   </div>
-  ${dateBar('cli', act?`${base.length} clientes registados no período`:'')}
+  ${dateBar('cli', act?`${base.length} contactos registados no período`:'')}
   <div class="card card-pad">
     <div class="section-head" style="margin-bottom:16px">
-      <div><h3>Clientes ${infoTip('visao360')}</h3><div class="sub">Ficha completa, loyalty e visão 360º. Clique numa linha para abrir.</div></div>
+      <div><h3>Contactos ${infoTip('empresa')}</h3><div class="sub">Lista de pessoas (como as páginas amarelas). A <strong>venda, o valor, o loyalty e a fase de lead são da empresa</strong> - ver o menu Empresas.</div></div>
       <div class="toolbar">
-        <div class="search-inp">${ic('eye',15)}<input type="search" placeholder="Filtrar clientes…" data-search value="${esc(state._q||'')}"></div>
-        <button class="btn" data-act="new" data-type="cliente">${ic('users',16)} Novo cliente</button>
+        <div class="search-inp">${ic('eye',15)}<input type="search" placeholder="Filtrar pessoas…" data-search value="${esc(state._q||'')}"></div>
+        <button class="btn" data-act="new" data-type="cliente">${ic('users',16)} Novo contacto</button>
       </div>
     </div>
-    <div class="toolbar" style="gap:6px;margin-bottom:12px;flex-wrap:wrap">
-      <span class="muted" style="font-size:.78rem;font-weight:700;align-self:center">Fase do lead ${infoTip('fase')}:</span>
-      <button class="btn-sec btn-sm" data-fasefilter=""${!fase?' style="border-color:var(--g400);color:var(--g700);background:var(--g100)"':''}>Todas (${base.length})</button>
-      ${FASES.map(f=>`<button class="btn-sec btn-sm" data-fasefilter="${f}"${fase===f?' style="border-color:var(--g400);color:var(--g700);background:var(--g100)"':''}>${f} (${base.filter(c=>(c.fase||'Lead')===f).length})</button>`).join('')}
-    </div>
-    <div class="table-wrap"><table><thead><tr><th>N.º</th><th>Contacto</th><th>Empresa</th><th>Fase</th><th>Função</th><th>Cidade</th><th>Segmento</th><th>Loyalty</th><th class="t-right">Valor</th><th></th></tr></thead><tbody>
-      ${list.length?pg.slice.map(c=>{const sc=leadScore(c);const si=scoreInfo(sc);return `<tr data-act="open-client" data-id="${c.id}" style="cursor:pointer">
+    <div class="table-wrap"><table><thead><tr><th>N.º</th><th>Contacto</th><th>Empresa</th><th>Cargo / função</th><th>Cidade</th><th>Telefone</th><th></th></tr></thead><tbody>
+      ${list.length?pg.slice.map(c=>{const e=accEmpOf(c);const fz=e?(e.fase||'Lead'):'';return `<tr data-act="open-client" data-id="${c.id}" style="cursor:pointer">
         <td class="muted">${esc(c.numero)}</td>
-        <td><div class="cell-main">${esc(c.nome)} ${esc(c.apelido)} <span class="pill" style="background:${si.c}22;color:${si.c};font-size:.64rem" title="Lead score ${sc}/100">${si.l} ${sc}</span></div><div class="cell-sub">${esc(c.email)}</div></td>
-        <td>${esc(c.empresa||'-')}</td>
-        <td><span class="pill ${faseColor(c.fase||'Lead')}">${esc(c.fase||'Lead')}</span></td>
-        <td>${c.funcao?`<span class="chip">${esc(c.funcao)}</span>`:'<span class="muted">-</span>'}</td>
+        <td><div class="cell-main">${esc(c.nome)} ${esc(c.apelido||'')}</div><div class="cell-sub">${esc(c.email||'')}</div></td>
+        <td>${e?`${esc(e.nome)} <span class="pill ${faseColor(fz)}" style="font-size:.62rem" title="Fase de lead da empresa">${esc(fz)}</span>`:'<span class="muted">Particular</span>'}</td>
+        <td>${c.cargo?esc(c.cargo):(c.funcao?`<span class="chip">${esc(c.funcao)}</span>`:'<span class="muted">-</span>')}</td>
         <td>${esc(c.cidade||'-')}</td>
-        <td><span class="chip">${esc(c.segmento||'-')}</span></td>
-        <td><span class="pill ${c.loyalty==='Ouro'?'amber':c.loyalty==='Prata'?'grey':'green'}">${esc(c.loyalty||'Bronze')}</span></td>
-        <td class="t-right"><strong>${money(clientValue(c.id))}</strong></td>
+        <td>${esc(c.telefone||'-')}</td>
         <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="cliente" data-id="${c.id}" data-stop>Editar</button></div></td>
-      </tr>`;}).join('') : `<tr><td colspan="10">${empty('Sem contactos','Crie o primeiro contacto para começar.')}</td></tr>`}
+      </tr>`;}).join('') : `<tr><td colspan="7">${empty('Sem contactos','Crie o primeiro contacto para começar.')}</td></tr>`}
     </tbody></table></div>
     ${pager('clientes',pg)}
   </div>`;
@@ -1864,32 +1875,38 @@ function openClient360(id){ drawer360Emp=null;
   const ganhas=props.filter(p=>p.estado==='Ganha');
   const cons=state.consentimentos.filter(x=>x.clienteId===id);
   const peds=state.pedidos.filter(x=>x.clienteId===id);
+  const emp=c.empresaId?(state.empresas||[]).find(e=>e.id===c.empresaId):null;
+  const empFz=emp?(emp.fase||'Lead'):null; const empSc=emp?empLeadScore(emp):0;
   const val=clientValue(id);
   const sc=leadScore(c); const si=scoreInfo(sc); const fz=c.fase||'Lead';
-  const emp=c.empresaId?(state.empresas||[]).find(e=>e.id===c.empresaId):null;
-  const lylTier=(emp?emp.loyalty:c.loyalty)||'Bronze'; const lylCls=lylTier==='Ouro'?'amber':lylTier==='Prata'?'grey':'green';
-  $('#drawerTitle').innerHTML=`<h3 style="font-size:1.1rem;font-weight:800">${esc(c.nome)} ${esc(c.apelido)} <span class="pill ${faseColor(fz)}" style="font-size:.66rem;vertical-align:middle">${esc(fz)}</span> <span class="pill" style="background:${si.c}22;color:${si.c};font-size:.66rem;vertical-align:middle" title="Lead score">${si.l} ${sc}</span></h3><div class="sub" style="color:var(--muted);font-size:.82rem">Contacto n.º ${esc(c.numero)} · ${esc(c.empresa||'-')}</div>`;
+  const hist=Array.isArray(c.historicoEmpresas)?c.historicoEmpresas:[];
+  $('#drawerTitle').innerHTML=`<h3 style="font-size:1.1rem;font-weight:800">${esc(c.nome)} ${esc(c.apelido||'')}${emp?` <span class="pill ${faseColor(empFz)}" style="font-size:.66rem;vertical-align:middle" title="Fase de lead da empresa">${esc(empFz)}</span>`:` <span class="pill grey" style="font-size:.66rem;vertical-align:middle">Particular</span>`}</h3><div class="sub" style="color:var(--muted);font-size:.82rem">Contacto n.º ${esc(c.numero)} · ${emp?esc(emp.nome):'sem empresa'}${c.cargo?' · '+esc(c.cargo):''}</div>`;
   $('#drawerBody').innerHTML=`
-    <div class="grid cols-2">
-      ${kpi('Valor total', money(val), {icon:'euro'})}
-      ${kpi('Propostas', fmtN(props.length), {sub:`${ganhas.length} ganhas`})}
-    </div>
+    ${emp?`<div class="card card-pad" data-act="open-empresa" data-id="${emp.id}" style="cursor:pointer">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div><div class="muted" style="font-size:.68rem;font-weight:800;letter-spacing:.05em">CONTA · EMPRESA</div><strong style="font-size:1.02rem">${esc(emp.nome)}</strong></div><span class="pill ${faseColor(empFz)}">${esc(empFz)}</span></div>
+      <div style="display:flex;gap:10px;margin-top:12px;text-align:center">
+        <div style="flex:1;background:var(--surface2);border-radius:9px;padding:9px"><div class="muted" style="font-size:.68rem">Lead score</div><strong>${empSc}/100</strong></div>
+        <div style="flex:1;background:var(--surface2);border-radius:9px;padding:9px"><div class="muted" style="font-size:.68rem">Loyalty</div><strong>${esc(emp.loyalty||'Bronze')}</strong></div>
+        ${canSeeFinance()?`<div style="flex:1;background:var(--g100);border-radius:9px;padding:9px"><div class="muted" style="font-size:.68rem">Valor ganho</div><strong style="color:var(--g700)">${money(empValue(emp.id))}</strong></div>`:''}
+      </div>
+      <div class="muted" style="font-size:.72rem;margin-top:9px">${ic('info',12)} A fase, o loyalty e o valor pertencem à empresa. Clique para abrir a ficha da empresa.</div>
+    </div>`:`<div class="grid cols-2">${kpi('Valor (particular)', money(val), {icon:'euro'})}${kpi('Fase de lead', fz, {sub:si.l+' · '+sc})}</div>`}
     <div class="card card-pad">
-      <h4 style="font-weight:800;margin-bottom:10px;font-size:.95rem">Ficha</h4>
+      <h4 style="font-weight:800;margin-bottom:10px;font-size:.95rem">Ficha da pessoa</h4>
       <dl class="kv">
         <dt>Email</dt><dd>${esc(c.email||'-')}</dd>
         <dt>Telefone</dt><dd>${esc(c.telefone||'-')}</dd>
-        <dt>NIF</dt><dd>${esc(c.nif||'-')}</dd>
+        <dt>NIF (pessoal)</dt><dd>${esc(c.nif||'-')}</dd>
         <dt>Cidade</dt><dd>${esc(c.cidade||'-')}</dd>
-        <dt>Segmento</dt><dd>${esc(c.segmento||'-')}</dd>
-        <dt>Origem</dt><dd>${esc(c.origem||'-')}</dd>
-        <dt>Loyalty ${emp?'<span class="muted" style="font-weight:500;font-size:.76rem">(da empresa)</span>':'<span class="muted" style="font-weight:500;font-size:.76rem">(particular)</span>'}</dt><dd><span class="pill ${lylCls}">${esc(lylTier)}</span>${emp?` <span class="muted" style="font-size:.78rem">${esc(emp.nome)}</span>`:''}</dd>
-        <dt>Cliente desde</dt><dd>${dPT(c.criado)}</dd>
+        <dt>Cargo</dt><dd>${esc(c.cargo||'-')}</dd>
+        <dt>Função</dt><dd>${c.funcao?esc(c.funcao):'-'}</dd>
+        <dt>Registado</dt><dd>${dPT(c.criado)}</dd>
       </dl>
       ${c.notas?`<div class="callout info" style="margin-top:12px">${ic('list',16)}<div class="ctxt">${esc(c.notas)}</div></div>`:''}
     </div>
+    ${hist.length?`<div class="card card-pad"><h4 style="font-weight:800;margin-bottom:10px;font-size:.95rem">${ic('trend',15)} Histórico de empresa</h4><div class="mini-list">${hist.slice().reverse().map(h=>`<div class="mini-item"><span class="grow"><strong>${esc(h.de||'(nenhuma)')} → ${esc(h.para||'(nenhuma)')}</strong><span>${dPT(h.data)}</span></span></div>`).join('')}</div></div>`:''}
     <div class="card card-pad">
-      <h4 style="font-weight:800;margin-bottom:10px;font-size:.95rem">Propostas (${props.length})</h4>
+      <h4 style="font-weight:800;margin-bottom:10px;font-size:.95rem">Propostas negociadas com esta pessoa (${props.length})</h4>
       ${props.length?`<div class="mini-list">${props.map(p=>`<div class="mini-item"><span class="ic" style="background:${stateDot(p.estado)}22;color:${stateDot(p.estado)}">${ic('doc')}</span><span class="grow"><strong>${esc(p.numero)}</strong><span>${esc(p.titulo)} · ${dPT(p.criada)}</span></span><div style="text-align:right"><div><strong>${money(propTotal(p))}</strong></div><span class="pill ${stateColor(p.estado)}">${p.estado}</span></div></div>`).join('')}</div>`:empty('Sem propostas')}
     </div>
     <div class="card card-pad">
@@ -2020,7 +2037,7 @@ views.campanhas = () => {
 };
 function segmentBreakdown(){
   const colors={'Micro':'#00A651','PME':'#006B3C','Grande Empresa':'#3cba6f','Bronze':'#a16207','Prata':'#94a3b8','Ouro':'#d97706','Todos':'#7AC143'};
-  const map={}; state.clientes.forEach(c=>{map[c.segmento]=(map[c.segmento]||0)+1;});
+  const map={}; state.clientes.forEach(c=>{const s=accSegOf(c)||'Particular';map[s]=(map[s]||0)+1;});
   return Object.entries(map).map(([l,v])=>({l,v,c:colors[l]||'#00A651'}));
 }
 function avgRate(field){ const c=state.campanhas.filter(x=>x.enviados>0); if(!c.length) return 0; return c.reduce((s,x)=>s+x[field]/x.enviados*100,0)/c.length; }
@@ -2136,15 +2153,44 @@ views.agenda = () => {
     </div>
   </div>`;
 };
+// Lead score de um PARTICULAR (contacto sem empresa = a própria conta)
 function leadScore(c){
-  let s=0; const props=state.propostas.filter(p=>p.clienteId===c.id);
+  let s=0; const props=state.propostas.filter(p=>p.clienteId===c.id&&!p.empresaId);
   if(props.some(p=>p.estado==='Ganha')) s+=35;
   s+=Math.min(20,props.length*7);
   const env=state.envios.filter(e=>e.clienteId===c.id);
   if(env.some(e=>e.clicado)) s+=20; else if(env.some(e=>e.aberto)) s+=10;
   s+= c.loyalty==='Ouro'?20:c.loyalty==='Prata'?10:3;
-  s+= c.segmento==='Grande Empresa'?10:c.segmento==='PME'?5:2;
+  s+= 4; // particular: sem dimensão de empresa
   return Math.min(100,Math.round(s));
+}
+// Lead score da EMPRESA (conta): negócio da empresa + engagement AGREGADO das suas pessoas + perfil
+function empLeadScore(e){
+  if(!e) return 0; let s=0;
+  const props=empProps(e.id);
+  if(props.some(p=>p.estado==='Ganha')) s+=35;
+  s+=Math.min(20,props.length*7);
+  const ids=empContacts(e.id).map(c=>c.id);
+  const env=state.envios.filter(x=>ids.includes(x.clienteId));
+  if(env.some(x=>x.clicado)) s+=20; else if(env.some(x=>x.aberto)) s+=10;
+  s+= e.loyalty==='Ouro'?20:e.loyalty==='Prata'?10:3;
+  s+= e.dimensao==='Grande Empresa'?10:e.dimensao==='PME'?5:2;
+  return Math.min(100,Math.round(s));
+}
+// A CONTA de um contacto = a sua empresa (ou o próprio, se particular)
+function accEmpOf(c){ return c&&c.empresaId?(state.empresas||[]).find(x=>x.id===c.empresaId):null; }
+function accFaseOf(c){ const e=accEmpOf(c); return e?(e.fase||'Lead'):(c.fase||'Lead'); }
+function accScoreOf(c){ const e=accEmpOf(c); return e?empLeadScore(e):leadScore(c); }
+function accSegOf(c){ const e=accEmpOf(c); return e?(e.dimensao||''):''; }
+function accLoyaltyOf(c){ const e=accEmpOf(c); return (e?e.loyalty:c.loyalty)||'Bronze'; }
+// Um contacto bate um segmento-alvo (dimensão OU tier de loyalty) da sua conta
+function accMatchSeg(c,seg){ if(!seg||seg==='Todos') return true; return accSegOf(c)===seg || accLoyaltyOf(c)===seg; }
+// Lista de CONTAS (empresas + particulares) para funil/ROI/insights
+function accountList(){
+  const out=[];
+  (state.empresas||[]).forEach(e=>out.push({id:e.id,nome:e.nome,fase:e.fase||'Lead',origem:e.origem||'',valor:empValue(e.id),score:empLeadScore(e),criado:e.criado,kind:'emp'}));
+  (state.clientes||[]).filter(c=>!c.empresaId).forEach(c=>out.push({id:c.id,nome:((c.nome||'')+' '+(c.apelido||'')).trim(),fase:c.fase||'Lead',origem:c.origem||'',valor:clientValue(c.id),score:leadScore(c),criado:c.criado,kind:'part'}));
+  return out;
 }
 function scoreInfo(s){ return s>=70?{l:'Quente',c:'#e0564a'}:s>=40?{l:'Morno',c:'#e8a23d'}:{l:'Frio',c:'#7aa7c7'}; }
 function aiInsights(m){
@@ -2193,7 +2239,7 @@ views.analytics = () => {
   const lossR={}; perdidas.forEach(p=>{ const m=(p.motivoPerda||'').trim()||'(por classificar)'; lossR[m]=(lossR[m]||0)+1; });
   const lossE=Object.entries(lossR).sort((a,b)=>b[1]-a[1]); const lossMax=Math.max(...lossE.map(e=>e[1]),1); const topLoss=lossE[0]?lossE[0][0]:null;
   const cacBudget=+state.settings.cacBudget||0; const cac=novos?cacBudget/novos:0; const ltvCac=cac?ltv/cac:0;
-  const leads=state.clientes.map(c=>({c,s:leadScore(c)})).sort((a,b)=>b.s-a.s); const hot=leads.filter(x=>x.s>=70);
+  const hot=accountList().filter(a=>a.score>=70);
   const insights=aiInsights({conv,churn,ltv,cac,ltvCac,topLoss,hot:hot.length});
   const extra = act ? `Receita ${money(receita)} · ${props.length} propostas · ${novos} novos clientes` : '';
   const canCmp = act && r.from && r.to;
@@ -2224,12 +2270,12 @@ views.analytics = () => {
   </div>
   <div class="split eq">
     <div class="card card-pad">
-      <div class="section-head" style="margin-bottom:16px"><div><h3>Funil de aquisição ${infoTip('leadfunil')}</h3><div class="sub">Ciclo de vida dos leads (Lead → Cliente)${act?' · criados no período':''}</div></div></div>
-      ${(()=>{ const lb=act?state.clientes.filter(c=>inDateRange(c.criado,r.from,r.to)):state.clientes; const ff=['Lead','MQL','SQL','Cliente'].map(f=>({f,v:lb.filter(c=>(c.fase||'Lead')===f).length})); const fm=Math.max(...ff.map(x=>x.v),1); const cores={Lead:'#8dd3a6',MQL:'#3cba6f',SQL:'#00A651',Cliente:'#006B3C'}; return lb.length?`<div class="funnel">${ff.map((x,i)=>{const w=Math.max(8,x.v/fm*100);const cv=i>0&&ff[i-1].v?Math.round(x.v/ff[i-1].v*100):100;return `<div class="funnel-row"><div class="funnel-bar" style="width:${w}%;background:${cores[x.f]}">${x.f} · ${x.v}</div><span class="funnel-meta">${i>0?cv+'%':''}</span></div>`;}).join('')}</div><div class="callout info" style="margin-top:16px">${ic('alert',16)}<div class="ctxt"><strong>Qualificar ${infoTip('fase')}:</strong> um lead avança Lead → MQL (interesse) → SQL (oportunidade) → Cliente. Saber a fase diz onde investir o esforço comercial.</div></div>`:empty('Sem contactos no período'); })()}
+      <div class="section-head" style="margin-bottom:16px"><div><h3>Funil de aquisição ${infoTip('leadfunil')}</h3><div class="sub">Ciclo de vida das <strong>empresas</strong> (Lead → Cliente)${act?' · criadas no período':''}</div></div></div>
+      ${(()=>{ const al=accountList().filter(a=>!act||inDateRange(a.criado,r.from,r.to)); const ff=['Lead','MQL','SQL','Cliente'].map(f=>({f,v:al.filter(a=>a.fase===f).length})); const fm=Math.max(...ff.map(x=>x.v),1); const cores={Lead:'#8dd3a6',MQL:'#3cba6f',SQL:'#00A651',Cliente:'#006B3C'}; return al.length?`<div class="funnel">${ff.map((x,i)=>{const w=Math.max(8,x.v/fm*100);const cv=i>0&&ff[i-1].v?Math.round(x.v/ff[i-1].v*100):100;return `<div class="funnel-row"><div class="funnel-bar" style="width:${w}%;background:${cores[x.f]}">${x.f} · ${x.v}</div><span class="funnel-meta">${i>0?cv+'%':''}</span></div>`;}).join('')}</div><div class="callout info" style="margin-top:16px">${ic('alert',16)}<div class="ctxt"><strong>Qualificar ${infoTip('fase')}:</strong> a empresa avança Lead → MQL (uma pessoa demonstra interesse) → SQL (oportunidade real) → Cliente.</div></div>`:empty('Sem contas no período'); })()}
     </div>
     <div class="card card-pad">
       <div class="section-head" style="margin-bottom:14px"><div><h3>Aquisição por origem ${infoTip('origem')}</h3><div class="sub">Que canal traz melhores clientes (ROI)</div></div></div>
-      ${(()=>{ const lb=act?state.clientes.filter(c=>inDateRange(c.criado,r.from,r.to)):state.clientes; const ag={}; lb.forEach(c=>{const o=c.origem||'(sem origem)';(ag[o]=ag[o]||{o,total:0,cli:0,val:0});ag[o].total++;if((c.fase||'')==='Cliente')ag[o].cli++;ag[o].val+=clientValue(c.id);}); const ls=Object.values(ag).sort((a,b)=>b.val-a.val).slice(0,7); return ls.length?`<div class="table-wrap"><table class="tbl"><thead><tr><th>Origem</th><th class="t-right">Leads</th><th class="t-right">Clientes</th><th class="t-right">Conv.</th><th class="t-right">Valor</th></tr></thead><tbody>${ls.map(x=>`<tr><td><strong>${esc(x.o)}</strong></td><td class="t-right">${x.total}</td><td class="t-right">${x.cli}</td><td class="t-right">${x.total?Math.round(x.cli/x.total*100):0}%</td><td class="t-right"><strong>${money(x.val)}</strong></td></tr>`).join('')}</tbody></table></div>`:empty('Sem dados no período'); })()}
+      ${(()=>{ const al=accountList().filter(a=>!act||inDateRange(a.criado,r.from,r.to)); const ag={}; al.forEach(a=>{const o=a.origem||'(sem origem)';(ag[o]=ag[o]||{o,total:0,cli:0,val:0});ag[o].total++;if(a.fase==='Cliente')ag[o].cli++;ag[o].val+=a.valor;}); const ls=Object.values(ag).sort((a,b)=>b.val-a.val).slice(0,7); return ls.length?`<div class="table-wrap"><table class="tbl"><thead><tr><th>Origem</th><th class="t-right">Empresas</th><th class="t-right">Clientes</th><th class="t-right">Conv.</th><th class="t-right">Valor</th></tr></thead><tbody>${ls.map(x=>`<tr><td><strong>${esc(x.o)}</strong></td><td class="t-right">${x.total}</td><td class="t-right">${x.cli}</td><td class="t-right">${x.total?Math.round(x.cli/x.total*100):0}%</td><td class="t-right"><strong>${money(x.val)}</strong></td></tr>`).join('')}</tbody></table></div>`:empty('Sem dados no período'); })()}
     </div>
   </div>
   <div class="split eq">
@@ -2261,8 +2307,8 @@ views.analytics = () => {
   </div>
   <div class="split eq">
     <div class="card card-pad">
-      <div class="section-head" style="margin-bottom:14px"><div><h3>Lead scoring ${infoTip('leadscore')}</h3><div class="sub">Pontuação de cada contacto pela probabilidade de compra</div></div></div>
-      <div class="mini-list">${leads.length?leads.slice(0,6).map(({c,s})=>{const si=scoreInfo(s);return `<div class="mini-item" data-act="open-client" data-id="${c.id}" style="cursor:pointer"><span class="grow"><strong>${esc(c.nome)} ${esc(c.apelido||'')}</strong> <span class="pill" style="background:${si.c}22;color:${si.c}">${si.l}</span><div class="progress" style="margin-top:6px"><i style="width:${s}%;background:${si.c}"></i></div></span><strong>${s}</strong></div>`;}).join(''):empty('Sem contactos')}</div>
+      <div class="section-head" style="margin-bottom:14px"><div><h3>Lead scoring ${infoTip('leadscore')}</h3><div class="sub">Pontuação de cada <strong>empresa</strong> pela probabilidade de compra</div></div></div>
+      ${(()=>{ const al=accountList().sort((a,b)=>b.score-a.score).slice(0,6); return `<div class="mini-list">${al.length?al.map(a=>{const si=scoreInfo(a.score);const act2=a.kind==='emp'?'open-empresa':'open-client';return `<div class="mini-item" data-act="${act2}" data-id="${a.id}" style="cursor:pointer"><span class="grow"><strong>${esc(a.nome)}</strong> <span class="pill" style="background:${si.c}22;color:${si.c}">${si.l}</span><div class="progress" style="margin-top:6px"><i style="width:${a.score}%;background:${si.c}"></i></div></span><strong>${a.score}</strong></div>`;}).join(''):empty('Sem contas')}</div>`; })()}
     </div>
     <div class="card card-pad">
       <div class="section-head" style="margin-bottom:14px"><div><h3>Insights de IA <span class="pill grey" style="font-size:.66rem;vertical-align:middle">simulado</span></h3><div class="sub">Análise automática dos seus dados</div></div></div>
@@ -2419,7 +2465,7 @@ function sendEmail(o){
     assunto:o.assunto||(tpl?mergeCtx(tpl.assunto,c,o.proposta):''), templateId:o.templateId||null,
     anexo:o.proposta?{tipo:'proposta',propostaId:o.proposta.id,numero:o.proposta.numero}:null,
     origem:o.origem||'Manual', porUtilizador:currentUser()?currentUser().id:null, automacaoId:o.automacaoId||null, campanhaId:o.campanhaId||null, estado:'Enviado' };
-  state.envios.unshift(ev); if(c) c._scFired=false; return ev;   // contactado → rearma o gatilho "sem contacto"
+  state.envios.unshift(ev); const acc=c?(accEmpOf(c)||c):null; if(acc) acc._scFired=false; return ev;   // conta contactada → rearma o gatilho "sem contacto"
 }
 /* ---------- envio real opcional via EmailJS ---------- */
 function emailjsCfg(){ return state.settings.emailjs||{}; }
@@ -2503,10 +2549,11 @@ function sendTestEmailJS(){
 }
 function fireAutomations(trigger, ctx){
   let fired=0, immediate=0, agendados=0; const cli=getC(ctx.clienteId);
+  // condições avaliam a CONTA do contacto (empresa, ou o particular)
   (state.automacoes||[]).filter(a=>a.estado==='Ativa'&&a.trigger===trigger).forEach(a=>{
-    if(a.condSegmento && a.condSegmento!=='Todos' && (!cli || cli.segmento!==a.condSegmento)) return;
-    if(a.condFase && (!cli || (cli.fase||'Lead')!==a.condFase)) return;
-    if(a.condScore && (!cli || scoreInfo(leadScore(cli)).l!==a.condScore)) return;
+    if(a.condSegmento && a.condSegmento!=='Todos' && (!cli || !accMatchSeg(cli,a.condSegmento))) return;
+    if(a.condFase && (!cli || accFaseOf(cli)!==a.condFase)) return;
+    if(a.condScore && (!cli || scoreInfo(accScoreOf(cli)).l!==a.condScore)) return;
     (a.passos||[]).forEach((p,idx)=>{
       if(!p.templateId) return;
       if((+p.atrasoDias||0)<=0){ sendEmail({clienteId:ctx.clienteId, templateId:p.templateId, proposta:(trigger!=='novo-cliente')?ctx.proposta:null, origem:'Automação', automacaoId:a.id}); immediate++; }
@@ -2518,14 +2565,22 @@ function fireAutomations(trigger, ctx){
   return fired;
 }
 function scheduleSend(o){ state.agendamentos.push({id:uid('ag'),dataAgendada:o.dataAgendada,clienteId:o.clienteId,templateId:o.templateId,propostaId:o.propostaId||null,automacaoId:o.automacaoId||null,nome:o.nome||'Agendado'}); }
-// gatilho comportamental: lead fica "Quente" (score ≥ 70) - dispara UMA vez; rearma se descer
-function maybeLeadQuente(clienteId){ const c=getC(clienteId); if(!c) return; const q=leadScore(c)>=70; if(q&&!c._quenteFired){ c._quenteFired=true; save(); fireAutomations('lead-quente',{clienteId}); } else if(!q&&c._quenteFired){ c._quenteFired=false; } }
-// gatilho comportamental: leads sem contacto há N dias (corre no processamento diário)
+// avança a fase da conta (só para a frente; nunca mexe em Perdido)
+function advanceFase(acc, to){ if(!acc) return false; if((acc.fase||'Lead')==='Perdido') return false; const order=['Lead','MQL','SQL','Cliente']; const cur=order.indexOf(acc.fase||'Lead'), tgt=order.indexOf(to); if(tgt>cur){ acc.fase=to; return true; } return false; }
+// gatilho comportamental: a CONTA fica "Quente" (score ≥ 70) - dispara UMA vez; engagement move Lead→MQL
+function maybeLeadQuente(clienteId){ const c=getC(clienteId); if(!c) return; const emp=accEmpOf(c); const acc=emp||c;
+  advanceFase(acc,'MQL'); // uma pessoa da conta demonstrou interesse
+  const q=(emp?empLeadScore(emp):leadScore(c))>=70;
+  if(q&&!acc._quenteFired){ acc._quenteFired=true; save(); fireAutomations('lead-quente',{clienteId}); }
+  else { if(!q&&acc._quenteFired) acc._quenteFired=false; save(); } }
+// gatilho comportamental: CONTAS sem contacto há N dias (corre no processamento diário)
 function runSemContacto(){ const autos=(state.automacoes||[]).filter(a=>a.estado==='Ativa'&&a.trigger==='sem-contacto'); if(!autos.length) return 0; let n=0;
-  (state.clientes||[]).forEach(c=>{ if(c._scFired) return; if(['Cliente','Perdido'].includes(c.fase)) return;
-    const envs=state.envios.filter(e=>e.clienteId===c.id); const last=envs.length?envs.map(e=>e.data).sort().pop():c.criado; const dias=last?daysBetween(last,todayISO()):9999;
-    for(const a of autos){ if(a.condSegmento&&a.condSegmento!=='Todos'&&c.segmento!==a.condSegmento) continue; if(a.condFase&&(c.fase||'Lead')!==a.condFase) continue; if(a.condScore&&scoreInfo(leadScore(c)).l!==a.condScore) continue;
-      if(dias>=(+a.condDias||7)){ c._scFired=true; fireAutomations('sem-contacto',{clienteId:c.id}); n++; break; } } });
+  const doAcc=(acc,contacts,score)=>{ if(acc._scFired) return; if(['Cliente','Perdido'].includes(acc.fase||'Lead')) return; const rep=contacts[0]; if(!rep) return;
+    const ids=contacts.map(x=>x.id); const envs=state.envios.filter(e=>ids.includes(e.clienteId)); const last=envs.length?envs.map(e=>e.data).sort().pop():acc.criado; const dias=last?daysBetween(last,todayISO()):9999;
+    for(const a of autos){ if(a.condSegmento&&a.condSegmento!=='Todos'&&!accMatchSeg(rep,a.condSegmento)) continue; if(a.condFase&&(acc.fase||'Lead')!==a.condFase) continue; if(a.condScore&&scoreInfo(score).l!==a.condScore) continue;
+      if(dias>=(+a.condDias||7)){ acc._scFired=true; fireAutomations('sem-contacto',{clienteId:rep.id}); n++; break; } } };
+  (state.empresas||[]).forEach(e=>doAcc(e, empContacts(e.id), empLeadScore(e)));
+  (state.clientes||[]).filter(c=>!c.empresaId).forEach(c=>doAcc(c,[c],leadScore(c)));
   if(n) save(); return n; }
 function processAgendamentos(){
   const today=todayISO(); const due=(state.agendamentos||[]).filter(a=>a.dataAgendada<=today); let n=0;
@@ -2543,7 +2598,7 @@ function sendAgendamentoNow(id){
 function cancelAgendamento(id){ state.agendamentos=state.agendamentos.filter(x=>x.id!==id); save(); render(); toast('Agendamento cancelado'); }
 function sendCampaign(id){
   const cp=state.campanhas.find(c=>c.id===id); if(!cp) return;
-  const alvo=state.clientes.filter(c=>cp.segmento==='Todos'||c.segmento===cp.segmento);
+  const alvo=state.clientes.filter(c=>accMatchSeg(c,cp.segmento));
   if(!alvo.length){ toast('Sem destinatários','Nenhum cliente no segmento "'+cp.segmento+'"','warn'); return; }
   const tplId=cp.templateId||(state.templates[0]&&state.templates[0].id);
   let ab=0,cl=0;
@@ -3284,9 +3339,6 @@ const SCHEMAS = {
     {n:'email',l:'Email',type:'email'},{n:'telefone',l:'Telefone',type:'tel'},
     {n:'nif',l:'NIF (pessoal)',hint:'9 dígitos - validado'},{n:'cidade',l:'Cidade'},
     {n:'regiao',l:'Região (IVA)',type:'select',opts:['Continente','Madeira','Açores'].map(x=>({v:x,t:x}))},
-    {n:'segmento',l:'Segmento',type:'select',opts:['Micro','PME','Grande Empresa'].map(x=>({v:x,t:x}))},
-    {n:'fase',l:'Fase (ciclo de vida)',type:'select',opts:FASES.map(x=>({v:x,t:x})),def:'Lead',hint:'Lead → MQL (demonstrou interesse) → SQL (oportunidade real) → Cliente'},
-    {n:'origem',l:'Origem',type:'select',opts:()=>(state.settings.origens||[]).map(x=>({v:x,t:x}))},
     {n:'notas',l:'Notas',type:'textarea',full:1},
   ]},
   empresa:{store:'empresas',label:'Empresa',fem:1,code:e=>{ if(!e.numero) e.numero='E'+pad(++state.settings.empSeq,3); },fields:[
@@ -3294,7 +3346,9 @@ const SCHEMAS = {
     {n:'nipc',l:'NIPC / NIF',hint:'9 dígitos - validado pelo dígito de controlo'},
     {n:'cae',l:'CAE (código de atividade)'},
     {n:'setor',l:'Setor',type:'select',opts:['Comércio','Indústria','Serviços','Hotelaria','Restauração','Saúde','Tecnologia','Construção','Educação','Transportes','Outro'].map(x=>({v:x,t:x}))},
-    {n:'dimensao',l:'Dimensão',type:'select',opts:['Micro','PME','Grande Empresa'].map(x=>({v:x,t:x}))},
+    {n:'dimensao',l:'Dimensão (segmento)',type:'select',opts:['Micro','PME','Grande Empresa'].map(x=>({v:x,t:x}))},
+    {n:'fase',l:'Fase (ciclo de vida)',type:'select',opts:FASES.map(x=>({v:x,t:x})),def:'Lead',hint:'Lead → MQL (demonstrou interesse) → SQL (oportunidade real) → Cliente'},
+    {n:'origem',l:'Origem (aquisição)',type:'select',opts:()=>[''].concat(state.settings.origens||[]).map(x=>({v:x,t:x||'- não definida -'})),hint:'Canal por onde a empresa chegou - base do funil e do ROI'},
     {n:'moradaFiscal',l:'Morada fiscal',full:1},
     {n:'codigoPostal',l:'Código postal'},{n:'cidade',l:'Cidade'},
     {n:'regiao',l:'Região (IVA)',type:'select',opts:['Continente','Madeira','Açores'].map(x=>({v:x,t:x}))},
@@ -3585,6 +3639,12 @@ async function saveModal(){
     if(dupN){ if(await uiConfirm(`Já existe um contacto com o NIF ${obj.nif}: "${nome(dupN)}". Abrir esse contacto em vez de criar um duplicado?`,{title:'NIF já registado',okText:'Abrir existente',icon:'users'})){ closeModal(); openClient360(dupN.id); } return; } }
   if(sc.code) sc.code(obj);
   if(sc.after) sc.after(obj);
+  // histórico de mudança de empresa (o contacto moveu-se de A → B)
+  if(type==='cliente' && cur && (cur.empresaId||'')!==(obj.empresaId||'')){
+    const nomeDe = cur.empresaId ? (((state.empresas||[]).find(e=>e.id===cur.empresaId)||{}).nome||cur.empresa||'') : '';
+    const nomePara = obj.empresaId ? (((state.empresas||[]).find(e=>e.id===obj.empresaId)||{}).nome||obj.empresa||'') : '';
+    obj.historicoEmpresas = (Array.isArray(obj.historicoEmpresas)?obj.historicoEmpresas:[]).concat([{de:nomeDe, para:nomePara, data:todayISO()}]);
+  }
   const i=state[store].findIndex(x=>x.id===obj.id);
   const isNew=i<0;
   if(isNew && !obj.fonte) obj.fonte='manual';   // criado à mão (distingue de 'gerado'/'base' na revisão do formador)
@@ -3748,6 +3808,7 @@ function savePropModal(closeAfter){
   if(i>=0) state.propostas[i]=stored; else state.propostas.push(stored);
   recalcLoyalty(); save();
   toast(isNew?'Proposta criada':'Proposta guardada', stored.numero);
+  { const acc=propAccObj(stored); if(acc) advanceFase(acc, stored.estado==='Ganha'?'Cliente':'SQL'); save(); }   // proposta ⇒ a CONTA avança p/ SQL (ganha ⇒ Cliente)
   if(isNew) fireAutomations('proposta-criada',{clienteId:stored.clienteId,proposta:stored});
   onPropStatusChange(stored, oldEstado, stored.estado);
   maybeLeadQuente(stored.clienteId);   // proposta pode ter subido o score → gatilho comportamental
@@ -3756,6 +3817,7 @@ function savePropModal(closeAfter){
 }
 function onPropStatusChange(p, oldS, newS){
   if(!newS||newS===oldS) return;
+  { const acc=propAccObj(p); if(acc){ if(newS==='Ganha') advanceFase(acc,'Cliente'); else if(['Criada','Enviada','Negociação'].includes(newS)) advanceFase(acc,'SQL'); } }
   if(newS==='Ganha') fireAutomations('proposta-ganha',{clienteId:p.clienteId,proposta:p});
   else if(newS==='Enviada') fireAutomations('proposta-enviada',{clienteId:p.clienteId,proposta:p});
   else if(newS==='Perdida' && !p.motivoPerda){ toast('Registe o motivo da perda','Porque perdeu este negócio?','warn'); setTimeout(()=>openModal('proposta',p.id),350); }
@@ -4764,7 +4826,8 @@ function gerarExemplos(nCli,nProp,nEmp){
     state.propostas.push({id:uid('prop'),numero:nextProposalNumber(),titulo:gnRand(['Implementação CRM','Plano Analytics','Suporte Premium','Workshop de equipa','Conformidade RGPD','Licenciamento anual'])+' - '+cli.empresa,empresaId:cli.empresaId||'',clienteId:cli.id,meses:gnRand([12,12,24,36]),criada:gnDate(),validade:addDays(todayISO(),30),estado:gnRand(['Criada','Enviada','Negociação','Negociação','Ganha','Ganha','Perdida']),templateId:seedTplId(),linhas,criadoPor:(currentUser()?currentUser().id:null),criadoEm:gnDate(),alteradoEm:todayISO(),fonte:'gerado'});
   }
   // fase do ciclo de vida dos contactos gerados (têm propostas/emails)
-  state.clientes.forEach(c=>{ if(c.fase==null){ const pr=state.propostas.filter(p=>p.clienteId===c.id); const ev=state.envios.filter(e=>e.clienteId===c.id); c.fase=pr.some(p=>p.estado==='Ganha')?'Cliente':pr.length?'SQL':(ev.some(e=>e.aberto||e.clicado)?'MQL':'Lead'); } });
+  state.empresas.forEach(e=>{ if(e.fase==null){ const pr=state.propostas.filter(p=>p.empresaId===e.id); const ids=state.clientes.filter(c=>c.empresaId===e.id).map(c=>c.id); const ev=state.envios.filter(x=>ids.includes(x.clienteId)); e.fase=pr.some(p=>p.estado==='Ganha')?'Cliente':pr.length?'SQL':(ev.some(x=>x.aberto||x.clicado)?'MQL':'Lead'); } if(!e.origem){ const c=state.clientes.find(x=>x.empresaId===e.id&&x.origem); e.origem=c?c.origem:gnRand(state.settings.origens||['Website']); } });
+  state.clientes.forEach(c=>{ if(!c.empresaId && c.fase==null){ const pr=state.propostas.filter(p=>p.clienteId===c.id); const ev=state.envios.filter(e=>e.clienteId===c.id); c.fase=pr.some(p=>p.estado==='Ganha')?'Cliente':pr.length?'SQL':(ev.some(e=>e.aberto||e.clicado)?'MQL':'Lead'); } });
   recalcLoyalty(); save(); render(); toast('Exemplos gerados',`${nEmp} empresa(s) · ${nCli} contacto(s) · ${nProp} proposta(s)`);
 }
 
@@ -5103,7 +5166,7 @@ function openWizard(){
 }
 function wizardHTML(sel){
   const p=PERSONAS.find(x=>x.id===sel)||PERSONAS[0];
-  const audience=state.clientes.filter(c=>p.seg==='Todos'||c.segmento===p.seg).length;
+  const audience=state.clientes.filter(c=>accMatchSeg(c,p.seg)).length;
   return `
     <div class="field" style="margin-bottom:6px"><label>Persona-alvo</label></div>
     <div class="grid cols-3" style="gap:10px">${PERSONAS.map(x=>`<label class="persona-pick ${x.id===p.id?'on':''}"><input type="radio" name="persona" value="${x.id}" ${x.id===p.id?'checked':''} style="display:none"><div class="pav">${x.emoji}</div><strong>${esc(x.nome)}</strong><span class="muted" style="font-size:.74rem">${esc(x.seg)}</span></label>`).join('')}</div>
@@ -5120,7 +5183,7 @@ function wizardGenerate(){
   const p=PERSONAS.find(x=>x.id===pid)||PERSONAS[0];
   const objetivo=f.querySelector('[name="objetivo"]').value;
   const canal=f.querySelector('[name="canal"]').value;
-  const audience=state.clientes.filter(c=>p.seg==='Todos'||c.segmento===p.seg).length;
+  const audience=state.clientes.filter(c=>accMatchSeg(c,p.seg)).length;
   state.campanhas.push({id:uid('cp'),nome:`${objetivo} · ${p.nome}`,canal,segmento:p.seg,estado:'Planeada',inicio:todayISO(),fim:addDays(todayISO(),30),enviados:0,abertos:0,cliques:0,alvoEstimado:audience,persona:p.nome,mensagem:p.msg});
   save(); closeModal(); render();
   toast('Campanha gerada',`${objetivo} → ${p.nome} · ${audience} alvo(s)`);
