@@ -23,7 +23,7 @@ The **company is the commercial account**: this is where the sale, the value, th
 
 ### Create / edit - field by field
 - **Name** (legal name) *required*.
-- **NIPC** - validated (check digit). *Blocks saving if invalid.*
+- **NIPC** - validated (check digit). As you type, it shows in real time whether it is valid and the **entity type** (company, individual, sole trader…). The **Look up** button auto-fills the company's data (name, address, CAE, contacts) from the NIPC. *Blocks saving if invalid.*
 - **CAE** and **Sector**.
 - **Size (segment)** - Micro / SME / Large Enterprise.
 - **Stage (lifecycle)** - **Lead** → **MQL** (*Marketing Qualified Lead*, one of its people has shown interest) → **SQL** (*Sales Qualified Lead*, a real opportunity with a proposal) → **Customer** / **Lost**. The app **infers** the stage and **advances it** on its own: email *engagement* → MQL, proposal → SQL, won → Customer.

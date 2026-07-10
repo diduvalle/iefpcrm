@@ -23,7 +23,7 @@ A **empresa é a conta comercial**: é aqui que vive a venda, o valor, o loyalty
 
 ### Criar / editar - campo a campo
 - **Nome** (razão social) *obrigatório*.
-- **NIPC** - validado (dígito de controlo). *Bloqueia gravar se inválido.*
+- **NIPC** - validado (dígito de controlo). Ao escrever, mostra em tempo real se é válido e o **tipo de entidade** (empresa, pessoa singular, ENI…). O botão **Procurar** preenche automaticamente os dados da empresa (nome, morada, CAE, contactos) pelo NIPC. *Bloqueia gravar se inválido.*
 - **CAE** e **Setor**.
 - **Dimensão (segmento)** - Micro / PME / Grande Empresa.
 - **Fase (ciclo de vida)** - **Lead** → **MQL** (*Marketing Qualified Lead*, uma das suas pessoas demonstrou interesse) → **SQL** (*Sales Qualified Lead*, oportunidade real com proposta) → **Cliente** / **Perdido**. A app **infere** a fase e **avança-a** sozinha: *engagement* de email → MQL, proposta → SQL, ganha → Cliente.
