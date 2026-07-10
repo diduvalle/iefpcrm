@@ -10,56 +10,54 @@ Modelo profissional **Account / Contact** (B2B): as **Empresas** são as entidad
 
 ## Empresas
 
+A **empresa é a conta comercial**: é aqui que vive a venda, o valor, o loyalty e a **gestão de leads**.
+
 ### O ecrã
-- **Filtro temporal** + **KPIs** (nº de empresas, valor associado).
-- **Pesquisa**, **paginação** e o botão **+ Empresa**.
-- Clica numa **linha** para abrir a **ficha 360°**.
+- **KPIs**: nº de empresas, **Leads quentes** (score ≥ 70), **Clientes** (fase = Cliente) e **valor ganho**.
+- **Filtro por Fase do lead** (chips: Todas / Lead / MQL / SQL / Cliente / Perdido) e, em cada linha, o **selo de score** (Quente / Morno / Frio).
+- **Pesquisa**, **paginação** e **+ Empresa**. Clica numa **linha** → **ficha 360°**.
+
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/clientes.png"><source src="/manual/assets/videos/gestao-leads-pt.webm" type="video/webm"><source src="/manual/assets/videos/gestao-leads-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/gestao-leads-pt.vtt" srclang="pt" label="Português" default></video>
+
+*Gestão de leads na empresa: fase do ciclo de vida, lead score, filtro por fase e o funil de aquisição.*
 
 ### Criar / editar - campo a campo
 - **Nome** (razão social) *obrigatório*.
 - **NIPC** - validado (dígito de controlo). *Bloqueia gravar se inválido.*
 - **CAE** e **Setor**.
-- **Dimensão** - Micro / PME / Grande Empresa.
+- **Dimensão (segmento)** - Micro / PME / Grande Empresa.
+- **Fase (ciclo de vida)** - **Lead** → **MQL** (*Marketing Qualified Lead*, uma das suas pessoas demonstrou interesse) → **SQL** (*Sales Qualified Lead*, oportunidade real com proposta) → **Cliente** / **Perdido**. A app **infere** a fase e **avança-a** sozinha: *engagement* de email → MQL, proposta → SQL, ganha → Cliente.
+- **Origem (aquisição)** - canal por onde a empresa chegou (Website, Recomendação, Feira, Campanha Email…) - base do **funil de aquisição** e do **ROI por origem** no Analytics.
 - **Morada fiscal**, **Código postal**, **Cidade**.
-- **Região** - Continente / Madeira / Açores (influencia o IVA das propostas dos seus contactos).
+- **Região** - Continente / Madeira / Açores (influencia o IVA das propostas).
 - **Website**, **Telefone**, **Email**, **Notas**.
 
 ### Ficha 360°
-Mostra os **dados fiscais**, a **lista de contactos** da empresa, o **nível de loyalty** da empresa e um resumo de **propostas / ganhas / valor ganho**. É aqui que vive o histórico comercial - porque **a venda pertence à empresa**, não à pessoa.
+Mostra a **fase de lead** e o **lead score** da empresa (que **agrega o engagement de todas as suas pessoas**), a **origem**, o **loyalty**, os **dados fiscais**, a **lista de pessoas** e um resumo de **propostas / ganhas / valor ganho**.
 
-!!! note "As vendas e o loyalty são da **Empresa**, não do contacto"
-    A venda (proposta) e o valor ficam ancorados à **empresa**: uma pessoa pode **mudar de empresa** e o histórico **não vai com ela** - fica na conta onde o negócio aconteceu. O **loyalty** (Bronze/Prata/Ouro) também é da **empresa**, calculado pelo **volume de compras da empresa**; cada contacto **herda** o nível da sua empresa. Um contacto **sem empresa** (particular) usa o **seu próprio** volume. O **desconto** da proposta vem sempre do nível da **conta** (empresa ou, no particular, do contacto).
+!!! note "A gestão de leads e o valor são da **Empresa**, não do contacto"
+    A venda (proposta), o **valor**, o **loyalty**, o **segmento** (dimensão) e a **fase de lead** são todos da **empresa**. Uma pessoa pode **mudar de empresa** e o histórico **não vai com ela** - fica na conta onde o negócio aconteceu. O **lead score** da empresa sobe quando **qualquer uma das suas pessoas** abre/clica emails; quem **fecha** a venda é um contacto (fica registado na proposta), mas o negócio é da empresa. Um contacto **sem empresa** (particular) é uma **conta de uma só pessoa** - aí a fase, o loyalty e o valor caem na própria pessoa.
 
 ---
 
 ## Contactos
 
-As pessoas (os antigos "clientes").
+As pessoas - um **diretório**, como as **páginas amarelas**. O contacto **não tem** venda, valor, loyalty nem segmento próprios (isso é da empresa); guarda a **identidade**, a **empresa atual**, o **cargo/função** e o **histórico de mudanças de empresa**.
 
 ### O ecrã
-Igual ao das empresas: filtro temporal, KPIs (nº de contactos, valor médio - pode aparecer 🔒, **Leads quentes** com score ≥ 70), pesquisa, paginação, **+ Contacto**. Clica numa linha → **ficha 360°**.
-
-Há ainda um **filtro por Fase do lead** (chips: Todas / Lead / MQL / SQL / Cliente / Perdido) e cada linha mostra o **selo de score** (Quente / Morno / Frio) ao lado do nome - para priorizares o esforço comercial de relance.
-
-<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/clientes.png"><source src="/manual/assets/videos/gestao-leads-pt.webm" type="video/webm"><source src="/manual/assets/videos/gestao-leads-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/gestao-leads-pt.vtt" srclang="pt" label="Português" default></video>
-
-*Gestão de leads: fase do ciclo de vida, lead scoring, filtro por fase e o funil de aquisição no Analytics.*
+- **KPIs**: total de contactos, **ligados a empresa**, **particulares** e **empresas distintas**.
+- **Pesquisa**, **paginação** e **+ Contacto**. Clica numa linha → **ficha 360°**.
+- Cada linha mostra a **empresa** (com a **fase de lead da empresa**, como referência), o **cargo/função** e o telefone.
 
 ### Criar / editar - campo a campo
 - **Nome** e **Apelido** *(nome obrigatório)*.
-- **Empresa** - escolhe da lista de Empresas; **Cargo** na empresa.
-- **Email**, **Telefone**.
-- **NIF** - validado (dígito de controlo PT).
-- **Cidade** e **Região** - a região define a **taxa de IVA** aplicável nas propostas.
-- **Segmento** - Lead / Micro / PME / Grande Empresa.
-- **Fase (ciclo de vida)** - **Lead** → **MQL** (*Marketing Qualified Lead*, já demonstrou interesse) → **SQL** (*Sales Qualified Lead*, oportunidade real com proposta) → **Cliente** / **Perdido**. Qualificar o lead diz qual é o **próximo passo**. A app **infere** a fase inicial a partir das propostas e do *engagement* de email.
-- **Origem** - canal de aquisição (lista editável em Definições): Website, Recomendação, Feira, Campanha Email… - base do **funil de aquisição** e do **ROI por origem** no Analytics.
+- **Empresa** - escolhe da lista de Empresas (pode ficar **sem empresa** = particular); **Cargo** e **Função** (a quem recorrer: dono, financeiro…).
+- **Email**, **Telefone**, **NIF (pessoal)** - validado.
+- **Cidade** e **Região**.
 - **Notas**.
 
-O **loyalty não se edita aqui**: é **herdado da empresa** (calculado automaticamente pelo volume de compras da empresa). Ver a caixa acima.
-
 ### Ficha 360°
-Dados completos, o **nível de loyalty herdado da empresa**, as **propostas** negociadas com o contacto e o histórico.
+Mostra o cartão **Conta · Empresa** (a fase, o loyalty e o valor **da empresa**, com atalho para a ficha dela), a **ficha da pessoa** (contactos, cargo, função), o **histórico de empresa** (moveu-se de A → B) e as **propostas negociadas com esta pessoa**.
 
 ---
 

@@ -10,56 +10,54 @@ Professional **Account / Contact** model (B2B): **Companies** are the legal enti
 
 ## Companies
 
+The **company is the commercial account**: this is where the sale, the value, the loyalty and **lead management** live.
+
 ### The screen
-- **Date filter** + **KPIs** (number of companies, associated value).
-- **Search**, **pagination** and the **+ Company** button.
-- Click a **row** to open the **360° profile**.
+- **KPIs**: number of companies, **Hot leads** (score ≥ 70), **Customers** (stage = Customer) and **value won**.
+- **Lead stage filter** (chips: All / Lead / MQL / SQL / Customer / Lost) and, on each row, the **score badge** (Hot / Warm / Cold).
+- **Search**, **pagination** and **+ Company**. Click a **row** → **360° profile**.
+
+<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/clientes.png"><source src="/manual/assets/videos/gestao-leads-en.webm" type="video/webm"><source src="/manual/assets/videos/gestao-leads-en.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/gestao-leads-en.vtt" srclang="en" label="English" default></video>
+
+*Lead management on the company: lifecycle stage, lead score, the stage filter and the acquisition funnel.*
 
 ### Create / edit - field by field
 - **Name** (legal name) *required*.
 - **NIPC** - validated (check digit). *Blocks saving if invalid.*
 - **CAE** and **Sector**.
-- **Size** - Micro / SME / Large Enterprise.
+- **Size (segment)** - Micro / SME / Large Enterprise.
+- **Stage (lifecycle)** - **Lead** → **MQL** (*Marketing Qualified Lead*, one of its people has shown interest) → **SQL** (*Sales Qualified Lead*, a real opportunity with a proposal) → **Customer** / **Lost**. The app **infers** the stage and **advances it** on its own: email *engagement* → MQL, proposal → SQL, won → Customer.
+- **Source (acquisition)** - the channel the company came through (Website, Referral, Trade fair, Email Campaign…) - the basis of the **acquisition funnel** and **ROI by source** in Analytics.
 - **Tax address**, **Postal code**, **City**.
-- **Region** - Mainland / Madeira / Azores (affects the VAT on its contacts' proposals).
+- **Region** - Mainland / Madeira / Azores (affects the VAT on proposals).
 - **Website**, **Phone**, **Email**, **Notes**.
 
 ### 360° profile
-Shows the **tax data**, the company's **contact list**, the company's **loyalty tier** and a summary of **proposals / won / value won**. This is where the commercial history lives - because **the sale belongs to the company**, not the person.
+Shows the company's **lead stage** and **lead score** (which **aggregates the engagement of all its people**), the **source**, the **loyalty**, the **tax data**, the **list of people** and a summary of **proposals / won / value won**.
 
-!!! note "Sales and loyalty belong to the **Company**, not the contact"
-    The sale (proposal) and its value are anchored to the **company**: a person can **change company** and the history **does not follow them** - it stays on the account where the deal happened. **Loyalty** (Bronze/Silver/Gold) is also the **company's**, computed from the **company's purchase volume**; each contact **inherits** their company's tier. A contact **without a company** (an individual) uses **their own** volume. The proposal **discount** always comes from the **account's** tier (the company, or the contact when they are an individual).
+!!! note "Lead management and value belong to the **Company**, not the contact"
+    The sale (proposal), the **value**, the **loyalty**, the **segment** (size) and the **lead stage** all belong to the **company**. A person can **change company** and the history **does not follow them** - it stays on the account where the deal happened. The company's **lead score** rises when **any of its people** opens/clicks emails; the one who **closes** the sale is a contact (recorded on the proposal), but the deal is the company's. A contact **without a company** (an individual) is a **one-person account** - there the stage, loyalty and value fall on the person.
 
 ---
 
 ## Contacts
 
-The people (the former "customers").
+The people - a **directory**, like the **Yellow Pages**. A contact **has no** sale, value, loyalty or segment of its own (that belongs to the company); it holds the **identity**, the **current company**, the **job title/role** and the **history of company changes**.
 
 ### The screen
-Same as companies: date filter, KPIs (number of contacts, average value - may appear 🔒, **Hot leads** with score ≥ 70), search, pagination, **+ Contact**. Click a row → **360° profile**.
-
-There is also a **Lead stage filter** (chips: All / Lead / MQL / SQL / Customer / Lost) and each row shows the **score badge** (Hot / Warm / Cold) next to the name - so you can prioritise your sales effort at a glance.
-
-<video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/clientes.png"><source src="/manual/assets/videos/gestao-leads-en.webm" type="video/webm"><source src="/manual/assets/videos/gestao-leads-en.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/gestao-leads-en.vtt" srclang="en" label="English" default></video>
-
-*Lead management: lifecycle stage, lead scoring, the stage filter and the acquisition funnel in Analytics.*
+- **KPIs**: total contacts, **linked to a company**, **individuals** and **distinct companies**.
+- **Search**, **pagination** and **+ Contact**. Click a row → **360° profile**.
+- Each row shows the **company** (with the **company's lead stage**, as a reference), the **job title/role** and the phone.
 
 ### Create / edit - field by field
 - **First name** and **Last name** *(name required)*.
-- **Company** - pick from the Companies list; **Job title** at the company.
-- **Email**, **Phone**.
-- **NIF** - validated (PT check digit).
-- **City** and **Region** - the region sets the **VAT rate** applicable on proposals.
-- **Segment** - Lead / Micro / SME / Large Enterprise.
-- **Stage (lifecycle)** - **Lead** → **MQL** (*Marketing Qualified Lead*, has shown interest) → **SQL** (*Sales Qualified Lead*, a real opportunity with a proposal) → **Customer** / **Lost**. Qualifying the lead tells you the **next step**. The app **infers** the initial stage from proposals and email *engagement*.
-- **Source** - acquisition channel (editable list in Settings): Website, Referral, Trade fair, Email Campaign… - the basis of the **acquisition funnel** and **ROI by source** in Analytics.
+- **Company** - pick from the Companies list (can be left **without a company** = individual); **Job title** and **Role** (who to turn to: owner, finance…).
+- **Email**, **Phone**, **NIF (personal)** - validated.
+- **City** and **Region**.
 - **Notes**.
 
-**Loyalty is not edited here**: it is **inherited from the company** (computed automatically from the company's purchase volume). See the note above.
-
 ### 360° profile
-Full data, the **loyalty level inherited from the company**, the **proposals** negotiated with the contact, and history.
+Shows the **Account · Company** card (the **company's** stage, loyalty and value, with a shortcut to its profile), the **person's details** (contacts, job title, role), the **company history** (moved from A → B) and the **proposals negotiated with this person**.
 
 ---
 

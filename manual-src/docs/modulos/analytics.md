@@ -14,7 +14,7 @@ O módulo de **KPIs & Dashboards** - o foco da UFCD **10868**. Tudo respeita o *
 ## Os indicadores - um a um
 
 - **Funil de vendas** - conversão entre etapas do pipeline (ou propostas criadas no período).
-- **Funil de aquisição** - conversão dos **leads** ao longo do ciclo de vida (**Lead → MQL → SQL → Cliente**), com a % entre etapas. Complementa o funil de vendas: mede a **qualificação**, não a proposta.
+- **Funil de aquisição** - conversão das **empresas** ao longo do ciclo de vida (**Lead → MQL → SQL → Cliente**), com a % entre etapas. Complementa o funil de vendas: mede a **qualificação** das contas, não a proposta.
 - **Aquisição por origem (ROI)** - tabela por **canal de origem** (Website, Recomendação, Feira, Campanha…) com **leads**, **clientes convertidos**, **taxa de conversão** e **valor gerado**. Mostra que canal traz os melhores clientes.
 - **Taxa de conversão** - % de propostas que chegam a *Ganha*.
 - **Ticket médio** - valor médio das propostas ganhas.

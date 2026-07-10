@@ -14,7 +14,7 @@ The **KPIs & Dashboards** module - the focus of UFCD **10868**. Everything respe
 ## The indicators - one by one
 
 - **Sales funnel** - conversion between pipeline stages (or proposals created in the period).
-- **Acquisition funnel** - conversion of **leads** across the lifecycle (**Lead → MQL → SQL → Customer**), with the % between stages. Complements the sales funnel: it measures **qualification**, not the proposal.
+- **Acquisition funnel** - conversion of **companies** across the lifecycle (**Lead → MQL → SQL → Customer**), with the % between stages. Complements the sales funnel: it measures account **qualification**, not the proposal.
 - **Acquisition by source (ROI)** - a table by **acquisition channel** (Website, Referral, Trade fair, Campaign…) with **leads**, **converted customers**, **conversion rate** and **value generated**. Shows which channel brings the best customers.
 - **Conversion rate** - % of proposals that reach *Won*.
 - **Average ticket** - average value of won proposals.

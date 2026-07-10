@@ -13,11 +13,11 @@
 | **RoPA** | Registo das Atividades de Tratamento (RGPD). |
 | **DSAR** | Pedido de exercício de direitos do titular dos dados. |
 | **Loyalty** | Nível de fidelização da **empresa** (Bronze/Prata/Ouro), pelo volume de compras dela; o contacto herda-o. Dá desconto nas propostas. |
-| **Fase / Ciclo de vida** | Etapa do lead: Lead → MQL → SQL → Cliente / Perdido. |
-| **MQL** | *Marketing Qualified Lead* - lead que já demonstrou interesse (abriu/clicou). |
+| **Fase / Ciclo de vida** | Etapa da **empresa** (conta): Lead → MQL → SQL → Cliente / Perdido. |
+| **MQL** | *Marketing Qualified Lead* - empresa cujas pessoas já demonstraram interesse (abriram/clicaram). |
 | **SQL** | *Sales Qualified Lead* - oportunidade real, já com proposta. |
-| **Lead scoring** | Pontuação 0-100 do contacto (Quente/Morno/Frio) que prioriza o esforço comercial. |
-| **Funil de aquisição** | Conversão dos leads Lead → MQL → SQL → Cliente (vs funil de vendas, por proposta). |
+| **Lead scoring** | Pontuação 0-100 da **empresa** (Quente/Morno/Frio), que agrega o engagement das suas pessoas. |
+| **Funil de aquisição** | Conversão das **empresas** Lead → MQL → SQL → Cliente (vs funil de vendas, por proposta). |
 | **Gatilho comportamental** | Automação despoletada pelo comportamento do lead (abriu/clicou, ficou quente, sem contacto). |
 | **CAC / LTV** | Custo de Aquisição de Cliente / Valor do tempo de vida do cliente. |
 | **EmailJS** | Serviço que permite o envio de email real a partir do browser. |
