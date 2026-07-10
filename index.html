@@ -1842,7 +1842,7 @@ views.clientes = () => {
   <div class="grid cols-4">
     ${kpi(act?'Novos contactos':'Total de contactos', fmtN(base.length), {icon:'users', sub:act?'no período':''})}
     ${kpi('Ligados a empresa', fmtN(comEmp), {icon:'building'})}
-    ${kpi('Particulares', fmtN(base.length-comEmp), {icon:'user', sub:'sem empresa'})}
+    ${kpi('Sem empresa', fmtN(base.length-comEmp), {icon:'user', sub:'só no diretório'})}
     ${kpi('Empresas distintas', fmtN(new Set(base.filter(c=>c.empresaId).map(c=>c.empresaId)).size), {icon:'target'})}
   </div>
   ${dateBar('cli', act?`${base.length} contactos registados no período`:'')}
@@ -1858,7 +1858,7 @@ views.clientes = () => {
       ${list.length?pg.slice.map(c=>{const e=accEmpOf(c);const fz=e?(e.fase||'Lead'):'';return `<tr data-act="open-client" data-id="${c.id}" style="cursor:pointer">
         <td class="muted">${esc(c.numero)}</td>
         <td><div class="cell-main">${esc(c.nome)} ${esc(c.apelido||'')}</div><div class="cell-sub">${esc(c.email||'')}</div></td>
-        <td>${e?`${esc(e.nome)} <span class="pill ${faseColor(fz)}" style="font-size:.62rem" title="Fase de lead da empresa">${esc(fz)}</span>`:'<span class="muted">Particular</span>'}</td>
+        <td>${e?`${esc(e.nome)} <span class="pill ${faseColor(fz)}" style="font-size:.62rem" title="Fase de lead da empresa">${esc(fz)}</span>`:'<span class="muted">sem empresa</span>'}</td>
         <td>${c.cargo?esc(c.cargo):(c.funcao?`<span class="chip">${esc(c.funcao)}</span>`:'<span class="muted">-</span>')}</td>
         <td>${esc(c.cidade||'-')}</td>
         <td>${esc(c.telefone||'-')}</td>
@@ -1880,7 +1880,7 @@ function openClient360(id){ drawer360Emp=null;
   const val=clientValue(id);
   const sc=leadScore(c); const si=scoreInfo(sc); const fz=c.fase||'Lead';
   const hist=Array.isArray(c.historicoEmpresas)?c.historicoEmpresas:[];
-  $('#drawerTitle').innerHTML=`<h3 style="font-size:1.1rem;font-weight:800">${esc(c.nome)} ${esc(c.apelido||'')}${emp?` <span class="pill ${faseColor(empFz)}" style="font-size:.66rem;vertical-align:middle" title="Fase de lead da empresa">${esc(empFz)}</span>`:` <span class="pill grey" style="font-size:.66rem;vertical-align:middle">Particular</span>`}</h3><div class="sub" style="color:var(--muted);font-size:.82rem">Contacto n.º ${esc(c.numero)} · ${emp?esc(emp.nome):'sem empresa'}${c.cargo?' · '+esc(c.cargo):''}</div>`;
+  $('#drawerTitle').innerHTML=`<h3 style="font-size:1.1rem;font-weight:800">${esc(c.nome)} ${esc(c.apelido||'')}${emp?` <span class="pill ${faseColor(empFz)}" style="font-size:.66rem;vertical-align:middle" title="Fase de lead da empresa">${esc(empFz)}</span>`:` <span class="pill grey" style="font-size:.66rem;vertical-align:middle">Sem empresa</span>`}</h3><div class="sub" style="color:var(--muted);font-size:.82rem">Contacto n.º ${esc(c.numero)} · ${emp?esc(emp.nome):'só no diretório'}${c.cargo?' · '+esc(c.cargo):''}</div>`;
   $('#drawerBody').innerHTML=`
     ${emp?`<div class="card card-pad" data-act="open-empresa" data-id="${emp.id}" style="cursor:pointer">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div><div class="muted" style="font-size:.68rem;font-weight:800;letter-spacing:.05em">CONTA · EMPRESA</div><strong style="font-size:1.02rem">${esc(emp.nome)}</strong></div><span class="pill ${faseColor(empFz)}">${esc(empFz)}</span></div>
@@ -1890,7 +1890,7 @@ function openClient360(id){ drawer360Emp=null;
         ${canSeeFinance()?`<div style="flex:1;background:var(--g100);border-radius:9px;padding:9px"><div class="muted" style="font-size:.68rem">Valor ganho</div><strong style="color:var(--g700)">${money(empValue(emp.id))}</strong></div>`:''}
       </div>
       <div class="muted" style="font-size:.72rem;margin-top:9px">${ic('info',12)} A fase, o loyalty e o valor pertencem à empresa. Clique para abrir a ficha da empresa.</div>
-    </div>`:`<div class="grid cols-2">${kpi('Valor (particular)', money(val), {icon:'euro'})}${kpi('Fase de lead', fz, {sub:si.l+' · '+sc})}</div>`}
+    </div>`:`<div class="callout info"><div class="ctxt" style="flex:1"><strong>Contacto sem empresa.</strong> A venda é sempre a uma empresa. Se este cliente é em <strong>nome individual</strong>, crie a empresa a partir dele; ou associe-o a uma empresa existente em "Editar ficha".</div></div><div style="margin:10px 0 4px"><button class="btn" data-act="eni-create" data-id="${id}">${ic('building',16)} Criar empresa em nome individual</button></div>`}
     <div class="card card-pad">
       <h4 style="font-weight:800;margin-bottom:10px;font-size:.95rem">Ficha da pessoa</h4>
       <dl class="kv">
@@ -2179,19 +2179,25 @@ function empLeadScore(e){
 }
 // A CONTA de um contacto = a sua empresa (ou o próprio, se particular)
 function accEmpOf(c){ return c&&c.empresaId?(state.empresas||[]).find(x=>x.id===c.empresaId):null; }
-function accFaseOf(c){ const e=accEmpOf(c); return e?(e.fase||'Lead'):(c.fase||'Lead'); }
-function accScoreOf(c){ const e=accEmpOf(c); return e?empLeadScore(e):leadScore(c); }
+// A CONTA é SEMPRE uma empresa (mesmo em nome individual). Um contacto sem empresa é só
+// uma entrada no diretório (páginas amarelas) - não é conta, não tem fase/score/valor.
+function accFaseOf(c){ const e=accEmpOf(c); return e?(e.fase||'Lead'):''; }
+function accScoreOf(c){ const e=accEmpOf(c); return e?empLeadScore(e):0; }
 function accSegOf(c){ const e=accEmpOf(c); return e?(e.dimensao||''):''; }
-function accLoyaltyOf(c){ const e=accEmpOf(c); return (e?e.loyalty:c.loyalty)||'Bronze'; }
-// Um contacto bate um segmento-alvo (dimensão OU tier de loyalty) da sua conta
-function accMatchSeg(c,seg){ if(!seg||seg==='Todos') return true; return accSegOf(c)===seg || accLoyaltyOf(c)===seg; }
-// Lista de CONTAS (empresas + particulares) para funil/ROI/insights
-function accountList(){
-  const out=[];
-  (state.empresas||[]).forEach(e=>out.push({id:e.id,nome:e.nome,fase:e.fase||'Lead',origem:e.origem||'',valor:empValue(e.id),score:empLeadScore(e),criado:e.criado,kind:'emp'}));
-  (state.clientes||[]).filter(c=>!c.empresaId).forEach(c=>out.push({id:c.id,nome:((c.nome||'')+' '+(c.apelido||'')).trim(),fase:c.fase||'Lead',origem:c.origem||'',valor:clientValue(c.id),score:leadScore(c),criado:c.criado,kind:'part'}));
-  return out;
-}
+function accLoyaltyOf(c){ const e=accEmpOf(c); return e?(e.loyalty||'Bronze'):''; }
+// Um contacto bate um segmento-alvo (dimensão OU tier de loyalty) da sua empresa
+function accMatchSeg(c,seg){ if(!seg||seg==='Todos') return true; const e=accEmpOf(c); if(!e) return false; return (e.dimensao||'')===seg || (e.loyalty||'')===seg; }
+// Lista de CONTAS = só empresas (a conta é sempre uma empresa)
+function accountList(){ return (state.empresas||[]).map(e=>({id:e.id,nome:e.nome,fase:e.fase||'Lead',origem:e.origem||'',valor:empValue(e.id),score:empLeadScore(e),criado:e.criado,kind:'emp'})); }
+// Criar EMPRESA EM NOME INDIVIDUAL a partir de um contacto e ligá-lo (atalho p/ ENI)
+function createENI(clienteId){ const c=getC(clienteId); if(!c) return;
+  if(c.empresaId){ openEmpresa360(c.empresaId); return; }
+  const dig=x=>String(x||'').replace(/\D/g,''); const nif=dig(c.nif);
+  let e=nif&&state.empresas.find(x=>dig(x.nipc)===nif);
+  if(!e){ e={id:uid('emp'),numero:'E'+pad(++state.settings.empSeq,3),nome:((c.nome||'')+' '+(c.apelido||'')).trim()+' (nome individual)',nipc:c.nif||'',cae:'',setor:'',dimensao:'Micro',fase:'Lead',origem:c.origem||'',moradaFiscal:'',codigoPostal:'',cidade:c.cidade||'',regiao:c.regiao||'Continente',website:'',telefone:c.telefone||'',email:c.email||'',notas:'Empresa em nome individual (criada a partir do contacto).',criado:todayISO(),fonte:c.fonte||'manual'}; state.empresas.push(e); }
+  const antiga=c.empresa||''; c.empresaId=e.id; c.empresa=e.nome;
+  c.historicoEmpresas=(Array.isArray(c.historicoEmpresas)?c.historicoEmpresas:[]).concat([{de:antiga,para:e.nome,data:todayISO()}]);
+  recalcLoyalty(); save(); toast('Empresa em nome individual criada',e.nome); closeModal(); openEmpresa360(e.id); }
 function scoreInfo(s){ return s>=70?{l:'Quente',c:'#e0564a'}:s>=40?{l:'Morno',c:'#e8a23d'}:{l:'Frio',c:'#7aa7c7'}; }
 function aiInsights(m){
   const a=[];
@@ -2567,20 +2573,18 @@ function fireAutomations(trigger, ctx){
 function scheduleSend(o){ state.agendamentos.push({id:uid('ag'),dataAgendada:o.dataAgendada,clienteId:o.clienteId,templateId:o.templateId,propostaId:o.propostaId||null,automacaoId:o.automacaoId||null,nome:o.nome||'Agendado'}); }
 // avança a fase da conta (só para a frente; nunca mexe em Perdido)
 function advanceFase(acc, to){ if(!acc) return false; if((acc.fase||'Lead')==='Perdido') return false; const order=['Lead','MQL','SQL','Cliente']; const cur=order.indexOf(acc.fase||'Lead'), tgt=order.indexOf(to); if(tgt>cur){ acc.fase=to; return true; } return false; }
-// gatilho comportamental: a CONTA fica "Quente" (score ≥ 70) - dispara UMA vez; engagement move Lead→MQL
-function maybeLeadQuente(clienteId){ const c=getC(clienteId); if(!c) return; const emp=accEmpOf(c); const acc=emp||c;
-  advanceFase(acc,'MQL'); // uma pessoa da conta demonstrou interesse
-  const q=(emp?empLeadScore(emp):leadScore(c))>=70;
-  if(q&&!acc._quenteFired){ acc._quenteFired=true; save(); fireAutomations('lead-quente',{clienteId}); }
-  else { if(!q&&acc._quenteFired) acc._quenteFired=false; save(); } }
-// gatilho comportamental: CONTAS sem contacto há N dias (corre no processamento diário)
+// gatilho comportamental: a EMPRESA (conta) fica "Quente" (score ≥ 70) - dispara UMA vez; engagement move Lead→MQL
+function maybeLeadQuente(clienteId){ const c=getC(clienteId); if(!c) return; const emp=accEmpOf(c); if(!emp) return; // contacto sem empresa = não é conta
+  advanceFase(emp,'MQL'); // uma pessoa da empresa demonstrou interesse
+  const q=empLeadScore(emp)>=70;
+  if(q&&!emp._quenteFired){ emp._quenteFired=true; save(); fireAutomations('lead-quente',{clienteId}); }
+  else { if(!q&&emp._quenteFired) emp._quenteFired=false; save(); } }
+// gatilho comportamental: EMPRESAS sem contacto há N dias (corre no processamento diário)
 function runSemContacto(){ const autos=(state.automacoes||[]).filter(a=>a.estado==='Ativa'&&a.trigger==='sem-contacto'); if(!autos.length) return 0; let n=0;
-  const doAcc=(acc,contacts,score)=>{ if(acc._scFired) return; if(['Cliente','Perdido'].includes(acc.fase||'Lead')) return; const rep=contacts[0]; if(!rep) return;
-    const ids=contacts.map(x=>x.id); const envs=state.envios.filter(e=>ids.includes(e.clienteId)); const last=envs.length?envs.map(e=>e.data).sort().pop():acc.criado; const dias=last?daysBetween(last,todayISO()):9999;
-    for(const a of autos){ if(a.condSegmento&&a.condSegmento!=='Todos'&&!accMatchSeg(rep,a.condSegmento)) continue; if(a.condFase&&(acc.fase||'Lead')!==a.condFase) continue; if(a.condScore&&scoreInfo(score).l!==a.condScore) continue;
-      if(dias>=(+a.condDias||7)){ acc._scFired=true; fireAutomations('sem-contacto',{clienteId:rep.id}); n++; break; } } };
-  (state.empresas||[]).forEach(e=>doAcc(e, empContacts(e.id), empLeadScore(e)));
-  (state.clientes||[]).filter(c=>!c.empresaId).forEach(c=>doAcc(c,[c],leadScore(c)));
+  (state.empresas||[]).forEach(e=>{ if(e._scFired) return; if(['Cliente','Perdido'].includes(e.fase||'Lead')) return; const contacts=empContacts(e.id); const rep=contacts[0]; if(!rep) return;
+    const ids=contacts.map(x=>x.id); const envs=state.envios.filter(x=>ids.includes(x.clienteId)); const last=envs.length?envs.map(x=>x.data).sort().pop():e.criado; const dias=last?daysBetween(last,todayISO()):9999; const score=empLeadScore(e);
+    for(const a of autos){ if(a.condSegmento&&a.condSegmento!=='Todos'&&!accMatchSeg(rep,a.condSegmento)) continue; if(a.condFase&&(e.fase||'Lead')!==a.condFase) continue; if(a.condScore&&scoreInfo(score).l!==a.condScore) continue;
+      if(dias>=(+a.condDias||7)){ e._scFired=true; fireAutomations('sem-contacto',{clienteId:rep.id}); n++; break; } } });
   if(n) save(); return n; }
 function processAgendamentos(){
   const today=todayISO(); const due=(state.agendamentos||[]).filter(a=>a.dataAgendada<=today); let n=0;
@@ -3795,6 +3799,8 @@ function savePropModal(closeAfter){
   syncDraftFromForm();
   // a venda ancora na EMPRESA; se só se escolheu o contacto, usa a empresa dele
   if(!propDraft.empresaId && propDraft.clienteId){ const cc=getC(propDraft.clienteId); if(cc&&cc.empresaId) propDraft.empresaId=cc.empresaId; }
+  // a venda é SEMPRE a uma empresa (ENI incluído): sem empresa, não se guarda
+  if(!propDraft.empresaId){ toast('Falta a empresa','A venda é sempre a uma empresa. Escolha a empresa (para clientes em nome individual, crie a empresa a partir do contacto).','warn'); return; }
   if(!propDraft.titulo.trim()){ toast('Falta o título','Indique um título para a proposta','warn'); return; }
   if(!(propDraft.linhas||[]).some(l=>l.produtoId)){ toast('Sem artigos','Adicione pelo menos um artigo do catálogo','warn'); return; }
   const i=state.propostas.findIndex(x=>x.id===propDraft.id);
@@ -4328,6 +4334,7 @@ document.addEventListener('click', async e=>{
     case 'delete': e.stopPropagation(); if(type==='loyalty'&&!canFeat('loyalty')){ toast('Sem permissão','','warn'); break; } deleteEntity(type,id); break;
     case 'open-client': if(!e.target.closest('[data-stop]')) openClient360(id); break;
     case 'open-empresa': if(!e.target.closest('[data-stop]')) openEmpresa360(id); break;
+    case 'eni-create': createENI(id); break;
     case 'open-prop': openModal('proposta',id); break;
     case 'print-prop': e.stopPropagation(); printProposal(id); break;
     case 'modal-save': saveModal(); break;
