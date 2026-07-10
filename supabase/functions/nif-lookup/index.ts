@@ -1,61 +1,74 @@
-// IEFP CRM — Pesquisa de dados de empresa por NIPC (proxy do nif.pt).
+// IEFP CRM — Pesquisa de dados de empresa por NIPC.
 //
-// O browser chama esta função com { nif }. A função consulta o nif.pt com a
-// chave (guardada como secret, nunca vai ao browser) e devolve os dados da
-// empresa já normalizados (nome, morada, código postal, cidade, CAE, contactos).
-// Só serve dados públicos de PESSOAS COLETIVAS — não expõe dados de particulares.
+// O browser chama esta função com { nif }. A função consulta o registo oficial
+// e devolve os dados da empresa normalizados (nome, morada, código postal,
+// cidade). Só dados PÚBLICOS de pessoas coletivas — não expõe particulares.
 //
-// Deploy (Supabase): Edge Functions → criar "nif-lookup" → colar este ficheiro.
-// Desligar "Enforce JWT" (função pública, chamada com a anon key). Secret:
-//   NIFPT_KEY = a chave gratuita obtida em https://www.nif.pt/api/ (registo grátis)
+// FONTE POR OMISSÃO: VIES (registo de IVA da União Europeia) — PÚBLICO, GRÁTIS,
+// SEM CHAVE E SEM REGISTO. Cobre empresas com IVA intracomunitário (a maioria
+// das empresas com atividade; algumas micro podem não estar lá).
+// OPCIONAL: se definires o secret NIFPT_KEY (chave grátis do nif.pt), a função
+// usa o nif.pt (dados mais ricos: CAE, contactos) em vez do VIES.
+//
+// Deploy (Supabase): Edge Functions → criar "nif-lookup" → colar este ficheiro →
+// Deploy → desligar "Enforce JWT" (função pública). Nenhum secret é obrigatório.
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
-
 const json = (body: unknown, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { ...CORS, "Content-Type": "application/json" },
-  });
+  new Response(JSON.stringify(body), { status, headers: { ...CORS, "Content-Type": "application/json" } });
+
+// Extrai código postal (NNNN-NNN) + cidade da morada multi-linha do VIES.
+function parseMorada(address: string, sep = "\n") {
+  const lines = String(address || "").split(sep).map((s) => s.trim()).filter(Boolean);
+  let cp = "", cidade = "";
+  const rua: string[] = [];
+  for (const ln of lines) {
+    const m = ln.match(/^(\d{4}-\d{3})\s+(.+)$/);
+    if (m && !cp) { cp = m[1]; cidade = m[2]; } else rua.push(ln);
+  }
+  const morada = rua.filter((l) => l.toUpperCase() !== cidade.toUpperCase()).join(", ");
+  return { morada, cp, cidade };
+}
+
+async function viaVIES(clean: string) {
+  const r = await fetch(`https://ec.europa.eu/taxation_customs/vies/rest-api/ms/PT/vat/${clean}`);
+  const d = await r.json().catch(() => null);
+  if (!d || !d.isValid || !d.name || d.name === "---") {
+    return { error: "not_found", message: "Empresa não encontrada no VIES (só empresas com IVA intracomunitário)." };
+  }
+  const { morada, cp, cidade } = parseMorada(d.name && d.address ? d.address : "");
+  return { nif: clean, nome: d.name, morada, codigoPostal: cp, cidade, cae: "", atividade: "", estado: "", website: "", telefone: "", email: "", fonte: "VIES" };
+}
+
+async function viaNIFpt(clean: string, key: string) {
+  const r = await fetch(`https://www.nif.pt/?json=1&q=${clean}&key=${encodeURIComponent(key)}`);
+  const data = await r.json().catch(() => null);
+  if (!data || data.result !== "success" || !data.records || !data.records[clean]) {
+    return { error: "not_found", message: (data && data.message) || "Empresa não encontrada." };
+  }
+  const rec = data.records[clean]; const c = rec.contacts || {};
+  return {
+    nif: clean, nome: rec.title || "", morada: rec.address || "",
+    codigoPostal: [rec.pc4, rec.pc3].filter(Boolean).join("-"), cidade: rec.city || "",
+    cae: String(rec.cae || (rec.structure && rec.structure.nature) || ""), atividade: rec.activity || "",
+    estado: rec.status || "", website: c.website || "", telefone: c.phone || "", email: c.email || "", fonte: "nif.pt",
+  };
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") return json({ error: "method" }, 405);
-
   try {
     const { nif } = await req.json().catch(() => ({}));
     const clean = String(nif || "").replace(/\D/g, "");
     if (!/^\d{9}$/.test(clean)) return json({ error: "invalid", message: "NIPC inválido (9 dígitos)." }, 400);
-
     const KEY = Deno.env.get("NIFPT_KEY");
-    if (!KEY) return json({ error: "config", message: "NIFPT_KEY não configurada no servidor." }, 500);
-
-    const r = await fetch(`https://www.nif.pt/?json=1&q=${clean}&key=${encodeURIComponent(KEY)}`);
-    const data = await r.json().catch(() => null);
-
-    if (!data || data.result !== "success" || !data.records || !data.records[clean]) {
-      return json({ error: "not_found", message: (data && data.message) || "Empresa não encontrada para este NIPC." });
-    }
-
-    const rec = data.records[clean];
-    const c = rec.contacts || {};
-    const cp = [rec.pc4, rec.pc3].filter(Boolean).join("-");
-    return json({
-      nif: clean,
-      nome: rec.title || "",
-      morada: rec.address || "",
-      codigoPostal: cp,
-      cidade: rec.city || "",
-      cae: String(rec.cae || (rec.structure && rec.structure.nature) || ""),
-      atividade: rec.activity || "",
-      estado: rec.status || "",
-      website: c.website || "",
-      telefone: c.phone || "",
-      email: c.email || "",
-    });
+    const out = KEY ? await viaNIFpt(clean, KEY) : await viaVIES(clean);
+    return json(out);
   } catch (e) {
     return json({ error: "server", message: String(e) }, 500);
   }
