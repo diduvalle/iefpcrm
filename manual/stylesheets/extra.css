@@ -1,43 +1,45 @@
 /* ===========================================================
    IEFP CRM — Manual · design system 1:1 com a app
-   (tokens, sombras, raios, sidebar, cards e tabelas do index.html)
+   Os tokens NÃO se copiam para aqui: vêm de estilo/tokens.css,
+   que o CI copia para esta pasta antes de construir o manual.
+   Mexer nas cores faz-se lá, e muda a app, o repositório e isto.
    =========================================================== */
+@import url("tokens.css");
 
 /* --- Cor primária (verde IEFP) --- */
 [data-md-color-primary="custom"] {
-  --md-primary-fg-color:        #006B3C;
-  --md-primary-fg-color--light: #00A651;
-  --md-primary-fg-color--dark:  #005a32;
+  --md-primary-fg-color:        var(--g800);
+  --md-primary-fg-color--light: var(--g600);
+  --md-primary-fg-color--dark:  var(--g900);
   --md-primary-bg-color:        #ffffff;
   --md-primary-bg-color--light: rgba(255,255,255,.7);
 }
 [data-md-color-accent="custom"] {
-  --md-accent-fg-color:             #00894b;
+  --md-accent-fg-color:              var(--g700);
   --md-accent-fg-color--transparent: rgba(0,137,75,.1);
-  --md-accent-bg-color:             #ffffff;
-  --md-accent-bg-color--light:      rgba(255,255,255,.7);
+  --md-accent-bg-color:              #ffffff;
+  --md-accent-bg-color--light:       rgba(255,255,255,.7);
 }
 
-/* --- Tokens da app (copiados do index.html) --- */
-:root {
-  --iefp-g900:#005a32; --iefp-g800:#006B3C; --iefp-g700:#00894b;
-  --iefp-g600:#00A651; --iefp-g400:#3cba6f; --iefp-g300:#8dd3a6;
-  --iefp-g100:#E8F5EE; --iefp-g50:#f3faf5;
-  --iefp-accent:#7AC143;
-  --iefp-bg:#eef2f0; --iefp-surface:#ffffff; --iefp-surface2:#f5f9f6; --iefp-surface3:#eef4f0;
-  --iefp-border:#dbe6df; --iefp-text:#15302a; --iefp-muted:#5f746b; --iefp-muted2:#86978d;
-  --iefp-shadow:0 1px 2px rgba(0,60,33,.04),0 4px 14px rgba(0,60,33,.06);
-  --iefp-shadow-lg:0 18px 48px rgba(0,60,33,.16);
-  --iefp-r:12px; --iefp-rl:18px; --iefp-rs:9px;
+/* --- Apelidos locais para os tokens partilhados ---
+   Declarados TAMBÉM no body porque é aí que o Material põe o
+   data-md-color-scheme; declarados só no :root, o modo escuro
+   não os apanhava. */
+:root, body {
+  --iefp-g900:var(--g900); --iefp-g800:var(--g800); --iefp-g700:var(--g700);
+  --iefp-g600:var(--g600); --iefp-g400:var(--g400); --iefp-g300:var(--g300);
+  --iefp-g100:var(--g100); --iefp-g50:var(--g50);
+  --iefp-accent:var(--accent);
+  --iefp-bg:var(--bg); --iefp-surface:var(--surface);
+  --iefp-surface2:var(--surface2); --iefp-surface3:var(--surface3);
+  --iefp-border:var(--border); --iefp-text:var(--text);
+  --iefp-muted:var(--muted); --iefp-muted2:var(--muted2);
+  --iefp-shadow:var(--shadow); --iefp-shadow-lg:var(--shadow-lg);
+  --iefp-r:var(--r); --iefp-rl:var(--rl); --iefp-rs:var(--rs);
   --md-text-font: "Inter";
 }
 [data-md-color-scheme="slate"] {
-  --iefp-bg:#0d1411; --iefp-surface:#141d18; --iefp-surface2:#19241e; --iefp-surface3:#1f2c24;
-  --iefp-border:#26392f; --iefp-text:#e7f3ec; --iefp-muted:#9fb6a9; --iefp-muted2:#6f8377;
-  --iefp-g100:#16271d; --iefp-g50:#13201a;
-  --iefp-shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
-  --iefp-shadow-lg:0 24px 60px rgba(0,0,0,.55);
-  --md-primary-fg-color: #00A651;
+  --md-primary-fg-color: var(--g600);
   --md-default-bg-color: var(--iefp-bg);
   --md-default-fg-color: var(--iefp-text);
 }
