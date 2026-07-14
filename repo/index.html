@@ -503,7 +503,7 @@ function modalPublicar(m){
       <span></span>
       <div style="display:flex;gap:10px">
         <button class="btn-sec" data-fechar>Cancelar</button>
-        <button class="btn" id="pEnviar">${ic('mail')}Publicar e avisar a turma</button>
+        <button class="btn" id="pPublicar">${ic('ok')}Guardar e enviar</button>
       </div>
     </div></div>`);
 
@@ -546,7 +546,7 @@ function modalPublicar(m){
     q('#pvSaudacao').innerHTML=subst(q('#pSaudacao').value);
     q('#pvTitulo').textContent=t.value.trim()||'(sem título)';
     q('#pvTexto').innerHTML=x.innerHTML.trim()||'<span class="muted">(a tua mensagem aparece aqui)</span>';
-    q('#pvBotao').textContent=q('#pBotao').value.trim()||'Abrir o material';
+    q('#pvBotao').textContent=q('#pBotao').value.trim()||'Aceder ao material';
     q('#pvRodape').innerHTML=subst(q('#pRodape').value);
     q('#pvAssunto').innerHTML='Assunto: '+subst(q('#pAssunto').value);
   }
@@ -555,11 +555,11 @@ function modalPublicar(m){
   x.addEventListener('input',sinc);
   sinc();
 
-  q('#pEnviar').addEventListener('click',async e=>{
+  q('#pPublicar').addEventListener('click',async e=>{
     const b=e.currentTarget;
     const titulo=t.value.trim(), link=q('#pLink').value.trim();
     if(!titulo||!link) return toast('Falta o título ou o link.','err');
-    b.disabled=true; b.textContent='A publicar...';
+    b.disabled=true; b.textContent='A guardar...';
     try{
       const p=await rpc('repo_publicar',{
         p_token:sessao.token, p_modulo_id:m.id,
@@ -570,20 +570,34 @@ function modalPublicar(m){
         p_botao:q('#pBotao').value.trim(),
         p_rodape:q('#pRodape').value.trim()
       });
-      if(!p.destinatarios){
-        f.remove(); carregarModulos();
-        return toast('Publicado, mas nenhum formando desta turma tem email preenchido.','warn');
-      }
-      b.textContent=`A enviar a ${p.destinatarios}...`;
-      const r=await edge('repo-enviar',{token:sessao.token,publicacao_id:p.id});
       f.remove(); carregarModulos();
-      if(!r.ok) return toast(r.erro||'O envio falhou. A publicação ficou guardada.','err');
-      if(r.falhados) return toast(`Enviado a ${r.enviados}, falhou em ${r.falhados}. Vê a publicação para saber quais.`,'warn');
-      toast(`Enviado a ${r.enviados} formandos.`+(p.sem_email?` ${p.sem_email} ficaram de fora por não terem email.`:''));
+      if(!p.destinatarios){
+        return toast('Guardado, mas nenhum formando desta turma tem email preenchido.','warn');
+      }
+      // Publicar NÃO envia. Enviar é um segundo passo, com confirmação.
+      toast('Rascunho guardado. Confirma o envio para avisar a turma.');
+      confirmarEnvio(p.id, p.destinatarios, p.sem_email);
     }catch(err){
-      tratar(err); b.disabled=false; b.innerHTML=ic('mail')+'Publicar e avisar a turma';
+      tratar(err); b.disabled=false; b.innerHTML=ic('ok')+'Guardar rascunho';
     }
   });
+}
+
+/* Enviar é sempre um ato deliberado: pede confirmação com o número real. */
+async function confirmarEnvio(pubId, dest, sem){
+  const aviso=`Vais enviar o email a ${dest} formando(s) da turma ${sessao.turma}.`
+    +(sem?` ${sem} sem email ficam de fora.`:'')
+    +`\n\nIsto envia emails a sério, agora. Continuar?`;
+  if(!confirm(aviso)){
+    toast('Ficou em rascunho. Podes enviar depois, abrindo a publicação.','warn');
+    return;
+  }
+  const r=await edge('repo-enviar',{token:sessao.token,publicacao_id:pubId});
+  carregarPublicacoes();
+  if(!r.ok) return toast(r.erro||'O envio falhou. A publicação ficou guardada.','err');
+  if(r.falhados) return toast(`Enviado a ${r.enviados}, falhou em ${r.falhados}. Abre a publicação para reenviar.`,'warn');
+  if(!r.enviados) return toast('Nada por enviar - já estavam todos enviados.','warn');
+  toast(`Enviado a ${r.enviados} formando(s).`);
 }
 
 /* ---------- Publicações ---------- */
@@ -617,16 +631,23 @@ async function modalEstado(p){
   try{ linhas=await rpc('repo_estado',{p_token:sessao.token,p_publicacao:p.id}); }
   catch(e){ return tratar(e); }
 
+  const pendentes=(p.destinatarios||0)-(p.enviados||0);
+  const emailLinha=l=>{
+    const e2=l.email2&&l.email2!==l.email?` · ${esc(l.email2)} <span class="muted">(IEFP)</span>`:'';
+    return `${esc(l.email||'')}${e2}`;
+  };
+
   const f=abrirModal(`<div class="modal wide">
     <div class="modal-head">
       <div><h3>${esc(p.titulo)}</h3>
-        <div class="sub">UFCD ${esc(p.ufcd)} · ${p.abriram} de ${p.destinatarios} já abriram</div></div>
+        <div class="sub">UFCD ${esc(p.ufcd)} · ${p.enviados||0} enviado(s) · ${p.abriram} de ${p.destinatarios} já abriram</div></div>
     </div>
     <div class="modal-body">
+      ${pendentes>0?`<div class="nota-rgpd" style="background:var(--info-bg);color:var(--info)">${ic('mail')}<span>${pendentes} destinatário(s) por enviar. Usa "Enviar pendentes" para os avisar.</span></div>`:''}
       <div class="table-wrap"><table>
         <thead><tr><th>Formando</th><th>Estado</th><th>Abriu</th><th class="t-right">Vezes</th></tr></thead>
         <tbody>${linhas.map(l=>`<tr>
-          <td><div class="cell-main">${esc(l.nome)}</div><div class="cell-sub">${esc(l.email)}</div></td>
+          <td><div class="cell-main">${esc(l.nome)}</div><div class="cell-sub">${emailLinha(l)}</div></td>
           <td>${l.erro?`<span class="pill red" title="${esc(l.erro)}">falhou</span>`
                :l.enviado_em?'<span class="pill grey">enviado</span>'
                :'<span class="pill amber">por enviar</span>'}</td>
@@ -636,12 +657,26 @@ async function modalEstado(p){
       </table></div>
     </div>
     <div class="modal-foot">
-      <button class="btn-danger btn-sm" id="ePagar">${ic('lixo')}Apagar publicação</button>
-      <div style="display:flex;gap:10px">
-        <button class="btn-sec" data-fechar>Fechar</button>
-        <a class="btn" href="${esc(p.link)}" target="_blank" rel="noopener">${ic('link')}Abrir o link</a>
+      <button class="btn-danger btn-sm" id="ePagar">${ic('lixo')}Apagar</button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn-sec" id="eVer">${ic('olho')}Ver email enviado</button>
+        <a class="btn-sec" href="${esc(p.link)}" target="_blank" rel="noopener">${ic('link')}Abrir o link</a>
+        ${pendentes>0?`<button class="btn" id="eEnviar">${ic('mail')}Enviar ${pendentes} pendente(s)</button>`:'<button class="btn-sec" data-fechar>Fechar</button>'}
       </div>
     </div></div>`);
+
+  f.querySelector('#eVer').addEventListener('click',()=>modalEmailEnviado(p));
+
+  f.querySelector('#eEnviar')?.addEventListener('click',async e=>{
+    const b=e.currentTarget;
+    if(!confirm(`Enviar o email aos ${pendentes} destinatário(s) ainda por avisar? Isto envia emails a sério, agora.`)) return;
+    b.disabled=true; b.textContent='A enviar...';
+    const r=await edge('repo-enviar',{token:sessao.token,publicacao_id:p.id});
+    f.remove(); carregarPublicacoes();
+    if(!r.ok) return toast(r.erro||'O envio falhou.','err');
+    if(r.falhados) return toast(`Enviado a ${r.enviados}, falhou em ${r.falhados}.`,'warn');
+    toast(`Enviado a ${r.enviados} formando(s).`);
+  });
 
   f.querySelector('#ePagar').addEventListener('click',async()=>{
     if(!confirm('Apagar esta publicação e os registos de quem a abriu?')) return;
@@ -650,6 +685,33 @@ async function modalEstado(p){
       f.remove(); toast('Publicação apagada.'); carregarPublicacoes();
     }catch(e){ tratar(e); }
   });
+}
+
+/* Reler o email exatamente como foi enviado (a partir do texto congelado). */
+function modalEmailEnviado(p){
+  const subst=s=>esc(s||'')
+    .replace(/\{nome\}/g,'<span class="muted">[nome do formando]</span>')
+    .replace(/\{ufcd\}/g,esc(p.ufcd))
+    .replace(/\{titulo\}/g,esc(p.titulo))
+    .replace(/\{turma\}/g,esc(sessao.turma));
+  abrirModal(`<div class="modal">
+    <div class="modal-head"><div><h3>Email enviado</h3>
+      <div class="sub">Assunto: ${subst(p.assunto)}</div></div></div>
+    <div class="modal-body">
+      <div class="preview">
+        <div class="preview-head">${subst(p.cabecalho)}</div>
+        <div class="preview-body">
+          <p class="pv-saud" style="margin:0 0 10px">${subst(p.saudacao)}</p>
+          <p class="pv-title">${esc(p.titulo)}</p>
+          <div class="pv-text">${p.texto||'<span class="muted">(sem mensagem)</span>'}</div>
+          <span class="pv-btn">${esc(p.botao)||'Aceder ao material'}</span>
+          <p class="hint" style="margin-top:14px">${subst(p.rodape)}</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot"><span></span>
+      <button class="btn" data-fechar>Fechar</button></div>
+  </div>`);
 }
 
 /* ---------- Turma ---------- */

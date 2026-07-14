@@ -92,7 +92,7 @@ Deno.serve(async (req) => {
       }, 403);
     }
     const destinos = (await rDest.json()) as Array<{
-      envio_id: string; email: string; nome: string; envio_token: string;
+      envio_id: string; email: string; email2: string | null; nome: string; envio_token: string;
       titulo: string; texto: string; ufcd: string; turma: string;
       assunto: string; cabecalho: string; saudacao: string; botao: string; rodape: string;
     }>;
@@ -120,9 +120,12 @@ Deno.serve(async (req) => {
           </div>
         </div>`;
 
+      // Enviar para os dois emails (pessoal + IEFP); a turma não usa o do IEFP.
+      // Um só clique de qualquer deles conta, porque o token é do envio, não do email.
+      const to = [...new Set([d.email, d.email2].filter(Boolean))] as string[];
       const corpo: Record<string, unknown> = {
         from: FROM,
-        to: [d.email],
+        to,
         subject: marcadores(d.assunto, vars).replace(/&amp;/g, "&"),
         html,
       };
