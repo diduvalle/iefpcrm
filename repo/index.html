@@ -342,6 +342,12 @@ async function arrancar(){
   $('#avatar').textContent=((u.nome||'?')[0]+((u.apelido||' ')[0]||'')).toUpperCase();
   $('#btnNovoModulo').innerHTML=ic('mais')+'Novo módulo';
   $('#btnNovoModulo').classList.remove('hidden');
+  $('#pesquisa').value='';
+  // arrancar sempre em Módulos (evita vista presa após sair/entrar)
+  document.querySelectorAll('.nav-link').forEach(x=>x.classList.toggle('active',x.dataset.view==='modulos'));
+  document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id==='vModulos'));
+  $('#hTitulo').textContent=VISTAS.modulos.titulo;
+  $('#hSub').textContent=VISTAS.modulos.sub;
   await carregarModulos();
 }
 $('#btnNovoModulo').addEventListener('click',()=>modalModulo(null));
@@ -376,7 +382,9 @@ async function carregarModulos(){
 }
 
 function abrirModal(html){
-  const f=document.createElement('div'); f.className='modal-back'; f.innerHTML=html;
+  // .modal-back do CSS partilhado é display:none por omissão; a classe .open
+  // é que o mostra. Sem ela, o modal abre invisível (parece que nada acontece).
+  const f=document.createElement('div'); f.className='modal-back open'; f.innerHTML=html;
   f.addEventListener('click',e=>{ if(e.target===f) f.remove(); });
   document.addEventListener('keydown',function esc(e){
     if(e.key==='Escape'){ f.remove(); document.removeEventListener('keydown',esc); }
