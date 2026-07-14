@@ -184,12 +184,47 @@ td .cell-sub{font-size:.78rem;color:var(--muted)}
 .mod-foot .btn,.mod-foot .btn-sec{margin-left:auto}
 .mod-foot .btn-sec+.btn{margin-left:0}
 
+/* EDITOR DE TEXTO RICO (mesmo padrão do editor de assinaturas da app) */
+.rt-toolbar{display:flex;flex-wrap:wrap;gap:5px;align-items:center;padding:7px 8px;border:1px solid var(--border);border-bottom:0;border-radius:10px 10px 0 0;background:var(--surface2)}
+.rt-tb{height:30px;min-width:30px;padding:0 8px;display:inline-grid;place-items:center;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);cursor:pointer;font-size:.92rem;font-weight:700}
+.rt-tb:hover{border-color:var(--g400);background:var(--g50);color:var(--g700)}
+.rt-tb svg{width:15px;height:15px}
+.rt-sep{width:1px;height:20px;background:var(--border);margin:0 2px}
+.rt-editor{min-height:130px;max-height:280px;overflow-y:auto;border:1px solid var(--border);border-radius:0 0 10px 10px;padding:12px 14px;background:var(--surface2);color:var(--text);outline:none;font-size:.9rem}
+.rt-editor:focus{border-color:var(--g400);box-shadow:0 0 0 3px rgba(0,166,81,.14);background:var(--surface)}
+.rt-editor:empty:before{content:attr(data-placeholder);color:var(--muted2)}
+.rt-editor p{margin:0 0 9px}
+.rt-editor ul,.rt-editor ol{margin:0 0 9px 20px}
+.rt-editor a{color:var(--g700);text-decoration:underline}
+
+/* MARCADORES */
+.vars{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.var-chip{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:.72rem;font-weight:700;background:var(--surface3);color:var(--muted);border:1px solid var(--border);cursor:pointer;font-family:ui-monospace,monospace}
+.var-chip:hover{border-color:var(--g400);color:var(--g700);background:var(--g50)}
+
+/* AVISO RGPD */
+.nota-rgpd{display:flex;gap:9px;align-items:flex-start;padding:11px 13px;border-radius:10px;background:var(--warn-bg);color:var(--warn);font-size:.78rem;font-weight:600;line-height:1.45}
+.nota-rgpd svg{flex:none;width:16px;height:16px;margin-top:1px}
+
+/* SECÇÃO RECOLHÍVEL */
+.fold{border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.fold>summary{padding:11px 14px;background:var(--surface2);cursor:pointer;font-weight:700;font-size:.86rem;list-style:none;display:flex;align-items:center;gap:8px}
+.fold>summary::-webkit-details-marker{display:none}
+.fold>summary::before{content:"";width:8px;height:8px;border-right:2px solid var(--muted2);border-bottom:2px solid var(--muted2);transform:rotate(-45deg);transition:transform .18s;margin-left:2px}
+.fold[open]>summary::before{transform:rotate(45deg)}
+.fold>summary .sub{font-weight:500;color:var(--muted);font-size:.78rem;margin-left:auto}
+.fold-body{padding:16px;display:flex;flex-direction:column;gap:14px;border-top:1px solid var(--border)}
+
 /* PRÉ-VISUALIZAÇÃO DO EMAIL */
 .preview{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--surface2)}
 .preview-head{background:linear-gradient(135deg,var(--g800),var(--g600));color:#fff;padding:14px 18px;font-weight:800;font-size:.92rem}
 .preview-body{padding:18px}
 .preview-body .pv-title{font-weight:700;font-size:1rem;margin:0 0 10px}
-.preview-body .pv-text{white-space:pre-wrap;color:var(--muted);font-size:.88rem;min-height:40px}
+.preview-body .pv-text{color:var(--muted);font-size:.88rem;min-height:40px}
+.preview-body .pv-text p{margin:0 0 9px}
+.preview-body .pv-text ul,.preview-body .pv-text ol{margin:0 0 9px 20px}
+.preview-body .pv-text a{color:var(--g700);text-decoration:underline}
+.preview-body .pv-saud{font-size:.88rem}
 .pv-btn{display:inline-block;margin-top:16px;background:var(--g800);color:#fff;padding:10px 20px;border-radius:8px;font-weight:700;font-size:.85rem}
 
 /* MODAL */
@@ -305,6 +340,7 @@ const I={
   lapis:'M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16zM14 6l4 4',
   lixo:'M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13',
   olho:'M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6',
+  lista:'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01',
   sol:'M12 4V2M12 22v-2M4 12H2M22 12h-2M5.6 5.6 4.2 4.2M19.8 19.8l-1.4-1.4M5.6 18.4l-1.4 1.4M19.8 4.2l-1.4 1.4M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0',
   lua:'M21 13a8 8 0 1 1-10-10 6 6 0 0 0 10 10',
   ok:'M20 6 9 17l-5-5',
@@ -522,6 +558,8 @@ function modalModulo(m){
 }
 
 /* ---------- Publicar ---------- */
+const MARCADORES=['{nome}','{ufcd}','{titulo}','{turma}'];
+
 function modalPublicar(m){
   const f=abrirModal(`<div class="modal wide">
     <div class="modal-head">
@@ -531,21 +569,62 @@ function modalPublicar(m){
     <div class="modal-body">
       <div class="field"><label>Título</label>
         <input id="pTitulo" placeholder="Sessão 7 - Segmentação de clientes"></div>
+
       <div class="field"><label>Mensagem aos formandos</label>
-        <textarea id="pTexto" placeholder="Ficam disponíveis os slides da sessão de hoje..."></textarea></div>
+        <div class="rt-toolbar">
+          <button type="button" class="rt-tb" data-cmd="bold" title="Negrito"><b>B</b></button>
+          <button type="button" class="rt-tb" data-cmd="italic" title="Itálico"><i>I</i></button>
+          <span class="rt-sep"></span>
+          <button type="button" class="rt-tb" data-cmd="insertUnorderedList" title="Lista">${ic('lista')}</button>
+          <button type="button" class="rt-tb" data-cmd="insertOrderedList" title="Lista numerada">1.</button>
+          <span class="rt-sep"></span>
+          <button type="button" class="rt-tb" id="rtLink" title="Inserir ligação">${ic('link')}</button>
+          <button type="button" class="rt-tb" data-cmd="removeFormat" title="Limpar formatação">Tx</button>
+        </div>
+        <div class="rt-editor" id="pTexto" contenteditable="true"
+             data-placeholder="Ficam disponíveis os slides da sessão de hoje..."></div>
+      </div>
+
       <div class="field"><label>Link</label>
         <input id="pLink" value="${esc(m.bitly_url||'')}" placeholder="https://bit.ly/...">
         <span class="hint">Vem preenchido com o bitly da pasta. Se tens um link só desta sessão, troca aqui.</span></div>
+
+      <details class="fold">
+        <summary>Texto do email<span class="sub">assunto, cabeçalho, saudação, botão e rodapé</span></summary>
+        <div class="fold-body">
+          <div class="vars">
+            <span class="hint" style="margin-right:2px">Marcadores (clica para copiar):</span>
+            ${MARCADORES.map(v=>`<button type="button" class="var-chip" data-var="${v}">${v}</button>`).join('')}
+          </div>
+          <div class="form-grid">
+            <div class="field full"><label>Assunto</label>
+              <input id="pAssunto" value="${esc(m.def_assunto||'')}"></div>
+            <div class="field full"><label>Cabeçalho (a faixa verde)</label>
+              <input id="pCabecalho" value="${esc(m.def_cabecalho||'')}"></div>
+            <div class="field"><label>Saudação</label>
+              <input id="pSaudacao" value="${esc(m.def_saudacao||'')}"></div>
+            <div class="field"><label>Texto do botão</label>
+              <input id="pBotao" value="${esc(m.def_botao||'')}"></div>
+            <div class="field full"><label>Nota de rodapé</label>
+              <textarea id="pRodape" style="min-height:70px">${esc(m.def_rodape||'')}</textarea></div>
+          </div>
+          <div class="nota-rgpd">${ic('alerta')}<span>Esta nota é o que avisa o formando de que a abertura do link fica registada. Se a apagares, o registo passa a ser silencioso - e é precisamente isso que a UFCD 10870 ensina a não fazer.</span></div>
+          <span class="hint">O que escreveres aqui fica guardado no módulo. A próxima publicação já nasce assim.</span>
+        </div>
+      </details>
+
       <div class="field"><label>Pré-visualização do email</label>
         <div class="preview">
-          <div class="preview-head" id="pvHead">UFCD ${esc(m.ufcd)} - material novo</div>
+          <div class="preview-head" id="pvHead"></div>
           <div class="preview-body">
+            <p class="pv-saud" id="pvSaudacao" style="margin:0 0 10px"></p>
             <p class="pv-title" id="pvTitulo">(sem título)</p>
-            <p class="pv-text" id="pvTexto">(a tua mensagem aparece aqui)</p>
-            <span class="pv-btn">Abrir o material</span>
+            <div class="pv-text" id="pvTexto">(a tua mensagem aparece aqui)</div>
+            <span class="pv-btn" id="pvBotao">Abrir o material</span>
+            <p class="hint" id="pvRodape" style="margin-top:14px"></p>
           </div>
         </div>
-        <span class="hint">O botão leva um link pessoal por formando. Ao clicar, fica registado quem foi e a que horas, e segue direto para o Drive.</span>
+        <span class="hint" id="pvAssunto"></span>
       </div>
     </div>
     <div class="modal-foot">
@@ -556,22 +635,68 @@ function modalPublicar(m){
       </div>
     </div></div>`);
 
-  const t=f.querySelector('#pTitulo'), x=f.querySelector('#pTexto');
-  const sinc=()=>{
-    f.querySelector('#pvTitulo').textContent=t.value.trim()||'(sem título)';
-    f.querySelector('#pvTexto').textContent=x.value.trim()||'(a tua mensagem aparece aqui)';
-  };
-  t.addEventListener('input',sinc); x.addEventListener('input',sinc);
+  const q=s=>f.querySelector(s);
+  const t=q('#pTitulo'), x=q('#pTexto');
 
-  f.querySelector('#pEnviar').addEventListener('click',async e=>{
+  /* editor de texto rico */
+  f.querySelectorAll('.rt-tb[data-cmd]').forEach(b=>b.addEventListener('mousedown',e=>{
+    e.preventDefault();
+    document.execCommand(b.dataset.cmd,false,null);
+    x.focus(); sinc();
+  }));
+  q('#rtLink').addEventListener('mousedown',e=>{
+    e.preventDefault();
+    const u=prompt('Endereço da ligação:','https://');
+    if(u) document.execCommand('createLink',false,u);
+    x.focus(); sinc();
+  });
+  /* colar sempre como texto simples, para não trazer lixo do Word */
+  x.addEventListener('paste',e=>{
+    e.preventDefault();
+    document.execCommand('insertText',false,(e.clipboardData||window.clipboardData).getData('text'));
+  });
+
+  /* marcadores: clicar copia para a área de transferência */
+  f.querySelectorAll('[data-var]').forEach(b=>b.addEventListener('click',()=>{
+    navigator.clipboard?.writeText(b.dataset.var);
+    toast(`Marcador ${b.dataset.var} copiado.`);
+  }));
+
+  /* pré-visualização */
+  const subst=s=>esc(s||'')
+    .replace(/\{nome\}/g,'<span class="muted">[nome do formando]</span>')
+    .replace(/\{ufcd\}/g,esc(m.ufcd))
+    .replace(/\{titulo\}/g,esc(t.value.trim()||'(sem título)'))
+    .replace(/\{turma\}/g,esc(sessao.turma));
+
+  function sinc(){
+    q('#pvHead').innerHTML=subst(q('#pCabecalho').value);
+    q('#pvSaudacao').innerHTML=subst(q('#pSaudacao').value);
+    q('#pvTitulo').textContent=t.value.trim()||'(sem título)';
+    q('#pvTexto').innerHTML=x.innerHTML.trim()||'<span class="muted">(a tua mensagem aparece aqui)</span>';
+    q('#pvBotao').textContent=q('#pBotao').value.trim()||'Abrir o material';
+    q('#pvRodape').innerHTML=subst(q('#pRodape').value);
+    q('#pvAssunto').innerHTML='Assunto: '+subst(q('#pAssunto').value);
+  }
+  ['#pTitulo','#pAssunto','#pCabecalho','#pSaudacao','#pBotao','#pRodape'].forEach(s=>
+    q(s).addEventListener('input',sinc));
+  x.addEventListener('input',sinc);
+  sinc();
+
+  q('#pEnviar').addEventListener('click',async e=>{
     const b=e.currentTarget;
-    const titulo=t.value.trim(), link=f.querySelector('#pLink').value.trim();
+    const titulo=t.value.trim(), link=q('#pLink').value.trim();
     if(!titulo||!link) return toast('Falta o título ou o link.','err');
     b.disabled=true; b.textContent='A publicar...';
     try{
       const p=await rpc('repo_publicar',{
         p_token:sessao.token, p_modulo_id:m.id,
-        p_titulo:titulo, p_texto:x.value.trim(), p_link:link
+        p_titulo:titulo, p_texto:x.innerHTML.trim(), p_link:link,
+        p_assunto:q('#pAssunto').value.trim(),
+        p_cabecalho:q('#pCabecalho').value.trim(),
+        p_saudacao:q('#pSaudacao').value.trim(),
+        p_botao:q('#pBotao').value.trim(),
+        p_rodape:q('#pRodape').value.trim()
       });
       if(!p.destinatarios){
         f.remove(); carregarModulos();
