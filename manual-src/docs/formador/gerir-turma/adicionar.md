@@ -17,7 +17,10 @@ Para criar um acesso de cada vez, sem o ficheiro de importação.
 O formando aparece na lista, pronto a entrar com o link `?t=…`.
 
 !!! note "Dois emails, um login"
-    O **login é sempre pelo utilizador**, não pelo email - por isso um formando pode ter o email do IEFP e o pessoal sem qualquer confusão. O IEFP fica como principal; ambos recebem o convite (ao adicionar e ao **Reenviar convite**).
+    O **login é sempre pelo utilizador**, não pelo email - por isso um formando pode ter o email do IEFP e o pessoal sem qualquer confusão. O IEFP fica como principal; **ambos recebem o convite** quando o enviares.
+
+!!! info "O convite é enviado por ti, quando quiseres"
+    Adicionar um formando **cria a conta mas não envia** o email. Na lista da turma, a coluna **Convite** mostra *Por enviar* ou *Enviado em…*. Envia **um a um** (botão **Enviar convite** da linha) ou **todos de uma vez** (botão **Enviar N convite(s)** no topo da lista).
 
 !!! tip "Co-formador"
     Para teres um **co-formador**, escolhe o papel *Formador* - terá acesso de gestão à turma.

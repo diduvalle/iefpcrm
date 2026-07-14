@@ -25,6 +25,9 @@ The fastest route for a whole class.
 4. The **preview** appears: each row is either **OK** (green) or has an **error** (missing field, invalid email, duplicate username, already existing).
 5. **Import N valid** - only the correct rows are added.
 
+!!! info "Invites are **not** sent on import"
+    Importing **creates the accounts** but sends **no** email. You end up with the class loaded and decide later when to send: in the list, each trainee shows the **Invite** status (*To send* / *Sent on…*), and at the top a **"Send N invite(s)"** button mails them **all at once**. You can also send them **one by one** with each row's **Send invite** button.
+
 !!! warning "Passwords in Excel"
     To avoid putting passwords in the file, **leave the column empty** and set the *initial password* (field below the buttons) - the same for everyone. Each trainee changes it afterwards.
 

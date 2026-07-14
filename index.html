@@ -3232,6 +3232,7 @@ async function supaRoster(){ return await supaRpc('listar_utilizadores',{p_token
 async function supaAddFormando(p){ return await supaRpc('criar_formando',{p_token:supaToken(),p_username:p.username,p_password:p.password,p_nome:p.nome,p_apelido:p.apelido||'',p_email:p.email||'',p_papel:p.papel||'Formando',p_email2:p.email2||''}); }
 async function supaRemove(id){ return await supaRpc('remover_utilizador',{p_token:supaToken(),p_user_id:id}); }
 async function supaResetPwd(id,pwd){ return await supaRpc('redefinir_password',{p_token:supaToken(),p_user_id:id,p_nova_password:pwd}); }
+async function supaMarcarConvite(id){ return await supaRpc('marcar_convite',{p_token:supaToken(),p_user_id:id}); }
 async function supaMudarMinhaPwd(atual,nova){ return await supaRpc('mudar_minha_password',{p_token:supaToken(),p_atual:atual,p_nova:nova}); }
 async function supaAtualizarPerfil(p){ return await supaRpc('atualizar_meu_perfil',{p_token:supaToken(),p_nome:p.nome||'',p_apelido:p.apelido||'',p_email:p.email||''}); }
 async function supaRecuperar(codigo,username,recovery,nova){ return await supaRpc('recuperar_password',{p_codigo:codigo,p_username:username,p_recovery:recovery,p_nova:nova}); }
@@ -3280,14 +3281,21 @@ function renderTurmaRoster(){
       const n=Math.min(cont[String(u.username||'').toLowerCase()]||0,LIM);
       const st=n>=LIM?'background:var(--g600);color:#fff':(n>0?'background:var(--g100);color:var(--g600)':'background:var(--surface3);color:var(--muted)');
       return `<span class="chip" style="${st};font-weight:700" title="Entregas submetidas por este formando">${ic('send',12)} ${n}/${LIM}</span>`; };
+    // estado do convite (enviado manualmente pelo formador; convite_em vem do Supabase)
+    const convCell=u=>{ if(u.papel!=='Formando') return '<span class="muted" style="font-size:.72rem">-</span>';
+      if(u.convite_em) return `<span class="pill green" style="font-size:.62rem" title="Convite enviado">${ic('check',11)} ${dPT(String(u.convite_em).slice(0,10))}</span>`;
+      return (u.email||u.email2) ? '<span class="pill amber" style="font-size:.62rem">Por enviar</span>' : '<span class="muted" style="font-size:.72rem">sem email</span>'; };
+    const pendentes=list.filter(u=>u.papel==='Formando' && !u.convite_em && (u.email||u.email2));
     const rows=list.map(u=>`<tr>
       <td class="cell-main">${esc(((u.nome||'')+' '+(u.apelido||'')).trim())}${me&&me.id===u.id?' <span class="tag">eu</span>':''}</td>
       <td><span class="chip">${ic('key',13)} ${esc(u.username)}</span></td>
       <td><div class="cell-main">${esc(u.email||'-')}</div>${u.email2?`<div class="cell-sub">${esc(u.email2)} <span class="muted">(pessoal)</span></div>`:''}</td>
       <td><span class="chip">${esc(u.papel)}</span></td>
+      <td>${convCell(u)}</td>
       <td>${entregaCell(u)}</td>
-      <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="roster-pwd" data-id="${u.id}" data-nome="${esc(u.username)}">Repor palavra-passe</button>${me&&me.id===u.id?`<span class="btn-xs" style="color:var(--muted2)" title="A sua conta">${ic('lock',13)}</span>`:`<button class="btn-danger btn-xs" data-act="roster-del" data-id="${u.id}" data-nome="${esc(((u.nome||'')+' '+(u.apelido||'')).trim())}">✕</button><button class="btn-sec btn-xs" data-act="roster-invite" data-id="${u.id}" data-username="${esc(u.username)}" data-nome="${esc(u.nome||'')}" data-apelido="${esc(u.apelido||'')}" data-email="${esc(u.email||'')}" data-email2="${esc(u.email2||'')}" title="Repor palavra-passe (regra do sistema) e enviar o convite por email">${ic('send',13)} Reenviar convite</button>`}</div></td></tr>`).join('');
-    box.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Nome</th><th>Utilizador</th><th>Email</th><th>Papel</th><th>Entregas</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="6" class="muted" style="padding:14px">Ainda sem utilizadores nesta turma. Adicione um formando ou importe a lista.</td></tr>`}</tbody></table></div><div class="muted" style="font-size:.76rem;margin-top:8px">${list.length} utilizador(es) · turma ${esc(TURMA)}</div>`;
+      <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="roster-pwd" data-id="${u.id}" data-nome="${esc(u.username)}">Repor palavra-passe</button>${me&&me.id===u.id?`<span class="btn-xs" style="color:var(--muted2)" title="A sua conta">${ic('lock',13)}</span>`:`<button class="btn-danger btn-xs" data-act="roster-del" data-id="${u.id}" data-nome="${esc(((u.nome||'')+' '+(u.apelido||'')).trim())}">✕</button><button class="${u.convite_em?'btn-sec':'btn'} btn-xs" data-act="roster-invite" data-id="${u.id}" data-username="${esc(u.username)}" data-nome="${esc(u.nome||'')}" data-apelido="${esc(u.apelido||'')}" data-email="${esc(u.email||'')}" data-email2="${esc(u.email2||'')}" data-conv="${u.convite_em?'1':''}" title="Repor palavra-passe (regra do sistema) e enviar o convite por email">${ic('send',13)} ${u.convite_em?'Reenviar':'Enviar convite'}</button>`}</div></td></tr>`).join('');
+    const barra=pendentes.length?`<div class="callout ${realSendOn()?'info':'warn'}" style="margin:0 0 12px;align-items:center">${ic('mail',16)}<div class="ctxt" style="flex:1"><strong>${pendentes.length} convite(s) por enviar.</strong> ${realSendOn()?'A turma já está criada - envie quando quiser.':'Ative o envio real em Definições → EmailJS para poder enviar.'}</div>${realSendOn()?`<button class="btn btn-sm" data-act="roster-invite-all" style="flex:0 0 auto;white-space:nowrap">${ic('send',15)} Enviar ${pendentes.length} convite(s)</button>`:''}</div>`:'';
+    box.innerHTML=`${barra}<div class="table-wrap"><table><thead><tr><th>Nome</th><th>Utilizador</th><th>Email</th><th>Papel</th><th>Convite</th><th>Entregas</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="7" class="muted" style="padding:14px">Ainda sem utilizadores nesta turma. Adicione um formando ou importe a lista.</td></tr>`}</tbody></table></div><div class="muted" style="font-size:.76rem;margin-top:8px">${list.length} utilizador(es) · turma ${esc(TURMA)}</div>`;
   }).catch(e=>{ box.innerHTML=`<div class="callout warn" style="margin:0">${ic('alert',16)}<div class="ctxt">${esc(supaMsg(e))}</div></div>`; });
 }
 /* ---------- Entrega & validação de trabalhos (formador) ---------- */
@@ -3372,11 +3380,8 @@ function rosterAdd(){
   const btn=f.querySelector('[data-act="roster-add"]'); if(btn){ btn.disabled=true; btn.textContent='A adicionar…'; }
   const reset=()=>{ const b=$('#rosterAddForm [data-act="roster-add"]'); if(b){ b.disabled=false; b.innerHTML=ic('users',16)+' Adicionar à turma'; } };
   supaAddFormando({username,password,nome,apelido,email,email2,papel}).then(()=>{
-    toast('Adicionado à turma',username);
-    sendInvite({nome,apelido,email,email2,username},password).then(r=>{
-      if(r.sent) toast('Convite enviado', r.count>1?[email,email2].filter(Boolean).join(' + '):email);
-      else if((email||email2)&&r.reason==='emailjs') toast('Convite por enviar','Ative o envio real (Definições → EmailJS)','warn');
-    });
+    // NÃO envia convite: o formador envia quando quiser (botão da linha ou "Enviar convites pendentes")
+    toast('Adicionado à turma',username+' · convite por enviar');
     ['nome','apelido','email','email2','username','password'].forEach(n=>{const el=f.querySelector('[name="'+n+'"]'); if(el) el.value='';}); renderTurmaRoster(); reset();
   }).catch(e=>{ toast('Erro',supaMsg(e),'err'); reset(); });
 }
@@ -3431,12 +3436,12 @@ function confirmImport(){
   const valid=(importDraft||[]).filter(r=>!r.errs.length); if(!valid.length){ closeModal(); return; }
   const sv=$('[data-act="modal-save"]'); if(sv){ sv.disabled=true; sv.textContent='A importar…'; }
   (async()=>{
-    let ok=0,fail=0,inv=0; const errs=[];
+    let ok=0,fail=0; const errs=[];
+    // NÃO envia convites: a turma carrega-se primeiro; o formador envia depois (em massa ou individual)
     for(const r of valid){ try{ await supaAddFormando({username:r.username,password:r.password,nome:r.nome,apelido:r.apelido,email:r.email,email2:r.email2,papel:r.papel}); ok++;
-      try{ const ir=await sendInvite({nome:r.nome,apelido:r.apelido,email:r.email,email2:r.email2,username:r.username},r.password); if(ir.sent) inv++; }catch(_){}
     } catch(e){ fail++; errs.push(r.username+': '+supaMsg(e)); } }
     importDraft=null; closeModal(); renderTurmaRoster();
-    toast('Importação concluída',`${ok} criado(s)${inv?` · ${inv} convite(s) enviado(s)`:''}${fail?` · ${fail} falhou(aram)`:''}`,fail?'warn':'ok');
+    toast('Importação concluída',`${ok} criado(s)${fail?` · ${fail} falhou(aram)`:''} · convites por enviar`,fail?'warn':'ok');
     if(errs.length) console.warn('Erros de importação:',errs);
   })();
 }
@@ -4837,14 +4842,38 @@ document.addEventListener('click', async e=>{
     case 'roster-add': rosterAdd(); break;
     case 'roster-del': { const nm=el.dataset.nome||''; if(await uiConfirm('O acesso de '+nm+' deixa de funcionar. Os dados locais do próprio computador não são afetados.',{title:'Remover da turma?',danger:true,okText:'Remover'})){ supaRemove(el.dataset.id).then(()=>{ toast('Removido',nm); renderTurmaRoster(); }).catch(er=>toast('Erro',supaMsg(er),'err')); } break; }
     case 'roster-pwd': { const p=await uiPrompt('Nova palavra-passe para "'+(el.dataset.nome||'')+'":','',{title:'Repor palavra-passe'}); if(p&&p.trim()){ supaResetPwd(el.dataset.id,p.trim()).then(()=>toast('Palavra-passe reposta',el.dataset.nome)).catch(er=>toast('Erro',supaMsg(er),'err')); } break; }
-    case 'roster-invite': { const em=el.dataset.email||''; const em2=el.dataset.email2||''; const un=el.dataset.username||''; const nm=el.dataset.nome||un;
+    case 'roster-invite': { const em=el.dataset.email||''; const em2=el.dataset.email2||''; const un=el.dataset.username||''; const nm=el.dataset.nome||un; const ja=!!el.dataset.conv;
       const dests=[em,em2].filter(Boolean); if(!dests.length){ toast('Sem email','Este utilizador não tem email definido','warn'); break; }
       if(!realSendOn()){ toast('Ative o envio real','Definições → EmailJS (modo real) para enviar convites','warn'); break; }
       const pwd=genFormandoPwd(em,nm,el.dataset.apelido||'',un);
-      if(!(await uiConfirm('A palavra-passe de '+nm+' será reposta para a regra do sistema e enviada para '+dests.join(' + ')+'.',{title:'Reenviar convite?',okText:'Reenviar',icon:'send'}))) break;
-      supaResetPwd(el.dataset.id,pwd).then(()=>sendInvite({nome:nm,apelido:el.dataset.apelido||'',email:em,email2:em2,username:un},pwd))
-        .then(r=>toast((r&&r.sent)?'Convite reenviado':'Falha no envio',dests.join(' + '),(r&&r.sent)?'':'warn'))
-        .catch(er=>toast('Erro',supaMsg(er),'err')); break; }
+      if(!(await uiConfirm('A palavra-passe de '+nm+' será reposta para a regra do sistema e enviada para '+dests.join(' + ')+'.',{title:ja?'Reenviar convite?':'Enviar convite?',okText:ja?'Reenviar':'Enviar',icon:'send'}))) break;
+      try{
+        await supaResetPwd(el.dataset.id,pwd);
+        const r=await sendInvite({nome:nm,apelido:el.dataset.apelido||'',email:em,email2:em2,username:un},pwd);
+        if(r&&r.sent){ await supaMarcarConvite(el.dataset.id).catch(()=>{}); toast(ja?'Convite reenviado':'Convite enviado',dests.join(' + ')); renderTurmaRoster(); }
+        else toast('Falha no envio',dests.join(' + '),'warn');
+      }catch(er){ toast('Erro',supaMsg(er),'err'); }
+      break; }
+    case 'roster-invite-all': {
+      if(!realSendOn()){ toast('Ative o envio real','Definições → EmailJS (modo real) para enviar convites','warn'); break; }
+      const list=await supaRoster().catch(()=>null);
+      if(!list){ toast('Erro','Não foi possível ler a lista da turma','err'); break; }
+      const pend=list.filter(u=>u.papel==='Formando' && !u.convite_em && (u.email||u.email2));
+      if(!pend.length){ toast('Nada a enviar','Todos os formandos já receberam o convite'); break; }
+      if(!(await uiConfirm('Vão ser enviados '+pend.length+' convite(s). A palavra-passe de cada formando é reposta para a regra do sistema e enviada para o(s) email(s) dele.',{title:'Enviar convites pendentes?',okText:'Enviar '+pend.length,icon:'send'}))) break;
+      toast('A enviar convites…',pend.length+' formando(s)');
+      let ok=0,fail=0;
+      for(const u of pend){
+        try{
+          const pwd=genFormandoPwd(u.email,u.nome,u.apelido,u.username);
+          await supaResetPwd(u.id,pwd);
+          const r=await sendInvite({nome:u.nome,apelido:u.apelido,email:u.email,email2:u.email2,username:u.username},pwd);
+          if(r&&r.sent){ ok++; await supaMarcarConvite(u.id).catch(()=>{}); } else fail++;
+        }catch(e){ fail++; }
+      }
+      renderTurmaRoster();
+      toast('Convites enviados',ok+' enviado(s)'+(fail?' · '+fail+' falhou(aram)':''),fail?'warn':'ok');
+      break; }
     case 'invite-editor': openInviteEditor(); break;
     case 'inv-reset': { const t=INVITE_DEFAULT; document.querySelectorAll('#modalForm [data-inv]').forEach(el=>{ if(t[el.dataset.inv]!=null) el.value=t[el.dataset.inv]; }); const p=$('#invPreview'); if(p) p.innerHTML=invitePreviewHTML(); toast('Reposto','Modelo predefinido'); break; }
     case 'gen': if(!canFeat('gerador')){ toast('Sem permissão','','warn'); break; } gerarExemplos(+el.dataset.n||0, +el.dataset.p||0, +el.dataset.e||0); break;
