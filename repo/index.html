@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Repositório - IEFP CRM</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="../favicon.png">
+<style>
+:root{
+  --verde:#006B3C; --verde-claro:#00A651; --verde-fundo:#f2f7f4;
+  --texto:#15302a; --suave:#5f746b; --linha:#dbe6df; --branco:#fff;
+  --erro:#b3261e; --aviso:#8a5a00; --raio:12px;
+  --sombra:0 1px 2px rgba(21,48,42,.06),0 8px 24px rgba(21,48,42,.06);
+}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.55 Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  color:var(--texto);background:var(--verde-fundo)}
+h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.01em}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+input,textarea,select{font:inherit;color:inherit;width:100%;padding:10px 12px;
+  border:1px solid var(--linha);border-radius:10px;background:var(--branco);outline:0}
+input:focus,textarea:focus,select:focus{border-color:var(--verde-claro);
+  box-shadow:0 0 0 3px rgba(0,166,81,.15)}
+textarea{resize:vertical;min-height:120px}
+label{display:block;font-size:12px;font-weight:700;color:var(--suave);
+  text-transform:uppercase;letter-spacing:.04em;margin:0 0 6px}
+.campo{margin:0 0 16px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;
+  background:var(--verde);color:#fff;font-weight:700}
+.btn:hover{background:var(--verde-claro)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.sec{background:var(--branco);color:var(--texto);border:1px solid var(--linha)}
+.btn.sec:hover{background:var(--verde-fundo)}
+.btn.perigo{background:none;color:var(--erro);padding:6px 10px}
+.btn.perigo:hover{background:rgba(179,38,30,.08)}
+.ic{width:18px;height:18px;flex:none;stroke:currentColor;stroke-width:1.8;fill:none;
+  stroke-linecap:round;stroke-linejoin:round}
+
+/* Entrada */
+#entrada{min-height:100dvh;display:grid;place-items:center;padding:24px}
+.cartao{background:var(--branco);border:1px solid var(--linha);border-radius:16px;
+  box-shadow:var(--sombra)}
+#entrada .cartao{width:100%;max-width:400px;overflow:hidden}
+.cabeca{background:linear-gradient(135deg,var(--verde),var(--verde-claro));
+  color:#fff;padding:22px 24px}
+.cabeca p{margin:4px 0 0;opacity:.85;font-size:13px}
+#entrada form{padding:24px}
+
+/* App */
+header{background:var(--branco);border-bottom:1px solid var(--linha);
+  position:sticky;top:0;z-index:5}
+.barra{max-width:1040px;margin:0 auto;padding:14px 24px;display:flex;
+  align-items:center;gap:16px}
+.marca{display:flex;align-items:center;gap:10px;font-weight:800}
+.marca span{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--verde),var(--verde-claro));color:#fff}
+nav{display:flex;gap:2px;margin-left:auto}
+nav button{padding:8px 14px;border-radius:8px;font-weight:600;color:var(--suave)}
+nav button:hover{background:var(--verde-fundo)}
+nav button.on{background:var(--verde-fundo);color:var(--verde)}
+.quem{font-size:13px;color:var(--suave);padding-left:16px;border-left:1px solid var(--linha);
+  display:flex;align-items:center;gap:10px}
+main{max-width:1040px;margin:0 auto;padding:28px 24px 64px}
+.topo{display:flex;align-items:center;gap:16px;margin:0 0 20px}
+.topo p{margin:2px 0 0;color:var(--suave);font-size:14px}
+.topo .btn{margin-left:auto}
+
+.grelha{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.mod{padding:18px;display:flex;flex-direction:column;gap:10px}
+.ufcd{font-size:12px;font-weight:800;color:var(--verde);letter-spacing:.06em}
+.mod h3{font-size:16px}
+.links{display:flex;flex-direction:column;gap:4px;font-size:13px}
+.links a{color:var(--suave);text-decoration:none;display:flex;align-items:center;gap:6px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.links a:hover{color:var(--verde)}
+.mod footer{display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:12px;
+  border-top:1px solid var(--linha);font-size:13px;color:var(--suave)}
+.mod footer .btn{margin-left:auto;padding:6px 12px;font-size:13px}
+
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.04em;
+  color:var(--suave);padding:0 14px 10px}
+td{padding:12px 14px;border-top:1px solid var(--linha)}
+tbody tr:hover{background:var(--verde-fundo)}
+.clicavel{cursor:pointer}
+.cartao.lista{padding:18px 4px 4px;overflow:hidden}
+
+.pilula{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:99px;
+  font-size:12px;font-weight:700}
+.p-ok{background:rgba(0,166,81,.12);color:var(--verde)}
+.p-nao{background:rgba(21,48,42,.07);color:var(--suave)}
+.p-erro{background:rgba(179,38,30,.1);color:var(--erro)}
+.p-rasc{background:rgba(138,90,0,.12);color:var(--aviso)}
+
+.vazio{text-align:center;padding:56px 24px;color:var(--suave)}
+.vazio .ic{width:32px;height:32px;stroke-width:1.4;margin:0 auto 12px;display:block;opacity:.5}
+
+/* Modal */
+.fundo{position:fixed;inset:0;background:rgba(21,48,42,.45);display:grid;place-items:center;
+  padding:24px;z-index:20;overflow:auto}
+.modal{background:var(--branco);border-radius:16px;width:100%;max-width:560px;
+  box-shadow:0 24px 64px rgba(21,48,42,.24)}
+.modal.largo{max-width:760px}
+.modal .corpo{padding:24px;max-height:70vh;overflow:auto}
+.modal .pe{display:flex;gap:10px;padding:16px 24px;border-top:1px solid var(--linha)}
+.modal .pe .btn:first-child{margin-left:auto}
+.previa{border:1px solid var(--linha);border-radius:10px;padding:16px;background:var(--verde-fundo);
+  font-size:14px}
+.previa .assunto{font-weight:700;margin:0 0 10px;padding:0 0 10px;border-bottom:1px solid var(--linha)}
+.previa .txt{white-space:pre-wrap;color:var(--suave)}
+.previa .fake{display:inline-block;margin:14px 0 0;background:var(--verde);color:#fff;
+  padding:9px 18px;border-radius:8px;font-weight:700;font-size:13px}
+.nota{font-size:13px;color:var(--suave);margin:14px 0 0}
+
+#aviso{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(24px);
+  background:var(--texto);color:#fff;padding:12px 20px;border-radius:10px;font-size:14px;
+  opacity:0;pointer-events:none;transition:.25s;z-index:40;max-width:90vw}
+#aviso.on{opacity:1;transform:translateX(-50%)}
+#aviso.mau{background:var(--erro)}
+.esconde{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- ENTRADA -->
+<div id="entrada">
+  <div class="cartao">
+    <div class="cabeca">
+      <h1>Repositório de sessões</h1>
+      <p>Publicar material e saber quem o foi ver.</p>
+    </div>
+    <form id="formEntrada">
+      <div class="campo">
+        <label for="eTurma">Turma</label>
+        <input id="eTurma" inputmode="numeric" autocomplete="off" placeholder="12023483" required>
+      </div>
+      <div class="campo">
+        <label for="eUser">Utilizador</label>
+        <input id="eUser" autocomplete="username" required>
+      </div>
+      <div class="campo">
+        <label for="ePass">Palavra-passe</label>
+        <input id="ePass" type="password" autocomplete="current-password" required>
+      </div>
+      <button class="btn" style="width:100%;justify-content:center" id="btnEntrar">Entrar</button>
+      <p class="nota">Entra com a mesma conta de formador da app IEFP CRM.</p>
+    </form>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="esconde">
+  <header>
+    <div class="barra">
+      <div class="marca">
+        <span><svg class="ic" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>
+        Repositório
+      </div>
+      <nav>
+        <button data-vista="modulos" class="on">Módulos</button>
+        <button data-vista="publicacoes">Publicações</button>
+        <button data-vista="turma">Turma</button>
+      </nav>
+      <div class="quem">
+        <span id="quem"></span>
+        <button class="btn sec" id="btnSair" style="padding:6px 12px;font-size:13px">Sair</button>
+      </div>
+    </div>
+  </header>
+  <main>
+    <section id="vModulos"></section>
+    <section id="vPublicacoes" class="esconde"></section>
+    <section id="vTurma" class="esconde"></section>
+  </main>
+</div>
+
+<div id="aviso"></div>
+
+<script>
+'use strict';
+const SUPA_URL='https://qgfzbyhfyqvmmmdiqycu.supabase.co';
+const SUPA_KEY='sb_publishable_atlEEoeN4-CWY8mD7KQNsw_m1cXjdIE';
+const CHAVE='iefp-repo-sessao';
+
+const I={
+  pasta:'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z',
+  link:'M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1',
+  mail:'M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3 7l9 6 9-6',
+  olho:'M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6',
+  mais:'M12 5v14M5 12h14',
+  lapis:'M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16zM14 6l4 4',
+  lixo:'M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13',
+  gente:'M16 19v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M9.5 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6M21 19v-2a4 4 0 0 0-3-3.9'
+};
+const ic=(n,e='')=>`<svg class="ic" viewBox="0 0 24 24" ${e}><path d="${I[n]}"/></svg>`;
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $=s=>document.querySelector(s);
+
+let sessao=null, modulos=[], publicacoes=[];
+
+// ---- Supabase (RPC directo, sem SDK) --------------------------------
+async function rpc(nome,args){
+  const r=await fetch(`${SUPA_URL}/rest/v1/rpc/${nome}`,{
+    method:'POST',
+    headers:{apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY,'Content-Type':'application/json'},
+    body:JSON.stringify(args||{})
+  });
+  const d=await r.json().catch(()=>null);
+  if(!r.ok){
+    const m=(d&&(d.message||d.hint))||'ERRO';
+    throw new Error(m.replace(/^.*?(SESSAO_INVALIDA|SEM_PERMISSAO|NAO_ENCONTRADO|DADOS_EM_FALTA|CREDENCIAIS_INVALIDAS|TURMA_NAO_EXISTE).*$/,'$1'));
+  }
+  return d;
+}
+async function edge(nome,body){
+  const r=await fetch(`${SUPA_URL}/functions/v1/${nome}`,{
+    method:'POST',
+    headers:{apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY,'Content-Type':'application/json'},
+    body:JSON.stringify(body)
+  });
+  return r.json().catch(()=>({ok:false,erro:'RESPOSTA_INVALIDA'}));
+}
+const ERROS={
+  SESSAO_INVALIDA:'A sessão expirou. Entra outra vez.',
+  SEM_PERMISSAO:'Só os formadores podem gerir o repositório.',
+  CREDENCIAIS_INVALIDAS:'Utilizador ou palavra-passe errados.',
+  TURMA_NAO_EXISTE:'Essa turma não existe.',
+  DADOS_EM_FALTA:'Falta preencher campos obrigatórios.',
+  NAO_ENCONTRADO:'Já não existe.',
+  SEM_RESEND:'O envio de email não está configurado no servidor.'
+};
+function avisar(msg,mau){
+  const a=$('#aviso'); a.textContent=ERROS[msg]||msg;
+  a.className='on'+(mau?' mau':'');
+  clearTimeout(avisar.t); avisar.t=setTimeout(()=>a.className='',4000);
+}
+function tratar(e){
+  const m=e&&e.message||String(e);
+  avisar(m,true);
+  if(m==='SESSAO_INVALIDA') sair();
+}
+
+// ---- Entrada --------------------------------------------------------
+$('#formEntrada').addEventListener('submit',async ev=>{
+  ev.preventDefault();
+  const b=$('#btnEntrar'); b.disabled=true; b.textContent='A entrar...';
+  try{
+    const d=await rpc('login',{
+      p_codigo:$('#eTurma').value.trim(),
+      p_username:$('#eUser').value.trim(),
+      p_password:$('#ePass').value
+    });
+    if(d.user.papel!=='Formador'&&d.user.papel!=='Administrador') throw new Error('SEM_PERMISSAO');
+    sessao={token:d.token,user:d.user,turma:$('#eTurma').value.trim()};
+    localStorage.setItem(CHAVE,JSON.stringify(sessao));
+    arrancar();
+  }catch(e){ tratar(e); }
+  b.disabled=false; b.textContent='Entrar';
+});
+
+function sair(){
+  if(sessao) rpc('logout',{p_token:sessao.token}).catch(()=>{});
+  sessao=null; localStorage.removeItem(CHAVE);
+  $('#app').classList.add('esconde'); $('#entrada').classList.remove('esconde');
+  $('#ePass').value='';
+}
+$('#btnSair').addEventListener('click',sair);
+
+// ---- Navegação ------------------------------------------------------
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===b));
+  const v=b.dataset.vista;
+  $('#vModulos').classList.toggle('esconde',v!=='modulos');
+  $('#vPublicacoes').classList.toggle('esconde',v!=='publicacoes');
+  $('#vTurma').classList.toggle('esconde',v!=='turma');
+  if(v==='publicacoes') carregarPublicacoes();
+  if(v==='turma') carregarTurma();
+}));
+
+async function arrancar(){
+  $('#entrada').classList.add('esconde'); $('#app').classList.remove('esconde');
+  $('#quem').textContent=`${sessao.user.nome} · turma ${sessao.turma}`;
+  await carregarModulos();
+}
+
+// ---- Módulos --------------------------------------------------------
+async function carregarModulos(){
+  try{ modulos=await rpc('repo_modulos_listar',{p_token:sessao.token}); }
+  catch(e){ return tratar(e); }
+  desenharModulos();
+}
+function desenharModulos(){
+  const corpo = !modulos.length
+    ? `<div class="cartao vazio">${ic('pasta')}<p>Ainda não há módulos.<br>Cria um por cada UFCD, com a pasta do Drive e o bitly.</p></div>`
+    : `<div class="grelha">${modulos.map(m=>`
+        <article class="cartao mod">
+          <div class="ufcd">UFCD ${esc(m.ufcd)}</div>
+          <h3>${esc(m.nome)||'Sem nome'}</h3>
+          <div class="links">
+            ${m.drive_url?`<a href="${esc(m.drive_url)}" target="_blank" rel="noopener">${ic('pasta')}Pasta do Drive</a>`:''}
+            ${m.bitly_url?`<a href="${esc(m.bitly_url)}" target="_blank" rel="noopener">${ic('link')}${esc(m.bitly_url.replace(/^https?:\/\//,''))}</a>`:''}
+          </div>
+          <footer>
+            ${m.publicacoes} publicaç${m.publicacoes==1?'ão':'ões'}
+            <button class="btn sec" data-editar="${m.id}">${ic('lapis')}Editar</button>
+            <button class="btn" data-publicar="${m.id}">${ic('mais')}Publicar</button>
+          </footer>
+        </article>`).join('')}</div>`;
+
+  $('#vModulos').innerHTML=`
+    <div class="topo">
+      <div><h2>Módulos</h2><p>Onde vivem os links: uma pasta do Drive e um bitly por UFCD.</p></div>
+      <button class="btn" id="btnNovoModulo">${ic('mais')}Novo módulo</button>
+    </div>${corpo}`;
+
+  $('#btnNovoModulo').addEventListener('click',()=>modalModulo(null));
+  document.querySelectorAll('[data-editar]').forEach(b=>b.addEventListener('click',
+    ()=>modalModulo(modulos.find(m=>m.id===b.dataset.editar))));
+  document.querySelectorAll('[data-publicar]').forEach(b=>b.addEventListener('click',
+    ()=>modalPublicar(modulos.find(m=>m.id===b.dataset.publicar))));
+}
+
+function modal(html){
+  const f=document.createElement('div'); f.className='fundo'; f.innerHTML=html;
+  f.addEventListener('click',e=>{ if(e.target===f) f.remove(); });
+  document.body.appendChild(f);
+  f.querySelectorAll('[data-fechar]').forEach(b=>b.addEventListener('click',()=>f.remove()));
+  return f;
+}
+
+function modalModulo(m){
+  const f=modal(`<div class="modal">
+    <div class="cabeca"><h2>${m?'Editar módulo':'Novo módulo'}</h2></div>
+    <div class="corpo">
+      <div class="campo"><label>UFCD</label>
+        <input id="mUfcd" value="${esc(m?.ufcd||'')}" placeholder="10868" required></div>
+      <div class="campo"><label>Nome</label>
+        <input id="mNome" value="${esc(m?.nome||'')}" placeholder="CRM analytics"></div>
+      <div class="campo"><label>Pasta do Google Drive</label>
+        <input id="mDrive" value="${esc(m?.drive_url||'')}" placeholder="https://drive.google.com/..."></div>
+      <div class="campo" style="margin:0"><label>Bitly da pasta</label>
+        <input id="mBitly" value="${esc(m?.bitly_url||'')}" placeholder="https://bit.ly/...">
+        <p class="nota">O link curto que partilhas em aula. Podes usar outro link em cada publicação.</p></div>
+    </div>
+    <div class="pe">
+      ${m?`<button class="btn perigo" id="mApagar" style="margin-right:auto">${ic('lixo')}Apagar</button>`:''}
+      <button class="btn sec" data-fechar>Cancelar</button>
+      <button class="btn" id="mGuardar">Guardar</button>
+    </div></div>`);
+
+  f.querySelector('#mGuardar').addEventListener('click',async()=>{
+    try{
+      await rpc('repo_modulo_guardar',{
+        p_token:sessao.token, p_id:m?.id||null,
+        p_ufcd:f.querySelector('#mUfcd').value.trim(),
+        p_nome:f.querySelector('#mNome').value.trim(),
+        p_drive_url:f.querySelector('#mDrive').value.trim(),
+        p_bitly_url:f.querySelector('#mBitly').value.trim()
+      });
+      f.remove(); avisar('Módulo guardado.'); carregarModulos();
+    }catch(e){ tratar(e); }
+  });
+  f.querySelector('#mApagar')?.addEventListener('click',async()=>{
+    if(!confirm(`Apagar a UFCD ${m.ufcd}? As ${m.publicacoes} publicações e os registos de leitura vão com ela.`)) return;
+    try{
+      await rpc('repo_modulo_remover',{p_token:sessao.token,p_id:m.id});
+      f.remove(); avisar('Módulo apagado.'); carregarModulos();
+    }catch(e){ tratar(e); }
+  });
+}
+
+// ---- Publicar -------------------------------------------------------
+function modalPublicar(m){
+  const f=modal(`<div class="modal largo">
+    <div class="cabeca"><h2>Publicar na UFCD ${esc(m.ufcd)}</h2>
+      <p>Carrega primeiro o PDF no Drive. Aqui só escreves o aviso e disparas o email.</p></div>
+    <div class="corpo">
+      <div class="campo"><label>Título</label>
+        <input id="pTitulo" placeholder="Sessão 7 - Segmentação de clientes" required></div>
+      <div class="campo"><label>Mensagem aos formandos</label>
+        <textarea id="pTexto" placeholder="Ficam disponíveis os slides da sessão de hoje..."></textarea></div>
+      <div class="campo"><label>Link (bitly)</label>
+        <input id="pLink" value="${esc(m.bitly_url||'')}" placeholder="https://bit.ly/..." required>
+        <p class="nota">Vem preenchido com o bitly da pasta. Se tens um link só desta sessão, troca aqui.</p></div>
+      <label>Pré-visualização do email</label>
+      <div class="previa">
+        <p class="assunto" id="pAssunto">UFCD ${esc(m.ufcd)} - (sem título)</p>
+        <p style="margin:0 0 12px">Olá [nome do formando],</p>
+        <p class="txt" id="pPrevia" style="margin:0"></p>
+        <span class="fake">Abrir o material</span>
+      </div>
+      <p class="nota">O botão leva um link pessoal por formando. Ao clicar, fica registado quem foi e a que horas, e o formando segue direto para o Drive.</p>
+    </div>
+    <div class="pe">
+      <button class="btn sec" data-fechar>Cancelar</button>
+      <button class="btn" id="pEnviar">${ic('mail')}Publicar e avisar a turma</button>
+    </div></div>`);
+
+  const t=f.querySelector('#pTitulo'), x=f.querySelector('#pTexto');
+  const sinc=()=>{
+    f.querySelector('#pAssunto').textContent=`UFCD ${m.ufcd} - ${t.value.trim()||'(sem título)'}`;
+    f.querySelector('#pPrevia').textContent=x.value.trim()||'(a tua mensagem aparece aqui)';
+  };
+  t.addEventListener('input',sinc); x.addEventListener('input',sinc); sinc();
+
+  f.querySelector('#pEnviar').addEventListener('click',async e=>{
+    const b=e.currentTarget;
+    const titulo=t.value.trim(), link=f.querySelector('#pLink').value.trim();
+    if(!titulo||!link) return avisar('Falta o título ou o link.',true);
+    b.disabled=true; b.textContent='A publicar...';
+    try{
+      const p=await rpc('repo_publicar',{
+        p_token:sessao.token, p_modulo_id:m.id,
+        p_titulo:titulo, p_texto:x.value.trim(), p_link:link
+      });
+      if(!p.destinatarios){
+        f.remove(); carregarModulos();
+        return avisar('Publicado, mas nenhum formando desta turma tem email preenchido.',true);
+      }
+      b.textContent=`A enviar a ${p.destinatarios}...`;
+      const r=await edge('repo-enviar',{token:sessao.token,publicacao_id:p.id});
+      f.remove(); carregarModulos();
+      if(!r.ok) return avisar(r.erro||'O envio falhou. A publicação ficou guardada.',true);
+      const extra=p.sem_email?` ${p.sem_email} ficaram de fora por não terem email.`:'';
+      avisar(r.falhados
+        ? `Enviado a ${r.enviados}, falhou em ${r.falhados}. Vê a publicação para saber quais.`
+        : `Enviado a ${r.enviados} formandos.${extra}`, !!r.falhados);
+    }catch(err){ tratar(err); b.disabled=false; b.textContent='Publicar e avisar a turma'; }
+  });
+}
+
+// ---- Publicações ----------------------------------------------------
+const dt=s=>s?new Date(s).toLocaleString('pt-PT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'';
+
+async function carregarPublicacoes(){
+  try{ publicacoes=await rpc('repo_publicacoes_listar',{p_token:sessao.token,p_modulo:null}); }
+  catch(e){ return tratar(e); }
+
+  const corpo = !publicacoes.length
+    ? `<div class="cartao vazio">${ic('mail')}<p>Ainda não publicaste nada.<br>Vai a Módulos e carrega em "Publicar".</p></div>`
+    : `<div class="cartao lista"><table><thead><tr>
+        <th>Publicação</th><th>UFCD</th><th>Enviado</th><th>Abriram</th><th></th>
+      </tr></thead><tbody>${publicacoes.map(p=>{
+        const pct=p.destinatarios?Math.round(p.abriram/p.destinatarios*100):0;
+        return `<tr class="clicavel" data-ver="${p.id}">
+          <td><strong>${esc(p.titulo)}</strong></td>
+          <td>${esc(p.ufcd)}</td>
+          <td>${p.enviado_em?dt(p.enviado_em):'<span class="pilula p-rasc">rascunho</span>'}</td>
+          <td><span class="pilula ${p.abriram?'p-ok':'p-nao'}">${p.abriram}/${p.destinatarios} · ${pct}%</span></td>
+          <td style="text-align:right;color:var(--suave)">${ic('olho')}</td>
+        </tr>`;}).join('')}</tbody></table></div>`;
+
+  $('#vPublicacoes').innerHTML=`
+    <div class="topo"><div><h2>Publicações</h2>
+      <p>Quem abriu o quê. Clica numa linha para ver a lista nome a nome.</p></div></div>${corpo}`;
+
+  document.querySelectorAll('[data-ver]').forEach(r=>r.addEventListener('click',
+    ()=>modalEstado(publicacoes.find(p=>p.id===r.dataset.ver))));
+}
+
+async function modalEstado(p){
+  let linhas=[];
+  try{ linhas=await rpc('repo_estado',{p_token:sessao.token,p_publicacao:p.id}); }
+  catch(e){ return tratar(e); }
+
+  const f=modal(`<div class="modal largo">
+    <div class="cabeca"><h2>${esc(p.titulo)}</h2>
+      <p>UFCD ${esc(p.ufcd)} · ${p.abriram} de ${p.destinatarios} já abriram</p></div>
+    <div class="corpo" style="padding:18px 4px 4px">
+      <table><thead><tr><th>Formando</th><th>Estado</th><th>Abriu</th><th>Vezes</th></tr></thead>
+      <tbody>${linhas.map(l=>`<tr>
+        <td><strong>${esc(l.nome)}</strong><br><span style="color:var(--suave);font-size:13px">${esc(l.email)}</span></td>
+        <td>${l.erro?`<span class="pilula p-erro" title="${esc(l.erro)}">falhou</span>`
+             :l.enviado_em?'<span class="pilula p-nao">enviado</span>'
+             :'<span class="pilula p-rasc">por enviar</span>'}</td>
+        <td>${l.primeiro_clique?`<span class="pilula p-ok">${dt(l.primeiro_clique)}</span>`
+             :'<span style="color:var(--suave)">ainda não</span>'}</td>
+        <td>${l.cliques||''}</td></tr>`).join('')}</tbody></table>
+    </div>
+    <div class="pe">
+      <button class="btn perigo" id="ePagar" style="margin-right:auto">${ic('lixo')}Apagar publicação</button>
+      <button class="btn sec" data-fechar>Fechar</button>
+      <a class="btn" href="${esc(p.link)}" target="_blank" rel="noopener">${ic('link')}Abrir o link</a>
+    </div></div>`);
+
+  f.querySelector('#ePagar').addEventListener('click',async()=>{
+    if(!confirm('Apagar esta publicação e os registos de quem a abriu?')) return;
+    try{
+      await rpc('repo_publicacao_remover',{p_token:sessao.token,p_id:p.id});
+      f.remove(); avisar('Publicação apagada.'); carregarPublicacoes();
+    }catch(e){ tratar(e); }
+  });
+}
+
+// ---- Turma ----------------------------------------------------------
+async function carregarTurma(){
+  let linhas=[];
+  try{ linhas=await rpc('repo_resumo_turma',{p_token:sessao.token}); }
+  catch(e){ return tratar(e); }
+
+  const corpo = !linhas.length
+    ? `<div class="cartao vazio">${ic('gente')}<p>Esta turma ainda não tem formandos.</p></div>`
+    : `<div class="cartao lista"><table><thead><tr>
+        <th>Formando</th><th>Abriu</th><th>Último acesso</th>
+      </tr></thead><tbody>${linhas.map(l=>{
+        const pct=l.recebidas?Math.round(l.abertas/l.recebidas*100):0;
+        const frio=l.recebidas&&!l.abertas;
+        return `<tr>
+          <td><strong>${esc(l.nome)}</strong><br><span style="color:var(--suave);font-size:13px">${esc(l.email)||'sem email'}</span></td>
+          <td><span class="pilula ${frio?'p-erro':l.abertas?'p-ok':'p-nao'}">${l.abertas}/${l.recebidas} · ${pct}%</span></td>
+          <td style="color:var(--suave)">${l.ultimo_acesso?dt(l.ultimo_acesso):'nunca'}</td>
+        </tr>`;}).join('')}</tbody></table></div>`;
+
+  $('#vTurma').innerHTML=`
+    <div class="topo"><div><h2>Turma ${esc(sessao.turma)}</h2>
+      <p>Ordenada pelos que estão há mais tempo sem abrir nada. É por aqui que começas a conversa.</p></div></div>${corpo}`;
+}
+
+// ---- Arranque -------------------------------------------------------
+(function(){
+  try{ sessao=JSON.parse(localStorage.getItem(CHAVE)||'null'); }catch(e){}
+  if(sessao&&sessao.token) arrancar().catch(sair);
+})();
+</script>
+</body>
+</html>
