@@ -6,3 +6,7 @@ Thumbs.db
 
 # Backups locais
 *.bak
+
+# Gerado pelo CI: cópia de estilo/tokens.css para dentro do manual.
+# A fonte é estilo/tokens.css — não editar nem commitar esta cópia.
+manual-src/docs/stylesheets/tokens.css

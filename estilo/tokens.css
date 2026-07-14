@@ -18,7 +18,10 @@
   --r:12px;--rl:18px;--rs:9px;--sidebar:268px;--header:64px;
   --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,system-ui,sans-serif;
 }
-[data-theme="dark"]{
+/* [data-theme] é como as apps marcam o tema; [data-md-color-scheme] é como o
+   MkDocs Material o marca (no <body>). Os dois apontam aos mesmos valores. */
+[data-theme="dark"],
+[data-md-color-scheme="slate"]{
   --bg:#0d1411;--surface:#141d18;--surface2:#19241e;--surface3:#1f2c24;
   --border:#26392f;--text:#e7f3ec;--muted:#9fb6a9;--muted2:#6f8377;
   --danger:#f87171;--danger-bg:#3a1d1d;--warn:#fbbf24;--warn-bg:#3a2c12;--info:#93b4fb;--info-bg:#1c2740;
