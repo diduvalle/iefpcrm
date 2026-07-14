@@ -3243,6 +3243,13 @@ async function supaTurmaFormador(codigo){ return await supaRpc('turma_formador',
 async function supaListarSubmissoes(){ return await supaRpc('listar_submissoes',{p_token:supaToken()}); }
 async function supaObterSubmissao(id){ return await supaRpc('obter_submissao',{p_token:supaToken(),p_id:id}); }
 function slugUser(nome,apelido){ return (String(nome||'')+'.'+String(apelido||'')).normalize('NFD').toLowerCase().replace(/[^a-z0-9.]+/g,'').replace(/^\.+|\.+$/g,'')||'formando'; }
+// Utilizador por omissão: 1.ª letra do nome + apelido, sem acentos nem espaços (Diogo Vale → dvale)
+function userFromName(nome,apelido){
+  const clean=s=>String(s||'').normalize('NFD').toLowerCase().replace(/[^a-z0-9]+/g,'');
+  const n=clean(nome), a=clean(apelido);
+  if(!a) return n||'formando';
+  return ((n.charAt(0)||'')+a)||'formando';
+}
 function turmaUsersCardHTML(){
   return `<div class="card card-pad">
     <div class="section-head" style="margin-bottom:14px"><div><h3>Formandos da turma ${esc(TURMA)}</h3><div class="sub">Acessos geridos centralmente (online), ligados a esta turma.</div></div></div>
@@ -3264,7 +3271,7 @@ function turmaUsersCardHTML(){
       <div class="field"><label>Apelido</label><input name="apelido"></div>
       <div class="field"><label>Email (IEFP)</label><input name="email" type="email" placeholder="nº@formacao.iefp.pt"></div>
       <div class="field"><label>Email pessoal <span class="muted" style="font-weight:500;font-size:.78rem">(opcional)</span></label><input name="email2" type="email" placeholder="o convite vai para os dois"></div>
-      <div class="field"><label>Utilizador (auto se vazio)</label><input name="username" placeholder="ex.: joao.silva"></div>
+      <div class="field"><label>Utilizador (auto se vazio)</label><input name="username" placeholder="auto: 1.ª letra do nome + apelido (ex.: dvale)"></div>
       <div class="field"><label>Palavra-passe (auto se vazia)</label><input name="password" type="text" placeholder="vazio → nº do email + iniciais (ex.: 1234567BR)"></div>
       <div class="field"><label>Papel</label><select name="papel"><option>Formando</option><option>Formador</option></select></div>
       <div class="field full"><button type="button" class="btn" data-act="roster-add">${ic('users',16)} Adicionar à turma</button></div>
@@ -3375,7 +3382,7 @@ function rosterAdd(){
   const g=n=>((f.querySelector('[name="'+n+'"]')||{}).value||'').trim();
   const nome=g('nome'), apelido=g('apelido'), email=g('email'), email2=g('email2'); let username=g('username'); const papel=g('papel')||'Formando';
   if(!nome){ toast('Falta o nome','Indique o nome do formando','warn'); return; }
-  if(!username) username=emailNum(email)||slugUser(nome,apelido);   // nº do email (único) se disponível
+  if(!username) username=userFromName(nome,apelido);   // 1.ª letra do nome + apelido (ex.: Diogo Vale → dvale)
   const password=g('password')||genFormandoPwd(email,nome,apelido,username);   // regra determinística se vazia
   const btn=f.querySelector('[data-act="roster-add"]'); if(btn){ btn.disabled=true; btn.textContent='A adicionar…'; }
   const reset=()=>{ const b=$('#rosterAddForm [data-act="roster-add"]'); if(b){ b.disabled=false; b.innerHTML=ic('users',16)+' Adicionar à turma'; } };
@@ -3405,8 +3412,11 @@ function importTurmaCSV(file){
         if(papel!=='Formador'&&papel!=='Formando') papel='Formando';
         if(username.charAt(0)==='=') username='';   // fórmula por avaliar (não aberto no Excel)
         if(password.charAt(0)==='=') password='';
-        if(!username) username=(emailNum(email)||'').toLowerCase()||slugUser(nome,apelido);   // nº do email (único)
+        const autoUser=!username;
+        if(autoUser) username=userFromName(nome,apelido);   // 1.ª letra do nome + apelido (dvale)
         username=username.toLowerCase();
+        // se o utilizador foi gerado pela regra e já existe, desambigua (jferreira → jferreira2) em vez de rejeitar a linha
+        if(autoUser && username){ const base=username; let k=2; while(seen.has(username)||existing.has(username)){ username=base+k; k++; } }
         if(!password) password=genFormandoPwd(email,nome,apelido,username);   // mesma regra do resto da app
         const errs=[];
         if(!nome) errs.push('nome');
@@ -5225,8 +5235,11 @@ function downloadUserTemplate(){
   const N=60;
   const ex=[['Beatriz','Rocha','1234567@formacao.iefp.pt','beatriz.rocha@gmail.com'],['Bruno','Ribeiro','1234568@formacao.iefp.pt','']]; // 2 exemplos fictícios (email_pessoal é opcional; o convite vai para os dois)
   const lines=['nome;apelido;email;email_pessoal;username;password;papel'];
+  // utilizador = 1.ª letra do nome + apelido, em minúsculas, sem acentos nem espaços (Diogo Vale → dvale)
+  const ACC=[[' ',''],['-',''],["'",''],['á','a'],['à','a'],['â','a'],['ã','a'],['é','e'],['è','e'],['ê','e'],['í','i'],['ì','i'],['ó','o'],['ò','o'],['ô','o'],['õ','o'],['ú','u'],['ù','u'],['ü','u'],['ç','c'],['ñ','n']];
+  const userForm=r=>{ let f=`MINÚSCULA(ESQUERDA(A${r};1)&B${r})`; ACC.forEach(([a,b])=>{ f=`SUBSTITUIR(${f};"${a}";"${b}")`; }); return `=SE(OU(A${r}="";B${r}="");"";${f})`; };
   for(let r=2;r<=N+1;r++){ const e=ex[r-2]||['','','',''];
-    const uForm=`=SE(C${r}="";"";ESQUERDA(C${r};LOCALIZAR("@";C${r})-1))`;                                   // utilizador = nº do email IEFP (único)
+    const uForm=userForm(r);
     const pForm=`=SE(C${r}="";"";ESQUERDA(C${r};LOCALIZAR("@";C${r})-1)&ESQUERDA(A${r};1)&ESQUERDA(B${r};1))`; // password = nº + iniciais (nomes já vêm capitalizados)
     lines.push([cc(e[0]),cc(e[1]),cc(e[2]),cc(e[3]||''),cc(uForm),cc(pForm),(e[2]?'Formando':'')].join(';'));
   }
