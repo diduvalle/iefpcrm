@@ -19,6 +19,11 @@
 .profile .sair{margin-left:auto;flex:none;width:32px;height:32px;border-radius:9px;display:grid;place-items:center;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);color:#fff;cursor:pointer}
 .profile .sair:hover{background:rgba(255,255,255,.2)}
 .profile .sair svg{width:16px;height:16px}
+/* a app dimensiona os ícones da barra por atributo width no SVG; os daqui
+   são escritos à mão sem esse atributo, por isso precisam de tamanho no CSS */
+.nav-search svg{width:16px;height:16px;flex:none}
+.turma-chip svg{width:14px;height:14px;flex:none}
+.made-by svg{width:14px;height:14px;flex:none}
 .app.nav-collapsed .turma-chip span{display:none}
 .app.nav-collapsed .profile .sair{margin-left:0}
 .grid{grid-template-columns:repeat(auto-fill,minmax(290px,1fr))}
