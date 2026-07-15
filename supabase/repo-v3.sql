@@ -281,6 +281,9 @@ begin
 end $$;
 
 -- Reabrir os que ainda não abriram, para reenviar.
+-- (drop: a v2 tinha esta função com o parâmetro chamado p_publicacao; o
+--  Postgres não deixa renomear parâmetros via CREATE OR REPLACE.)
+drop function if exists public.repo_reabrir_nao_abriram(uuid, uuid);
 create or replace function public.repo_reabrir_nao_abriram(p_token uuid, p_sessao_id uuid)
 returns json language plpgsql security definer set search_path = public as $$
 declare n int;
@@ -317,6 +320,8 @@ begin
      where a.sessao_id = p_sessao_id and a.enviado_em is null and coalesce(a.email,'')<>'';
 end $$;
 
+-- (drop: a v1 tinha esta função com o parâmetro chamado p_envio_id.)
+drop function if exists public.repo_marcar_enviado(uuid, uuid, text);
 create or replace function public.repo_marcar_enviado(p_token uuid, p_acesso_id uuid, p_erro text default null)
 returns json language plpgsql security definer set search_path = public as $$
 begin
