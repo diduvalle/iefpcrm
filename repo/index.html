@@ -695,7 +695,10 @@ async function modalEstado(s){
       </table></div>
     </div>
     <div class="modal-foot">
-      <button class="btn-danger btn-sm" id="ePagar">${ic('lixo')}Apagar</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-danger btn-sm" id="ePagar">${ic('lixo')}Apagar</button>
+        ${s.abriram>0?`<button class="btn-sec btn-sm" id="eRepor">${ic('seta')}Repor contador</button>`:''}
+      </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button class="btn-sec" id="eVer">${ic('olho')}Ver email</button>
         <a class="btn-sec" href="${esc(s.link)}" target="_blank" rel="noopener">${ic('link')}Abrir o link</a>
@@ -725,6 +728,12 @@ async function modalEstado(s){
       if(!r.ok) return toast(r.erro||'Falhou.','err');
       toast(`Reenviado a ${r.enviados} formando(s).`);
     }catch(err){ tratar(err); }
+  });
+  f.querySelector('#eRepor')?.addEventListener('click',async()=>{
+    if(!await uiConfirm({titulo:'Repor o contador de aberturas?',ok:'Repor',
+      texto:'Limpa as aberturas registadas até agora (útil se foram scanners de email a inflá-las). A sessão e os links mantêm-se; a partir daqui só contam as aberturas reais.'})) return;
+    try{ await rpc('repo_sessao_repor',{p_token:sessao.token,p_sessao_id:s.id});
+      f.remove(); toast('Contador reposto. Só contam as aberturas reais a partir de agora.'); if(turmaAtual) carregarSessoes(turmaAtual); }catch(e){ tratar(e); }
   });
   f.querySelector('#ePagar').addEventListener('click',async()=>{
     if(!await uiConfirm({titulo:'Apagar esta sessão?',perigo:true,ok:'Apagar',texto:'Os registos de quem abriu vão com ela.'})) return;
