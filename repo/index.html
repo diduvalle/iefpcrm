@@ -11,24 +11,17 @@
 <link rel="stylesheet" href="../estilo/tokens.css">
 <link rel="stylesheet" href="../estilo/componentes.css">
 <style>
-/* Só o que é do repositório. Tudo o resto vem de estilo/ - partilhado com a app.
-   Se algo aqui em baixo servir também à app, o sítio certo é o componentes.css. */
-
-/* a app usa <div> na navegação; aqui são <button> */
+/* Só o que é do repositório. O resto vem de estilo/ (partilhado com a app). */
 .nav-link{background:none;border:0;width:100%;text-align:left;font:inherit}
 .profile .sair{margin-left:auto;flex:none;width:32px;height:32px;border-radius:9px;display:grid;place-items:center;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);color:#fff;cursor:pointer}
 .profile .sair:hover{background:rgba(255,255,255,.2)}
 .profile .sair svg{width:16px;height:16px}
-/* a app dimensiona os ícones da barra por atributo width no SVG; os daqui
-   são escritos à mão sem esse atributo, por isso precisam de tamanho no CSS */
 .nav-search svg{width:16px;height:16px;flex:none}
-.turma-chip svg{width:14px;height:14px;flex:none}
 .made-by svg{width:14px;height:14px;flex:none}
-.app.nav-collapsed .turma-chip span{display:none}
 .app.nav-collapsed .profile .sair{margin-left:0}
-.grid{grid-template-columns:repeat(auto-fill,minmax(290px,1fr))}
+.grid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
 tr.clickable{cursor:pointer}
-.tag{align-self:flex-start}   /* dentro de um flex column, senão estica */
+.tag{align-self:flex-start}
 td .tag{align-self:auto}
 .hidden{display:none!important}
 @media(max-width:860px){
@@ -38,24 +31,29 @@ td .tag{align-self:auto}
   .nav-group,.nav-foot,.brand-txt,.nav-search{display:none}
   .nav-link.active::before{display:none}
 }
-/* MÓDULO */
-.mod{display:flex;flex-direction:column;gap:11px;padding:20px}
-.mod h3{font-size:1.02rem;font-weight:800}
-.mod-links{display:flex;flex-direction:column;gap:5px;font-size:.84rem}
-.mod-links a{display:flex;align-items:center;gap:7px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mod-links a:hover{color:var(--g700)}
-.mod-links svg{flex:none;width:16px;height:16px}
-.mod-foot{display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:14px;border-top:1px solid var(--border);font-size:.82rem;color:var(--muted)}
-.mod-foot .btn,.mod-foot .btn-sec{margin-left:auto}
-.mod-foot .btn-sec+.btn{margin-left:0}
 
-/* EDITOR DE TEXTO RICO (mesmo padrão do editor de assinaturas da app) */
+/* CARTÃO DE TURMA */
+.tc{display:flex;flex-direction:column;gap:10px;padding:20px}
+.tc h3{font-size:1.05rem;font-weight:800}
+.tc-meta{display:flex;flex-wrap:wrap;gap:6px}
+.tc-drive{display:flex;align-items:center;gap:7px;font-size:.82rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-drive svg{flex:none;width:16px;height:16px}
+.tc-drive.falta{color:var(--warn)}
+.tc-foot{display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:14px;border-top:1px solid var(--border)}
+.tc-foot .btn{margin-left:auto}
+
+/* CABEÇALHO DE SECÇÃO COM VOLTAR */
+.voltar{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;font-weight:700;color:var(--muted);background:none;border:0;cursor:pointer;padding:4px 0;margin-bottom:6px}
+.voltar:hover{color:var(--g700)}
+.voltar svg{width:16px;height:16px}
+
+/* EDITOR DE TEXTO RICO */
 .rt-toolbar{display:flex;flex-wrap:wrap;gap:5px;align-items:center;padding:7px 8px;border:1px solid var(--border);border-bottom:0;border-radius:10px 10px 0 0;background:var(--surface2)}
 .rt-tb{height:30px;min-width:30px;padding:0 8px;display:inline-grid;place-items:center;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);cursor:pointer;font-size:.92rem;font-weight:700}
 .rt-tb:hover{border-color:var(--g400);background:var(--g50);color:var(--g700)}
 .rt-tb svg{width:15px;height:15px}
 .rt-sep{width:1px;height:20px;background:var(--border);margin:0 2px}
-.rt-editor{min-height:130px;max-height:280px;overflow-y:auto;border:1px solid var(--border);border-radius:0 0 10px 10px;padding:12px 14px;background:var(--surface2);color:var(--text);outline:none;font-size:.9rem}
+.rt-editor{min-height:120px;max-height:260px;overflow-y:auto;border:1px solid var(--border);border-radius:0 0 10px 10px;padding:12px 14px;background:var(--surface2);color:var(--text);outline:none;font-size:.9rem}
 .rt-editor:focus{border-color:var(--g400);box-shadow:0 0 0 3px rgba(0,166,81,.14);background:var(--surface)}
 .rt-editor:empty:before{content:attr(data-placeholder);color:var(--muted2)}
 .rt-editor p{margin:0 0 9px}
@@ -92,18 +90,12 @@ td .tag{align-self:auto}
 .preview-body .pv-saud{font-size:.88rem}
 .pv-btn{display:inline-block;margin-top:16px;background:var(--g800);color:#fff;padding:10px 20px;border-radius:8px;font-weight:700;font-size:.85rem}
 
-/* MATERIAIS (vista do formando) */
-.mat-lista{display:flex;flex-direction:column;gap:14px;max-width:760px}
-.mat{padding:20px;display:flex;flex-direction:column;gap:10px}
-.mat-topo{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.mat-topo .mat-data{margin-left:auto;font-size:.78rem}
-.mat h3{font-size:1.05rem;font-weight:800}
-.mat .pv-text{min-height:0}
-.mat-foot{display:flex;align-items:center;gap:12px;margin-top:4px;flex-wrap:wrap}
-.mat-novo{border-color:var(--g300);box-shadow:0 0 0 1px var(--g300),var(--shadow)}
-.chip svg{width:14px;height:14px;flex:none}
-button.chip{cursor:pointer;font:inherit}
-button.chip:hover{border-color:var(--g400);color:var(--g700)}
+/* LISTA DE TURMAS DO CRM (adicionar) */
+.crm-lista{display:flex;flex-direction:column;gap:8px;max-height:50vh;overflow:auto}
+.crm-row{display:flex;align-items:center;gap:12px;padding:11px 13px;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+.crm-row .crm-info{flex:1;min-width:0}
+.crm-row .crm-info strong{display:block;font-size:.9rem}
+.crm-row .crm-info span{font-size:.78rem;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -115,24 +107,17 @@ button.chip:hover{border-color:var(--g400);color:var(--g700)}
     <div class="login-card">
       <div class="login-brand">
         <div class="brand-logo"><img src="../IEFPnormal.png" alt="IEFP"></div>
-        <div>
-          <h1>IEFP CRM</h1>
-          <p>Repositório de sessões</p>
-        </div>
+        <div><h1>Repositório</h1><p>Acesso aos materiais das turmas</p></div>
       </div>
       <h2 class="login-h">Entrar</h2>
-      <p class="login-sub">Os materiais das sessões, num só sítio.</p>
+      <p class="login-sub">Ferramenta privada. Entra com a tua palavra-passe de gestor.</p>
       <form id="loginForm">
-        <div class="field"><label for="fTurma">Turma</label>
-          <input id="fTurma" inputmode="numeric" autocomplete="off" placeholder="12023483" required></div>
-        <div class="field"><label for="fUser">Utilizador</label>
-          <input id="fUser" autocomplete="username" required></div>
         <div class="field"><label for="fPass">Palavra-passe</label>
           <input id="fPass" type="password" autocomplete="current-password" required></div>
         <button class="btn login-btn" id="btnLogin">Entrar</button>
         <p class="login-err" id="loginErr"></p>
       </form>
-      <p class="login-credit">Formadores e formandos entram com a conta da app IEFP CRM.</p>
+      <p class="login-credit">Só tu vês esta ferramenta. Os formandos recebem apenas o link por email.</p>
     </div>
   </div>
 </div>
@@ -142,30 +127,23 @@ button.chip:hover{border-color:var(--g400);color:var(--g700)}
   <aside class="sidebar">
     <div class="brand">
       <div class="brand-logo"><img src="../IEFPnormal.png" alt="IEFP"></div>
-      <div class="brand-txt"><h1>IEFP CRM</h1><p>Repositório de sessões</p></div>
+      <div class="brand-txt"><h1>Repositório</h1><p>Materiais das turmas</p></div>
     </div>
     <div class="nav-search">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
       <input id="pesquisa" type="search" placeholder="Pesquisar…" autocomplete="off" aria-label="Pesquisar">
     </div>
     <nav class="nav">
-      <div class="nav-group" id="navGrupo">Gestão</div>
-      <button class="nav-link" data-view="materiais"></button>
-      <button class="nav-link active" data-view="modulos"></button>
-      <button class="nav-link" data-view="publicacoes"></button>
-      <button class="nav-link" data-view="turma"></button>
+      <div class="nav-group">Gestão</div>
+      <button class="nav-link active" data-view="turmas"></button>
     </nav>
     <div class="nav-foot">
       <div class="profile">
-        <div class="avatar" id="avatar"></div>
-        <div class="profile-txt"><strong id="profNome"></strong><span id="profPapel"></span></div>
+        <div class="avatar">DV</div>
+        <div class="profile-txt"><strong>Gestor</strong><span>Acesso privado</span></div>
         <button class="sair" id="btnSair" title="Sair">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
         </button>
-      </div>
-      <div class="turma-chip">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 19v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M9.5 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/></svg>
-        <span>Turma: <span id="brandTurma"></span></span>
       </div>
       <a class="made-by" href="../">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
@@ -181,21 +159,16 @@ button.chip:hover{border-color:var(--g400);color:var(--g700)}
         <button class="icon-btn" id="btnRecolher" title="Recolher menu">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 3v18M3 3h18v18H3z"/></svg>
         </button>
-        <div>
-          <h2 id="hTitulo">Módulos</h2>
-          <div class="breadcrumb" id="hSub"></div>
-        </div>
+        <div><h2 id="hTitulo">Turmas</h2><div class="breadcrumb" id="hSub"></div></div>
       </div>
       <div class="header-r">
         <button class="icon-btn" id="btnTema" title="Tema claro/escuro"></button>
-        <button class="btn hidden" id="btnNovoModulo"></button>
+        <button class="btn" id="btnPrimario"></button>
       </div>
     </header>
     <div class="content">
-      <section class="view" id="vMateriais"></section>
-      <section class="view active" id="vModulos"></section>
-      <section class="view" id="vPublicacoes"></section>
-      <section class="view" id="vTurma"></section>
+      <section class="view active" id="vTurmas"></section>
+      <section class="view" id="vSessoes"></section>
     </div>
   </div>
 </div>
@@ -206,9 +179,10 @@ button.chip:hover{border-color:var(--g400);color:var(--g700)}
 'use strict';
 const SUPA_URL='https://qgfzbyhfyqvmmmdiqycu.supabase.co';
 const SUPA_KEY='sb_publishable_atlEEoeN4-CWY8mD7KQNsw_m1cXjdIE';
-const CHAVE='iefp-repo-sessao', TEMA='iefp-repo-tema';
+const CHAVE='iefp-repo-root', TEMA='iefp-repo-tema';
+const LINK_TURMA='https://iefpcrm.cr0x.org/repo/';
+const MARCADORES=['{nome}','{titulo}','{turma}'];
 
-/* Ícones monocromáticos (currentColor), no espírito do conjunto da app. */
 const I={
   pasta:'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z',
   mail:'M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3 7l9 6 9-6',
@@ -219,6 +193,8 @@ const I={
   lixo:'M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13',
   olho:'M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6',
   lista:'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01',
+  seta:'M19 12H5M12 19l-7-7 7-7',
+  cog:'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z',
   sol:'M12 4V2M12 22v-2M4 12H2M22 12h-2M5.6 5.6 4.2 4.2M19.8 19.8l-1.4-1.4M5.6 18.4l-1.4 1.4M19.8 4.2l-1.4 1.4M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0',
   lua:'M21 13a8 8 0 1 1-10-10 6 6 0 0 0 10 10',
   ok:'M20 6 9 17l-5-5',
@@ -229,7 +205,7 @@ const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 const $=s=>document.querySelector(s);
 const dt=s=>s?new Date(s).toLocaleString('pt-PT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'';
 
-let sessao=null, modulos=[], publicacoes=[];
+let sessao=null, geridas=[], sessoes=[], turmaAtual=null;
 
 /* ---------- Tema ---------- */
 function aplicarTema(t){
@@ -250,7 +226,7 @@ async function rpc(nome,args){
   const d=await r.json().catch(()=>null);
   if(!r.ok){
     const bruto=(d&&(d.message||d.hint))||'ERRO';
-    const m=bruto.match(/SESSAO_INVALIDA|SEM_PERMISSAO|NAO_ENCONTRADO|DADOS_EM_FALTA|CREDENCIAIS_INVALIDAS|TURMA_NAO_EXISTE|JA_ENVIADA/);
+    const m=bruto.match(/SEM_PERMISSAO|NAO_ENCONTRADO|DADOS_EM_FALTA|CREDENCIAIS_INVALIDAS|TURMA_NAO_EXISTE|JA_ENVIADA/);
     throw new Error(m?m[0]:bruto);
   }
   return d;
@@ -264,13 +240,12 @@ async function edge(nome,body){
   return r.json().catch(()=>({ok:false,erro:'RESPOSTA_INVALIDA'}));
 }
 const ERROS={
-  SESSAO_INVALIDA:'A sessão expirou. Entra outra vez.',
-  SEM_PERMISSAO:'Só os formadores podem gerir o repositório.',
-  CREDENCIAIS_INVALIDAS:'Utilizador ou palavra-passe errados.',
-  TURMA_NAO_EXISTE:'Essa turma não existe.',
+  SEM_PERMISSAO:'A sessão expirou ou a palavra-passe mudou. Entra outra vez.',
+  CREDENCIAIS_INVALIDAS:'Palavra-passe errada.',
+  TURMA_NAO_EXISTE:'Essa turma não existe no CRM.',
   DADOS_EM_FALTA:'Falta preencher campos obrigatórios.',
   NAO_ENCONTRADO:'Já não existe.',
-  JA_ENVIADA:'Esta publicação já foi enviada - já não se edita.',
+  JA_ENVIADA:'Esta sessão já foi enviada - já não se edita.',
   SEM_RESEND:'O envio de email não está configurado no servidor.'
 };
 function toast(msg,tipo){
@@ -283,7 +258,7 @@ function toast(msg,tipo){
 function tratar(e){
   const m=e&&e.message||String(e);
   toast(m,'err');
-  if(m==='SESSAO_INVALIDA') sair();
+  if(m==='SEM_PERMISSAO') sair();
 }
 
 /* ---------- Entrada ---------- */
@@ -291,12 +266,8 @@ $('#loginForm').addEventListener('submit',async ev=>{
   ev.preventDefault();
   const b=$('#btnLogin'); b.disabled=true; b.textContent='A entrar...'; $('#loginErr').textContent='';
   try{
-    const d=await rpc('login',{
-      p_codigo:$('#fTurma').value.trim(),
-      p_username:$('#fUser').value.trim(),
-      p_password:$('#fPass').value
-    });
-    sessao={token:d.token,user:d.user,turma:$('#fTurma').value.trim()};
+    const d=await rpc('login_root',{p_password:$('#fPass').value});
+    sessao={token:d.token};
     localStorage.setItem(CHAVE,JSON.stringify(sessao));
     await arrancar();
   }catch(e){
@@ -306,101 +277,80 @@ $('#loginForm').addEventListener('submit',async ev=>{
   b.disabled=false; b.textContent='Entrar';
 });
 function sair(){
-  if(sessao) rpc('logout',{p_token:sessao.token}).catch(()=>{});
-  sessao=null; localStorage.removeItem(CHAVE);
+  if(sessao) rpc('logout_root',{p_token:sessao.token}).catch(()=>{});
+  sessao=null; turmaAtual=null; localStorage.removeItem(CHAVE);
   $('#app').classList.add('hidden'); $('#login').classList.remove('hidden');
   $('#fPass').value='';
 }
 $('#btnSair').addEventListener('click',sair);
 
 /* ---------- Navegação ---------- */
-const ehFormador=()=>!!sessao&&(sessao.user.papel==='Formador'||sessao.user.papel==='Administrador');
-const VISTAS={
-  materiais:{icone:'pasta',rotulo:'Materiais',titulo:'Materiais',sub:'O que o formador já publicou para a tua turma'},
-  modulos:{icone:'pasta',rotulo:'Módulos',titulo:'Módulos',sub:'Uma pasta do Drive por UFCD'},
-  publicacoes:{icone:'mail',rotulo:'Publicações',titulo:'Publicações',sub:'Rascunhos, envios e quem abriu o quê'},
-  turma:{icone:'gente',rotulo:'Turma',titulo:'Turma',sub:'Quem anda a acompanhar e quem não'}
-};
-document.querySelectorAll('.nav-link').forEach(b=>{
-  const v=VISTAS[b.dataset.view];
-  b.innerHTML=`${ic(v.icone)}<span class="lbl">${v.rotulo}</span>`;
-  b.addEventListener('click',()=>mostrar(b.dataset.view));
-});
-function mostrar(v){
-  document.querySelectorAll('.nav-link').forEach(x=>x.classList.toggle('active',x.dataset.view===v));
-  document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id==='v'+v[0].toUpperCase()+v.slice(1)));
-  $('#hTitulo').textContent=VISTAS[v].titulo;
-  $('#hSub').textContent=VISTAS[v].sub;
-  $('#btnNovoModulo').classList.toggle('hidden',v!=='modulos'||!ehFormador());
-  if(v==='modulos') carregarModulos().then(filtrar);
-  else if(v==='publicacoes') carregarPublicacoes().then(filtrar);
-  else if(v==='turma') carregarTurma().then(filtrar);
-  else if(v==='materiais') carregarMateriais().then(filtrar);
-}
 $('#btnRecolher').addEventListener('click',()=>$('#app').classList.toggle('nav-collapsed'));
-
-/* Pesquisa: filtra o que está à vista (cartões de módulo ou linhas de tabela). */
+$('#pesquisa').addEventListener('input',filtrar);
 function filtrar(){
   const q=($('#pesquisa').value||'').trim().toLowerCase();
   const vista=document.querySelector('.view.active');
   if(!vista) return;
-  vista.querySelectorAll('.mod, .mat, tbody tr').forEach(el=>{
+  vista.querySelectorAll('.tc, tbody tr').forEach(el=>{
     el.style.display=(!q||el.textContent.toLowerCase().includes(q))?'':'none';
   });
 }
-$('#pesquisa').addEventListener('input',filtrar);
+$('#btnPrimario').addEventListener('click',()=>{
+  if(turmaAtual) modalSessao(turmaAtual,null);
+  else modalAdicionarTurma();
+});
+
+function mostrarTurmas(){
+  turmaAtual=null;
+  $('#vSessoes').classList.remove('active'); $('#vTurmas').classList.add('active');
+  $('#hTitulo').textContent='Turmas'; $('#hSub').textContent='As turmas que geres aqui';
+  $('#btnPrimario').innerHTML=ic('mais')+'Adicionar turma';
+  $('#pesquisa').value='';
+  carregarTurmas().then(filtrar);
+}
+function abrirTurma(t){
+  turmaAtual=t;
+  $('#vTurmas').classList.remove('active'); $('#vSessoes').classList.add('active');
+  $('#hTitulo').textContent=t.nome||('Turma '+t.codigo);
+  $('#hSub').textContent='Turma '+t.codigo+' · '+t.n_formandos+' formandos';
+  $('#btnPrimario').innerHTML=ic('mais')+'Nova sessão';
+  $('#pesquisa').value='';
+  carregarSessoes(t).then(filtrar);
+}
 
 async function arrancar(){
   $('#login').classList.add('hidden'); $('#app').classList.remove('hidden');
-  const u=sessao.user, formador=ehFormador();
-  $('#brandTurma').textContent=sessao.turma;
-  $('#profNome').textContent=`${u.nome} ${u.apelido||''}`.trim();
-  $('#profPapel').textContent=u.papel;
-  $('#avatar').textContent=((u.nome||'?')[0]+((u.apelido||' ')[0]||'')).toUpperCase();
-  $('#btnNovoModulo').innerHTML=ic('mais')+'Novo módulo';
-  $('#pesquisa').value='';
-  // cada papel vê a sua navegação: formador gere, formando consulta
-  $('#navGrupo').textContent=formador?'Gestão':'A minha turma';
-  document.querySelectorAll('.nav-link').forEach(b=>{
-    b.classList.toggle('hidden', formador ? b.dataset.view==='materiais'
-                                          : b.dataset.view!=='materiais');
-  });
-  mostrar(formador?'modulos':'materiais');
+  mostrarTurmas();
 }
-$('#btnNovoModulo').addEventListener('click',()=>modalModulo(null));
 
-/* ---------- Módulos ---------- */
-async function carregarModulos(){
-  try{ modulos=await rpc('repo_modulos_listar',{p_token:sessao.token}); }
+/* ---------- Turmas ---------- */
+async function carregarTurmas(){
+  try{ geridas=await rpc('repo_geridas',{p_token:sessao.token}); }
   catch(e){ return tratar(e); }
 
-  $('#vModulos').innerHTML = !modulos.length
-    ? `<div class="empty">${ic('pasta')}<strong>Ainda não há módulos</strong>
-        <span>Cria um por cada UFCD, com a pasta do Drive dos materiais.</span></div>`
-    : `<div class="grid">${modulos.map(m=>`
-        <article class="card mod">
-          <span class="tag">UFCD ${esc(m.ufcd)}</span>
-          <h3>${esc(m.nome)||'<span class="muted">Sem nome</span>'}</h3>
-          <div class="mod-links">
-            ${m.drive_url?`<a href="${esc(m.drive_url)}" target="_blank" rel="noopener">${ic('pasta')}Pasta do Drive</a>`:''}
-            ${m.bitly_url?`<a href="${esc(m.bitly_url)}" target="_blank" rel="noopener">${ic('link')}${esc(m.bitly_url.replace(/^https?:\/\//,''))}</a>`:''}
-          </div>
-          <div class="mod-foot">
-            <span>${m.publicacoes} publicaç${m.publicacoes==1?'ão':'ões'}</span>
-            <button class="btn-sec btn-sm" data-editar="${m.id}">${ic('lapis')}Editar</button>
-            <button class="btn btn-sm" data-publicar="${m.id}">${ic('mais')}Nova publicação</button>
+  $('#vTurmas').innerHTML = !geridas.length
+    ? `<div class="empty">${ic('gente')}<strong>Ainda não geres nenhuma turma</strong>
+        <span>Carrega em "Adicionar turma" para espelhar uma turma do CRM.</span></div>`
+    : `<div class="grid">${geridas.map(t=>`
+        <article class="card tc">
+          <div class="tc-meta"><span class="tag">Turma ${esc(t.codigo)}</span>
+            ${t.n_sessoes?`<span class="pill grey">${t.n_sessoes} sess${t.n_sessoes==1?'ão':'ões'}</span>`:''}</div>
+          <h3>${esc(t.nome)||'<span class="muted">Sem nome</span>'}</h3>
+          <div class="tc-drive ${t.drive_url?'':'falta'}">${ic('pasta')}${t.drive_url?esc(t.drive_url.replace(/^https?:\/\//,'').slice(0,42)):'Falta a pasta do Drive'}</div>
+          <div class="muted" style="font-size:.8rem">${t.n_formandos} formandos · último envio: ${t.ultimo_envio?dt(t.ultimo_envio):'nunca'}</div>
+          <div class="tc-foot">
+            <button class="btn-sec btn-sm" data-cfg="${t.id}">${ic('cog')}Definições</button>
+            <button class="btn btn-sm" data-abrir="${t.id}">Abrir</button>
           </div>
         </article>`).join('')}</div>`;
 
-  document.querySelectorAll('[data-editar]').forEach(b=>b.addEventListener('click',
-    ()=>modalModulo(modulos.find(m=>m.id===b.dataset.editar))));
-  document.querySelectorAll('[data-publicar]').forEach(b=>b.addEventListener('click',
-    ()=>modalPublicar(modulos.find(m=>m.id===b.dataset.publicar))));
+  document.querySelectorAll('[data-abrir]').forEach(b=>b.addEventListener('click',
+    ()=>abrirTurma(geridas.find(t=>t.id===b.dataset.abrir))));
+  document.querySelectorAll('[data-cfg]').forEach(b=>b.addEventListener('click',
+    ()=>modalTurma(geridas.find(t=>t.id===b.dataset.cfg))));
 }
 
 function abrirModal(html){
-  // .modal-back do CSS partilhado é display:none por omissão; a classe .open
-  // é que o mostra. Sem ela, o modal abre invisível (parece que nada acontece).
   const f=document.createElement('div'); f.className='modal-back open'; f.innerHTML=html;
   f.addEventListener('click',e=>{ if(e.target===f) f.remove(); });
   document.addEventListener('keydown',function esc(e){
@@ -410,8 +360,6 @@ function abrirModal(html){
   f.querySelectorAll('[data-fechar]').forEach(b=>b.addEventListener('click',()=>f.remove()));
   return f;
 }
-
-/* Confirmação no design system, em vez do popup do browser. */
 function uiConfirm({titulo='Confirmar',texto='',ok='Confirmar',perigo=false}){
   return new Promise(res=>{
     const f=abrirModal(`<div class="modal" style="width:min(460px,100%)">
@@ -425,82 +373,157 @@ function uiConfirm({titulo='Confirmar',texto='',ok='Confirmar',perigo=false}){
     const fecha=v=>{ f.remove(); res(v); };
     f.querySelector('[data-sim]').addEventListener('click',()=>fecha(true));
     f.querySelector('[data-nao]').addEventListener('click',()=>fecha(false));
-    // fechar por Escape/fundo (o abrirModal remove o elemento) conta como "não"
     const obs=new MutationObserver(()=>{ if(!document.body.contains(f)){ obs.disconnect(); res(false); } });
     obs.observe(document.body,{childList:true});
   });
 }
 
-function modalModulo(m){
+/* Adicionar turma: escolher do CRM + pasta do Drive */
+async function modalAdicionarTurma(){
+  let crm=[];
+  try{ crm=await rpc('repo_turmas_crm',{p_token:sessao.token}); }
+  catch(e){ return tratar(e); }
+  const disp=crm.filter(t=>!t.gerida);
+
   const f=abrirModal(`<div class="modal">
-    <div class="modal-head">
-      <div><h3>${m?'Editar módulo':'Novo módulo'}</h3>
-        <div class="sub">Os ficheiros continuam no Drive. Aqui só moram os links.</div></div>
-    </div>
+    <div class="modal-head"><div><h3>Adicionar turma</h3>
+      <div class="sub">Escolhe uma turma do CRM e indica a pasta do Drive.</div></div></div>
     <div class="modal-body">
-      <div class="form-grid">
-        <div class="field"><label>UFCD</label>
-          <input id="mUfcd" value="${esc(m?.ufcd||'')}" placeholder="10868"></div>
-        <div class="field"><label>Nome</label>
-          <input id="mNome" value="${esc(m?.nome||'')}" placeholder="CRM analytics"></div>
-        <div class="field full"><label>Pasta do Google Drive</label>
-          <input id="mDrive" value="${esc(m?.drive_url||'')}" placeholder="https://drive.google.com/...">
-          <span class="hint">É para aqui que o botão do email leva, por omissão.</span></div>
-        <div class="field full"><label>Link curto (opcional)</label>
-          <input id="mBitly" value="${esc(m?.bitly_url||'')}" placeholder="https://bit.ly/...">
-          <span class="hint">Só se quiseres manter um bitly à parte. O email e a página da turma já não precisam dele.</span></div>
-      </div>
+      <div class="field"><label>Pasta do Google Drive (a tua, pessoal)</label>
+        <input id="aDrive" placeholder="https://drive.google.com/drive/folders/...">
+        <span class="hint">É para aqui que os links dos formandos vão levar.</span></div>
+      <div class="field"><label>Turma</label>
+        ${disp.length?`<div class="crm-lista">${disp.map(t=>`
+          <label class="crm-row">
+            <input type="radio" name="crmT" value="${esc(t.codigo)}">
+            <div class="crm-info"><strong>${esc(t.nome)||('Turma '+esc(t.codigo))}</strong>
+              <span>${esc(t.codigo)} · ${t.n_formandos} formandos</span></div>
+          </label>`).join('')}</div>`
+        :`<div class="empty" style="padding:20px">${ic('gente')}<span>Todas as turmas do CRM já estão adicionadas.</span></div>`}</div>
     </div>
-    <div class="modal-foot">
-      ${m?`<button class="btn-danger btn-sm" id="mApagar">${ic('lixo')}Apagar</button>`:'<span></span>'}
+    <div class="modal-foot"><span></span>
       <div style="display:flex;gap:10px">
         <button class="btn-sec" data-fechar>Cancelar</button>
-        <button class="btn" id="mGuardar">Guardar</button>
-      </div>
-    </div></div>`);
+        <button class="btn" id="aAdicionar" ${disp.length?'':'disabled'}>Adicionar</button>
+      </div></div></div>`);
 
-  f.querySelector('#mGuardar').addEventListener('click',async()=>{
+  f.querySelector('#aAdicionar')?.addEventListener('click',async()=>{
+    const sel=f.querySelector('input[name="crmT"]:checked');
+    if(!sel) return toast('Escolhe uma turma.','err');
     try{
-      await rpc('repo_modulo_guardar',{
-        p_token:sessao.token, p_id:m?.id||null,
-        p_ufcd:f.querySelector('#mUfcd').value.trim(),
-        p_nome:f.querySelector('#mNome').value.trim(),
-        p_drive_url:f.querySelector('#mDrive').value.trim(),
-        p_bitly_url:f.querySelector('#mBitly').value.trim()
-      });
-      f.remove(); toast('Módulo guardado.'); carregarModulos();
-    }catch(e){ tratar(e); }
-  });
-  f.querySelector('#mApagar')?.addEventListener('click',async()=>{
-    const ok=await uiConfirm({titulo:`Apagar a UFCD ${m.ufcd}?`,perigo:true,ok:'Apagar',
-      texto:`As ${m.publicacoes} publicações e os registos de leitura vão com ela.`});
-    if(!ok) return;
-    try{
-      await rpc('repo_modulo_remover',{p_token:sessao.token,p_id:m.id});
-      f.remove(); toast('Módulo apagado.'); carregarModulos();
+      await rpc('repo_turma_adicionar',{p_token:sessao.token,p_codigo:sel.value,p_drive_url:f.querySelector('#aDrive').value.trim()});
+      f.remove(); toast('Turma adicionada.'); carregarTurmas();
     }catch(e){ tratar(e); }
   });
 }
 
-/* ---------- Publicar ---------- */
-const MARCADORES=['{nome}','{ufcd}','{titulo}','{turma}'];
-
-function modalPublicar(m,pub){
-  // m = módulo (nova publicação); pub = rascunho existente (edição)
-  const ufcd=pub?pub.ufcd:m.ufcd;
-  const vals=pub
-    ?{assunto:pub.assunto,cabecalho:pub.cabecalho,saudacao:pub.saudacao,botao:pub.botao,rodape:pub.rodape}
-    :{assunto:m.def_assunto,cabecalho:m.def_cabecalho,saudacao:m.def_saudacao,botao:m.def_botao,rodape:m.def_rodape};
+/* Definições da turma: pasta + textos por omissão do email */
+function modalTurma(t){
   const f=abrirModal(`<div class="modal wide">
-    <div class="modal-head">
-      <div><h3>${pub?'Editar rascunho':'Nova publicação'} - UFCD ${esc(ufcd)}</h3>
-        <div class="sub">Carrega primeiro o PDF no Drive. Aqui escreves o aviso; nada é enviado sem confirmares.</div></div>
-    </div>
+    <div class="modal-head"><div><h3>Definições - Turma ${esc(t.codigo)}</h3>
+      <div class="sub">A pasta do Drive e os textos que cada sessão nova herda.</div></div></div>
     <div class="modal-body">
-      <div class="field"><label>Título</label>
-        <input id="pTitulo" value="${esc(pub?.titulo||'')}" placeholder="Sessão 7 - Segmentação de clientes"></div>
+      <div class="field"><label>Pasta do Google Drive</label>
+        <input id="tDrive" value="${esc(t.drive_url||'')}" placeholder="https://drive.google.com/drive/folders/..."></div>
+      <div class="vars"><span class="hint" style="margin-right:2px">Marcadores:</span>
+        ${MARCADORES.map(v=>`<button type="button" class="var-chip" data-var="${v}">${v}</button>`).join('')}</div>
+      <div class="form-grid">
+        <div class="field full"><label>Assunto</label><input id="tAssunto" value="${esc(t.def_assunto||'')}"></div>
+        <div class="field full"><label>Cabeçalho (faixa verde)</label><input id="tCabecalho" value="${esc(t.def_cabecalho||'')}"></div>
+        <div class="field"><label>Saudação</label><input id="tSaudacao" value="${esc(t.def_saudacao||'')}"></div>
+        <div class="field"><label>Texto do botão</label><input id="tBotao" value="${esc(t.def_botao||'')}"></div>
+        <div class="field full"><label>Rodapé</label><textarea id="tRodape" style="min-height:60px">${esc(t.def_rodape||'')}</textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-danger btn-sm" id="tRemover">${ic('lixo')}Remover turma</button>
+      <div style="display:flex;gap:10px">
+        <button class="btn-sec" data-fechar>Cancelar</button>
+        <button class="btn" id="tGuardar">Guardar</button>
+      </div></div></div>`);
 
-      <div class="field"><label>Mensagem aos formandos</label>
+  f.querySelectorAll('[data-var]').forEach(b=>b.addEventListener('click',()=>{
+    navigator.clipboard?.writeText(b.dataset.var); toast(`Marcador ${b.dataset.var} copiado.`);
+  }));
+  f.querySelector('#tGuardar').addEventListener('click',async()=>{
+    try{
+      await rpc('repo_turma_guardar',{p_token:sessao.token,p_id:t.id,
+        p_drive_url:f.querySelector('#tDrive').value.trim(),
+        p_assunto:f.querySelector('#tAssunto').value.trim(),
+        p_cabecalho:f.querySelector('#tCabecalho').value.trim(),
+        p_saudacao:f.querySelector('#tSaudacao').value.trim(),
+        p_botao:f.querySelector('#tBotao').value.trim(),
+        p_rodape:f.querySelector('#tRodape').value.trim()});
+      f.remove(); toast('Definições guardadas.'); carregarTurmas();
+    }catch(e){ tratar(e); }
+  });
+  f.querySelector('#tRemover').addEventListener('click',async()=>{
+    const ok=await uiConfirm({titulo:`Remover a turma ${t.codigo}?`,perigo:true,ok:'Remover',
+      texto:'As sessões e os registos de acesso vão com ela. Não afeta a turma no CRM.'});
+    if(!ok) return;
+    try{ await rpc('repo_turma_remover',{p_token:sessao.token,p_id:t.id});
+      f.remove(); toast('Turma removida.'); carregarTurmas(); }catch(e){ tratar(e); }
+  });
+}
+
+/* ---------- Sessões ---------- */
+async function carregarSessoes(t){
+  try{ sessoes=await rpc('repo_sessoes_listar',{p_token:sessao.token,p_repo_turma_id:t.id}); }
+  catch(e){ return tratar(e); }
+
+  const estado=s=>{
+    if(!s.enviado_em) return '<span class="pill amber">Rascunho</span>';
+    if((s.enviados||0)<(s.destinatarios||0)) return `<span class="pill amber">Parcial · ${s.enviados}/${s.destinatarios}</span>`;
+    return `<span class="pill grey">Enviada · ${dt(s.enviado_em)}</span>`;
+  };
+  const topo=`<button class="voltar" id="voltarTurmas">${ic('seta')}Todas as turmas</button>
+    <div class="section-head" style="margin-bottom:16px">
+      <div><h3>${esc(t.nome||('Turma '+t.codigo))}</h3>
+        <div class="sub">${t.drive_url?'Pasta: '+esc(t.drive_url.replace(/^https?:\/\//,'').slice(0,50)):'<span style="color:var(--warn)">Falta a pasta do Drive - define em Definições</span>'}</div></div>
+      <button class="chip" id="copiarLink">${ic('link')} Copiar link da turma</button>
+    </div>`;
+
+  $('#vSessoes').innerHTML = topo + (!sessoes.length
+    ? `<div class="empty">${ic('mail')}<strong>Ainda não há sessões</strong>
+        <span>Carrega em "Nova sessão" para avisar a turma de que a pasta tem material novo.</span></div>`
+    : `<div class="table-wrap"><table><thead><tr>
+        <th>Sessão</th><th>Estado</th><th>Abriram</th><th></th>
+      </tr></thead><tbody>${sessoes.map(s=>{
+        const pct=s.destinatarios?Math.round(s.abriram/s.destinatarios*100):0;
+        const cor=!s.abriram?'grey':pct>=70?'green':'amber';
+        return `<tr class="clickable" data-ver="${s.id}">
+          <td><div class="cell-main">${esc(s.titulo)}</div><div class="cell-sub">${s.criado_em?dt(s.criado_em):''}</div></td>
+          <td>${estado(s)}</td>
+          <td>${s.enviado_em?`<span class="pill ${cor}">${s.abriram}/${s.destinatarios} · ${pct}%</span>`:'<span class="muted">-</span>'}</td>
+          <td class="t-right muted">${s.enviado_em?ic('olho'):ic('lapis')}</td>
+        </tr>`;}).join('')}</tbody></table></div>`);
+
+  $('#voltarTurmas').addEventListener('click',mostrarTurmas);
+  $('#copiarLink').addEventListener('click',()=>{
+    navigator.clipboard?.writeText(LINK_TURMA);
+    toast('Link copiado. Os formandos recebem-no por email, personalizado.');
+  });
+  document.querySelectorAll('[data-ver]').forEach(r=>r.addEventListener('click',()=>{
+    const s=sessoes.find(x=>x.id===r.dataset.ver);
+    if(!s.enviado_em) modalSessao(t,s); else modalEstado(s);
+  }));
+}
+
+/* Nova sessão / editar rascunho */
+function modalSessao(t,sess){
+  if(!t.drive_url && !sess){
+    return uiConfirm({titulo:'Falta a pasta do Drive',ok:'Ir a Definições',
+      texto:'Esta turma ainda não tem pasta do Drive. Define-a primeiro, para o link ter para onde apontar.'})
+      .then(v=>{ if(v) modalTurma(t); });
+  }
+  const vals=sess||{assunto:t.def_assunto,cabecalho:t.def_cabecalho,saudacao:t.def_saudacao,botao:t.def_botao,rodape:t.def_rodape};
+  const f=abrirModal(`<div class="modal wide">
+    <div class="modal-head"><div><h3>${sess?'Editar rascunho':'Nova sessão'} - Turma ${esc(t.codigo)}</h3>
+      <div class="sub">Adiciona o ficheiro à pasta do Drive; aqui escreves o aviso. Nada é enviado sem confirmares.</div></div></div>
+    <div class="modal-body">
+      <div class="field"><label>Título da sessão</label>
+        <input id="pTitulo" value="${esc(sess?.titulo||'')}" placeholder="Sessão 03 - novos materiais"></div>
+      <div class="field"><label>Mensagem</label>
         <div class="rt-toolbar">
           <button type="button" class="rt-tb" data-cmd="bold" title="Negrito"><b>B</b></button>
           <button type="button" class="rt-tb" data-cmd="italic" title="Itálico"><i>I</i></button>
@@ -511,35 +534,26 @@ function modalPublicar(m,pub){
           <button type="button" class="rt-tb" id="rtLink" title="Inserir ligação">${ic('link')}</button>
           <button type="button" class="rt-tb" data-cmd="removeFormat" title="Limpar formatação">Tx</button>
         </div>
-        <div class="rt-editor" id="pTexto" contenteditable="true"
-             data-placeholder="Ficam disponíveis os slides da sessão de hoje..."></div>
+        <div class="rt-editor" id="pTexto" contenteditable="true" data-placeholder="A pasta da turma tem os materiais da sessão de hoje..."></div>
       </div>
-
       <div class="field"><label>Link do material</label>
-        <input id="pLink" value="${esc(pub?pub.link:(m.drive_url||m.bitly_url||''))}" placeholder="https://drive.google.com/...">
-        <span class="hint">Para onde o botão leva. Por omissão é a pasta do Drive do módulo; se tens um link só desta sessão, troca aqui.</span></div>
+        <input id="pLink" value="${esc(sess?sess.link:(t.drive_url||''))}" placeholder="https://drive.google.com/...">
+        <span class="hint">Por omissão, a pasta do Drive da turma. Podes apontar a um ficheiro específico.</span></div>
 
       <details class="fold">
         <summary>Texto do email<span class="sub">assunto, cabeçalho, saudação, botão e rodapé</span></summary>
         <div class="fold-body">
-          <div class="vars">
-            <span class="hint" style="margin-right:2px">Marcadores (clica para copiar):</span>
-            ${MARCADORES.map(v=>`<button type="button" class="var-chip" data-var="${v}">${v}</button>`).join('')}
-          </div>
+          <div class="vars"><span class="hint" style="margin-right:2px">Marcadores (clica para copiar):</span>
+            ${MARCADORES.map(v=>`<button type="button" class="var-chip" data-var="${v}">${v}</button>`).join('')}</div>
           <div class="form-grid">
-            <div class="field full"><label>Assunto</label>
-              <input id="pAssunto" value="${esc(vals.assunto||'')}"></div>
-            <div class="field full"><label>Cabeçalho (a faixa verde)</label>
-              <input id="pCabecalho" value="${esc(vals.cabecalho||'')}"></div>
-            <div class="field"><label>Saudação</label>
-              <input id="pSaudacao" value="${esc(vals.saudacao||'')}"></div>
-            <div class="field"><label>Texto do botão</label>
-              <input id="pBotao" value="${esc(vals.botao||'')}"></div>
-            <div class="field full"><label>Nota de rodapé</label>
-              <textarea id="pRodape" style="min-height:70px">${esc(vals.rodape||'')}</textarea></div>
+            <div class="field full"><label>Assunto</label><input id="pAssunto" value="${esc(vals.assunto||'')}"></div>
+            <div class="field full"><label>Cabeçalho (faixa verde)</label><input id="pCabecalho" value="${esc(vals.cabecalho||'')}"></div>
+            <div class="field"><label>Saudação</label><input id="pSaudacao" value="${esc(vals.saudacao||'')}"></div>
+            <div class="field"><label>Texto do botão</label><input id="pBotao" value="${esc(vals.botao||'')}"></div>
+            <div class="field full"><label>Rodapé</label><textarea id="pRodape" style="min-height:70px">${esc(vals.rodape||'')}</textarea></div>
           </div>
-          <div class="nota-rgpd">${ic('alerta')}<span>Esta nota é o que avisa o formando de que a abertura do link fica registada. Se a apagares, o registo passa a ser silencioso - e é precisamente isso que a UFCD 10870 ensina a não fazer.</span></div>
-          <span class="hint">O que escreveres aqui fica guardado no módulo. A próxima publicação já nasce assim.</span>
+          <div class="nota-rgpd">${ic('alerta')}<span>O rodapé avisa o formando de que a abertura fica registada. Se o apagares, o registo passa a ser silencioso.</span></div>
+          <span class="hint">O que escreveres aqui fica guardado como omissão da turma.</span>
         </div>
       </details>
 
@@ -549,332 +563,187 @@ function modalPublicar(m,pub){
           <div class="preview-body">
             <p class="pv-saud" id="pvSaudacao" style="margin:0 0 10px"></p>
             <p class="pv-title" id="pvTitulo">(sem título)</p>
-            <div class="pv-text" id="pvTexto">(a tua mensagem aparece aqui)</div>
-            <span class="pv-btn" id="pvBotao">Abrir o material</span>
+            <div class="pv-text" id="pvTexto"></div>
+            <span class="pv-btn" id="pvBotao">Aceder à pasta</span>
             <p class="hint" id="pvRodape" style="margin-top:14px"></p>
           </div>
         </div>
         <span class="hint" id="pvAssunto"></span>
       </div>
     </div>
-    <div class="modal-foot">
-      <span></span>
+    <div class="modal-foot"><span></span>
       <div style="display:flex;gap:10px">
         <button class="btn-sec" data-fechar>Cancelar</button>
-        <button class="btn" id="pPublicar">${ic('ok')}${pub?'Guardar alterações':'Guardar rascunho'}</button>
-      </div>
-    </div></div>`);
+        <button class="btn" id="pGuardar">${ic('ok')}${sess?'Guardar alterações':'Guardar rascunho'}</button>
+      </div></div></div>`);
 
   const q=s=>f.querySelector(s);
-  const t=q('#pTitulo'), x=q('#pTexto');
-  if(pub) x.innerHTML=pub.texto||'';
+  const t2=q('#pTitulo'), x=q('#pTexto');
+  if(sess) x.innerHTML=sess.texto||'';
 
-  /* editor de texto rico */
   f.querySelectorAll('.rt-tb[data-cmd]').forEach(b=>b.addEventListener('mousedown',e=>{
-    e.preventDefault();
-    document.execCommand(b.dataset.cmd,false,null);
-    x.focus(); sinc();
+    e.preventDefault(); document.execCommand(b.dataset.cmd,false,null); x.focus(); sinc();
   }));
   q('#rtLink').addEventListener('mousedown',e=>{
-    e.preventDefault();
-    const u=prompt('Endereço da ligação:','https://');
-    if(u) document.execCommand('createLink',false,u);
-    x.focus(); sinc();
+    e.preventDefault(); const u=prompt('Endereço da ligação:','https://');
+    if(u) document.execCommand('createLink',false,u); x.focus(); sinc();
   });
-  /* colar sempre como texto simples, para não trazer lixo do Word */
   x.addEventListener('paste',e=>{
     e.preventDefault();
     document.execCommand('insertText',false,(e.clipboardData||window.clipboardData).getData('text'));
   });
-
-  /* marcadores: clicar copia para a área de transferência */
   f.querySelectorAll('[data-var]').forEach(b=>b.addEventListener('click',()=>{
-    navigator.clipboard?.writeText(b.dataset.var);
-    toast(`Marcador ${b.dataset.var} copiado.`);
+    navigator.clipboard?.writeText(b.dataset.var); toast(`Marcador ${b.dataset.var} copiado.`);
   }));
 
-  /* pré-visualização */
   const subst=s=>esc(s||'')
     .replace(/\{nome\}/g,'<span class="muted">[nome do formando]</span>')
-    .replace(/\{ufcd\}/g,esc(ufcd))
-    .replace(/\{titulo\}/g,esc(t.value.trim()||'(sem título)'))
-    .replace(/\{turma\}/g,esc(sessao.turma));
-
+    .replace(/\{titulo\}/g,esc(t2.value.trim()||'(sem título)'))
+    .replace(/\{turma\}/g,esc(t.codigo));
   function sinc(){
     q('#pvHead').innerHTML=subst(q('#pCabecalho').value);
     q('#pvSaudacao').innerHTML=subst(q('#pSaudacao').value);
-    q('#pvTitulo').textContent=t.value.trim()||'(sem título)';
+    q('#pvTitulo').textContent=t2.value.trim()||'(sem título)';
     q('#pvTexto').innerHTML=x.innerHTML.trim()||'<span class="muted">(a tua mensagem aparece aqui)</span>';
-    q('#pvBotao').textContent=q('#pBotao').value.trim()||'Aceder ao material';
+    q('#pvBotao').textContent=q('#pBotao').value.trim()||'Aceder à pasta';
     q('#pvRodape').innerHTML=subst(q('#pRodape').value);
     q('#pvAssunto').innerHTML='Assunto: '+subst(q('#pAssunto').value);
   }
-  ['#pTitulo','#pAssunto','#pCabecalho','#pSaudacao','#pBotao','#pRodape'].forEach(s=>
-    q(s).addEventListener('input',sinc));
-  x.addEventListener('input',sinc);
-  sinc();
+  ['#pTitulo','#pAssunto','#pCabecalho','#pSaudacao','#pBotao','#pRodape'].forEach(s=>q(s).addEventListener('input',sinc));
+  x.addEventListener('input',sinc); sinc();
 
-  q('#pPublicar').addEventListener('click',async e=>{
+  q('#pGuardar').addEventListener('click',async e=>{
     const b=e.currentTarget;
-    const titulo=t.value.trim(), link=q('#pLink').value.trim();
+    const titulo=t2.value.trim(), link=q('#pLink').value.trim();
     if(!titulo||!link) return toast('Falta o título ou o link.','err');
     b.disabled=true; b.textContent='A guardar...';
-    const campos={
-      p_token:sessao.token, p_titulo:titulo, p_texto:x.innerHTML.trim(), p_link:link,
-      p_assunto:q('#pAssunto').value.trim(), p_cabecalho:q('#pCabecalho').value.trim(),
-      p_saudacao:q('#pSaudacao').value.trim(), p_botao:q('#pBotao').value.trim(),
-      p_rodape:q('#pRodape').value.trim()
-    };
+    const campos={p_token:sessao.token,p_titulo:titulo,p_texto:x.innerHTML.trim(),p_link:link,
+      p_assunto:q('#pAssunto').value.trim(),p_cabecalho:q('#pCabecalho').value.trim(),
+      p_saudacao:q('#pSaudacao').value.trim(),p_botao:q('#pBotao').value.trim(),p_rodape:q('#pRodape').value.trim()};
     try{
-      if(pub){
-        await rpc('repo_publicacao_editar',{...campos,p_id:pub.id});
-        f.remove(); carregarPublicacoes();
-        confirmarEnvio(pub.id, pub.destinatarios, 0);
+      if(sess){
+        await rpc('repo_sessao_editar',{...campos,p_id:sess.id});
+        f.remove(); carregarSessoes(t);
+        confirmarEnvio(sess.id, sess.destinatarios, 0);
       }else{
-        const p=await rpc('repo_publicar',{...campos,p_modulo_id:m.id});
-        f.remove(); carregarModulos();
-        if(!p.destinatarios) return toast('Guardado, mas nenhum formando desta turma tem email preenchido.','warn');
+        const p=await rpc('repo_sessao_publicar',{...campos,p_repo_turma_id:t.id});
+        f.remove(); carregarSessoes(t);
+        if(!p.destinatarios) return toast('Guardado, mas nenhum formando desta turma tem email.','warn');
         confirmarEnvio(p.id, p.destinatarios, p.sem_email);
       }
-    }catch(err){
-      tratar(err); b.disabled=false; b.innerHTML=ic('ok')+(pub?'Guardar alterações':'Guardar rascunho');
-    }
+    }catch(err){ tratar(err); b.disabled=false; b.innerHTML=ic('ok')+(sess?'Guardar alterações':'Guardar rascunho'); }
   });
 }
 
-/* Enviar é sempre um ato deliberado: diálogo próprio, com o número real. */
-async function confirmarEnvio(pubId, dest, sem){
-  const ok=await uiConfirm({
-    titulo:'Enviar o aviso agora?',
-    ok:'Enviar agora',
-    texto:`O email vai para <strong>${dest} formando(s)</strong> da turma ${esc(sessao.turma)}.`
-      +(sem?`<br>${sem} sem email ficam de fora (veem na mesma na página da turma).`:'')
-      +`<br><br><span class="hint">Se preferires, fica guardado como rascunho - editas e envias depois, em Publicações.</span>`
-  });
-  if(!ok){ toast('Ficou em rascunho. Editas e envias quando quiseres, em Publicações.','warn'); return; }
-  const r=await edge('repo-enviar',{token:sessao.token,publicacao_id:pubId});
-  carregarPublicacoes();
-  if(!r.ok) return toast(r.erro||'O envio falhou. A publicação ficou guardada.','err');
-  if(r.falhados) return toast(`Enviado a ${r.enviados}, falhou em ${r.falhados}. Abre a publicação para reenviar.`,'warn');
+async function confirmarEnvio(sessId, dest, sem){
+  const ok=await uiConfirm({titulo:'Enviar o aviso agora?',ok:'Enviar agora',
+    texto:`O email vai para <strong>${dest} formando(s)</strong>.`
+      +(sem?`<br>${sem} sem email ficam de fora.`:'')
+      +`<br><br><span class="hint">Se preferires, fica em rascunho - editas e envias depois.</span>`});
+  if(!ok){ toast('Ficou em rascunho. Envias quando quiseres.','warn'); return; }
+  const r=await edge('repo-enviar',{token:sessao.token,sessao_id:sessId});
+  if(turmaAtual) carregarSessoes(turmaAtual);
+  if(!r.ok) return toast(r.erro||'O envio falhou. A sessão ficou guardada.','err');
+  if(r.falhados) return toast(`Enviado a ${r.enviados}, falhou em ${r.falhados}.`,'warn');
   if(!r.enviados) return toast('Nada por enviar - já estavam todos avisados.','warn');
   toast(`Enviado a ${r.enviados} formando(s).`);
 }
 
-/* ---------- Publicações ---------- */
-async function carregarPublicacoes(){
-  try{ publicacoes=await rpc('repo_publicacoes_listar',{p_token:sessao.token,p_modulo:null}); }
-  catch(e){ return tratar(e); }
-
-  const estado=p=>{
-    if(!p.enviado_em) return '<span class="pill amber">Rascunho</span>';
-    if((p.enviados||0)<(p.destinatarios||0)) return `<span class="pill amber">Parcial · ${p.enviados}/${p.destinatarios}</span>`;
-    return `<span class="pill grey">Enviada · ${dt(p.enviado_em)}</span>`;
-  };
-  $('#vPublicacoes').innerHTML = !publicacoes.length
-    ? `<div class="empty">${ic('mail')}<strong>Ainda não publicaste nada</strong>
-        <span>Vai a Módulos e carrega em "Nova publicação".</span></div>`
-    : `<div class="table-wrap"><table><thead><tr>
-        <th>Publicação</th><th>UFCD</th><th>Estado</th><th>Abriram</th><th></th>
-      </tr></thead><tbody>${publicacoes.map(p=>{
-        const pct=p.destinatarios?Math.round(p.abriram/p.destinatarios*100):0;
-        const cor=!p.abriram?'grey':pct>=70?'green':'amber';
-        return `<tr class="clickable" data-ver="${p.id}">
-          <td><div class="cell-main">${esc(p.titulo)}</div>
-              <div class="cell-sub">${p.criado_em?dt(p.criado_em):''}</div></td>
-          <td><span class="tag">${esc(p.ufcd)}</span></td>
-          <td>${estado(p)}</td>
-          <td>${p.enviado_em?`<span class="pill ${cor}">${p.abriram}/${p.destinatarios} · ${pct}%</span>`:'<span class="muted">-</span>'}</td>
-          <td class="t-right muted">${p.enviado_em?ic('olho'):ic('lapis')}</td>
-        </tr>`;}).join('')}</tbody></table></div>`;
-
-  document.querySelectorAll('[data-ver]').forEach(r=>r.addEventListener('click',()=>{
-    const p=publicacoes.find(x=>x.id===r.dataset.ver);
-    // rascunho volta ao editor; enviada abre o estado de leitura
-    if(!p.enviado_em) modalPublicar(modulos.find(x=>x.id===p.modulo_id)||null,p);
-    else modalEstado(p);
-  }));
-}
-
-async function modalEstado(p){
+/* Dashboard de uma sessão enviada */
+async function modalEstado(s){
   let linhas=[];
-  try{ linhas=await rpc('repo_estado',{p_token:sessao.token,p_publicacao:p.id}); }
+  try{ linhas=await rpc('repo_sessao_estado',{p_token:sessao.token,p_sessao_id:s.id}); }
   catch(e){ return tratar(e); }
 
-  // contas a partir das linhas reais (registos sem email não contam para envio)
   const pendentes=linhas.filter(l=>!l.enviado_em&&l.email).length;
   const naoAbriram=linhas.filter(l=>l.enviado_em&&!l.primeiro_clique).length;
   const emailLinha=l=>{
-    if(!l.email) return '<span class="muted">sem email - vê na página da turma</span>';
+    if(!l.email) return '<span class="muted">sem email</span>';
     const e2=l.email2&&l.email2!==l.email?` · ${esc(l.email2)} <span class="muted">(IEFP)</span>`:'';
     return `${esc(l.email)}${e2}`;
   };
 
   const f=abrirModal(`<div class="modal wide">
-    <div class="modal-head">
-      <div><h3>${esc(p.titulo)}</h3>
-        <div class="sub">UFCD ${esc(p.ufcd)} · ${p.enviados||0} enviado(s) · ${p.abriram} de ${p.destinatarios} já abriram</div></div>
-    </div>
+    <div class="modal-head"><div><h3>${esc(s.titulo)}</h3>
+      <div class="sub">${s.enviados||0} enviado(s) · ${s.abriram} de ${s.destinatarios} já abriram</div></div></div>
     <div class="modal-body">
-      ${pendentes>0?`<div class="nota-rgpd" style="background:var(--info-bg);color:var(--info)">${ic('mail')}<span>${pendentes} destinatário(s) por enviar. Usa "Enviar pendentes" para os avisar.</span></div>`:''}
+      ${pendentes>0?`<div class="nota-rgpd" style="background:var(--info-bg);color:var(--info)">${ic('mail')}<span>${pendentes} por enviar. Usa "Enviar pendentes".</span></div>`:''}
       <div class="table-wrap"><table>
         <thead><tr><th>Formando</th><th>Estado</th><th>Abriu</th><th class="t-right">Vezes</th></tr></thead>
         <tbody>${linhas.map(l=>`<tr>
           <td><div class="cell-main">${esc(l.nome)}</div><div class="cell-sub">${emailLinha(l)}</div></td>
           <td>${l.erro?`<span class="pill red" title="${esc(l.erro)}">falhou</span>`
                :l.enviado_em?'<span class="pill grey">enviado</span>'
-               :l.email?'<span class="pill amber">por enviar</span>'
-               :'<span class="pill grey">só página</span>'}</td>
-          <td>${l.primeiro_clique?`<span class="pill green">${dt(l.primeiro_clique)}</span>`
-               :'<span class="muted">ainda não</span>'}</td>
+               :l.email?'<span class="pill amber">por enviar</span>':'<span class="pill grey">sem email</span>'}</td>
+          <td>${l.primeiro_clique?`<span class="pill green">${dt(l.primeiro_clique)}</span>`:'<span class="muted">ainda não</span>'}</td>
           <td class="t-right">${l.cliques||''}</td></tr>`).join('')}</tbody>
       </table></div>
     </div>
     <div class="modal-foot">
       <button class="btn-danger btn-sm" id="ePagar">${ic('lixo')}Apagar</button>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn-sec" id="eVer">${ic('olho')}Ver email enviado</button>
-        <a class="btn-sec" href="${esc(p.link)}" target="_blank" rel="noopener">${ic('link')}Abrir o link</a>
+        <button class="btn-sec" id="eVer">${ic('olho')}Ver email</button>
+        <a class="btn-sec" href="${esc(s.link)}" target="_blank" rel="noopener">${ic('link')}Abrir o link</a>
         ${pendentes>0?`<button class="btn" id="eEnviar">${ic('mail')}Enviar ${pendentes} pendente(s)</button>`
           :naoAbriram>0?`<button class="btn" id="eReenviar">${ic('mail')}Reenviar a quem não abriu (${naoAbriram})</button>`
           :'<button class="btn-sec" data-fechar>Fechar</button>'}
-      </div>
-    </div></div>`);
+      </div></div></div>`);
 
-  f.querySelector('#eVer').addEventListener('click',()=>modalEmailEnviado(p));
-
+  f.querySelector('#eVer').addEventListener('click',()=>modalEmail(s));
   f.querySelector('#eEnviar')?.addEventListener('click',async e=>{
     const b=e.currentTarget;
-    const ok=await uiConfirm({titulo:'Enviar agora?',ok:'Enviar agora',
-      texto:`O email vai para os <strong>${pendentes} formando(s)</strong> ainda por avisar.`});
-    if(!ok) return;
+    if(!await uiConfirm({titulo:'Enviar agora?',ok:'Enviar',texto:`Vai para os <strong>${pendentes}</strong> por avisar.`})) return;
     b.disabled=true; b.textContent='A enviar...';
-    const r=await edge('repo-enviar',{token:sessao.token,publicacao_id:p.id});
-    f.remove(); carregarPublicacoes();
-    if(!r.ok) return toast(r.erro||'O envio falhou.','err');
-    if(r.falhados) return toast(`Enviado a ${r.enviados}, falhou em ${r.falhados}.`,'warn');
+    const r=await edge('repo-enviar',{token:sessao.token,sessao_id:s.id});
+    f.remove(); if(turmaAtual) carregarSessoes(turmaAtual);
+    if(!r.ok) return toast(r.erro||'Falhou.','err');
     toast(`Enviado a ${r.enviados} formando(s).`);
   });
-
   f.querySelector('#eReenviar')?.addEventListener('click',async e=>{
     const b=e.currentTarget;
-    const ok=await uiConfirm({titulo:'Reenviar o aviso?',ok:'Reenviar agora',
-      texto:`O email volta a sair para os <strong>${naoAbriram} formando(s)</strong> que ainda não abriram. Quem já abriu não recebe nada.`});
-    if(!ok) return;
+    if(!await uiConfirm({titulo:'Reenviar?',ok:'Reenviar',texto:`Volta a sair para os <strong>${naoAbriram}</strong> que não abriram. Quem já abriu não recebe nada.`})) return;
     b.disabled=true; b.textContent='A reenviar...';
     try{
-      await rpc('repo_reabrir_nao_abriram',{p_token:sessao.token,p_publicacao:p.id});
-      const r=await edge('repo-enviar',{token:sessao.token,publicacao_id:p.id});
-      f.remove(); carregarPublicacoes();
-      if(!r.ok) return toast(r.erro||'O reenvio falhou.','err');
-      if(r.falhados) return toast(`Reenviado a ${r.enviados}, falhou em ${r.falhados}.`,'warn');
+      await rpc('repo_reabrir_nao_abriram',{p_token:sessao.token,p_sessao_id:s.id});
+      const r=await edge('repo-enviar',{token:sessao.token,sessao_id:s.id});
+      f.remove(); if(turmaAtual) carregarSessoes(turmaAtual);
+      if(!r.ok) return toast(r.erro||'Falhou.','err');
       toast(`Reenviado a ${r.enviados} formando(s).`);
-    }catch(err){ tratar(err); b.disabled=false; }
+    }catch(err){ tratar(err); }
   });
-
   f.querySelector('#ePagar').addEventListener('click',async()=>{
-    const ok=await uiConfirm({titulo:'Apagar esta publicação?',perigo:true,ok:'Apagar',
-      texto:'Os registos de quem a abriu vão com ela. Os formandos deixam de a ver na página da turma.'});
-    if(!ok) return;
-    try{
-      await rpc('repo_publicacao_remover',{p_token:sessao.token,p_id:p.id});
-      f.remove(); toast('Publicação apagada.'); carregarPublicacoes();
-    }catch(e){ tratar(e); }
+    if(!await uiConfirm({titulo:'Apagar esta sessão?',perigo:true,ok:'Apagar',texto:'Os registos de quem abriu vão com ela.'})) return;
+    try{ await rpc('repo_sessao_remover',{p_token:sessao.token,p_id:s.id});
+      f.remove(); toast('Sessão apagada.'); if(turmaAtual) carregarSessoes(turmaAtual); }catch(e){ tratar(e); }
   });
 }
 
-/* Reler o email exatamente como foi enviado (a partir do texto congelado). */
-function modalEmailEnviado(p){
-  const subst=s=>esc(s||'')
+/* Reler o email como foi enviado */
+function modalEmail(s){
+  const subst=x=>esc(x||'')
     .replace(/\{nome\}/g,'<span class="muted">[nome do formando]</span>')
-    .replace(/\{ufcd\}/g,esc(p.ufcd))
-    .replace(/\{titulo\}/g,esc(p.titulo))
-    .replace(/\{turma\}/g,esc(sessao.turma));
+    .replace(/\{titulo\}/g,esc(s.titulo))
+    .replace(/\{turma\}/g,esc(turmaAtual?turmaAtual.codigo:''));
   abrirModal(`<div class="modal">
-    <div class="modal-head"><div><h3>Email enviado</h3>
-      <div class="sub">Assunto: ${subst(p.assunto)}</div></div></div>
+    <div class="modal-head"><div><h3>Email enviado</h3><div class="sub">Assunto: ${subst(s.assunto)}</div></div></div>
     <div class="modal-body">
       <div class="preview">
-        <div class="preview-head">${subst(p.cabecalho)}</div>
+        <div class="preview-head">${subst(s.cabecalho)}</div>
         <div class="preview-body">
-          <p class="pv-saud" style="margin:0 0 10px">${subst(p.saudacao)}</p>
-          <p class="pv-title">${esc(p.titulo)}</p>
-          <div class="pv-text">${p.texto||'<span class="muted">(sem mensagem)</span>'}</div>
-          <span class="pv-btn">${esc(p.botao)||'Aceder ao material'}</span>
-          <p class="hint" style="margin-top:14px">${subst(p.rodape)}</p>
+          <p class="pv-saud" style="margin:0 0 10px">${subst(s.saudacao)}</p>
+          <p class="pv-title">${esc(s.titulo)}</p>
+          <div class="pv-text">${s.texto||'<span class="muted">(sem mensagem)</span>'}</div>
+          <span class="pv-btn">${esc(s.botao)||'Aceder à pasta'}</span>
+          <p class="hint" style="margin-top:14px">${subst(s.rodape)}</p>
         </div>
       </div>
     </div>
-    <div class="modal-foot"><span></span>
-      <button class="btn" data-fechar>Fechar</button></div>
+    <div class="modal-foot"><span></span><button class="btn" data-fechar>Fechar</button></div>
   </div>`);
 }
 
-/* ---------- Turma ---------- */
-async function carregarTurma(){
-  let linhas=[];
-  try{ linhas=await rpc('repo_resumo_turma',{p_token:sessao.token}); }
-  catch(e){ return tratar(e); }
-
-  $('#vTurma').innerHTML = !linhas.length
-    ? `<div class="empty">${ic('gente')}<strong>Esta turma ainda não tem formandos</strong>
-        <span>Adiciona-os na app IEFP CRM e aparecem aqui.</span></div>`
-    : `<div class="card card-pad">
-        <div class="section-head" style="margin-bottom:16px">
-          <div><h3>Turma ${esc(sessao.turma)}</h3>
-            <div class="sub">Ordenada pelos que estão há mais tempo sem abrir nada. É por aqui que começas a conversa.</div></div>
-          <button class="chip" id="linkTurma" title="Copiar o link da turma">${ic('link')} iefpcrm.cr0x.org/repo</button>
-        </div>
-        <div class="table-wrap"><table><thead><tr>
-          <th>Formando</th><th>Abriu</th><th>Último acesso</th>
-        </tr></thead><tbody>${linhas.map(l=>{
-          const pct=l.recebidas?Math.round(l.abertas/l.recebidas*100):0;
-          const frio=l.recebidas&&!l.abertas;
-          return `<tr>
-            <td><div class="cell-main">${esc(l.nome)}</div>
-                <div class="cell-sub">${esc(l.email)||'sem email'}</div></td>
-            <td><span class="pill ${frio?'red':l.abertas?'green':'grey'}">${l.abertas}/${l.recebidas} · ${pct}%</span></td>
-            <td class="muted">${l.ultimo_acesso?dt(l.ultimo_acesso):'nunca'}</td>
-          </tr>`;}).join('')}</tbody></table></div>
-      </div>`;
-
-  $('#linkTurma')?.addEventListener('click',()=>{
-    navigator.clipboard?.writeText('https://iefpcrm.cr0x.org/repo/');
-    toast('Link copiado. É o mesmo o ano inteiro: os formandos entram com a conta da app IEFP CRM.');
-  });
-}
-
-/* ---------- Materiais (a vista do formando) ---------- */
-async function carregarMateriais(){
-  let itens=[];
-  try{ itens=await rpc('repo_meus_materiais',{p_token:sessao.token}); }
-  catch(e){ return tratar(e); }
-
-  $('#vMateriais').innerHTML = !itens.length
-    ? `<div class="empty">${ic('pasta')}<strong>Ainda não há materiais</strong>
-        <span>Quando o formador publicar algo para a turma, aparece aqui.</span></div>`
-    : `<div class="mat-lista">${itens.map(i=>`
-        <article class="card mat ${i.aberto_em?'':'mat-novo'}">
-          <div class="mat-topo">
-            <span class="tag">UFCD ${esc(i.ufcd)}</span>
-            ${i.aberto_em?'':'<span class="pill green">Novo</span>'}
-            <span class="mat-data muted">${dt(i.publicado_em)}</span>
-          </div>
-          <h3>${esc(i.titulo)}</h3>
-          <div class="pv-text">${i.texto||''}</div>
-          <div class="mat-foot">
-            <a class="btn" href="${SUPA_URL}/functions/v1/r?t=${i.envio_token}" target="_blank" rel="noopener" data-mat>${ic('link')}${esc(i.botao||'Aceder ao material')}</a>
-            ${i.aberto_em?`<span class="hint">Abriste a ${dt(i.aberto_em)}</span>`:''}
-          </div>
-        </article>`).join('')}</div>`;
-
-  // o clique regista no servidor; refrescar tira o selo "Novo"
-  document.querySelectorAll('[data-mat]').forEach(a=>a.addEventListener('click',
-    ()=>setTimeout(carregarMateriais,1500)));
-}
-
 /* ---------- Arranque ---------- */
-aplicarTema(localStorage.getItem(TEMA)||
-  (matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+aplicarTema(localStorage.getItem(TEMA)||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
 try{ sessao=JSON.parse(localStorage.getItem(CHAVE)||'null'); }catch(e){}
 if(sessao&&sessao.token) arrancar().catch(sair);
 </script>

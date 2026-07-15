@@ -55,8 +55,10 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return json({ ok: false, erro: "METODO" }, 405);
 
   try {
-    const { token, publicacao_id } = await req.json().catch(() => ({}));
-    if (!token || !publicacao_id) return json({ ok: false, erro: "DADOS_EM_FALTA" }, 400);
+    const body0 = await req.json().catch(() => ({}));
+    const token = body0.token;
+    const sessao_id = body0.sessao_id || body0.publicacao_id; // aceita o nome novo e o antigo
+    if (!token || !sessao_id) return json({ ok: false, erro: "DADOS_EM_FALTA" }, 400);
 
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -79,10 +81,10 @@ Deno.serve(async (req) => {
         body: JSON.stringify(body),
       });
 
-    // 1) Quem falta? (o SQL valida que o `token` é de um formador desta turma)
-    const rDest = await rpc("repo_envios_pendentes", {
+    // 1) Quem falta? (o SQL valida que o `token` é de root)
+    const rDest = await rpc("repo_pendentes", {
       p_token: token,
-      p_publicacao: publicacao_id,
+      p_sessao_id: sessao_id,
     });
     if (!rDest.ok) {
       const t = await rDest.text();
@@ -92,8 +94,8 @@ Deno.serve(async (req) => {
       }, 403);
     }
     const destinos = (await rDest.json()) as Array<{
-      envio_id: string; email: string; email2: string | null; nome: string; envio_token: string;
-      titulo: string; texto: string; ufcd: string; turma: string;
+      acesso_id: string; email: string; email2: string | null; nome: string; envio_token: string;
+      titulo: string; texto: string; turma: string;
       assunto: string; cabecalho: string; saudacao: string; botao: string; rodape: string;
     }>;
     if (!destinos.length) return json({ ok: true, enviados: 0, falhados: 0 });
@@ -101,7 +103,7 @@ Deno.serve(async (req) => {
     // 2) Enviar, um a um, com o link tokenizado de cada formando.
     let enviados = 0, falhados = 0;
     for (const d of destinos) {
-      const vars = { nome: d.nome, ufcd: d.ufcd, titulo: d.titulo, turma: d.turma };
+      const vars = { nome: d.nome, titulo: d.titulo, turma: d.turma };
       const url = `${SUPABASE_URL}/functions/v1/r?t=${d.envio_token}`;
 
       const html = `
@@ -149,7 +151,7 @@ Deno.serve(async (req) => {
       if (erro) falhados++; else enviados++;
       await rpc("repo_marcar_enviado", {
         p_token: token,
-        p_envio_id: d.envio_id,
+        p_acesso_id: d.acesso_id,
         p_erro: erro,
       });
     }

@@ -24,14 +24,14 @@ Deno.serve(async (req) => {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/repo_registar_clique`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/repo_click`, {
       method: "POST",
       headers: {
         apikey: SERVICE_ROLE,
         Authorization: `Bearer ${SERVICE_ROLE}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ p_envio_token: t }),
+      body: JSON.stringify({ p_token: t }),
     });
 
     const data = await res.json().catch(() => null);
