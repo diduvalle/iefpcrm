@@ -92,6 +92,18 @@ td .tag{align-self:auto}
 .preview-body .pv-saud{font-size:.88rem}
 .pv-btn{display:inline-block;margin-top:16px;background:var(--g800);color:#fff;padding:10px 20px;border-radius:8px;font-weight:700;font-size:.85rem}
 
+/* MATERIAIS (vista do formando) */
+.mat-lista{display:flex;flex-direction:column;gap:14px;max-width:760px}
+.mat{padding:20px;display:flex;flex-direction:column;gap:10px}
+.mat-topo{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mat-topo .mat-data{margin-left:auto;font-size:.78rem}
+.mat h3{font-size:1.05rem;font-weight:800}
+.mat .pv-text{min-height:0}
+.mat-foot{display:flex;align-items:center;gap:12px;margin-top:4px;flex-wrap:wrap}
+.mat-novo{border-color:var(--g300);box-shadow:0 0 0 1px var(--g300),var(--shadow)}
+.chip svg{width:14px;height:14px;flex:none}
+button.chip{cursor:pointer;font:inherit}
+button.chip:hover{border-color:var(--g400);color:var(--g700)}
 </style>
 </head>
 <body>
@@ -109,7 +121,7 @@ td .tag{align-self:auto}
         </div>
       </div>
       <h2 class="login-h">Entrar</h2>
-      <p class="login-sub">Publicar material e saber quem o foi ver.</p>
+      <p class="login-sub">Os materiais das sessões, num só sítio.</p>
       <form id="loginForm">
         <div class="field"><label for="fTurma">Turma</label>
           <input id="fTurma" inputmode="numeric" autocomplete="off" placeholder="12023483" required></div>
@@ -120,7 +132,7 @@ td .tag{align-self:auto}
         <button class="btn login-btn" id="btnLogin">Entrar</button>
         <p class="login-err" id="loginErr"></p>
       </form>
-      <p class="login-credit">A mesma conta de formador da app IEFP CRM.</p>
+      <p class="login-credit">Formadores e formandos entram com a conta da app IEFP CRM.</p>
     </div>
   </div>
 </div>
@@ -137,7 +149,8 @@ td .tag{align-self:auto}
       <input id="pesquisa" type="search" placeholder="Pesquisar…" autocomplete="off" aria-label="Pesquisar">
     </div>
     <nav class="nav">
-      <div class="nav-group">Gestão</div>
+      <div class="nav-group" id="navGrupo">Gestão</div>
+      <button class="nav-link" data-view="materiais"></button>
       <button class="nav-link active" data-view="modulos"></button>
       <button class="nav-link" data-view="publicacoes"></button>
       <button class="nav-link" data-view="turma"></button>
@@ -179,6 +192,7 @@ td .tag{align-self:auto}
       </div>
     </header>
     <div class="content">
+      <section class="view" id="vMateriais"></section>
       <section class="view active" id="vModulos"></section>
       <section class="view" id="vPublicacoes"></section>
       <section class="view" id="vTurma"></section>
@@ -236,7 +250,7 @@ async function rpc(nome,args){
   const d=await r.json().catch(()=>null);
   if(!r.ok){
     const bruto=(d&&(d.message||d.hint))||'ERRO';
-    const m=bruto.match(/SESSAO_INVALIDA|SEM_PERMISSAO|NAO_ENCONTRADO|DADOS_EM_FALTA|CREDENCIAIS_INVALIDAS|TURMA_NAO_EXISTE/);
+    const m=bruto.match(/SESSAO_INVALIDA|SEM_PERMISSAO|NAO_ENCONTRADO|DADOS_EM_FALTA|CREDENCIAIS_INVALIDAS|TURMA_NAO_EXISTE|JA_ENVIADA/);
     throw new Error(m?m[0]:bruto);
   }
   return d;
@@ -256,6 +270,7 @@ const ERROS={
   TURMA_NAO_EXISTE:'Essa turma não existe.',
   DADOS_EM_FALTA:'Falta preencher campos obrigatórios.',
   NAO_ENCONTRADO:'Já não existe.',
+  JA_ENVIADA:'Esta publicação já foi enviada - já não se edita.',
   SEM_RESEND:'O envio de email não está configurado no servidor.'
 };
 function toast(msg,tipo){
@@ -281,7 +296,6 @@ $('#loginForm').addEventListener('submit',async ev=>{
       p_username:$('#fUser').value.trim(),
       p_password:$('#fPass').value
     });
-    if(d.user.papel!=='Formador'&&d.user.papel!=='Administrador') throw new Error('SEM_PERMISSAO');
     sessao={token:d.token,user:d.user,turma:$('#fTurma').value.trim()};
     localStorage.setItem(CHAVE,JSON.stringify(sessao));
     await arrancar();
@@ -300,9 +314,11 @@ function sair(){
 $('#btnSair').addEventListener('click',sair);
 
 /* ---------- Navegação ---------- */
+const ehFormador=()=>!!sessao&&(sessao.user.papel==='Formador'||sessao.user.papel==='Administrador');
 const VISTAS={
-  modulos:{icone:'pasta',rotulo:'Módulos',titulo:'Módulos',sub:'Uma pasta do Drive e um bitly por UFCD'},
-  publicacoes:{icone:'mail',rotulo:'Publicações',titulo:'Publicações',sub:'Quem abriu o quê, e quando'},
+  materiais:{icone:'pasta',rotulo:'Materiais',titulo:'Materiais',sub:'O que o formador já publicou para a tua turma'},
+  modulos:{icone:'pasta',rotulo:'Módulos',titulo:'Módulos',sub:'Uma pasta do Drive por UFCD'},
+  publicacoes:{icone:'mail',rotulo:'Publicações',titulo:'Publicações',sub:'Rascunhos, envios e quem abriu o quê'},
   turma:{icone:'gente',rotulo:'Turma',titulo:'Turma',sub:'Quem anda a acompanhar e quem não'}
 };
 document.querySelectorAll('.nav-link').forEach(b=>{
@@ -315,10 +331,11 @@ function mostrar(v){
   document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id==='v'+v[0].toUpperCase()+v.slice(1)));
   $('#hTitulo').textContent=VISTAS[v].titulo;
   $('#hSub').textContent=VISTAS[v].sub;
-  $('#btnNovoModulo').classList.toggle('hidden',v!=='modulos');
-  if(v==='publicacoes') carregarPublicacoes().then(filtrar);
+  $('#btnNovoModulo').classList.toggle('hidden',v!=='modulos'||!ehFormador());
+  if(v==='modulos') carregarModulos().then(filtrar);
+  else if(v==='publicacoes') carregarPublicacoes().then(filtrar);
   else if(v==='turma') carregarTurma().then(filtrar);
-  else filtrar();
+  else if(v==='materiais') carregarMateriais().then(filtrar);
 }
 $('#btnRecolher').addEventListener('click',()=>$('#app').classList.toggle('nav-collapsed'));
 
@@ -327,7 +344,7 @@ function filtrar(){
   const q=($('#pesquisa').value||'').trim().toLowerCase();
   const vista=document.querySelector('.view.active');
   if(!vista) return;
-  vista.querySelectorAll('.mod, tbody tr').forEach(el=>{
+  vista.querySelectorAll('.mod, .mat, tbody tr').forEach(el=>{
     el.style.display=(!q||el.textContent.toLowerCase().includes(q))?'':'none';
   });
 }
@@ -335,20 +352,20 @@ $('#pesquisa').addEventListener('input',filtrar);
 
 async function arrancar(){
   $('#login').classList.add('hidden'); $('#app').classList.remove('hidden');
-  const u=sessao.user;
+  const u=sessao.user, formador=ehFormador();
   $('#brandTurma').textContent=sessao.turma;
   $('#profNome').textContent=`${u.nome} ${u.apelido||''}`.trim();
   $('#profPapel').textContent=u.papel;
   $('#avatar').textContent=((u.nome||'?')[0]+((u.apelido||' ')[0]||'')).toUpperCase();
   $('#btnNovoModulo').innerHTML=ic('mais')+'Novo módulo';
-  $('#btnNovoModulo').classList.remove('hidden');
   $('#pesquisa').value='';
-  // arrancar sempre em Módulos (evita vista presa após sair/entrar)
-  document.querySelectorAll('.nav-link').forEach(x=>x.classList.toggle('active',x.dataset.view==='modulos'));
-  document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id==='vModulos'));
-  $('#hTitulo').textContent=VISTAS.modulos.titulo;
-  $('#hSub').textContent=VISTAS.modulos.sub;
-  await carregarModulos();
+  // cada papel vê a sua navegação: formador gere, formando consulta
+  $('#navGrupo').textContent=formador?'Gestão':'A minha turma';
+  document.querySelectorAll('.nav-link').forEach(b=>{
+    b.classList.toggle('hidden', formador ? b.dataset.view==='materiais'
+                                          : b.dataset.view!=='materiais');
+  });
+  mostrar(formador?'modulos':'materiais');
 }
 $('#btnNovoModulo').addEventListener('click',()=>modalModulo(null));
 
@@ -359,7 +376,7 @@ async function carregarModulos(){
 
   $('#vModulos').innerHTML = !modulos.length
     ? `<div class="empty">${ic('pasta')}<strong>Ainda não há módulos</strong>
-        <span>Cria um por cada UFCD, com a pasta do Drive e o bitly que já usas.</span></div>`
+        <span>Cria um por cada UFCD, com a pasta do Drive dos materiais.</span></div>`
     : `<div class="grid">${modulos.map(m=>`
         <article class="card mod">
           <span class="tag">UFCD ${esc(m.ufcd)}</span>
@@ -371,7 +388,7 @@ async function carregarModulos(){
           <div class="mod-foot">
             <span>${m.publicacoes} publicaç${m.publicacoes==1?'ão':'ões'}</span>
             <button class="btn-sec btn-sm" data-editar="${m.id}">${ic('lapis')}Editar</button>
-            <button class="btn btn-sm" data-publicar="${m.id}">${ic('mais')}Publicar</button>
+            <button class="btn btn-sm" data-publicar="${m.id}">${ic('mais')}Nova publicação</button>
           </div>
         </article>`).join('')}</div>`;
 
@@ -394,6 +411,26 @@ function abrirModal(html){
   return f;
 }
 
+/* Confirmação no design system, em vez do popup do browser. */
+function uiConfirm({titulo='Confirmar',texto='',ok='Confirmar',perigo=false}){
+  return new Promise(res=>{
+    const f=abrirModal(`<div class="modal" style="width:min(460px,100%)">
+      <div class="modal-head"><div><h3>${esc(titulo)}</h3></div></div>
+      <div class="modal-body"><div style="font-size:.92rem">${texto}</div></div>
+      <div class="modal-foot"><span></span>
+        <div style="display:flex;gap:10px">
+          <button class="btn-sec" data-nao>Cancelar</button>
+          <button class="${perigo?'btn-danger':'btn'}" data-sim>${esc(ok)}</button>
+        </div></div></div>`);
+    const fecha=v=>{ f.remove(); res(v); };
+    f.querySelector('[data-sim]').addEventListener('click',()=>fecha(true));
+    f.querySelector('[data-nao]').addEventListener('click',()=>fecha(false));
+    // fechar por Escape/fundo (o abrirModal remove o elemento) conta como "não"
+    const obs=new MutationObserver(()=>{ if(!document.body.contains(f)){ obs.disconnect(); res(false); } });
+    obs.observe(document.body,{childList:true});
+  });
+}
+
 function modalModulo(m){
   const f=abrirModal(`<div class="modal">
     <div class="modal-head">
@@ -407,10 +444,11 @@ function modalModulo(m){
         <div class="field"><label>Nome</label>
           <input id="mNome" value="${esc(m?.nome||'')}" placeholder="CRM analytics"></div>
         <div class="field full"><label>Pasta do Google Drive</label>
-          <input id="mDrive" value="${esc(m?.drive_url||'')}" placeholder="https://drive.google.com/..."></div>
-        <div class="field full"><label>Bitly da pasta</label>
+          <input id="mDrive" value="${esc(m?.drive_url||'')}" placeholder="https://drive.google.com/...">
+          <span class="hint">É para aqui que o botão do email leva, por omissão.</span></div>
+        <div class="field full"><label>Link curto (opcional)</label>
           <input id="mBitly" value="${esc(m?.bitly_url||'')}" placeholder="https://bit.ly/...">
-          <span class="hint">O link curto que partilhas em aula. Em cada publicação podes usar outro.</span></div>
+          <span class="hint">Só se quiseres manter um bitly à parte. O email e a página da turma já não precisam dele.</span></div>
       </div>
     </div>
     <div class="modal-foot">
@@ -434,7 +472,9 @@ function modalModulo(m){
     }catch(e){ tratar(e); }
   });
   f.querySelector('#mApagar')?.addEventListener('click',async()=>{
-    if(!confirm(`Apagar a UFCD ${m.ufcd}? As ${m.publicacoes} publicações e os registos de leitura vão com ela.`)) return;
+    const ok=await uiConfirm({titulo:`Apagar a UFCD ${m.ufcd}?`,perigo:true,ok:'Apagar',
+      texto:`As ${m.publicacoes} publicações e os registos de leitura vão com ela.`});
+    if(!ok) return;
     try{
       await rpc('repo_modulo_remover',{p_token:sessao.token,p_id:m.id});
       f.remove(); toast('Módulo apagado.'); carregarModulos();
@@ -445,15 +485,20 @@ function modalModulo(m){
 /* ---------- Publicar ---------- */
 const MARCADORES=['{nome}','{ufcd}','{titulo}','{turma}'];
 
-function modalPublicar(m){
+function modalPublicar(m,pub){
+  // m = módulo (nova publicação); pub = rascunho existente (edição)
+  const ufcd=pub?pub.ufcd:m.ufcd;
+  const vals=pub
+    ?{assunto:pub.assunto,cabecalho:pub.cabecalho,saudacao:pub.saudacao,botao:pub.botao,rodape:pub.rodape}
+    :{assunto:m.def_assunto,cabecalho:m.def_cabecalho,saudacao:m.def_saudacao,botao:m.def_botao,rodape:m.def_rodape};
   const f=abrirModal(`<div class="modal wide">
     <div class="modal-head">
-      <div><h3>Publicar na UFCD ${esc(m.ufcd)}</h3>
-        <div class="sub">Carrega primeiro o PDF no Drive. Aqui escreves o aviso e disparas o email.</div></div>
+      <div><h3>${pub?'Editar rascunho':'Nova publicação'} - UFCD ${esc(ufcd)}</h3>
+        <div class="sub">Carrega primeiro o PDF no Drive. Aqui escreves o aviso; nada é enviado sem confirmares.</div></div>
     </div>
     <div class="modal-body">
       <div class="field"><label>Título</label>
-        <input id="pTitulo" placeholder="Sessão 7 - Segmentação de clientes"></div>
+        <input id="pTitulo" value="${esc(pub?.titulo||'')}" placeholder="Sessão 7 - Segmentação de clientes"></div>
 
       <div class="field"><label>Mensagem aos formandos</label>
         <div class="rt-toolbar">
@@ -470,9 +515,9 @@ function modalPublicar(m){
              data-placeholder="Ficam disponíveis os slides da sessão de hoje..."></div>
       </div>
 
-      <div class="field"><label>Link</label>
-        <input id="pLink" value="${esc(m.bitly_url||'')}" placeholder="https://bit.ly/...">
-        <span class="hint">Vem preenchido com o bitly da pasta. Se tens um link só desta sessão, troca aqui.</span></div>
+      <div class="field"><label>Link do material</label>
+        <input id="pLink" value="${esc(pub?pub.link:(m.drive_url||m.bitly_url||''))}" placeholder="https://drive.google.com/...">
+        <span class="hint">Para onde o botão leva. Por omissão é a pasta do Drive do módulo; se tens um link só desta sessão, troca aqui.</span></div>
 
       <details class="fold">
         <summary>Texto do email<span class="sub">assunto, cabeçalho, saudação, botão e rodapé</span></summary>
@@ -483,15 +528,15 @@ function modalPublicar(m){
           </div>
           <div class="form-grid">
             <div class="field full"><label>Assunto</label>
-              <input id="pAssunto" value="${esc(m.def_assunto||'')}"></div>
+              <input id="pAssunto" value="${esc(vals.assunto||'')}"></div>
             <div class="field full"><label>Cabeçalho (a faixa verde)</label>
-              <input id="pCabecalho" value="${esc(m.def_cabecalho||'')}"></div>
+              <input id="pCabecalho" value="${esc(vals.cabecalho||'')}"></div>
             <div class="field"><label>Saudação</label>
-              <input id="pSaudacao" value="${esc(m.def_saudacao||'')}"></div>
+              <input id="pSaudacao" value="${esc(vals.saudacao||'')}"></div>
             <div class="field"><label>Texto do botão</label>
-              <input id="pBotao" value="${esc(m.def_botao||'')}"></div>
+              <input id="pBotao" value="${esc(vals.botao||'')}"></div>
             <div class="field full"><label>Nota de rodapé</label>
-              <textarea id="pRodape" style="min-height:70px">${esc(m.def_rodape||'')}</textarea></div>
+              <textarea id="pRodape" style="min-height:70px">${esc(vals.rodape||'')}</textarea></div>
           </div>
           <div class="nota-rgpd">${ic('alerta')}<span>Esta nota é o que avisa o formando de que a abertura do link fica registada. Se a apagares, o registo passa a ser silencioso - e é precisamente isso que a UFCD 10870 ensina a não fazer.</span></div>
           <span class="hint">O que escreveres aqui fica guardado no módulo. A próxima publicação já nasce assim.</span>
@@ -516,12 +561,13 @@ function modalPublicar(m){
       <span></span>
       <div style="display:flex;gap:10px">
         <button class="btn-sec" data-fechar>Cancelar</button>
-        <button class="btn" id="pPublicar">${ic('ok')}Guardar e enviar</button>
+        <button class="btn" id="pPublicar">${ic('ok')}${pub?'Guardar alterações':'Guardar rascunho'}</button>
       </div>
     </div></div>`);
 
   const q=s=>f.querySelector(s);
   const t=q('#pTitulo'), x=q('#pTexto');
+  if(pub) x.innerHTML=pub.texto||'';
 
   /* editor de texto rico */
   f.querySelectorAll('.rt-tb[data-cmd]').forEach(b=>b.addEventListener('mousedown',e=>{
@@ -550,7 +596,7 @@ function modalPublicar(m){
   /* pré-visualização */
   const subst=s=>esc(s||'')
     .replace(/\{nome\}/g,'<span class="muted">[nome do formando]</span>')
-    .replace(/\{ufcd\}/g,esc(m.ufcd))
+    .replace(/\{ufcd\}/g,esc(ufcd))
     .replace(/\{titulo\}/g,esc(t.value.trim()||'(sem título)'))
     .replace(/\{turma\}/g,esc(sessao.turma));
 
@@ -573,43 +619,44 @@ function modalPublicar(m){
     const titulo=t.value.trim(), link=q('#pLink').value.trim();
     if(!titulo||!link) return toast('Falta o título ou o link.','err');
     b.disabled=true; b.textContent='A guardar...';
+    const campos={
+      p_token:sessao.token, p_titulo:titulo, p_texto:x.innerHTML.trim(), p_link:link,
+      p_assunto:q('#pAssunto').value.trim(), p_cabecalho:q('#pCabecalho').value.trim(),
+      p_saudacao:q('#pSaudacao').value.trim(), p_botao:q('#pBotao').value.trim(),
+      p_rodape:q('#pRodape').value.trim()
+    };
     try{
-      const p=await rpc('repo_publicar',{
-        p_token:sessao.token, p_modulo_id:m.id,
-        p_titulo:titulo, p_texto:x.innerHTML.trim(), p_link:link,
-        p_assunto:q('#pAssunto').value.trim(),
-        p_cabecalho:q('#pCabecalho').value.trim(),
-        p_saudacao:q('#pSaudacao').value.trim(),
-        p_botao:q('#pBotao').value.trim(),
-        p_rodape:q('#pRodape').value.trim()
-      });
-      f.remove(); carregarModulos();
-      if(!p.destinatarios){
-        return toast('Guardado, mas nenhum formando desta turma tem email preenchido.','warn');
+      if(pub){
+        await rpc('repo_publicacao_editar',{...campos,p_id:pub.id});
+        f.remove(); carregarPublicacoes();
+        confirmarEnvio(pub.id, pub.destinatarios, 0);
+      }else{
+        const p=await rpc('repo_publicar',{...campos,p_modulo_id:m.id});
+        f.remove(); carregarModulos();
+        if(!p.destinatarios) return toast('Guardado, mas nenhum formando desta turma tem email preenchido.','warn');
+        confirmarEnvio(p.id, p.destinatarios, p.sem_email);
       }
-      // Publicar NÃO envia. Enviar é um segundo passo, com confirmação.
-      toast('Rascunho guardado. Confirma o envio para avisar a turma.');
-      confirmarEnvio(p.id, p.destinatarios, p.sem_email);
     }catch(err){
-      tratar(err); b.disabled=false; b.innerHTML=ic('ok')+'Guardar rascunho';
+      tratar(err); b.disabled=false; b.innerHTML=ic('ok')+(pub?'Guardar alterações':'Guardar rascunho');
     }
   });
 }
 
-/* Enviar é sempre um ato deliberado: pede confirmação com o número real. */
+/* Enviar é sempre um ato deliberado: diálogo próprio, com o número real. */
 async function confirmarEnvio(pubId, dest, sem){
-  const aviso=`Vais enviar o email a ${dest} formando(s) da turma ${sessao.turma}.`
-    +(sem?` ${sem} sem email ficam de fora.`:'')
-    +`\n\nIsto envia emails a sério, agora. Continuar?`;
-  if(!confirm(aviso)){
-    toast('Ficou em rascunho. Podes enviar depois, abrindo a publicação.','warn');
-    return;
-  }
+  const ok=await uiConfirm({
+    titulo:'Enviar o aviso agora?',
+    ok:'Enviar agora',
+    texto:`O email vai para <strong>${dest} formando(s)</strong> da turma ${esc(sessao.turma)}.`
+      +(sem?`<br>${sem} sem email ficam de fora (veem na mesma na página da turma).`:'')
+      +`<br><br><span class="hint">Se preferires, fica guardado como rascunho - editas e envias depois, em Publicações.</span>`
+  });
+  if(!ok){ toast('Ficou em rascunho. Editas e envias quando quiseres, em Publicações.','warn'); return; }
   const r=await edge('repo-enviar',{token:sessao.token,publicacao_id:pubId});
   carregarPublicacoes();
   if(!r.ok) return toast(r.erro||'O envio falhou. A publicação ficou guardada.','err');
   if(r.falhados) return toast(`Enviado a ${r.enviados}, falhou em ${r.falhados}. Abre a publicação para reenviar.`,'warn');
-  if(!r.enviados) return toast('Nada por enviar - já estavam todos enviados.','warn');
+  if(!r.enviados) return toast('Nada por enviar - já estavam todos avisados.','warn');
   toast(`Enviado a ${r.enviados} formando(s).`);
 }
 
@@ -618,11 +665,16 @@ async function carregarPublicacoes(){
   try{ publicacoes=await rpc('repo_publicacoes_listar',{p_token:sessao.token,p_modulo:null}); }
   catch(e){ return tratar(e); }
 
+  const estado=p=>{
+    if(!p.enviado_em) return '<span class="pill amber">Rascunho</span>';
+    if((p.enviados||0)<(p.destinatarios||0)) return `<span class="pill amber">Parcial · ${p.enviados}/${p.destinatarios}</span>`;
+    return `<span class="pill grey">Enviada · ${dt(p.enviado_em)}</span>`;
+  };
   $('#vPublicacoes').innerHTML = !publicacoes.length
     ? `<div class="empty">${ic('mail')}<strong>Ainda não publicaste nada</strong>
-        <span>Vai a Módulos e carrega em "Publicar".</span></div>`
+        <span>Vai a Módulos e carrega em "Nova publicação".</span></div>`
     : `<div class="table-wrap"><table><thead><tr>
-        <th>Publicação</th><th>UFCD</th><th>Enviado</th><th>Abriram</th><th></th>
+        <th>Publicação</th><th>UFCD</th><th>Estado</th><th>Abriram</th><th></th>
       </tr></thead><tbody>${publicacoes.map(p=>{
         const pct=p.destinatarios?Math.round(p.abriram/p.destinatarios*100):0;
         const cor=!p.abriram?'grey':pct>=70?'green':'amber';
@@ -630,13 +682,17 @@ async function carregarPublicacoes(){
           <td><div class="cell-main">${esc(p.titulo)}</div>
               <div class="cell-sub">${p.criado_em?dt(p.criado_em):''}</div></td>
           <td><span class="tag">${esc(p.ufcd)}</span></td>
-          <td>${p.enviado_em?dt(p.enviado_em):'<span class="pill amber">rascunho</span>'}</td>
-          <td><span class="pill ${cor}">${p.abriram}/${p.destinatarios} · ${pct}%</span></td>
-          <td class="t-right muted">${ic('olho')}</td>
+          <td>${estado(p)}</td>
+          <td>${p.enviado_em?`<span class="pill ${cor}">${p.abriram}/${p.destinatarios} · ${pct}%</span>`:'<span class="muted">-</span>'}</td>
+          <td class="t-right muted">${p.enviado_em?ic('olho'):ic('lapis')}</td>
         </tr>`;}).join('')}</tbody></table></div>`;
 
-  document.querySelectorAll('[data-ver]').forEach(r=>r.addEventListener('click',
-    ()=>modalEstado(publicacoes.find(p=>p.id===r.dataset.ver))));
+  document.querySelectorAll('[data-ver]').forEach(r=>r.addEventListener('click',()=>{
+    const p=publicacoes.find(x=>x.id===r.dataset.ver);
+    // rascunho volta ao editor; enviada abre o estado de leitura
+    if(!p.enviado_em) modalPublicar(modulos.find(x=>x.id===p.modulo_id)||null,p);
+    else modalEstado(p);
+  }));
 }
 
 async function modalEstado(p){
@@ -644,10 +700,13 @@ async function modalEstado(p){
   try{ linhas=await rpc('repo_estado',{p_token:sessao.token,p_publicacao:p.id}); }
   catch(e){ return tratar(e); }
 
-  const pendentes=(p.destinatarios||0)-(p.enviados||0);
+  // contas a partir das linhas reais (registos sem email não contam para envio)
+  const pendentes=linhas.filter(l=>!l.enviado_em&&l.email).length;
+  const naoAbriram=linhas.filter(l=>l.enviado_em&&!l.primeiro_clique).length;
   const emailLinha=l=>{
+    if(!l.email) return '<span class="muted">sem email - vê na página da turma</span>';
     const e2=l.email2&&l.email2!==l.email?` · ${esc(l.email2)} <span class="muted">(IEFP)</span>`:'';
-    return `${esc(l.email||'')}${e2}`;
+    return `${esc(l.email)}${e2}`;
   };
 
   const f=abrirModal(`<div class="modal wide">
@@ -663,7 +722,8 @@ async function modalEstado(p){
           <td><div class="cell-main">${esc(l.nome)}</div><div class="cell-sub">${emailLinha(l)}</div></td>
           <td>${l.erro?`<span class="pill red" title="${esc(l.erro)}">falhou</span>`
                :l.enviado_em?'<span class="pill grey">enviado</span>'
-               :'<span class="pill amber">por enviar</span>'}</td>
+               :l.email?'<span class="pill amber">por enviar</span>'
+               :'<span class="pill grey">só página</span>'}</td>
           <td>${l.primeiro_clique?`<span class="pill green">${dt(l.primeiro_clique)}</span>`
                :'<span class="muted">ainda não</span>'}</td>
           <td class="t-right">${l.cliques||''}</td></tr>`).join('')}</tbody>
@@ -674,7 +734,9 @@ async function modalEstado(p){
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button class="btn-sec" id="eVer">${ic('olho')}Ver email enviado</button>
         <a class="btn-sec" href="${esc(p.link)}" target="_blank" rel="noopener">${ic('link')}Abrir o link</a>
-        ${pendentes>0?`<button class="btn" id="eEnviar">${ic('mail')}Enviar ${pendentes} pendente(s)</button>`:'<button class="btn-sec" data-fechar>Fechar</button>'}
+        ${pendentes>0?`<button class="btn" id="eEnviar">${ic('mail')}Enviar ${pendentes} pendente(s)</button>`
+          :naoAbriram>0?`<button class="btn" id="eReenviar">${ic('mail')}Reenviar a quem não abriu (${naoAbriram})</button>`
+          :'<button class="btn-sec" data-fechar>Fechar</button>'}
       </div>
     </div></div>`);
 
@@ -682,7 +744,9 @@ async function modalEstado(p){
 
   f.querySelector('#eEnviar')?.addEventListener('click',async e=>{
     const b=e.currentTarget;
-    if(!confirm(`Enviar o email aos ${pendentes} destinatário(s) ainda por avisar? Isto envia emails a sério, agora.`)) return;
+    const ok=await uiConfirm({titulo:'Enviar agora?',ok:'Enviar agora',
+      texto:`O email vai para os <strong>${pendentes} formando(s)</strong> ainda por avisar.`});
+    if(!ok) return;
     b.disabled=true; b.textContent='A enviar...';
     const r=await edge('repo-enviar',{token:sessao.token,publicacao_id:p.id});
     f.remove(); carregarPublicacoes();
@@ -691,8 +755,26 @@ async function modalEstado(p){
     toast(`Enviado a ${r.enviados} formando(s).`);
   });
 
+  f.querySelector('#eReenviar')?.addEventListener('click',async e=>{
+    const b=e.currentTarget;
+    const ok=await uiConfirm({titulo:'Reenviar o aviso?',ok:'Reenviar agora',
+      texto:`O email volta a sair para os <strong>${naoAbriram} formando(s)</strong> que ainda não abriram. Quem já abriu não recebe nada.`});
+    if(!ok) return;
+    b.disabled=true; b.textContent='A reenviar...';
+    try{
+      await rpc('repo_reabrir_nao_abriram',{p_token:sessao.token,p_publicacao:p.id});
+      const r=await edge('repo-enviar',{token:sessao.token,publicacao_id:p.id});
+      f.remove(); carregarPublicacoes();
+      if(!r.ok) return toast(r.erro||'O reenvio falhou.','err');
+      if(r.falhados) return toast(`Reenviado a ${r.enviados}, falhou em ${r.falhados}.`,'warn');
+      toast(`Reenviado a ${r.enviados} formando(s).`);
+    }catch(err){ tratar(err); b.disabled=false; }
+  });
+
   f.querySelector('#ePagar').addEventListener('click',async()=>{
-    if(!confirm('Apagar esta publicação e os registos de quem a abriu?')) return;
+    const ok=await uiConfirm({titulo:'Apagar esta publicação?',perigo:true,ok:'Apagar',
+      texto:'Os registos de quem a abriu vão com ela. Os formandos deixam de a ver na página da turma.'});
+    if(!ok) return;
     try{
       await rpc('repo_publicacao_remover',{p_token:sessao.token,p_id:p.id});
       f.remove(); toast('Publicação apagada.'); carregarPublicacoes();
@@ -740,6 +822,7 @@ async function carregarTurma(){
         <div class="section-head" style="margin-bottom:16px">
           <div><h3>Turma ${esc(sessao.turma)}</h3>
             <div class="sub">Ordenada pelos que estão há mais tempo sem abrir nada. É por aqui que começas a conversa.</div></div>
+          <button class="chip" id="linkTurma" title="Copiar o link da turma">${ic('link')} iefpcrm.cr0x.org/repo</button>
         </div>
         <div class="table-wrap"><table><thead><tr>
           <th>Formando</th><th>Abriu</th><th>Último acesso</th>
@@ -753,6 +836,40 @@ async function carregarTurma(){
             <td class="muted">${l.ultimo_acesso?dt(l.ultimo_acesso):'nunca'}</td>
           </tr>`;}).join('')}</tbody></table></div>
       </div>`;
+
+  $('#linkTurma')?.addEventListener('click',()=>{
+    navigator.clipboard?.writeText('https://iefpcrm.cr0x.org/repo/');
+    toast('Link copiado. É o mesmo o ano inteiro: os formandos entram com a conta da app IEFP CRM.');
+  });
+}
+
+/* ---------- Materiais (a vista do formando) ---------- */
+async function carregarMateriais(){
+  let itens=[];
+  try{ itens=await rpc('repo_meus_materiais',{p_token:sessao.token}); }
+  catch(e){ return tratar(e); }
+
+  $('#vMateriais').innerHTML = !itens.length
+    ? `<div class="empty">${ic('pasta')}<strong>Ainda não há materiais</strong>
+        <span>Quando o formador publicar algo para a turma, aparece aqui.</span></div>`
+    : `<div class="mat-lista">${itens.map(i=>`
+        <article class="card mat ${i.aberto_em?'':'mat-novo'}">
+          <div class="mat-topo">
+            <span class="tag">UFCD ${esc(i.ufcd)}</span>
+            ${i.aberto_em?'':'<span class="pill green">Novo</span>'}
+            <span class="mat-data muted">${dt(i.publicado_em)}</span>
+          </div>
+          <h3>${esc(i.titulo)}</h3>
+          <div class="pv-text">${i.texto||''}</div>
+          <div class="mat-foot">
+            <a class="btn" href="${SUPA_URL}/functions/v1/r?t=${i.envio_token}" target="_blank" rel="noopener" data-mat>${ic('link')}${esc(i.botao||'Aceder ao material')}</a>
+            ${i.aberto_em?`<span class="hint">Abriste a ${dt(i.aberto_em)}</span>`:''}
+          </div>
+        </article>`).join('')}</div>`;
+
+  // o clique regista no servidor; refrescar tira o selo "Novo"
+  document.querySelectorAll('[data-mat]').forEach(a=>a.addEventListener('click',
+    ()=>setTimeout(carregarMateriais,1500)));
 }
 
 /* ---------- Arranque ---------- */
