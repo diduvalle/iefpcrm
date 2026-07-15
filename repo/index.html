@@ -101,6 +101,11 @@ td .tag{align-self:auto}
 .crm-row .crm-info{flex:1;min-width:0}
 .crm-row .crm-info strong{display:block;font-size:.9rem}
 .crm-row .crm-info span{font-size:.78rem;color:var(--muted)}
+
+/* botão de copiar o link pessoal de um formando (dashboard) */
+.lnk-copy{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;vertical-align:middle;margin-left:7px;padding:0}
+.lnk-copy:hover{border-color:var(--g400);color:var(--g700);background:var(--g50)}
+.lnk-copy svg{width:13px;height:13px}
 </style>
 </head>
 <body>
@@ -198,6 +203,7 @@ const I={
   lixo:'M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13',
   olho:'M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6',
   lista:'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01',
+  copiar:'M9 9h11a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V10a1 1 0 0 1 1-1zM5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1',
   seta:'M19 12H5M12 19l-7-7 7-7',
   cog:'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z',
   sol:'M12 4V2M12 22v-2M4 12H2M22 12h-2M5.6 5.6 4.2 4.2M19.8 19.8l-1.4-1.4M5.6 18.4l-1.4 1.4M19.8 4.2l-1.4 1.4M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0',
@@ -686,7 +692,7 @@ async function modalEstado(s){
       <div class="table-wrap"><table>
         <thead><tr><th>Formando</th><th>Estado</th><th>Abriu</th><th class="t-right">Vezes</th></tr></thead>
         <tbody>${linhas.map(l=>`<tr>
-          <td><div class="cell-main">${esc(l.nome)}</div><div class="cell-sub">${emailLinha(l)}</div></td>
+          <td><div class="cell-main">${esc(l.nome)}${l.envio_token?`<button class="lnk-copy" data-link="${SUPA_URL}/functions/v1/r?t=${l.envio_token}" title="Copiar o link pessoal deste formando">${ic('copiar')}</button>`:''}</div><div class="cell-sub">${emailLinha(l)}</div></td>
           <td>${l.erro?`<span class="pill red" title="${esc(l.erro)}">falhou</span>`
                :l.enviado_em?'<span class="pill grey">enviado</span>'
                :l.email?'<span class="pill amber">por enviar</span>':'<span class="pill grey">sem email</span>'}</td>
@@ -707,6 +713,10 @@ async function modalEstado(s){
           :'<button class="btn-sec" data-fechar>Fechar</button>'}
       </div></div></div>`);
 
+  f.querySelectorAll('.lnk-copy').forEach(b=>b.addEventListener('click',()=>{
+    navigator.clipboard?.writeText(b.dataset.link);
+    toast('Link do formando copiado. Cuidado: se o abrires tu, conta como se fosse ele.');
+  }));
   f.querySelector('#eVer').addEventListener('click',()=>modalEmail(s));
   f.querySelector('#eEnviar')?.addEventListener('click',async e=>{
     const b=e.currentTarget;
