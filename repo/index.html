@@ -307,6 +307,14 @@ $('#btnPrimario').addEventListener('click',()=>{
   else modalAdicionarTurma();
 });
 
+// Item de navegação "Turmas" (é o único): dá-lhe ícone, texto e função de
+// voltar à lista. Estava vazio no HTML, por isso não se percebia o que era.
+(function(){
+  const b=$('.nav-link[data-view="turmas"]');
+  b.innerHTML=ic('gente')+'<span class="lbl">Turmas</span>';
+  b.addEventListener('click',mostrarTurmas);
+})();
+
 function mostrarTurmas(){
   turmaAtual=null;
   $('#vSessoes').classList.remove('active'); $('#vTurmas').classList.add('active');
