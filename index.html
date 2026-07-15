@@ -4395,7 +4395,7 @@ function applyTheme(t){ document.documentElement.setAttribute('data-theme',t); l
 function brandCfg(){ return state.settings.brand||{}; }
 function brandName(){ const b=brandCfg(); return (b.nome&&b.nome.trim())||'IEFP CRM'; }
 function logoURL(){ const b=brandCfg(); return b.logo||'IEFPnormal.png'; }
-function loginBgURL(){ const b=brandCfg(); return b.loginBg||'background.jpg'; }
+function loginBgURL(){ const b=brandCfg(); return b.loginBg||'/background.jpg'; /* absoluto: o --login-bg e usado por estilo/componentes.css, onde um relativo resolvia p/ /estilo/background.jpg (404) */ }
 function _hexRgb(h){ h=(h||'').replace('#',''); if(h.length===3) h=h.split('').map(c=>c+c).join(''); return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]; }
 function _rgbHex(r){ return '#'+r.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join(''); }
 function _mix(hex,target,t){ const a=_hexRgb(hex),b=_hexRgb(target); return _rgbHex(a.map((v,i)=>v+(b[i]-v)*t)); }
