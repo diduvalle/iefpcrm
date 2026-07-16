@@ -578,6 +578,9 @@ const I = {
   chat:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
   bulb:'<path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1v.2h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z"/>',
   clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  chevL:'<path d="m15 18-6-6 6-6"/>',
+  chevR:'<path d="m9 18 6-6-6-6"/>',
+  chevD:'<path d="m6 9 6 6 6-6"/>',
 };
 const ic = (k,s=18)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${I[k]||''}</svg>`;
 
@@ -1984,8 +1987,8 @@ function dateBar(scope, extra){
     <div class="toolbar" style="justify-content:space-between;gap:14px;align-items:flex-end">
       <div class="tabs">${presets.map(p=>`<button class="tab ${r.preset===p[0]?'active':''}" data-dpreset="${scope}:${p[0]}">${p[1]}</button>`).join('')}</div>
       <div class="toolbar" style="align-items:flex-end;gap:8px">
-        <div class="field"><label style="font-size:.72rem">De</label><input type="date" data-drange="${scope}:from" value="${r.from}" style="padding:7px 10px" aria-label="Data inicial"></div>
-        <div class="field"><label style="font-size:.72rem">Até</label><input type="date" data-drange="${scope}:to" value="${r.to}" style="padding:7px 10px" aria-label="Data final"></div>
+        <div class="field"><label style="font-size:.72rem">De</label><input type="date" data-drange="${scope}:from" value="${r.from}" style="padding:7px 34px 7px 10px" aria-label="Data inicial"></div>
+        <div class="field"><label style="font-size:.72rem">Até</label><input type="date" data-drange="${scope}:to" value="${r.to}" style="padding:7px 34px 7px 10px" aria-label="Data final"></div>
         ${(r.from||r.to)?`<button class="btn-ghost btn-sm" data-dclear="${scope}">Limpar</button>`:''}
       </div>
     </div>
@@ -4395,7 +4398,7 @@ function applyTheme(t){ document.documentElement.setAttribute('data-theme',t); l
 function brandCfg(){ return state.settings.brand||{}; }
 function brandName(){ const b=brandCfg(); return (b.nome&&b.nome.trim())||'IEFP CRM'; }
 function logoURL(){ const b=brandCfg(); return b.logo||'IEFPnormal.png'; }
-function loginBgURL(){ const b=brandCfg(); return b.loginBg||'/background.jpg'; /* absoluto: o --login-bg e usado por estilo/componentes.css, onde um relativo resolvia p/ /estilo/background.jpg (404) */ }
+function loginBgURL(){ const b=brandCfg(); return b.loginBg||'/background.jpg'; } /* absoluto: o --login-bg é usado por estilo/componentes.css, onde um relativo resolvia p/ /estilo/background.jpg (404) */
 function _hexRgb(h){ h=(h||'').replace('#',''); if(h.length===3) h=h.split('').map(c=>c+c).join(''); return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]; }
 function _rgbHex(r){ return '#'+r.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join(''); }
 function _mix(hex,target,t){ const a=_hexRgb(hex),b=_hexRgb(target); return _rgbHex(a.map((v,i)=>v+(b[i]-v)*t)); }
@@ -4437,6 +4440,76 @@ function uiDialog(o){ o=o||{}; return new Promise(res=>{
   back.addEventListener('mousedown',ev=>{ if(ev.target===back) done(isInput?null:false); });
   back.addEventListener('click',ev=>{ const b=ev.target.closest('[data-dlg]'); if(!b) return; done(b.dataset.dlg==='ok'?(isInput?(inp?inp.value:true):true):(isInput?null:false)); });
 }); }
+/* ---------- Calendário próprio (o nativo do browser não é estilável) ----------
+   Mantém o <input type="date"> por baixo: o value continua em ISO, por isso
+   tudo o que lê estes campos (setDateField, validade, etc.) fica igual.
+   Só escondemos o ícone nativo (que abria o popup do browser) e abrimos este. */
+const DP_MESES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+const DP_WD=[['S','segunda'],['T','terça'],['Q','quarta'],['Q','quinta'],['S','sexta'],['S','sábado'],['D','domingo']];
+let dpPop=null, dpInput=null, dpY=0, dpM=0, dpMode='days';
+const dpPad=n=>String(n).padStart(2,'0');
+const dpISO=dt=>dt.getFullYear()+'-'+dpPad(dt.getMonth()+1)+'-'+dpPad(dt.getDate());
+const dpOpenNow=()=>!!(dpPop&&dpPop.classList.contains('open'));
+function dpEnsure(){
+  if(dpPop) return dpPop;
+  dpPop=document.createElement('div'); dpPop.className='dp-pop';
+  dpPop.addEventListener('mousedown',e=>e.preventDefault());   // não rouba o foco ao input
+  dpPop.addEventListener('click',dpClick);
+  document.body.appendChild(dpPop);
+  return dpPop;
+}
+function dpRender(){
+  const p=dpEnsure(); p.classList.toggle('is-months',dpMode==='months');
+  const sel=(dpInput&&dpInput.value)||''; const hoje=todayISO();
+  let body;
+  if(dpMode==='months'){
+    body=`<div class="dp-months">${DP_MESES.map((n,i)=>`<button type="button" class="dp-month${i===dpM?' is-sel':''}" data-dp="m" data-i="${i}">${n.slice(0,3)}</button>`).join('')}</div>`;
+  }else{
+    const start=(new Date(dpY,dpM,1).getDay()+6)%7;   // semana começa à segunda
+    let cells='';
+    for(let i=0;i<42;i++){ const dt=new Date(dpY,dpM,1-start+i); const iso=dpISO(dt);
+      cells+=`<button type="button" class="dp-day${dt.getMonth()!==dpM?' is-out':''}${iso===hoje?' is-today':''}${iso===sel?' is-sel':''}" data-dp="d" data-iso="${iso}">${dt.getDate()}</button>`; }
+    body=`<div class="dp-grid dp-wd">${DP_WD.map(([l,t])=>`<span title="${t}">${l}</span>`).join('')}</div><div class="dp-grid">${cells}</div>`;
+  }
+  p.innerHTML=`<div class="dp-head">
+      <button type="button" class="dp-nav" data-dp="prev" aria-label="Anterior">${ic('chevL',18)}</button>
+      <button type="button" class="dp-title" data-dp="mode">${dpMode==='months'?dpY:DP_MESES[dpM]+' '+dpY} ${ic('chevD',14)}</button>
+      <button type="button" class="dp-nav" data-dp="next" aria-label="Seguinte">${ic('chevR',18)}</button>
+    </div>${body}
+    <div class="dp-foot"><button type="button" class="dp-link" data-dp="clear">Limpar</button><button type="button" class="dp-link dp-go" data-dp="today">Hoje</button></div>`;
+}
+function dpPlace(){
+  if(!dpInput||!dpPop) return;
+  const r=dpInput.getBoundingClientRect(); const w=dpPop.offsetWidth||300, h=dpPop.offsetHeight||330;
+  let left=Math.min(Math.max(8,r.left), Math.max(8,innerWidth-w-8));
+  let top=r.bottom+6; if(top+h>innerHeight-8) top=Math.max(8,r.top-h-6);
+  dpPop.style.left=left+'px'; dpPop.style.top=top+'px';
+}
+function dpOpen(inp){
+  dpInput=inp;
+  const base=inp.value?new Date(inp.value+'T00:00:00'):new Date(todayISO()+'T00:00:00');
+  dpY=base.getFullYear(); dpM=base.getMonth(); dpMode='days';
+  dpRender(); dpPlace(); requestAnimationFrame(()=>{ dpPlace(); dpPop.classList.add('open'); });
+}
+function dpClose(){ if(dpPop) dpPop.classList.remove('open'); dpInput=null; }
+function dpSet(iso){ const inp=dpInput; if(!inp) return; inp.value=iso;
+  inp.dispatchEvent(new Event('input',{bubbles:true})); inp.dispatchEvent(new Event('change',{bubbles:true})); dpClose(); }
+function dpClick(e){
+  const b=e.target.closest('[data-dp]'); if(!b) return;
+  const k=b.dataset.dp;
+  if(k==='prev'){ if(dpMode==='months') dpY--; else { dpM--; if(dpM<0){dpM=11;dpY--;} } dpRender(); dpPlace(); }
+  else if(k==='next'){ if(dpMode==='months') dpY++; else { dpM++; if(dpM>11){dpM=0;dpY++;} } dpRender(); dpPlace(); }
+  else if(k==='mode'){ dpMode=(dpMode==='days')?'months':'days'; dpRender(); dpPlace(); }
+  else if(k==='m'){ dpM=+b.dataset.i; dpMode='days'; dpRender(); dpPlace(); }
+  else if(k==='d') dpSet(b.dataset.iso);
+  else if(k==='today') dpSet(todayISO());
+  else if(k==='clear') dpSet('');
+}
+document.addEventListener('click',e=>{ const inp=e.target.closest('input[type="date"]'); if(!inp||inp.readOnly||inp.disabled) return; if(dpInput===inp&&dpOpenNow()) return; dpOpen(inp); });
+document.addEventListener('mousedown',e=>{ if(!dpOpenNow()) return; if(e.target.closest('.dp-pop')||e.target===dpInput) return; dpClose(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&dpOpenNow()) dpClose(); });
+window.addEventListener('resize',()=>{ if(dpOpenNow()) dpPlace(); });
+document.documentElement.classList.add('dp-on');   // liga o CSS: esconde o calendário nativo
 function uiConfirm(message,o){ o=o||{}; return uiDialog({title:o.title||'Confirmar',icon:o.icon||(o.danger?'alert':'help'),message,okText:o.okText||'Confirmar',cancelText:o.cancelText||'Cancelar',danger:o.danger}); }
 function uiAlert(message,o){ o=o||{}; return uiDialog({title:o.title||'Aviso',icon:o.icon||'info',message,okText:o.okText||'OK',cancelText:null}); }
 function uiPrompt(message,def,o){ o=o||{}; return uiDialog({title:o.title||'',icon:o.icon,message,okText:o.okText||'OK',cancelText:'Cancelar',input:def||'',placeholder:o.placeholder||''}); }
