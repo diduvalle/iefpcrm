@@ -102,6 +102,11 @@ td .tag{align-self:auto}
 .crm-row .crm-info strong{display:block;font-size:.9rem}
 .crm-row .crm-info span{font-size:.78rem;color:var(--muted)}
 
+/* o partilhado só define .field .hint; aqui usamos notas soltas (prévia, avisos) */
+.hint{font-size:.74rem;color:var(--muted);font-weight:500}
+/* o cabeçalho do modal é flex: sem isto o botão de atualizar era espremido */
+.modal-head .icon-btn{flex:none}
+
 /* botão de copiar o link pessoal de um formando (dashboard) */
 .lnk-copy{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;vertical-align:middle;margin-left:7px;padding:0}
 .lnk-copy:hover{border-color:var(--g400);color:var(--g700);background:var(--g50)}
@@ -204,6 +209,7 @@ const I={
   olho:'M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6',
   lista:'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01',
   copiar:'M9 9h11a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V10a1 1 0 0 1 1-1zM5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1',
+  refrescar:'M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15',
   seta:'M19 12H5M12 19l-7-7 7-7',
   cog:'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z',
   sol:'M12 4V2M12 22v-2M4 12H2M22 12h-2M5.6 5.6 4.2 4.2M19.8 19.8l-1.4-1.4M5.6 18.4l-1.4 1.4M19.8 4.2l-1.4 1.4M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0',
@@ -685,8 +691,11 @@ async function modalEstado(s){
   };
 
   const f=abrirModal(`<div class="modal wide">
-    <div class="modal-head"><div><h3>${esc(s.titulo)}</h3>
-      <div class="sub">${s.enviados||0} enviado(s) · ${s.abriram} de ${s.destinatarios} já abriram</div></div></div>
+    <div class="modal-head">
+      <div><h3>${esc(s.titulo)}</h3>
+        <div class="sub">${s.enviados||0} enviado(s) · ${s.abriram} de ${s.destinatarios} já abriram</div></div>
+      <button class="icon-btn" id="eRefrescar" title="Atualizar - ver se há aberturas novas">${ic('refrescar')}</button>
+    </div>
     <div class="modal-body">
       ${pendentes>0?`<div class="nota-rgpd" style="background:var(--info-bg);color:var(--info)">${ic('mail')}<span>${pendentes} por enviar. Usa "Enviar pendentes".</span></div>`:''}
       <div class="table-wrap"><table>
@@ -713,6 +722,20 @@ async function modalEstado(s){
           :'<button class="btn-sec" data-fechar>Fechar</button>'}
       </div></div></div>`);
 
+  // Atualizar: rebusca a sessão (contadores) e reabre o dashboard com dados frescos.
+  f.querySelector('#eRefrescar').addEventListener('click',async e=>{
+    const b=e.currentTarget; b.disabled=true;
+    try{
+      if(turmaAtual){
+        const lista=await rpc('repo_sessoes_listar',{p_token:sessao.token,p_repo_turma_id:turmaAtual.id});
+        sessoes=lista;
+        const nova=lista.find(x=>x.id===s.id);
+        f.remove();
+        carregarSessoes(turmaAtual);
+        if(nova) modalEstado(nova);
+      }
+    }catch(err){ tratar(err); b.disabled=false; }
+  });
   f.querySelectorAll('.lnk-copy').forEach(b=>b.addEventListener('click',()=>{
     navigator.clipboard?.writeText(b.dataset.link);
     toast('Link do formando copiado. Cuidado: se o abrires tu, conta como se fosse ele.');
