@@ -172,7 +172,7 @@ td .cell-sub{font-size:.78rem;color:var(--muted)}
 .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .form-grid .full{grid-column:1/-1}
 .search-inp{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:0 11px}
-.search-inp input{border:0;background:transparent;padding:9px 0}
+.search-inp input{border:0;background:transparent;padding:9px 0;flex:1 1 auto;min-width:0;width:100%}
 .search-inp input:focus,.search-inp input:focus-visible{box-shadow:none;border:0;outline:none}
 .search-inp:focus-within{border-color:var(--muted2)}
 .search-inp svg{color:var(--muted);flex:0 0 auto}
