@@ -1157,10 +1157,10 @@ function propsAprovacaoPendente(){ return state.propostas.filter(p=>aprovState(p
 function aprovBadge(p){ const st=aprovState(p); if(st==='pendente') return '<span class="pill amber" style="font-size:.62rem" title="Aguarda aprovação do gestor">Aguarda aprovação</span>'; if(st==='rejeitada') return '<span class="pill red" style="font-size:.62rem" title="'+esc((p.aprovacao&&p.aprovacao.nota)||'Rejeitada pelo gestor')+'">Rejeitada</span>'; if(st==='aprovada') return '<span class="pill green" style="font-size:.62rem" title="Aprovada pelo gestor">Aprovada</span>'; return ''; }
 /* ---------- Nível de interesse do cliente (por proposta) ---------- */
 const INTERESSE=['Por classificar','Frio','Morno','Quente'];
-const interesseCor=v=>({'Por classificar':'grey','Frio':'blue','Morno':'amber','Quente':'red'}[v]||'grey');
-const interesseTint=v=>({Frio:'#2563eb',Morno:'#d97706',Quente:'#dc2626'}[v]||'');   // frio azul · morno laranja · quente vermelho
-function interesseBadge(p){ if(!p.interesse||p.interesse==='Por classificar') return ''; return `<span class="pill ${interesseCor(p.interesse)}" style="font-size:.6rem" title="Nível de interesse do cliente nesta proposta">${esc(p.interesse)}</span>`; }
-function kcardTint(p){ const c=interesseTint(p.interesse); if(!c||!['Enviada','Negociação'].includes(p.estado)) return ''; return `border-left:4px solid ${c};background:linear-gradient(90deg, ${c}2e, ${c}12 50%, transparent 88%)`; }
+// Paleta de TEMPERATURA - fonte única, partilhada com o lead score (scoreInfo). Frio azul · Morno laranja · Quente vermelho.
+const TEMP_COR={Frio:'#7aa7c7',Morno:'#e8a23d',Quente:'#e0564a'};
+function interesseBadge(p){ const v=p.interesse; if(!v||v==='Por classificar') return ''; const c=TEMP_COR[v]||'#86978d'; return `<span class="pill" style="background:${c}22;color:${c};font-size:.6rem" title="Nível de interesse do cliente nesta proposta">${esc(v)}</span>`; }
+function kcardTint(p){ const c=TEMP_COR[p.interesse]; if(!c||!['Enviada','Negociação'].includes(p.estado)) return ''; return `border-left:4px solid ${c};background:linear-gradient(90deg, ${c}33, ${c}14 50%, transparent 88%)`; }
 /* ---------- Controlo de stock (por artigo) ---------- */
 function stockControlled(pr){ return !!(pr && pr.controlaStock && pr.tipo!=='Serviço'); }
 function stockLow(pr){ return stockControlled(pr) && Number(pr.stock||0)<=Number(pr.stockMin||0); }
@@ -1824,10 +1824,14 @@ views.propostas = () => {
   </div>
   ${aprovacaoPanelHTML()}
   <div class="card card-pad">
-    <div class="section-head" style="margin-bottom:16px">
-      <div class="tabs"><button class="tab ${tab==='kanban'?'active':''}" data-proptab="kanban">Kanban</button><button class="tab ${tab==='tabela'?'active':''}" data-proptab="tabela">Tabela</button></div>
+    <div class="section-head" style="margin-bottom:16px;gap:12px">
+      <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;flex-wrap:wrap">
+        <div class="tabs"><button class="tab ${tab==='kanban'?'active':''}" data-proptab="kanban">Kanban</button><button class="tab ${tab==='tabela'?'active':''}" data-proptab="tabela">Tabela</button></div>
+        <div class="search-inp" style="max-width:300px;flex:1;min-width:180px">${ic('eye',15)}<input type="search" placeholder="Procurar proposta (número, título, empresa…)" data-search value="${esc(state._q||'')}"></div>
+      </div>
       <button class="btn" data-act="new" data-type="proposta">${ic('doc',16)} Nova proposta</button>
     </div>
+    ${(state._q||'').trim()?`<div class="muted" style="font-size:.78rem;margin:-6px 0 12px">${ic('eye',12)} ${propListFiltered().length} resultado(s) para "${esc(state._q)}" · <a href="#" data-act="prop-clearq" style="color:var(--g700)">limpar</a></div>`:''}
     ${tab==='kanban'?kanbanHTML():propTableHTML()}
   </div>`;
 };
@@ -1842,9 +1846,11 @@ function aprovacaoPanelHTML(){
     </tbody></table></div>
   </div>`;
 }
+function propListFiltered(){ const q=(state._q||'').toLowerCase().trim(); let list=state.propostas; if(q) list=list.filter(p=>[p.numero,p.titulo,propAccount(p),clientName(p.clienteId)].join(' ').toLowerCase().includes(q)); return list; }
 function kanbanHTML(){
+  const src=propListFiltered();
   return `<div class="kanban">${PROP_STATES.map(st=>{
-    const items=state.propostas.filter(p=>p.estado===st);
+    const items=src.filter(p=>p.estado===st);
     const tot=items.reduce((s,p)=>s+propTotal(p),0);
     const colBg = st==='Ganha'?'background:var(--g100)':st==='Perdida'?'background:var(--danger-bg)':'';   // colunas terminais tingidas
     const totCol = st==='Perdida'?'color:var(--danger)':'';   // total das perdidas a vermelho (Ganha já é verde)
@@ -1854,8 +1860,9 @@ function kanbanHTML(){
   }).join('')}</div>`;
 }
 function propTableHTML(){
+  const src=propListFiltered();
   return `<div class="table-wrap"><table><thead><tr><th>Número</th><th>Empresa (cliente)</th><th>Criada</th><th>Validade</th><th class="t-right">Total</th><th>Estado</th><th></th></tr></thead><tbody>
-    ${state.propostas.length?state.propostas.map(p=>`<tr><td data-act="open-prop" data-id="${p.id}" style="cursor:pointer"><div class="cell-main">${esc(p.numero)}</div><div class="cell-sub">${esc(p.titulo)}</div></td><td><div class="cell-main">${esc(propAccount(p))}</div>${p.clienteId?`<div class="cell-sub">${esc(clientName(p.clienteId))}</div>`:''}</td><td>${dPT(p.criada)}</td><td>${dPT(p.validade)}</td><td class="t-right"><strong>${money(propTotal(p))}</strong></td><td><span class="pill ${stateColor(p.estado)}">${p.estado}</span>${interesseBadge(p)?' '+interesseBadge(p):''}${aprovBadge(p)?' '+aprovBadge(p):''}${onlineBadge(p)?' '+onlineBadge(p):''}</td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="proposta" data-id="${p.id}">Editar</button><button class="btn-sec btn-xs" data-act="print-prop" data-id="${p.id}">${ic('print',13)} PDF</button><button class="btn-sec btn-xs" data-act="email-prop" data-id="${p.id}">${ic('mail',13)} Email</button></div></td></tr>`).join(''):`<tr><td colspan="7">${empty('Sem propostas')}</td></tr>`}
+    ${src.length?src.map(p=>`<tr><td data-act="open-prop" data-id="${p.id}" style="cursor:pointer"><div class="cell-main">${esc(p.numero)}</div><div class="cell-sub">${esc(p.titulo)}</div></td><td><div class="cell-main">${esc(propAccount(p))}</div>${p.clienteId?`<div class="cell-sub">${esc(clientName(p.clienteId))}</div>`:''}</td><td>${dPT(p.criada)}</td><td>${dPT(p.validade)}</td><td class="t-right"><strong>${money(propTotal(p))}</strong></td><td><span class="pill ${stateColor(p.estado)}">${p.estado}</span>${interesseBadge(p)?' '+interesseBadge(p):''}${aprovBadge(p)?' '+aprovBadge(p):''}${onlineBadge(p)?' '+onlineBadge(p):''}</td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="proposta" data-id="${p.id}">Editar</button><button class="btn-sec btn-xs" data-act="print-prop" data-id="${p.id}">${ic('print',13)} PDF</button><button class="btn-sec btn-xs" data-act="email-prop" data-id="${p.id}">${ic('mail',13)} Email</button></div></td></tr>`).join(''):`<tr><td colspan="7">${empty('Sem propostas')}</td></tr>`}
   </tbody></table></div>`;
 }
 
@@ -2149,7 +2156,7 @@ function createENI(clienteId){ const c=getC(clienteId); if(!c) return;
   const antiga=c.empresa||''; c.empresaId=e.id; c.empresa=e.nome;
   c.historicoEmpresas=(Array.isArray(c.historicoEmpresas)?c.historicoEmpresas:[]).concat([{de:antiga,para:e.nome,data:todayISO()}]);
   recalcLoyalty(); save(); toast('Empresa em nome individual criada',e.nome); closeModal(); openEmpresa360(e.id); }
-function scoreInfo(s){ return s>=70?{l:'Quente',c:'#e0564a'}:s>=40?{l:'Morno',c:'#e8a23d'}:{l:'Frio',c:'#7aa7c7'}; }
+function scoreInfo(s){ const l=s>=70?'Quente':s>=40?'Morno':'Frio'; return {l,c:TEMP_COR[l]}; }
 function aiInsights(m){
   const a=[];
   if(m.conv<35) a.push({i:'alert',c:'amber',t:'Conversão abaixo do ideal',x:`A taxa de conversão está em ${pct(m.conv)}. Qualifique melhor as leads antes de avançar para proposta.`});
@@ -4649,6 +4656,7 @@ document.addEventListener('click', async e=>{
       .finally(()=>{ btn.disabled=false; btn.innerHTML=old; });
     } break;
     case 'open-prop': openModal('proposta',id); break;
+    case 'prop-clearq': e.preventDefault(); state._q=''; render(); break;
     case 'aprovar-prop': { const p=state.propostas.find(x=>x.id===id); if(!p||!canAprovar()) break; const alvo=(p.aprovacao&&p.aprovacao.alvo)||'Enviada'; const old=p.estado; p.aprovacao=Object.assign({},p.aprovacao,{estado:'aprovada',decididaPor:(currentUser()||{}).id||null,decididaEm:todayISO()}); p.estado=alvo; save(); onPropStatusChange(p,old,alvo); render(); toast('Proposta aprovada',p.numero+' avança para '+alvo); } break;
     case 'rejeitar-prop': { const p=state.propostas.find(x=>x.id===id); if(!p||!canAprovar()) break; uiPrompt('Motivo da rejeição (opcional). O comercial vê esta nota na proposta.','',{title:'Rejeitar proposta',okText:'Rejeitar'}).then(nota=>{ if(nota===false||nota==null) return; p.aprovacao=Object.assign({},p.aprovacao,{estado:'rejeitada',decididaPor:(currentUser()||{}).id||null,decididaEm:todayISO(),nota:nota||''}); save(); render(); toast('Proposta rejeitada',p.numero); }); } break;
     case 'print-prop': e.stopPropagation(); printProposal(id); break;
