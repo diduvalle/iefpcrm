@@ -1836,7 +1836,7 @@ views.propostas = () => {
     <div class="section-head" style="margin-bottom:16px;gap:12px">
       <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;flex-wrap:wrap">
         <div class="tabs"><button class="tab ${tab==='kanban'?'active':''}" data-proptab="kanban">Kanban</button><button class="tab ${tab==='tabela'?'active':''}" data-proptab="tabela">Tabela</button></div>
-        <div class="search-inp" style="max-width:300px;flex:1;min-width:180px">${ic('eye',15)}<input type="search" placeholder="Procurar proposta (número, título, empresa…)" data-search value="${esc(state._q||'')}"></div>
+        <div class="search-inp" style="flex:1;min-width:220px">${ic('eye',15)}<input type="search" placeholder="Procurar proposta (número, título, empresa…)" data-search value="${esc(state._q||'')}"></div>
       </div>
       <button class="btn" data-act="new" data-type="proposta">${ic('doc',16)} Nova proposta</button>
     </div>
@@ -1915,7 +1915,7 @@ views.casos = () => {
     <div class="section-head" style="margin-bottom:14px;gap:12px">
       <div><h3>Casos de apoio</h3><div class="sub">Pedidos de serviço ao cliente, com SLA por prioridade e satisfação (CSAT/NPS)</div></div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end">
-        <div class="search-inp" style="max-width:280px;flex:1;min-width:180px">${ic('eye',15)}<input type="search" placeholder="Procurar por número ou assunto…" data-search value="${esc(state._q||'')}"></div>
+        <div class="search-inp" style="flex:1;min-width:220px">${ic('eye',15)}<input type="search" placeholder="Procurar por número ou assunto…" data-search value="${esc(state._q||'')}"></div>
         <button class="btn" data-act="new" data-type="caso">${ic('support',16)} Novo caso</button>
       </div>
     </div>
