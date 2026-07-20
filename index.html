@@ -1157,10 +1157,10 @@ function propsAprovacaoPendente(){ return state.propostas.filter(p=>aprovState(p
 function aprovBadge(p){ const st=aprovState(p); if(st==='pendente') return '<span class="pill amber" style="font-size:.62rem" title="Aguarda aprovação do gestor">Aguarda aprovação</span>'; if(st==='rejeitada') return '<span class="pill red" style="font-size:.62rem" title="'+esc((p.aprovacao&&p.aprovacao.nota)||'Rejeitada pelo gestor')+'">Rejeitada</span>'; if(st==='aprovada') return '<span class="pill green" style="font-size:.62rem" title="Aprovada pelo gestor">Aprovada</span>'; return ''; }
 /* ---------- Nível de interesse do cliente (por proposta) ---------- */
 const INTERESSE=['Por classificar','Frio','Morno','Quente'];
-const interesseCor=v=>({'Por classificar':'grey','Frio':'blue','Morno':'amber','Quente':'green'}[v]||'grey');
-const interesseTint=v=>({Frio:'#2563eb',Morno:'#d97706',Quente:'#00A651'}[v]||'');
+const interesseCor=v=>({'Por classificar':'grey','Frio':'blue','Morno':'amber','Quente':'red'}[v]||'grey');
+const interesseTint=v=>({Frio:'#2563eb',Morno:'#d97706',Quente:'#dc2626'}[v]||'');   // frio azul · morno laranja · quente vermelho
 function interesseBadge(p){ if(!p.interesse||p.interesse==='Por classificar') return ''; return `<span class="pill ${interesseCor(p.interesse)}" style="font-size:.6rem" title="Nível de interesse do cliente nesta proposta">${esc(p.interesse)}</span>`; }
-function kcardTint(p){ const c=interesseTint(p.interesse); if(!c||!['Enviada','Negociação'].includes(p.estado)) return ''; return `border-left:3px solid ${c};background:linear-gradient(90deg, ${c}14, transparent 55%)`; }
+function kcardTint(p){ const c=interesseTint(p.interesse); if(!c||!['Enviada','Negociação'].includes(p.estado)) return ''; return `border-left:4px solid ${c};background:linear-gradient(90deg, ${c}2e, ${c}12 50%, transparent 88%)`; }
 /* ---------- Controlo de stock (por artigo) ---------- */
 function stockControlled(pr){ return !!(pr && pr.controlaStock && pr.tipo!=='Serviço'); }
 function stockLow(pr){ return stockControlled(pr) && Number(pr.stock||0)<=Number(pr.stockMin||0); }
@@ -1846,9 +1846,11 @@ function kanbanHTML(){
   return `<div class="kanban">${PROP_STATES.map(st=>{
     const items=state.propostas.filter(p=>p.estado===st);
     const tot=items.reduce((s,p)=>s+propTotal(p),0);
-    return `<div class="kcol"><div class="kcol-head"><span><span class="dot" style="background:${stateDot(st)}"></span>${st}</span><span class="cnt">${items.length}</span></div>
+    const colBg = st==='Ganha'?'background:var(--g100)':st==='Perdida'?'background:var(--danger-bg)':'';   // colunas terminais tingidas
+    const totCol = st==='Perdida'?'color:var(--danger)':'';   // total das perdidas a vermelho (Ganha já é verde)
+    return `<div class="kcol"${colBg?` style="${colBg}"`:''}><div class="kcol-head"><span><span class="dot" style="background:${stateDot(st)}"></span>${st}</span><span class="cnt">${items.length}</span></div>
       <div class="klist" data-status="${st}">${items.map(p=>`<div class="kcard" draggable="true" data-id="${p.id}" data-act="open-prop"${kcardTint(p)?` style="${kcardTint(p)}"`:''}><span class="knum">${esc(p.numero)}</span><span class="ktitle">${esc(p.titulo)}</span>${(aprovBadge(p)||onlineBadge(p)||interesseBadge(p))?`<div style="margin:4px 0 0;display:flex;gap:4px;flex-wrap:wrap">${interesseBadge(p)}${aprovBadge(p)}${onlineBadge(p)}</div>`:''}<div class="kfoot"><span class="muted" style="font-size:.78rem">${esc(propAccount(p))}</span><span class="kval">${money(propTotal(p))}</span></div></div>`).join('')||'<div class="empty" style="padding:14px;font-size:.8rem">Vazio</div>'}</div>
-      <div class="ktotal">${money(tot)}</div></div>`;
+      <div class="ktotal"${totCol?` style="${totCol}"`:''}>${money(tot)}</div></div>`;
   }).join('')}</div>`;
 }
 function propTableHTML(){

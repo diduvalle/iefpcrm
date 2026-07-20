@@ -36,10 +36,10 @@ Each proposal has an **Interest level** field - how interested the customer is i
 |---|---|
 | Unclassified | grey (neutral) |
 | Cold | blue |
-| Warm | amber |
-| Hot | green |
+| Warm | orange |
+| Hot | red |
 
-In the **[Pipeline](pipeline.md)**, proposals in play (Sent / Negotiation) stop being white and get **tinted** with the level colour (left bar + subtle background), so you read each deal's "temperature" at a glance. Won/Lost keep their status colour.
+In the **[Pipeline](pipeline.md)**, proposals in play (Sent / Negotiation) stop being white and get **tinted** with the level colour (left bar + subtle background), so you read each deal's "temperature" at a glance. In addition, the **Won** column gets a **green** tone and the **Lost** column a **red** tone (with a red total), so the terminal states read instantly.
 
 !!! tip "Audit trail"
     The proposal records **who created/changed it and when** - visible in the modal footer.

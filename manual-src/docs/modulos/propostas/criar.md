@@ -36,10 +36,10 @@ Cada proposta tem um campo **Nível de interesse** - o quão interessado o clien
 |---|---|
 | Por classificar | cinza (neutro) |
 | Frio | azul |
-| Morno | âmbar |
-| Quente | verde |
+| Morno | laranja |
+| Quente | vermelho |
 
-No **[Pipeline](pipeline.md)**, as propostas em jogo (Enviada / Negociação) deixam de ser brancas e ficam **tingidas** com a cor do nível (barra à esquerda + fundo subtil), para veres o "calor" de cada negócio de relance. As Ganha/Perdida mantêm a cor de estado.
+No **[Pipeline](pipeline.md)**, as propostas em jogo (Enviada / Negociação) deixam de ser brancas e ficam **tingidas** com a cor do nível (barra à esquerda + fundo subtil), para veres o "calor" de cada negócio de relance. Além disso, a coluna **Ganha** ganha um tom **verde** e a **Perdida** um tom **vermelho** (com o total a vermelho), para os estados terminais se lerem de imediato.
 
 !!! tip "Auditoria"
     A proposta guarda **quem criou/alterou e quando** - visível no rodapé do modal.
