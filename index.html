@@ -462,6 +462,7 @@ body.present #presentExit{display:inline-flex;align-items:center;gap:6px;positio
 
 <!-- PORTAL DO TITULAR (público) -->
 <div id="portal" class="portal" style="display:none"></div>
+<div id="pubprop" class="portal" style="display:none"></div>
 
 <!-- LOGIN -->
 <div id="login" class="portal" style="display:none"></div>
@@ -1821,13 +1822,13 @@ function kanbanHTML(){
     const items=state.propostas.filter(p=>p.estado===st);
     const tot=items.reduce((s,p)=>s+propTotal(p),0);
     return `<div class="kcol"><div class="kcol-head"><span><span class="dot" style="background:${stateDot(st)}"></span>${st}</span><span class="cnt">${items.length}</span></div>
-      <div class="klist" data-status="${st}">${items.map(p=>`<div class="kcard" draggable="true" data-id="${p.id}" data-act="open-prop"><span class="knum">${esc(p.numero)}</span><span class="ktitle">${esc(p.titulo)}</span>${aprovBadge(p)?`<div style="margin:4px 0 0">${aprovBadge(p)}</div>`:''}<div class="kfoot"><span class="muted" style="font-size:.78rem">${esc(propAccount(p))}</span><span class="kval">${money(propTotal(p))}</span></div></div>`).join('')||'<div class="empty" style="padding:14px;font-size:.8rem">Vazio</div>'}</div>
+      <div class="klist" data-status="${st}">${items.map(p=>`<div class="kcard" draggable="true" data-id="${p.id}" data-act="open-prop"><span class="knum">${esc(p.numero)}</span><span class="ktitle">${esc(p.titulo)}</span>${(aprovBadge(p)||onlineBadge(p))?`<div style="margin:4px 0 0;display:flex;gap:4px;flex-wrap:wrap">${aprovBadge(p)}${onlineBadge(p)}</div>`:''}<div class="kfoot"><span class="muted" style="font-size:.78rem">${esc(propAccount(p))}</span><span class="kval">${money(propTotal(p))}</span></div></div>`).join('')||'<div class="empty" style="padding:14px;font-size:.8rem">Vazio</div>'}</div>
       <div class="ktotal">${money(tot)}</div></div>`;
   }).join('')}</div>`;
 }
 function propTableHTML(){
   return `<div class="table-wrap"><table><thead><tr><th>Número</th><th>Empresa (cliente)</th><th>Criada</th><th>Validade</th><th class="t-right">Total</th><th>Estado</th><th></th></tr></thead><tbody>
-    ${state.propostas.length?state.propostas.map(p=>`<tr><td data-act="open-prop" data-id="${p.id}" style="cursor:pointer"><div class="cell-main">${esc(p.numero)}</div><div class="cell-sub">${esc(p.titulo)}</div></td><td><div class="cell-main">${esc(propAccount(p))}</div>${p.clienteId?`<div class="cell-sub">${esc(clientName(p.clienteId))}</div>`:''}</td><td>${dPT(p.criada)}</td><td>${dPT(p.validade)}</td><td class="t-right"><strong>${money(propTotal(p))}</strong></td><td><span class="pill ${stateColor(p.estado)}">${p.estado}</span>${aprovBadge(p)?' '+aprovBadge(p):''}</td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="proposta" data-id="${p.id}">Editar</button><button class="btn-sec btn-xs" data-act="print-prop" data-id="${p.id}">${ic('print',13)} PDF</button><button class="btn-sec btn-xs" data-act="email-prop" data-id="${p.id}">${ic('mail',13)} Email</button></div></td></tr>`).join(''):`<tr><td colspan="7">${empty('Sem propostas')}</td></tr>`}
+    ${state.propostas.length?state.propostas.map(p=>`<tr><td data-act="open-prop" data-id="${p.id}" style="cursor:pointer"><div class="cell-main">${esc(p.numero)}</div><div class="cell-sub">${esc(p.titulo)}</div></td><td><div class="cell-main">${esc(propAccount(p))}</div>${p.clienteId?`<div class="cell-sub">${esc(clientName(p.clienteId))}</div>`:''}</td><td>${dPT(p.criada)}</td><td>${dPT(p.validade)}</td><td class="t-right"><strong>${money(propTotal(p))}</strong></td><td><span class="pill ${stateColor(p.estado)}">${p.estado}</span>${aprovBadge(p)?' '+aprovBadge(p):''}${onlineBadge(p)?' '+onlineBadge(p):''}</td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="proposta" data-id="${p.id}">Editar</button><button class="btn-sec btn-xs" data-act="print-prop" data-id="${p.id}">${ic('print',13)} PDF</button><button class="btn-sec btn-xs" data-act="email-prop" data-id="${p.id}">${ic('mail',13)} Email</button></div></td></tr>`).join(''):`<tr><td colspan="7">${empty('Sem propostas')}</td></tr>`}
   </tbody></table></div>`;
 }
 
@@ -2847,6 +2848,52 @@ function insertEmailTag(tag){ const ta=(lastTagEl&&lastTagEl.isConnected)?lastTa
 
 /* ---- enviar email (modal) ---- */
 let sendDraft=null;
+/* ---------- Proposta online (link rastreável + adjudicação) ----------
+   Publica um snapshot da proposta no Supabase (Edge Function "proposta"),
+   dá um link público #p/<token> que conta aberturas e deixa o cliente adjudicar. */
+const PUB_FN=SUPA_URL+'/functions/v1/proposta';
+function pubUrl(token){ try{ return location.origin+location.pathname+'#p/'+token; }catch(e){ return 'https://iefpcrm.cr0x.org/#p/'+token; } }
+function pubToken(){ return 'pp'+Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,6); }
+async function pubPost(body){ const r=await fetch(PUB_FN,{method:'POST',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json'},body:JSON.stringify(body)}); return r.json(); }
+async function pubGet(token,stats){ const r=await fetch(PUB_FN+'?t='+encodeURIComponent(token)+(stats?'&stats=1':''),{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}}); return r.json(); }
+function propDocFor(p){ const tpl=(state.propostaTemplates||[]).find(t=>t.id===p.templateId)||(state.propostaTemplates||[])[0]; return tpl?proposalDocHTML(tpl,p):('<div style="padding:40px;font-family:sans-serif">Proposta '+esc(p.numero||'')+'</div>'); }
+async function pubPublish(p){
+  const token=(p.online&&p.online.token)||pubToken();
+  const res=await pubPost({action:'publish',token,numero:p.numero,titulo:p.titulo,entidade:state.settings.entidade||'',cliente:propAccount(p),turma:(typeof TURMA!=='undefined'?TURMA:'')||'',html:propDocFor(p)});
+  if(res&&res.ok){ p.online=Object.assign({},p.online,{token,publicadoEm:todayISO()}); return {ok:true,token,url:pubUrl(token)}; }
+  return {ok:false,error:(res&&res.error)||'sem ligação'};
+}
+function pubDT(s){ return s?String(s).slice(0,16).replace('T',' '):''; }
+function loadPubStats(token){ if(!token) return; pubGet(token,true).then(r=>{ const el=$('#pubStats'); if(!r||!r.ok){ if(el) el.innerHTML='<span class="muted">Ainda sem dados (o link é publicado no envio).</span>'; return; }
+    if(propDraft&&propDraft.online&&propDraft.online.token===token){ Object.assign(propDraft.online,{aberturas:r.aberturas,ultima_abertura:r.ultima_abertura,adjudicada_em:r.adjudicada_em,adjudicante:r.adjudicante}); const st=state.propostas.find(x=>x.id===propDraft.id); if(st){ st.online=Object.assign({},st.online,propDraft.online); save(); } }
+    if(!el) return; const ab=r.aberturas||0; const ult=pubDT(r.ultima_abertura);
+    el.innerHTML=(r.adjudicada_em?`<span class="pill green">Adjudicada</span> por <strong>${esc(r.adjudicante||'cliente')}</strong>${r.adjudicada_em?' em '+dPT(String(r.adjudicada_em).slice(0,10)):''} · `:'')+`${ic('eye',12)} ${ab} abertura(s)${ult?' · última: '+ult:''}`;
+  }).catch(()=>{ const el=$('#pubStats'); if(el) el.innerHTML='<span class="muted">Sem ligação ao servidor.</span>'; }); }
+function onlineBadge(p){ if(p.online&&p.online.adjudicada_em) return '<span class="pill green" style="font-size:.62rem" title="Adjudicada online pelo cliente">Adjudicada</span>'; if(p.online&&p.online.token) return '<span class="pill blue" style="font-size:.62rem" title="Link online publicado">Online</span>'; return ''; }
+function renderPublicProposta(token){
+  const box=$('#pubprop'); if(!box) return;
+  box.innerHTML=`<div style="width:100%;text-align:center;padding:60px 16px;color:var(--muted)">${ic('doc',22)}<div style="margin-top:8px">A carregar proposta…</div></div>`;
+  pubGet(token).then(r=>{
+    if(!r||!r.ok){ box.innerHTML=`<div style="width:100%;max-width:520px;margin:60px auto;padding:0 16px"><div class="card card-pad" style="text-align:center"><h1 style="font-size:1.1rem;margin-bottom:6px">Proposta indisponível</h1><p class="muted" style="font-size:.86rem">O link pode estar incorreto ou já não estar ativo.</p></div></div>`; return; }
+    const adj=!!r.adjudicada_em;
+    box.innerHTML=`<div style="width:100%;max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:14px;padding:20px 16px 44px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="brand-logo" style="width:42px;height:42px;flex:0 0 auto"><img src="IEFPnormal.png" alt=""></div>
+        <div style="min-width:0"><strong style="font-size:1rem">${esc(r.entidade||'Proposta comercial')}</strong><div class="muted" style="font-size:.8rem">Proposta ${esc(r.numero||'')}${r.cliente?' · '+esc(r.cliente):''}</div></div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-md)"><iframe id="pubFrame" title="Proposta" style="width:100%;height:78vh;border:0;display:block;background:#eef2f0"></iframe></div>
+      <div class="card card-pad" style="position:sticky;bottom:14px">
+        ${adj?`<div class="callout green" style="margin:0"><div class="ctxt"><strong>Proposta adjudicada.</strong> Obrigado${r.adjudicante?', '+esc(r.adjudicante):''}! Registámos a sua adesão${r.adjudicada_em?' em '+dPT(String(r.adjudicada_em).slice(0,10)):''}. A empresa entrará em contacto.</div></div>`
+          :`<div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+              <div style="min-width:180px"><strong style="font-size:.95rem">Aceita esta proposta?</strong><div class="muted" style="font-size:.8rem">Escreva o seu nome e adjudique com um clique.</div></div>
+              <div style="display:flex;gap:8px;flex:1;min-width:250px;max-width:440px"><input id="pubNome" placeholder="O seu nome" style="flex:1"><button class="btn" data-act="pub-adjudicar" data-token="${esc(token)}" style="white-space:nowrap">${ic('check',16)} Adjudicar</button></div>
+            </div>`}
+      </div>
+      <div class="muted" style="font-size:.72rem;text-align:center">${esc(r.entidade||'')} · Proposta enviada através do IEFP CRM</div>
+    </div>`;
+    const fr=$('#pubFrame'); if(fr) fr.srcdoc=r.html||'';
+  }).catch(()=>{ box.innerHTML=`<div style="width:100%;text-align:center;padding:60px 16px;color:var(--muted)">Erro de ligação. Tente novamente.</div>`; });
+}
 function openSendEmail(propostaId, clienteId){
   const prop=propostaId?state.propostas.find(p=>p.id===propostaId):null;
   const cli=prop?getC(prop.clienteId):(clienteId?getC(clienteId):null);
@@ -2875,7 +2922,7 @@ function renderSendForm(){
       <div class="field"><label>CC <span class="muted" style="font-weight:500">(opcional)</span></label><input data-send="cc" value="${esc(d.cc||'')}" placeholder="ex.: gestor@empresa.pt"></div>
       <div class="field"><label>BCC <span class="muted" style="font-weight:500">(opcional)</span></label><input data-send="bcc" value="${esc(d.bcc||'')}" placeholder="ex.: arquivo@empresa.pt"></div>
       <div class="field full"><label>Assunto</label><input data-send="assunto" value="${esc(tpl?mergeCtx(tpl.assunto,cli,prop):'')}"></div>
-      ${prop?`<div class="field full"><label style="cursor:pointer"><input type="checkbox" data-send="anexar" ${d.anexar?'checked':''} style="vertical-align:-2px;margin-right:7px;width:15px;height:15px;accent-color:var(--g600)">Anexar proposta ${esc(prop.numero)} em PDF</label></div>`:''}
+      ${prop?`<div class="field full"><label style="cursor:pointer"><input type="checkbox" data-send="anexar" ${d.anexar?'checked':''} style="vertical-align:-2px;margin-right:7px;width:15px;height:15px;accent-color:var(--g600)">Incluir o link online da proposta ${esc(prop.numero)} <span class="muted" style="font-weight:500">(rastreável, com adjudicação)</span></label></div>`:''}
     </div>
     <div class="toolbar" style="margin:4px 0 10px"><button class="btn-sec btn-sm" type="button" data-act="send-open">${ic('mail',15)} Enviar e abrir no cliente de email</button></div>
     <div class="muted" style="font-size:.8rem;font-weight:700;margin:8px 0 8px">${ic('eye',14)} Pré-visualização</div>
@@ -2888,7 +2935,13 @@ async function doSendEmail(openMail){
   const tpl=state.templates.find(t=>t.id===sendDraft.templateId);
   if(!hasSignature()){ if(!(await uiConfirm('Não tem uma assinatura de email configurada no seu perfil. Quer enviar mesmo assim?',{title:'Enviar sem assinatura?',okText:'Enviar'}))){ toast('Configure a assinatura','Clique no seu nome (canto inferior esquerdo) → Assinatura de email','info'); return; } }
   const sigT=sigHtmlToText((currentUser()||{}).assinatura);
-  const body=mergeCtx((tpl?tpl.saudacao+'\n\n'+tpl.corpo+(tpl.botaoTexto&&tpl.botaoLink?'\n\n'+tpl.botaoTexto+': '+tpl.botaoLink:'')+(prop?'\n\n(Proposta '+prop.numero+' - exportável em PDF a partir do CRM)':'')+'\n\n'+tpl.assinatura:''),cli,prop)+(sigT?'\n\n'+mergeCtx(sigT,cli,prop):'');
+  // proposta online: publica (best-effort) e mete o LINK no corpo em vez do PDF
+  let pubLink='';
+  if(prop){ try{ if(!(prop.online&&prop.online.token)){ const rp=await pubPublish(prop); if(rp.ok){ const st=state.propostas.find(x=>x.id===prop.id); if(st) st.online=prop.online; save(); } }
+    else { await pubPublish(prop); }   // republica o snapshot atual
+    if(prop.online&&prop.online.token) pubLink=pubUrl(prop.online.token); }catch(e){} }
+  const propNote = prop ? (pubLink ? '\n\nVeja e adjudique a sua proposta online:\n'+pubLink : '\n\n(Proposta '+prop.numero+')') : '';
+  const body=mergeCtx((tpl?tpl.saudacao+'\n\n'+tpl.corpo+(tpl.botaoTexto&&tpl.botaoLink?'\n\n'+tpl.botaoTexto+': '+tpl.botaoLink:'')+propNote+'\n\n'+tpl.assinatura:''),cli,prop)+(sigT?'\n\n'+mergeCtx(sigT,cli,prop):'');
   const ev=sendEmail({clienteId:cli.id, templateId:sendDraft.templateId, assunto:sendDraft.assunto, proposta:prop, origem:'Manual'});
   if(prop) snapshotVersao(prop);   // grava a versão das condições enviadas
   if(cli) maybeLeadQuente(cli.id);  // o email pode ter subido o score → gatilho comportamental
@@ -3830,6 +3883,19 @@ function renderPropForm(){
       <button class="btn-sec btn-sm" type="button" data-act="prop-pdf">${ic('print',15)} Descarregar PDF</button>
       <button class="btn-sec btn-sm" type="button" data-act="prop-email">${ic('mail',15)} Enviar por email</button>
     </div>
+    ${(()=>{ const on=p.online&&p.online.token; return `<div class="card" style="padding:12px 14px;margin-bottom:14px;background:var(--surface2);border:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px"><strong style="font-size:.9rem">${ic('send',14)} Proposta online <span class="muted" style="font-weight:600;font-size:.78rem">(link rastreável)</span></strong><div class="muted" style="font-size:.78rem">Um link que o cliente abre online, conta as aberturas e permite adjudicar. Vai no email em vez do PDF.</div></div>
+        ${on?`<button class="btn-sec btn-sm" type="button" data-act="pub-refresh">${ic('trend',14)} Atualizar dados</button><button class="btn-sec btn-sm" type="button" data-act="pub-publish">Republicar</button>`
+            :`<button class="btn btn-sm" type="button" data-act="pub-publish">${ic('send',14)} Publicar link</button>`}
+      </div>
+      ${on?`<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <input readonly value="${esc(pubUrl(p.online.token))}" style="flex:1;min-width:220px;font-size:.8rem" onclick="this.select()">
+          <button class="btn-sec btn-sm" type="button" data-act="pub-copy" data-url="${esc(pubUrl(p.online.token))}">${ic('doc',14)} Copiar</button>
+          <a class="btn-sec btn-sm" href="#p/${esc(p.online.token)}" target="_blank" rel="noopener">${ic('eye',14)} Abrir</a>
+        </div>
+        <div id="pubStats" class="muted" style="font-size:.8rem;margin-top:9px">A carregar dados…</div>`:''}
+    </div>`; })()}
     <div class="form-grid">
       <div class="field"><label>Número (automático)</label><input name="numero" value="${esc(p.numero)}" readonly style="background:var(--surface3);color:var(--muted);cursor:not-allowed"></div>
       <div class="field"><label>Estado</label><select name="estado">${opt(PROP_STATES.map(s=>({v:s,t:s})),p.estado)}</select></div>
@@ -3854,6 +3920,7 @@ function renderPropForm(){
     <div class="muted" style="font-size:.74rem;margin-top:14px;border-top:1px solid var(--border);padding-top:8px">${ic('users',12)} Criada por ${esc(aC?aC.nome+' '+(aC.apelido||''):'-')}${p.criadoEm?' em '+dPT(p.criadoEm):''} · Última alteração: ${esc(aA?aA.nome+' '+(aA.apelido||''):'-')}${p.alteradoEm?' em '+dPT(p.alteradoEm):''}</div>
     ${versoesHTML(p)}`;
   syncDraftFromForm();
+  if(p.online&&p.online.token) loadPubStats(p.online.token);
 }
 function produtoOptions(sel){
   let html='<option value="">- escolher artigo -</option>';
@@ -4261,7 +4328,10 @@ function renderNotifPanel(){
 }
 function render(){
   let v=currentView();
-  const appEl=$('#app'), portalEl=$('#portal'), loginEl=$('#login');
+  const appEl=$('#app'), portalEl=$('#portal'), loginEl=$('#login'); const pubEl=$('#pubprop');
+  if(pubEl && v.slice(0,2)!=='p/') pubEl.style.display='none';
+  // Proposta online (link público #p/<token>) - não exige login
+  if(v.slice(0,2)==='p/'){ appEl.style.display='none'; portalEl.style.display='none'; loginEl.style.display='none'; if(pubEl) pubEl.style.display='flex'; renderPublicProposta(v.slice(2)); startI18n(); return; }
   // Portal do Titular é público
   if(v==='portal'){ appEl.style.display='none'; portalEl.style.display='flex'; loginEl.style.display='none'; renderPortal(); startI18n(); return; }
   // Exigir início de sessão
@@ -4622,6 +4692,15 @@ document.addEventListener('click', async e=>{
     case 'prop-preview': openPropPreview(); break;
     case 'prop-pdf': if(propDraft){ if(!propDraft.linhas.some(l=>l.produtoId)){ toast('Sem artigos','Adicione artigos do catálogo para exportar','warn'); break; } persistPropDraft(); printProposal(propDraft.id); } break;
     case 'prop-email': if(propDraft){ persistPropDraft(); const pid=propDraft.id; closePreview(); closeModal(); openSendEmail(pid); } break;
+    case 'pub-publish': if(propDraft){ persistPropDraft(); const b=el; b.disabled=true; const old=b.innerHTML; b.innerHTML='A publicar…';
+        pubPublish(propDraft).then(res=>{ if(res.ok){ const st=state.propostas.find(x=>x.id===propDraft.id); if(st) st.online=propDraft.online; save(); toast('Link publicado','A proposta já está online'); renderPropForm(); }
+          else { toast('Não foi possível publicar', res.error==='sem ligação'?'Precisa de ligação ao Supabase (turma online)':res.error,'warn'); b.disabled=false; b.innerHTML=old; } })
+          .catch(()=>{ toast('Erro de ligação','','err'); b.disabled=false; b.innerHTML=old; }); } break;
+    case 'pub-copy': { const u=el.dataset.url||''; if(navigator.clipboard&&u){ navigator.clipboard.writeText(u).then(()=>toast('Link copiado','')).catch(()=>toast('Copie manualmente',u,'info')); } break; }
+    case 'pub-refresh': if(propDraft&&propDraft.online&&propDraft.online.token){ const s=$('#pubStats'); if(s) s.innerHTML='A atualizar…'; loadPubStats(propDraft.online.token); } break;
+    case 'pub-adjudicar': { const tk=el.dataset.token; const nm=($('#pubNome')||{}).value||''; if(!String(nm).trim()){ toast('Falta o nome','Escreva o seu nome para adjudicar','warn'); break; } el.disabled=true; el.textContent='A adjudicar…';
+        pubPost({action:'adjudicar',token:tk,nome:String(nm).trim()}).then(r=>{ if(r&&r.ok) renderPublicProposta(tk); else { toast('Não foi possível','Tente novamente','warn'); el.disabled=false; } })
+          .catch(()=>{ toast('Erro de ligação','','err'); el.disabled=false; }); break; }
     case 'toggle-versao': { const d=$(`#modalForm .versao-det[data-vn="${el.dataset.vn}"]`); if(d){ d.hidden=!d.hidden; el.textContent=d.hidden?'Ver condições':'Ocultar'; } break; }
     case 'send-back': { const pid=sendDraft&&sendDraft.propostaId; closeModal(); if(pid) openModal('proposta',pid); } break;
     case 'mail-send': mailSend(); break;

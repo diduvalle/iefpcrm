@@ -10,7 +10,22 @@ Send the proposal to the client directly from the CRM.
 4. Confirm the **mode** (chip at the top: *Real send* or *Simulated*).
 5. **Send**.
 
-Your **signature** is added automatically at the end. On the free plan **there is no PDF attachment** - the proposal goes as a **reference in the text** (the client exports/receives the PDF separately).
+Your **signature** is added automatically at the end.
+
+## Online proposal (trackable link)
+
+Instead of sending a PDF "blind", the email carries a **link** to the online proposal. On the proposal, the **Online proposal** panel shows the link (copy / open) and, more importantly, what happens next:
+
+- **Opens** - how many times the client opened it and **when it was last opened**. You know whether they have seen it.
+- **Acceptance** - the client sees the proposal nicely in the browser and **accepts with one click** (types their name and confirms). The CRM marks the proposal as **Accepted** (who and when); you then close it to *Won*.
+
+In the pipeline, the proposal gets the **Online** badge (link published) or **Accepted** (the client accepted). The link is published automatically on send, or manually via **Publish link**.
+
+!!! note "Needs to be online"
+    The online proposal uses the class server (Supabase). It works when you enter through your class; in fully offline mode the link is not published.
+
+!!! warning "Trainees send in simulated mode"
+    Trainees always send in **simulated mode** (it logs to the history, does not deliver). It is safe to practise.
 
 !!! warning "Trainees send in simulated mode"
     Trainees always send in **simulated mode** (it logs to the history, does not deliver). It is safe to practise.
