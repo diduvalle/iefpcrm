@@ -1327,6 +1327,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#stock-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stock control
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#bulk-import-csv" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2189,6 +2200,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#stock-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stock control
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#bulk-import-csv" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2263,6 +2285,19 @@
 </ul>
 </li>
 </ol>
+<h2 id="stock-control">Stock control<a class="headerlink" href="#stock-control" title="Permanent link">¶</a></h2>
+<p>For physical items (<strong>Products</strong>) you can track warehouse stock; <strong>Services</strong> never have stock. On the item:</p>
+<ul>
+<li><strong>Track stock for this item</strong> - turns tracking on/off (on by default for Products). <strong>Turn it off</strong> for digital products/licenses, which have no physical stock.</li>
+<li><strong>Stock on hand</strong> - the available quantity.</li>
+<li><strong>Minimum stock</strong> - per item; at or below this value, an alert fires.</li>
+</ul>
+<p>How it works:</p>
+<ul>
+<li>When a <strong>proposal is Won</strong>, each line's quantity is <strong>deducted</strong> from stock. If you <strong>reopen</strong> or <strong>delete</strong> that proposal, the stock is <strong>restored</strong>.</li>
+<li>When stock reaches the <strong>minimum or below</strong>, an <strong>alert</strong> appears (Alerts module) and the value turns <strong>red</strong> in the items table.</li>
+<li>A sale beyond available stock <strong>warns</strong> but is allowed (learning environment) - stock goes negative, in red.</li>
+</ul>
 <h2 id="bulk-import-csv">Bulk import (CSV)<a class="headerlink" href="#bulk-import-csv" title="Permanent link">¶</a></h2>
 <p><strong>Import</strong> button → download the <strong>template</strong> (columns <code>nome;familia;subfamilia;tipo;modelo;preco;iva;estado</code>) → fill it in → import. Missing families/subfamilies are created automatically.</p>
 <div class="admonition tip">

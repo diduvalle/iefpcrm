@@ -1327,6 +1327,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#controlo-de-stock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Controlo de stock
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#importar-em-massa-csv" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2189,6 +2200,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#controlo-de-stock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Controlo de stock
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#importar-em-massa-csv" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2263,6 +2285,19 @@
 </ul>
 </li>
 </ol>
+<h2 id="controlo-de-stock">Controlo de stock<a class="headerlink" href="#controlo-de-stock" title="Permanent link">¶</a></h2>
+<p>Nos artigos físicos (<strong>Produtos</strong>) podes controlar o stock em armazém; os <strong>Serviços</strong> nunca têm stock. No artigo:</p>
+<ul>
+<li><strong>Controlar stock deste artigo</strong> - liga/desliga o controlo (ligado por omissão nos Produtos). <strong>Desliga-o</strong> nos produtos digitais/licenças, que não têm stock físico.</li>
+<li><strong>Stock em armazém</strong> - a quantidade disponível.</li>
+<li><strong>Stock mínimo</strong> - próprio de cada artigo; abaixo ou igual a este valor, dispara um alerta.</li>
+</ul>
+<p>Como funciona:</p>
+<ul>
+<li>Quando uma <strong>proposta é Ganha</strong>, a quantidade de cada linha é <strong>abatida</strong> do stock. Se <strong>reabrires</strong> ou <strong>apagares</strong> essa proposta, o stock é <strong>reposto</strong>.</li>
+<li>Quando o stock fica <strong>no mínimo ou abaixo</strong>, aparece um <strong>alerta</strong> (módulo Alertas) e o valor fica a <strong>vermelho</strong> na tabela de artigos.</li>
+<li>Uma venda acima do stock <strong>avisa</strong> mas deixa passar (ambiente pedagógico) - o stock fica negativo, a vermelho.</li>
+</ul>
 <h2 id="importar-em-massa-csv">Importar em massa (CSV)<a class="headerlink" href="#importar-em-massa-csv" title="Permanent link">¶</a></h2>
 <p>Botão <strong>Importar</strong> → descarrega o <strong>modelo</strong> (colunas <code>nome;familia;subfamilia;tipo;modelo;preco;iva;estado</code>) → preenche → importa. Famílias/subfamílias em falta são criadas automaticamente.</p>
 <div class="admonition tip">
