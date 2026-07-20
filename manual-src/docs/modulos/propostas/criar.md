@@ -28,6 +28,19 @@ O **IVA** usa a **região da empresa** e o **desconto** vem do **nível de loyal
 4. Adiciona as **[linhas do catálogo](linhas.md)** (cada uma é Único/pontual ou Mensal/Anual/recorrente).
 5. **Guardar**.
 
+## Nível de interesse do cliente
+
+Cada proposta tem um campo **Nível de interesse** - o quão interessado o cliente está *neste* negócio, segundo o feedback dele:
+
+| Nível | Cor |
+|---|---|
+| Por classificar | cinza (neutro) |
+| Frio | azul |
+| Morno | âmbar |
+| Quente | verde |
+
+No **[Pipeline](pipeline.md)**, as propostas em jogo (Enviada / Negociação) deixam de ser brancas e ficam **tingidas** com a cor do nível (barra à esquerda + fundo subtil), para veres o "calor" de cada negócio de relance. As Ganha/Perdida mantêm a cor de estado.
+
 !!! tip "Auditoria"
     A proposta guarda **quem criou/alterou e quando** - visível no rodapé do modal.
 

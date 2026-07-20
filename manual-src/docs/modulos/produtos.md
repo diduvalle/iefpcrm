@@ -27,6 +27,20 @@ Os **códigos** são gerados automaticamente; não tens de os inventar.
     - **Preço** e **IVA** (escolhido da lista de taxas por região).
     - **Estado** (Disponível / Indisponível) - os *Indisponíveis* não aparecem nas propostas.
 
+## Controlo de stock
+
+Nos artigos físicos (**Produtos**) podes controlar o stock em armazém; os **Serviços** nunca têm stock. No artigo:
+
+- **Controlar stock deste artigo** - liga/desliga o controlo (ligado por omissão nos Produtos). **Desliga-o** nos produtos digitais/licenças, que não têm stock físico.
+- **Stock em armazém** - a quantidade disponível.
+- **Stock mínimo** - próprio de cada artigo; abaixo ou igual a este valor, dispara um alerta.
+
+Como funciona:
+
+- Quando uma **proposta é Ganha**, a quantidade de cada linha é **abatida** do stock. Se **reabrires** ou **apagares** essa proposta, o stock é **reposto**.
+- Quando o stock fica **no mínimo ou abaixo**, aparece um **alerta** (módulo Alertas) e o valor fica a **vermelho** na tabela de artigos.
+- Uma venda acima do stock **avisa** mas deixa passar (ambiente pedagógico) - o stock fica negativo, a vermelho.
+
 ## Importar em massa (CSV)
 
 Botão **Importar** → descarrega o **modelo** (colunas `nome;familia;subfamilia;tipo;modelo;preco;iva;estado`) → preenche → importa. Famílias/subfamílias em falta são criadas automaticamente.

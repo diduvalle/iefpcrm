@@ -27,6 +27,20 @@ The **codes** are generated automatically; you don't have to invent them.
     - **Price** and **VAT** (chosen from the list of rates by region).
     - **Status** (Available / Unavailable) - *Unavailable* ones do not appear in proposals.
 
+## Stock control
+
+For physical items (**Products**) you can track warehouse stock; **Services** never have stock. On the item:
+
+- **Track stock for this item** - turns tracking on/off (on by default for Products). **Turn it off** for digital products/licenses, which have no physical stock.
+- **Stock on hand** - the available quantity.
+- **Minimum stock** - per item; at or below this value, an alert fires.
+
+How it works:
+
+- When a **proposal is Won**, each line's quantity is **deducted** from stock. If you **reopen** or **delete** that proposal, the stock is **restored**.
+- When stock reaches the **minimum or below**, an **alert** appears (Alerts module) and the value turns **red** in the items table.
+- A sale beyond available stock **warns** but is allowed (learning environment) - stock goes negative, in red.
+
 ## Bulk import (CSV)
 
 **Import** button → download the **template** (columns `nome;familia;subfamilia;tipo;modelo;preco;iva;estado`) → fill it in → import. Missing families/subfamilies are created automatically.

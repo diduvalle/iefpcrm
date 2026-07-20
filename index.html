@@ -883,6 +883,7 @@ function demoData(){
     {id:'fam1',codigo:'01',nome:'Software CRM',estado:'Ativa'},
     {id:'fam2',codigo:'02',nome:'Serviços',estado:'Ativa'},
     {id:'fam3',codigo:'03',nome:'Formação',estado:'Ativa'},
+    {id:'fam4',codigo:'04',nome:'Equipamento',estado:'Ativa'},
   ];
   const subs = [
     {id:'sub1',codigo:'0101',familiaId:'fam1',nome:'Licenças',estado:'Ativa'},
@@ -890,6 +891,7 @@ function demoData(){
     {id:'sub3',codigo:'0201',familiaId:'fam2',nome:'Consultoria',estado:'Ativa'},
     {id:'sub4',codigo:'0202',familiaId:'fam2',nome:'Suporte',estado:'Ativa'},
     {id:'sub5',codigo:'0301',familiaId:'fam3',nome:'Workshops',estado:'Ativa'},
+    {id:'sub6',codigo:'0401',familiaId:'fam4',nome:'Hardware',estado:'Ativa'},
   ];
   const prods = [
     {id:'pr1',codigo:'0101001',nome:'Licença CRM Base',familiaId:'fam1',subfamiliaId:'sub1',tipo:'Produto',modelo:'Mensal',preco:39,iva:23,estado:'Disponível'},
@@ -899,6 +901,8 @@ function demoData(){
     {id:'pr5',codigo:'0201001',nome:'Consultoria de Implementação',familiaId:'fam2',subfamiliaId:'sub3',tipo:'Serviço',modelo:'Único',preco:1200,iva:23,estado:'Disponível'},
     {id:'pr6',codigo:'0202001',nome:'Plano de Suporte Premium',familiaId:'fam2',subfamiliaId:'sub4',tipo:'Serviço',modelo:'Anual',preco:480,iva:23,estado:'Disponível'},
     {id:'pr7',codigo:'0301001',nome:'Workshop CRM para Equipas',familiaId:'fam3',subfamiliaId:'sub5',tipo:'Serviço',modelo:'Único',preco:650,iva:23,estado:'Disponível'},
+    {id:'pr8',codigo:'0401001',nome:'Leitor de cartões',familiaId:'fam4',subfamiliaId:'sub6',tipo:'Produto',modelo:'Único',preco:89,iva:23,estado:'Disponível',controlaStock:true,stock:14,stockMin:5},
+    {id:'pr9',codigo:'0401002',nome:'Tablet de demonstração',familiaId:'fam4',subfamiliaId:'sub6',tipo:'Produto',modelo:'Único',preco:320,iva:23,estado:'Disponível',controlaStock:true,stock:3,stockMin:4},
   ];
   const clientes = [
     {id:'cl1',numero:'0001',nome:'João',apelido:'Silva',empresa:'Silva & Filhos, Lda.',nif:'501234560',email:'joao@silvafilhos.pt',telefone:'912345678',cidade:'Porto',regiao:'Continente',segmento:'PME',loyalty:'Ouro',origem:'Recomendação',criado:'2025-01-12',notas:'Cliente histórico, foco em retenção.'},
@@ -1151,6 +1155,26 @@ function aprovMotivo(p){ const a=aprovRule(); const r=[]; const tcv=proposalTota
 function canAprovar(){ return !state.settings.requireLogin || isAdmin() || isGestor(); }
 function propsAprovacaoPendente(){ return state.propostas.filter(p=>aprovState(p)==='pendente'); }
 function aprovBadge(p){ const st=aprovState(p); if(st==='pendente') return '<span class="pill amber" style="font-size:.62rem" title="Aguarda aprovação do gestor">Aguarda aprovação</span>'; if(st==='rejeitada') return '<span class="pill red" style="font-size:.62rem" title="'+esc((p.aprovacao&&p.aprovacao.nota)||'Rejeitada pelo gestor')+'">Rejeitada</span>'; if(st==='aprovada') return '<span class="pill green" style="font-size:.62rem" title="Aprovada pelo gestor">Aprovada</span>'; return ''; }
+/* ---------- Nível de interesse do cliente (por proposta) ---------- */
+const INTERESSE=['Por classificar','Frio','Morno','Quente'];
+const interesseCor=v=>({'Por classificar':'grey','Frio':'blue','Morno':'amber','Quente':'green'}[v]||'grey');
+const interesseTint=v=>({Frio:'#2563eb',Morno:'#d97706',Quente:'#00A651'}[v]||'');
+function interesseBadge(p){ if(!p.interesse||p.interesse==='Por classificar') return ''; return `<span class="pill ${interesseCor(p.interesse)}" style="font-size:.6rem" title="Nível de interesse do cliente nesta proposta">${esc(p.interesse)}</span>`; }
+function kcardTint(p){ const c=interesseTint(p.interesse); if(!c||!['Enviada','Negociação'].includes(p.estado)) return ''; return `border-left:3px solid ${c};background:linear-gradient(90deg, ${c}14, transparent 55%)`; }
+/* ---------- Controlo de stock (por artigo) ---------- */
+function stockControlled(pr){ return !!(pr && pr.controlaStock && pr.tipo!=='Serviço'); }
+function stockLow(pr){ return stockControlled(pr) && Number(pr.stock||0)<=Number(pr.stockMin||0); }
+// abate ao Ganha, repõe ao sair de Ganha (reabrir/apagar). p.stockAbatido evita duplo abate.
+function applyStockForProp(p, oldS, newS){
+  if(!p) return; const won=s=>s==='Ganha';
+  if(won(newS)&&!won(oldS)&&!p.stockAbatido){ const neg=[];
+    (p.linhas||[]).forEach(l=>{ if(!l.produtoId)return; const pr=state.produtos.find(x=>x.id===l.produtoId); if(pr&&stockControlled(pr)){ pr.stock=Number(pr.stock||0)-Number(l.qtd||0); if(pr.stock<0) neg.push(pr.nome); } });
+    p.stockAbatido=true; if(neg.length) toast('Stock insuficiente','Ficou negativo: '+neg.join(', '),'warn');
+  } else if(!won(newS)&&won(oldS)&&p.stockAbatido){
+    (p.linhas||[]).forEach(l=>{ if(!l.produtoId)return; const pr=state.produtos.find(x=>x.id===l.produtoId); if(pr&&stockControlled(pr)) pr.stock=Number(pr.stock||0)+Number(l.qtd||0); });
+    p.stockAbatido=false;
+  }
+}
 /* ---------- Serviço ao cliente / Casos (UFCD 10866) ---------- */
 const CASO_ESTADOS=['Novo','Em curso','À espera','Resolvido','Fechado'];
 const CASO_PRIORIDADES=['Baixa','Média','Alta','Urgente'];
@@ -1770,7 +1794,7 @@ views.produtos = () => {
       </div>
       <input type="file" id="importProductsFile" accept=".csv,text/csv" style="display:none">
     </div>
-    <div class="table-wrap"><table><thead><tr><th>Código</th><th>Artigo</th><th>Família / Subfamília</th><th>Tipo</th><th>Modelo</th><th class="t-right">Preço</th><th>IVA</th><th>Estado</th><th></th></tr></thead><tbody>
+    <div class="table-wrap"><table><thead><tr><th>Código</th><th>Artigo</th><th>Família / Subfamília</th><th>Tipo</th><th>Modelo</th><th class="t-right">Preço</th><th>IVA</th><th class="t-right">Stock</th><th>Estado</th><th></th></tr></thead><tbody>
       ${prods.length?pgp.slice.map(p=>`<tr>
         <td class="muted">${esc(p.codigo)}</td>
         <td class="cell-main">${esc(p.nome)}</td>
@@ -1779,9 +1803,10 @@ views.produtos = () => {
         <td>${esc(p.modelo)}</td>
         <td class="t-right"><strong>${fmt(p.preco)}</strong></td>
         <td>${esc(p.iva)}%</td>
+        <td class="t-right">${stockControlled(p)?(stockLow(p)?`<span class="pill red" style="font-size:.68rem" title="Stock no mínimo ou abaixo (mín. ${Number(p.stockMin||0)})">${Number(p.stock||0)}</span>`:`<strong>${Number(p.stock||0)}</strong>`):'<span class="muted">-</span>'}</td>
         <td><span class="pill ${p.estado==='Disponível'?'green':'grey'}">${esc(p.estado)}</span></td>
         <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="produto" data-id="${p.id}">Editar</button><button class="btn-danger btn-xs" data-act="delete" data-type="produto" data-id="${p.id}">✕</button></div></td>
-      </tr>`).join('') : `<tr><td colspan="9">${empty('Sem artigos')}</td></tr>`}
+      </tr>`).join('') : `<tr><td colspan="10">${empty('Sem artigos')}</td></tr>`}
     </tbody></table></div>
     ${pager('produtos',pgp)}
   </div>`;
@@ -1822,13 +1847,13 @@ function kanbanHTML(){
     const items=state.propostas.filter(p=>p.estado===st);
     const tot=items.reduce((s,p)=>s+propTotal(p),0);
     return `<div class="kcol"><div class="kcol-head"><span><span class="dot" style="background:${stateDot(st)}"></span>${st}</span><span class="cnt">${items.length}</span></div>
-      <div class="klist" data-status="${st}">${items.map(p=>`<div class="kcard" draggable="true" data-id="${p.id}" data-act="open-prop"><span class="knum">${esc(p.numero)}</span><span class="ktitle">${esc(p.titulo)}</span>${(aprovBadge(p)||onlineBadge(p))?`<div style="margin:4px 0 0;display:flex;gap:4px;flex-wrap:wrap">${aprovBadge(p)}${onlineBadge(p)}</div>`:''}<div class="kfoot"><span class="muted" style="font-size:.78rem">${esc(propAccount(p))}</span><span class="kval">${money(propTotal(p))}</span></div></div>`).join('')||'<div class="empty" style="padding:14px;font-size:.8rem">Vazio</div>'}</div>
+      <div class="klist" data-status="${st}">${items.map(p=>`<div class="kcard" draggable="true" data-id="${p.id}" data-act="open-prop"${kcardTint(p)?` style="${kcardTint(p)}"`:''}><span class="knum">${esc(p.numero)}</span><span class="ktitle">${esc(p.titulo)}</span>${(aprovBadge(p)||onlineBadge(p)||interesseBadge(p))?`<div style="margin:4px 0 0;display:flex;gap:4px;flex-wrap:wrap">${interesseBadge(p)}${aprovBadge(p)}${onlineBadge(p)}</div>`:''}<div class="kfoot"><span class="muted" style="font-size:.78rem">${esc(propAccount(p))}</span><span class="kval">${money(propTotal(p))}</span></div></div>`).join('')||'<div class="empty" style="padding:14px;font-size:.8rem">Vazio</div>'}</div>
       <div class="ktotal">${money(tot)}</div></div>`;
   }).join('')}</div>`;
 }
 function propTableHTML(){
   return `<div class="table-wrap"><table><thead><tr><th>Número</th><th>Empresa (cliente)</th><th>Criada</th><th>Validade</th><th class="t-right">Total</th><th>Estado</th><th></th></tr></thead><tbody>
-    ${state.propostas.length?state.propostas.map(p=>`<tr><td data-act="open-prop" data-id="${p.id}" style="cursor:pointer"><div class="cell-main">${esc(p.numero)}</div><div class="cell-sub">${esc(p.titulo)}</div></td><td><div class="cell-main">${esc(propAccount(p))}</div>${p.clienteId?`<div class="cell-sub">${esc(clientName(p.clienteId))}</div>`:''}</td><td>${dPT(p.criada)}</td><td>${dPT(p.validade)}</td><td class="t-right"><strong>${money(propTotal(p))}</strong></td><td><span class="pill ${stateColor(p.estado)}">${p.estado}</span>${aprovBadge(p)?' '+aprovBadge(p):''}${onlineBadge(p)?' '+onlineBadge(p):''}</td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="proposta" data-id="${p.id}">Editar</button><button class="btn-sec btn-xs" data-act="print-prop" data-id="${p.id}">${ic('print',13)} PDF</button><button class="btn-sec btn-xs" data-act="email-prop" data-id="${p.id}">${ic('mail',13)} Email</button></div></td></tr>`).join(''):`<tr><td colspan="7">${empty('Sem propostas')}</td></tr>`}
+    ${state.propostas.length?state.propostas.map(p=>`<tr><td data-act="open-prop" data-id="${p.id}" style="cursor:pointer"><div class="cell-main">${esc(p.numero)}</div><div class="cell-sub">${esc(p.titulo)}</div></td><td><div class="cell-main">${esc(propAccount(p))}</div>${p.clienteId?`<div class="cell-sub">${esc(clientName(p.clienteId))}</div>`:''}</td><td>${dPT(p.criada)}</td><td>${dPT(p.validade)}</td><td class="t-right"><strong>${money(propTotal(p))}</strong></td><td><span class="pill ${stateColor(p.estado)}">${p.estado}</span>${interesseBadge(p)?' '+interesseBadge(p):''}${aprovBadge(p)?' '+aprovBadge(p):''}${onlineBadge(p)?' '+onlineBadge(p):''}</td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="proposta" data-id="${p.id}">Editar</button><button class="btn-sec btn-xs" data-act="print-prop" data-id="${p.id}">${ic('print',13)} PDF</button><button class="btn-sec btn-xs" data-act="email-prop" data-id="${p.id}">${ic('mail',13)} Email</button></div></td></tr>`).join(''):`<tr><td colspan="7">${empty('Sem propostas')}</td></tr>`}
   </tbody></table></div>`;
 }
 
@@ -3511,7 +3536,7 @@ const SCHEMAS = {
     {n:'estado',l:'Estado',type:'select',opts:CASO_ESTADOS.map(x=>({v:x,t:x})),def:'Novo'},
     {n:'descricao',l:'Descrição (primeira mensagem)',type:'textarea',full:1,hint:'O que o cliente reportou - fica como a 1.ª entrada da conversa.'},
   ]},
-  produto:{store:'produtos',label:'Artigo',code:p=>{const sub=getSub(p.subfamiliaId);const base=sub?sub.codigo:'00';const n=state.produtos.filter(x=>String(x.codigo||'').startsWith(base)&&x.id!==p.id).length+1;if(!p.codigo)p.codigo=base+pad(n,3);},fields:[
+  produto:{store:'produtos',label:'Artigo',code:p=>{const sub=getSub(p.subfamiliaId);const base=sub?sub.codigo:'00';const n=state.produtos.filter(x=>String(x.codigo||'').startsWith(base)&&x.id!==p.id).length+1;if(!p.codigo)p.codigo=base+pad(n,3); if(p.tipo==='Serviço') p.controlaStock=false;},fields:[
     {n:'nome',l:'Designação do artigo',req:1,full:1},
     {n:'familiaId',l:'Família',type:'select',opts:()=>state.familias.map(f=>({v:f.id,t:`${f.codigo} ${f.nome}`}))},
     {n:'subfamiliaId',l:'Subfamília',type:'select',opts:()=>state.subfamilias.map(s=>({v:s.id,t:`${s.codigo} ${s.nome}`}))},
@@ -3520,6 +3545,9 @@ const SCHEMAS = {
     {n:'preco',l:'Preço (€)',type:'number'},
     {n:'iva',l:'Taxa de IVA',type:'select',numeric:1,opts:()=>ivaRates().map(r=>({v:r.taxa,t:`${r.taxa}% - ${r.regiao} ${r.tipo}`})),def:23},
     {n:'estado',l:'Estado',type:'select',opts:['Disponível','Indisponível'].map(x=>({v:x,t:x}))},
+    {n:'controlaStock',l:'Controlar stock deste artigo',type:'check',def:true,full:1,hint:'Ligado nos produtos físicos; desligue nos serviços e produtos digitais (licenças). Os serviços nunca controlam stock.'},
+    {n:'stock',l:'Stock em armazém',type:'number',hint:'Quantidade disponível. É abatida quando uma proposta com este artigo é Ganha.'},
+    {n:'stockMin',l:'Stock mínimo (alerta)',type:'number',def:5,hint:'Quando o stock ficar neste valor ou abaixo, dispara um alerta.'},
   ]},
   familia:{store:'familias',label:'Família',code:f=>{if(!f.codigo)f.codigo=pad(state.familias.length+1);},fields:[
     {n:'nome',l:'Nome da família',req:1,full:1},
@@ -3657,6 +3685,7 @@ function fieldHTML(f,item){
     const rowHTML=r=>`<div class="cx-row" style="display:flex;gap:8px;margin-bottom:8px;align-items:center"><select data-cx="tipo" style="flex:0 0 108px">${selHTML(['Email','Telefone'],r.tipo||'Email')}</select><select data-cx="rotulo" style="flex:0 0 130px">${selHTML(['Profissional','Pessoal','Outro'],r.rotulo||'Profissional')}</select><input data-cx="valor" value="${esc(r.valor||'')}" placeholder="email ou telefone" style="flex:1"><button type="button" class="btn-danger btn-xs" data-act="cx-del" style="height:38px" title="Remover">✕</button></div>`;
     return `<div class="${cls}"><label>${esc(f.l)}</label><div id="cxList">${rows.map(rowHTML).join('')}</div><button type="button" class="btn-sec btn-sm" data-act="cx-add">+ Contacto</button>${hint}</div>`;
   }
+  if(f.type==='check'){ return `<div class="${cls}"><label style="cursor:pointer;display:flex;align-items:center;gap:8px;font-weight:600"><input type="checkbox" name="${f.n}" ${v?'checked':''} style="width:15px;height:15px;accent-color:var(--g600)">${esc(f.l)}</label>${hint}</div>`; }
   const t=f.type||'text';
   if(t==='password') v=''; // nunca pré-preencher palavra-passe
   if(f.n==='nif'||f.n==='nipc'){ // feedback ao vivo (validade + tipo); no NIPC da empresa, botão de pesquisa real
@@ -3771,7 +3800,7 @@ async function saveModal(){
   const fd=new FormData($('#modalForm'));
   const cur=id?state[store].find(x=>x.id===id):null;
   const obj=cur?clone(cur):{id:uid(type.slice(0,3))};
-  sc.fields.forEach(f=>{ if(f.type==='contactlist') return; let v=fd.get(f.n); if(f.type==='number'||f.numeric)v=Number(v||0); obj[f.n]=v; });
+  sc.fields.forEach(f=>{ if(f.type==='contactlist') return; if(f.type==='check'){ obj[f.n]=fd.get(f.n)!=null; return; } let v=fd.get(f.n); if(f.type==='number'||f.numeric)v=Number(v||0); obj[f.n]=v; });
   { const cxf=sc.fields.find(f=>f.type==='contactlist'); if(cxf){ obj[cxf.n]=$$('#modalForm .cx-row').map(row=>({tipo:(row.querySelector('[data-cx="tipo"]')||{}).value||'Email',rotulo:(row.querySelector('[data-cx="rotulo"]')||{}).value||'Outro',valor:String((row.querySelector('[data-cx="valor"]')||{}).value||'').trim()})).filter(r=>r.valor); } }
   // validação simples
   const miss=sc.fields.filter(f=>f.req&&!String(obj[f.n]||'').trim());
@@ -3899,6 +3928,7 @@ function renderPropForm(){
     <div class="form-grid">
       <div class="field"><label>Número (automático)</label><input name="numero" value="${esc(p.numero)}" readonly style="background:var(--surface3);color:var(--muted);cursor:not-allowed"></div>
       <div class="field"><label>Estado</label><select name="estado">${opt(PROP_STATES.map(s=>({v:s,t:s})),p.estado)}</select></div>
+      <div class="field"><label>Nível de interesse do cliente</label><select name="interesse">${opt(INTERESSE.map(s=>({v:s,t:s})),p.interesse||'Por classificar')}</select></div>
       ${p.estado==='Perdida'?`<div class="field"><label>Motivo da perda ${infoTip('motivoperda')}</label><select name="motivoPerda">${opt([{v:'',t:'- selecione -'}].concat(LOSS_REASONS.map(x=>({v:x,t:x}))),p.motivoPerda||'')}</select></div>
       <div class="field full"><label>Detalhe do motivo (opcional)</label><input name="motivoPerdaNota" value="${esc(p.motivoPerdaNota||'')}" placeholder="ex.: concorrente 15% mais barato"></div>`:''}
       <div class="field full"><label>Título *</label><input name="titulo" value="${esc(p.titulo)}" ${locked?'readonly':''}></div>
@@ -3961,7 +3991,7 @@ function propTotalsHTML(p){
 }
 function syncDraftFromForm(){
   const f=$('#modalForm'); if(!f) return;
-  ['numero','titulo','empresaId','clienteId','validade','estado','templateId','motivoPerda','motivoPerdaNota','meses'].forEach(k=>{ const el=f.querySelector(`[name="${k}"]`); if(el) propDraft[k]=el.value; });
+  ['numero','titulo','empresaId','clienteId','validade','estado','templateId','motivoPerda','motivoPerdaNota','meses','interesse'].forEach(k=>{ const el=f.querySelector(`[name="${k}"]`); if(el) propDraft[k]=el.value; });
   $$('.line-row',f).forEach(row=>{ const i=+row.dataset.line; const L=propDraft.linhas[i]; if(!L)return;
     const ps=row.querySelector('[data-l="produtoId"]'); if(ps){ L.produtoId=ps.value; const prod=state.produtos.find(x=>x.id===ps.value); L.descricao=prod?prod.nome:(L.descricao||''); L.modelo=prod?prod.modelo:(L.modelo||'Único'); }
     const q=row.querySelector('[data-l="qtd"]'); if(q)L.qtd=Number(q.value||0);
@@ -4008,6 +4038,7 @@ function savePropModal(closeAfter){
 }
 function onPropStatusChange(p, oldS, newS){
   if(!newS||newS===oldS) return;
+  applyStockForProp(p, oldS, newS);   // abate/repõe stock dos artigos
   { const acc=propAccObj(p); if(acc){ if(newS==='Ganha') advanceFase(acc,'Cliente'); else if(['Criada','Enviada','Negociação'].includes(newS)) advanceFase(acc,'SQL'); } }
   if(newS==='Ganha') fireAutomations('proposta-ganha',{clienteId:p.clienteId,proposta:p});
   else if(newS==='Enviada') fireAutomations('proposta-enviada',{clienteId:p.clienteId,proposta:p});
@@ -4044,6 +4075,7 @@ async function deleteEntity(type,id){
   if(type==='utilizador' && item && (item.id==='u1'||item.protegido)){ toast('Não permitido','O perfil de administrador/criador não pode ser removido.','warn'); return; }
   const nm=type==='cliente'?clientName(id):(item?.nome||item?.numero||item?.atividade||item?.descricao||'registo');
   if(!(await uiConfirm(`Eliminar "${nm}"? Esta ação não pode ser anulada.`,{title:'Eliminar '+esc(type)+'?',danger:true,okText:'Eliminar'}))) return;
+  if(type==='proposta' && item && item.stockAbatido) applyStockForProp(item, 'Ganha', 'Perdida');   // apagar uma venda repõe o stock
   state[store]=state[store].filter(x=>x.id!==id);
   if(type==='cliente'){ // limpar dependências
     state.propostas=state.propostas.filter(p=>p.clienteId!==id);
@@ -4317,6 +4349,7 @@ function computeAlerts(){
   const venc=(state.agendamentos||[]).filter(x=>x.dataAgendada<=t).length; if(venc) a.push({i:'bell',c:'blue',t:`${venc} email(s) agendado(s) vencido(s)`,s:'Abrir Comunicação → Agendados',k:'agend'});
   (state.tarefas||[]).filter(x=>x.estado!=='Concluída'&&x.data<t).forEach(x=>a.push({i:'calendar',c:'amber',t:'Tarefa em atraso',s:`${x.titulo} · ${dPT(x.data)}`,k:'tarefa'}));
   (state.tarefas||[]).filter(x=>x.estado!=='Concluída'&&x.data===t).forEach(x=>a.push({i:'calendar',c:'blue',t:'Tarefa para hoje',s:x.titulo,k:'tarefa'}));
+  (state.produtos||[]).filter(pr=>stockLow(pr)).forEach(pr=>a.push({i:'box',c:'red',t:`Stock baixo: ${pr.nome}`,s:`${Number(pr.stock||0)} em armazém · mínimo ${Number(pr.stockMin||0)}`,k:'produto',id:pr.id}));
   return a;
 }
 function pillColorVar(c){ return c==='red'?'var(--danger)':c==='amber'?'var(--warn)':c==='blue'?'var(--info)':'var(--g600)'; }
@@ -4726,7 +4759,7 @@ document.addEventListener('click', async e=>{
     case 'theme': applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'); break;
     case 'present': document.body.classList.toggle('present'); break;
     case 'notif': { const p=$('#notifPanel'); if(!p)break; const open=p.classList.toggle('open'); if(open) renderNotifPanel(); } break;
-    case 'notif-go': { const k=el.dataset.k, gid=el.dataset.id; $('#notifPanel')?.classList.remove('open'); if(k==='prop'){ location.hash='#propostas'; setTimeout(()=>openModal('proposta',gid),90); } else if(k==='rgpd'){ state._rgpdTab='pedidos'; location.hash='#rgpd'; render(); } else if(k==='agend'){ state._comTab='agendados'; location.hash='#comunicacao'; render(); } else if(k==='tarefa'){ location.hash='#agenda'; render(); } } break;
+    case 'notif-go': { const k=el.dataset.k, gid=el.dataset.id; $('#notifPanel')?.classList.remove('open'); if(k==='prop'){ location.hash='#propostas'; setTimeout(()=>openModal('proposta',gid),90); } else if(k==='rgpd'){ state._rgpdTab='pedidos'; location.hash='#rgpd'; render(); } else if(k==='agend'){ state._comTab='agendados'; location.hash='#comunicacao'; render(); } else if(k==='tarefa'){ location.hash='#agenda'; render(); } else if(k==='produto'){ location.hash='#produtos'; setTimeout(()=>openModal('produto',gid),90); } } break;
     case 'search-go': { const k=el.dataset.kind, gid=el.dataset.id; const box=$('#searchResults'); if(box){box.innerHTML='';box.style.display='none';} const gs=$('#globalSearch'); if(gs)gs.value=''; $('#app').classList.remove('nav-open'); if(k==='cliente'){ location.hash='#clientes'; setTimeout(()=>openClient360(gid),90); } else if(k==='proposta'){ location.hash='#propostas'; setTimeout(()=>openModal('proposta',gid),90); } else if(k==='produto'){ location.hash='#produtos'; setTimeout(()=>openModal('produto',gid),90); } } break;
     case 'toggle-nav': $('#app').classList.toggle('nav-collapsed'); localStorage.setItem('iefp-nav',$('#app').classList.contains('nav-collapsed')?'1':'0'); break;
     case 'open-nav': $('#app').classList.add('nav-open'); break;

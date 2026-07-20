@@ -28,6 +28,19 @@ Click **+ Proposal** (or an existing card to edit). The modal opens with the pro
 4. Add the **[catalogue lines](linhas.md)** (each is One-off or Monthly/Annual/recurring).
 5. **Save**.
 
+## Customer interest level
+
+Each proposal has an **Interest level** field - how interested the customer is in *this* deal, based on their feedback:
+
+| Level | Colour |
+|---|---|
+| Unclassified | grey (neutral) |
+| Cold | blue |
+| Warm | amber |
+| Hot | green |
+
+In the **[Pipeline](pipeline.md)**, proposals in play (Sent / Negotiation) stop being white and get **tinted** with the level colour (left bar + subtle background), so you read each deal's "temperature" at a glance. Won/Lost keep their status colour.
+
 !!! tip "Audit trail"
     The proposal records **who created/changed it and when** - visible in the modal footer.
 
