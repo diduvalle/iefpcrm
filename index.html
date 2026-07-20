@@ -1869,8 +1869,10 @@ function propTableHTML(){
 /* ---------- SERVIÇO AO CLIENTE / CASOS (10866) ---------- */
 views.casos = () => {
   const filtroE = state._casoEstado||'';
+  const q=(state._q||'').toLowerCase().trim();
   let list = (state.casos||[]).slice();
   if(filtroE) list=list.filter(c=>c.estado===filtroE);
+  if(q) list=list.filter(c=>[c.numero,c.assunto,casoAccount(c),clientName(c.clienteId)].join(' ').toLowerCase().includes(q));
   list.sort((a,b)=>{ const oa=casoAberto(a)?0:1, ob=casoAberto(b)?0:1; if(oa!==ob) return oa-ob; return (casoPrazo(a)<casoPrazo(b)?-1:1); });
   const abertos=casosAbertos();
   const emRisco=abertos.filter(c=>['risco','violado'].includes(casoSla(c).estado)).length;
@@ -1883,13 +1885,17 @@ views.casos = () => {
     ${kpi('NPS', nps!=null?(nps>0?'+'+nps:''+nps):'-', {icon:'trend', sub:'recomendação (-100 a 100)'})}
   </div>
   <div class="card card-pad">
-    <div class="section-head" style="margin-bottom:14px">
+    <div class="section-head" style="margin-bottom:14px;gap:12px">
       <div><h3>Casos de apoio</h3><div class="sub">Pedidos de serviço ao cliente, com SLA por prioridade e satisfação (CSAT/NPS)</div></div>
-      <button class="btn" data-act="new" data-type="caso">${ic('support',16)} Novo caso</button>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end">
+        <div class="search-inp" style="max-width:280px;flex:1;min-width:180px">${ic('eye',15)}<input type="search" placeholder="Procurar por número ou assunto…" data-search value="${esc(state._q||'')}"></div>
+        <button class="btn" data-act="new" data-type="caso">${ic('support',16)} Novo caso</button>
+      </div>
     </div>
     <div class="toolbar" style="margin-bottom:12px;gap:6px;flex-wrap:wrap">
       <button class="chip ${!filtroE?'active':''}" data-act="caso-filtro" data-estado="">Todos</button>
       ${CASO_ESTADOS.map(e=>`<button class="chip ${filtroE===e?'active':''}" data-act="caso-filtro" data-estado="${e}">${e}</button>`).join('')}
+      ${q?`<span class="muted" style="font-size:.78rem;align-self:center;margin-left:4px">${ic('eye',12)} ${list.length} resultado(s) para "${esc(state._q)}" · <a href="#" data-act="prop-clearq" style="color:var(--g700)">limpar</a></span>`:''}
     </div>
     <div class="table-wrap"><table><thead><tr><th>Caso</th><th>Empresa</th><th>Canal</th><th>Prioridade</th><th>Estado</th><th>SLA</th><th>Responsável</th><th>Atualizado</th></tr></thead><tbody>
     ${list.length?list.map(c=>`<tr data-act="open-caso" data-id="${c.id}" style="cursor:pointer">

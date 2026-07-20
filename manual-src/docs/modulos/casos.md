@@ -17,6 +17,9 @@ O módulo **Casos** gere os pedidos de apoio dos clientes de ponta a ponta: regi
 | **Responsável** | Quem trata o caso (pode ficar por atribuir) |
 | **Descrição** | Fica como a **1.ª mensagem** da conversa |
 
+!!! tip "Procurar um caso"
+    No topo da lista há uma **barra de pesquisa**: escreve o **número** (ex.: `002`) ou parte do **assunto/empresa/contacto** e a lista filtra-se de imediato. Combina com os filtros de estado.
+
 ## O ciclo do caso
 
 `Novo → Em curso → À espera → Resolvido → Fechado`

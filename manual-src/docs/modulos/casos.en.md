@@ -17,6 +17,9 @@ The **Cases** module handles customer support requests end to end: logging, conv
 | **Owner** | Who handles the case (can be left unassigned) |
 | **Description** | Becomes the **1st message** of the conversation |
 
+!!! tip "Find a case"
+    At the top of the list there is a **search bar**: type the **number** (e.g. `002`) or part of the **subject/company/contact** and the list filters instantly. It combines with the status filters.
+
 ## The case cycle
 
 `New → In progress → Waiting → Resolved → Closed`
