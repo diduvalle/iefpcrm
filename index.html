@@ -1593,12 +1593,29 @@ const accountsCount = () => (state.empresas||[]).length + (state.clientes||[]).f
 function propAccount(p){ return p&&p.empresaId ? ((state.empresas.find(e=>e.id===p.empresaId)||{}).nome||'-') : clientName(p&&p.clienteId); }
 // objeto da CONTA de uma proposta (empresa, ou o contacto se particular) - p/ avançar a fase de lead
 function propAccObj(p){ return p&&p.empresaId ? ((state.empresas||[]).find(e=>e.id===p.empresaId)||null) : getC(p&&p.clienteId); }
-views.empresas = () => {
+function empBodyHTML(){
   const q=(state._q||'').toLowerCase();
   const fase=state._faseFilter||'';
-  const all=state.empresas;
-  const list=all.filter(e=>!q||[e.numero,e.nome,e.nipc,e.cidade,e.setor].join(' ').toLowerCase().includes(q)).filter(e=>!fase||(e.fase||'Lead')===fase);
+  const list=state.empresas.filter(e=>!q||[e.numero,e.nome,e.nipc,e.cidade,e.setor].join(' ').toLowerCase().includes(q)).filter(e=>!fase||(e.fase||'Lead')===fase);
   const pg=paginate(list,'empresas');
+  return `<div class="table-wrap"><table><thead><tr><th>N.º</th><th>Empresa</th><th>Fase</th><th>Setor / Dimensão</th><th>Origem</th><th class="t-center">Pessoas</th><th>Loyalty</th>${canSeeFinance()?'<th class="t-right">Valor</th>':''}<th></th></tr></thead><tbody>
+      ${list.length?pg.slice.map(e=>{const nc=empContacts(e.id).length;const sc=empLeadScore(e);const si=scoreInfo(sc);const fz=e.fase||'Lead';const lyl=e.loyalty||'Bronze';return `<tr data-act="open-empresa" data-id="${e.id}" style="cursor:pointer">
+        <td class="muted">${esc(e.numero||'-')}</td>
+        <td><div class="cell-main">${esc(e.nome)} <span class="pill" style="background:${si.c}22;color:${si.c};font-size:.62rem" title="Lead score ${sc}/100">${si.l} ${sc}</span></div><div class="cell-sub">${esc(e.cidade||'')}${e.regiao&&e.regiao!=='Continente'?' · '+esc(e.regiao):''}</div></td>
+        <td><span class="pill ${faseColor(fz)}">${esc(fz)}</span></td>
+        <td><span class="chip">${esc(e.setor||'-')}</span> <span class="pill grey">${esc(e.dimensao||'-')}</span></td>
+        <td>${e.origem?`<span class="chip">${esc(e.origem)}</span>`:'<span class="muted">-</span>'}</td>
+        <td class="t-center"><strong>${nc}</strong></td>
+        <td><span class="pill ${lyl==='Ouro'?'amber':lyl==='Prata'?'grey':'green'}">${esc(lyl)}</span></td>
+        ${canSeeFinance()?`<td class="t-right"><strong>${money(empValue(e.id))}</strong></td>`:''}
+        <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="empresa" data-id="${e.id}" data-stop>Editar</button></div></td>
+      </tr>`;}).join(''):`<tr><td colspan="9">${empty('Sem empresas','Crie a primeira empresa, ou adicione contactos com empresa associada.')}</td></tr>`}
+    </tbody></table></div>
+    ${pager('empresas',pg)}`;
+}
+views.empresas = () => {
+  const fase=state._faseFilter||'';
+  const all=state.empresas;
   return `
   <div class="grid cols-4">
     ${kpi('Empresas', fmtN(all.length), {icon:'building'})}
@@ -1619,20 +1636,7 @@ views.empresas = () => {
       <button class="btn-sec btn-sm" data-fasefilter=""${!fase?' style="border-color:var(--g400);color:var(--g700);background:var(--g100)"':''}>Todas (${all.length})</button>
       ${FASES.map(f=>`<button class="btn-sec btn-sm" data-fasefilter="${f}"${fase===f?' style="border-color:var(--g400);color:var(--g700);background:var(--g100)"':''}>${f} (${all.filter(e=>(e.fase||'Lead')===f).length})</button>`).join('')}
     </div>
-    <div class="table-wrap"><table><thead><tr><th>N.º</th><th>Empresa</th><th>Fase</th><th>Setor / Dimensão</th><th>Origem</th><th class="t-center">Pessoas</th><th>Loyalty</th>${canSeeFinance()?'<th class="t-right">Valor</th>':''}<th></th></tr></thead><tbody>
-      ${list.length?pg.slice.map(e=>{const nc=empContacts(e.id).length;const sc=empLeadScore(e);const si=scoreInfo(sc);const fz=e.fase||'Lead';const lyl=e.loyalty||'Bronze';return `<tr data-act="open-empresa" data-id="${e.id}" style="cursor:pointer">
-        <td class="muted">${esc(e.numero||'-')}</td>
-        <td><div class="cell-main">${esc(e.nome)} <span class="pill" style="background:${si.c}22;color:${si.c};font-size:.62rem" title="Lead score ${sc}/100">${si.l} ${sc}</span></div><div class="cell-sub">${esc(e.cidade||'')}${e.regiao&&e.regiao!=='Continente'?' · '+esc(e.regiao):''}</div></td>
-        <td><span class="pill ${faseColor(fz)}">${esc(fz)}</span></td>
-        <td><span class="chip">${esc(e.setor||'-')}</span> <span class="pill grey">${esc(e.dimensao||'-')}</span></td>
-        <td>${e.origem?`<span class="chip">${esc(e.origem)}</span>`:'<span class="muted">-</span>'}</td>
-        <td class="t-center"><strong>${nc}</strong></td>
-        <td><span class="pill ${lyl==='Ouro'?'amber':lyl==='Prata'?'grey':'green'}">${esc(lyl)}</span></td>
-        ${canSeeFinance()?`<td class="t-right"><strong>${money(empValue(e.id))}</strong></td>`:''}
-        <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="empresa" data-id="${e.id}" data-stop>Editar</button></div></td>
-      </tr>`;}).join(''):`<tr><td colspan="9">${empty('Sem empresas','Crie a primeira empresa, ou adicione contactos com empresa associada.')}</td></tr>`}
-    </tbody></table></div>
-    ${pager('empresas',pg)}
+    <div id="empBody">${empBodyHTML()}</div>
   </div>`;
 };
 let drawer360Emp=null;  // empresa atualmente aberta na ficha 360 (p/ refrescar ao juntar pessoas)
@@ -1673,12 +1677,28 @@ function openEmpresa360(id){
 }
 
 /* ---------- CLIENTES ---------- */
-views.clientes = () => {
+function cliBodyHTML(){
   const q=(state._q||'').toLowerCase();
   const rg=rangeOf('cli'); const act=!!(rg.from||rg.to);
   const base=act?state.clientes.filter(c=>inDateRange(c.criado,rg.from,rg.to)):state.clientes;
   const list=base.filter(c=>!q||[c.numero,c.nome,c.apelido,c.empresa,c.email,c.cidade,c.cargo,c.funcao].join(' ').toLowerCase().includes(q));
   const pg=paginate(list,'clientes');
+  return `<div class="table-wrap"><table><thead><tr><th>N.º</th><th>Contacto</th><th>Empresa</th><th>Cargo / função</th><th>Cidade</th><th>Telefone</th><th></th></tr></thead><tbody>
+      ${list.length?pg.slice.map(c=>{const e=accEmpOf(c);const fz=e?(e.fase||'Lead'):'';return `<tr data-act="open-client" data-id="${c.id}" style="cursor:pointer">
+        <td class="muted">${esc(c.numero)}</td>
+        <td><div class="cell-main">${esc(c.nome)} ${esc(c.apelido||'')}</div><div class="cell-sub">${esc(c.email||'')}</div></td>
+        <td>${e?`${esc(e.nome)} <span class="pill ${faseColor(fz)}" style="font-size:.62rem" title="Fase de lead da empresa">${esc(fz)}</span>`:'<span class="muted">sem empresa</span>'}</td>
+        <td>${c.cargo?esc(c.cargo):(c.funcao?`<span class="chip">${esc(c.funcao)}</span>`:'<span class="muted">-</span>')}</td>
+        <td>${esc(c.cidade||'-')}</td>
+        <td>${esc(c.telefone||'-')}</td>
+        <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="cliente" data-id="${c.id}" data-stop>Editar</button></div></td>
+      </tr>`;}).join('') : `<tr><td colspan="7">${empty('Sem contactos','Crie o primeiro contacto para começar.')}</td></tr>`}
+    </tbody></table></div>
+    ${pager('clientes',pg)}`;
+}
+views.clientes = () => {
+  const rg=rangeOf('cli'); const act=!!(rg.from||rg.to);
+  const base=act?state.clientes.filter(c=>inDateRange(c.criado,rg.from,rg.to)):state.clientes;
   const comEmp=base.filter(c=>c.empresaId).length;
   return `
   <div class="grid cols-4">
@@ -1696,18 +1716,7 @@ views.clientes = () => {
         <button class="btn" data-act="new" data-type="cliente">${ic('users',16)} Novo contacto</button>
       </div>
     </div>
-    <div class="table-wrap"><table><thead><tr><th>N.º</th><th>Contacto</th><th>Empresa</th><th>Cargo / função</th><th>Cidade</th><th>Telefone</th><th></th></tr></thead><tbody>
-      ${list.length?pg.slice.map(c=>{const e=accEmpOf(c);const fz=e?(e.fase||'Lead'):'';return `<tr data-act="open-client" data-id="${c.id}" style="cursor:pointer">
-        <td class="muted">${esc(c.numero)}</td>
-        <td><div class="cell-main">${esc(c.nome)} ${esc(c.apelido||'')}</div><div class="cell-sub">${esc(c.email||'')}</div></td>
-        <td>${e?`${esc(e.nome)} <span class="pill ${faseColor(fz)}" style="font-size:.62rem" title="Fase de lead da empresa">${esc(fz)}</span>`:'<span class="muted">sem empresa</span>'}</td>
-        <td>${c.cargo?esc(c.cargo):(c.funcao?`<span class="chip">${esc(c.funcao)}</span>`:'<span class="muted">-</span>')}</td>
-        <td>${esc(c.cidade||'-')}</td>
-        <td>${esc(c.telefone||'-')}</td>
-        <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="cliente" data-id="${c.id}" data-stop>Editar</button></div></td>
-      </tr>`;}).join('') : `<tr><td colspan="7">${empty('Sem contactos','Crie o primeiro contacto para começar.')}</td></tr>`}
-    </tbody></table></div>
-    ${pager('clientes',pg)}
+    <div id="cliBody">${cliBodyHTML()}</div>
   </div>`;
 };
 
@@ -1831,10 +1840,13 @@ views.propostas = () => {
       </div>
       <button class="btn" data-act="new" data-type="proposta">${ic('doc',16)} Nova proposta</button>
     </div>
-    ${(state._q||'').trim()?`<div class="muted" style="font-size:.78rem;margin:-6px 0 12px">${ic('eye',12)} ${propListFiltered().length} resultado(s) para "${esc(state._q)}" · <a href="#" data-act="prop-clearq" style="color:var(--g700)">limpar</a></div>`:''}
-    ${tab==='kanban'?kanbanHTML():propTableHTML()}
+    <div id="propBody">${propBodyHTML()}</div>
   </div>`;
 };
+function propBodyHTML(){
+  const tab=state._propTab||'kanban'; const q=(state._q||'').trim();
+  return `${q?`<div class="muted" style="font-size:.78rem;margin:-6px 0 12px">${ic('eye',12)} ${propListFiltered().length} resultado(s) para "${esc(state._q)}" · <a href="#" data-act="prop-clearq" style="color:var(--g700)">limpar</a></div>`:''}${tab==='kanban'?kanbanHTML():propTableHTML()}`;
+}
 function aprovacaoPanelHTML(){
   const pend=propsAprovacaoPendente();
   if(!pend.length) return '';
@@ -1867,13 +1879,28 @@ function propTableHTML(){
 }
 
 /* ---------- SERVIÇO AO CLIENTE / CASOS (10866) ---------- */
-views.casos = () => {
-  const filtroE = state._casoEstado||'';
-  const q=(state._q||'').toLowerCase().trim();
-  let list = (state.casos||[]).slice();
+function casoBodyHTML(){
+  const filtroE=state._casoEstado||''; const q=(state._q||'').toLowerCase().trim();
+  let list=(state.casos||[]).slice();
   if(filtroE) list=list.filter(c=>c.estado===filtroE);
   if(q) list=list.filter(c=>[c.numero,c.assunto,casoAccount(c),clientName(c.clienteId)].join(' ').toLowerCase().includes(q));
   list.sort((a,b)=>{ const oa=casoAberto(a)?0:1, ob=casoAberto(b)?0:1; if(oa!==ob) return oa-ob; return (casoPrazo(a)<casoPrazo(b)?-1:1); });
+  return `${q?`<div class="muted" style="font-size:.78rem;margin:0 0 10px">${ic('eye',12)} ${list.length} resultado(s) para "${esc(state._q)}" · <a href="#" data-act="prop-clearq" style="color:var(--g700)">limpar</a></div>`:''}
+    <div class="table-wrap"><table><thead><tr><th>Caso</th><th>Empresa</th><th>Canal</th><th>Prioridade</th><th>Estado</th><th>SLA</th><th>Responsável</th><th>Atualizado</th></tr></thead><tbody>
+    ${list.length?list.map(c=>`<tr data-act="open-caso" data-id="${c.id}" style="cursor:pointer">
+      <td><div class="cell-main">${esc(c.numero)}</div><div class="cell-sub">${esc(c.assunto)}</div></td>
+      <td>${esc(casoAccount(c))}</td>
+      <td><span class="chip">${esc(c.canal||'-')}</span></td>
+      <td><span class="pill ${casoPrioCor(c.prioridade)}">${esc(c.prioridade||'-')}</span></td>
+      <td><span class="pill ${casoEstadoCor(c.estado)}">${esc(c.estado)}</span></td>
+      <td>${casoSlaBadge(c)||'<span class="muted">-</span>'}</td>
+      <td class="muted" style="font-size:.82rem">${esc(casoResponsavel(c)||'- por atribuir -')}</td>
+      <td class="muted">${dPT(c.atualizado||c.aberto)}</td>
+    </tr>`).join(''):`<tr><td colspan="8">${empty('Sem casos')}</td></tr>`}
+    </tbody></table></div>`;
+}
+views.casos = () => {
+  const filtroE = state._casoEstado||'';
   const abertos=casosAbertos();
   const emRisco=abertos.filter(c=>['risco','violado'].includes(casoSla(c).estado)).length;
   const csat=csatMedia(); const nps=npsScore();
@@ -1895,20 +1922,8 @@ views.casos = () => {
     <div class="toolbar" style="margin-bottom:12px;gap:6px;flex-wrap:wrap">
       <button class="chip ${!filtroE?'active':''}" data-act="caso-filtro" data-estado="">Todos</button>
       ${CASO_ESTADOS.map(e=>`<button class="chip ${filtroE===e?'active':''}" data-act="caso-filtro" data-estado="${e}">${e}</button>`).join('')}
-      ${q?`<span class="muted" style="font-size:.78rem;align-self:center;margin-left:4px">${ic('eye',12)} ${list.length} resultado(s) para "${esc(state._q)}" · <a href="#" data-act="prop-clearq" style="color:var(--g700)">limpar</a></span>`:''}
     </div>
-    <div class="table-wrap"><table><thead><tr><th>Caso</th><th>Empresa</th><th>Canal</th><th>Prioridade</th><th>Estado</th><th>SLA</th><th>Responsável</th><th>Atualizado</th></tr></thead><tbody>
-    ${list.length?list.map(c=>`<tr data-act="open-caso" data-id="${c.id}" style="cursor:pointer">
-      <td><div class="cell-main">${esc(c.numero)}</div><div class="cell-sub">${esc(c.assunto)}</div></td>
-      <td>${esc(casoAccount(c))}</td>
-      <td><span class="chip">${esc(c.canal||'-')}</span></td>
-      <td><span class="pill ${casoPrioCor(c.prioridade)}">${esc(c.prioridade||'-')}</span></td>
-      <td><span class="pill ${casoEstadoCor(c.estado)}">${esc(c.estado)}</span></td>
-      <td>${casoSlaBadge(c)||'<span class="muted">-</span>'}</td>
-      <td class="muted" style="font-size:.82rem">${esc(casoResponsavel(c)||'- por atribuir -')}</td>
-      <td class="muted">${dPT(c.atualizado||c.aberto)}</td>
-    </tr>`).join(''):`<tr><td colspan="8">${empty('Sem casos')}</td></tr>`}
-    </tbody></table></div>
+    <div id="casoBody">${casoBodyHTML()}</div>
   </div>`;
 };
 let drawer360Caso=null;
@@ -4950,8 +4965,11 @@ document.addEventListener('input', e=>{
   if(e.target.dataset.sigimg!=null){ sigInsertImage(e.target); return; }
   if(e.target.dataset.mailsearch!=null){ renderMailResults(e.target.value); return; }
   if(mailDraft && e.target.dataset.mail!=null){ const k=e.target.dataset.mail; mailDraft[k]=e.target.value; if(k==='templateId'){ applyMailTemplate(); render(); } else { updateMailPreview(); } return; }
-  if(e.target.matches('[data-search]')){ state._q=e.target.value; _pages[currentView()]=1; const cur=currentView(); if(views[cur]){ // re-render só conteúdo, manter foco
-    const pos=e.target.selectionStart; render(); const ni=$('[data-search]'); if(ni){ni.focus();ni.setSelectionRange(pos,pos);} } }
+  if(e.target.matches('[data-search]')){ state._q=e.target.value; _pages[currentView()]=1;
+    // atualiza SÓ o corpo da lista (não o resto da página nem o próprio campo) → sem piscar, cursor mantido
+    const B={empresas:['empBody',empBodyHTML],clientes:['cliBody',cliBodyHTML],propostas:['propBody',propBodyHTML],casos:['casoBody',casoBodyHTML]}[currentView()];
+    if(B){ const el=$('#'+B[0]); if(el){ el.innerHTML=B[1](); return; } }
+    const pos=e.target.selectionStart; render(); const ni=$('[data-search]'); if(ni){ni.focus();ni.setSelectionRange(pos,pos);} }
   if(e.target.id==='globalSearch'){ globalSearch(e.target.value); }
 });
 function saveSettings(){
