@@ -582,6 +582,8 @@ const I = {
   chevL:'<path d="m15 18-6-6 6-6"/>',
   chevR:'<path d="m9 18 6-6-6-6"/>',
   chevD:'<path d="m6 9 6 6 6-6"/>',
+  heart:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/>',
+  rotate:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/>',
 };
 const ic = (k,s=18)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${I[k]||''}</svg>`;
 
@@ -758,6 +760,7 @@ const NAV = [
   ]},
   {g:'Serviço ao cliente', items:[
     {id:'casos', label:'Helpdesk', icon:'support'},
+    {id:'retencao', label:'Retenção', icon:'heart'},
   ]},
   {g:'Marketing & Análise', items:[
     {id:'campanhas', label:'Campanhas', icon:'target'},
@@ -1012,6 +1015,13 @@ function demoData(){
     {id:'cs5',numero:'CASO-2026-005',assunto:'Fatura com dados fiscais errados',clienteId:'cl5',canal:'Email',prioridade:'Média',estado:'Fechado',responsavelId:'u3',aberto:'2026-06-20',atualizado:'2026-06-24',fechado:'2026-06-24',csat:4,nps:9,mensagens:[{de:'cliente',autor:'Pedro Ferreira',texto:'A morada fiscal na fatura está desatualizada.',data:'2026-06-20'},{de:'agente',autor:'Rita Sousa',texto:'Corrigido e emitida nota de crédito + nova fatura.',data:'2026-06-24'}]},
     {id:'cs6',numero:'CASO-2026-006',assunto:'Como configurar automações de email?',clienteId:'cl4',canal:'Email',prioridade:'Baixa',estado:'Fechado',responsavelId:'u2',aberto:'2026-06-15',atualizado:'2026-06-17',fechado:'2026-06-17',csat:3,nps:6,mensagens:[{de:'cliente',autor:'Sofia Almeida',texto:'Não percebo como criar uma sequência de boas-vindas.',data:'2026-06-15'},{de:'agente',autor:'Carlos Lopes',texto:'Enviei um guia passo a passo do módulo Comunicação → Automações.',data:'2026-06-17'}]},
   ];
+  const retencoes = [
+    {id:'rt1',numero:'RET-2026-001',clienteId:'cl3',artigo:'Licença CRM Pro (12 lugares)',mrr:948,tipo:'Voluntário',motivo:'Preço',estado:'Em retenção',oferta:'',responsavelId:'u2',aberto:'2026-07-07',atualizado:'2026-07-09',fechado:null,historico:[{texto:'Cliente sinalizou que vai cancelar: "ficou caro para o valor que usamos".',data:'2026-07-07'},{texto:'Contactado pelo gestor de conta. A preparar proposta de retenção.',data:'2026-07-09'}]},
+    {id:'rt2',numero:'RET-2026-002',clienteId:'cl5',artigo:'Módulo Analytics 360',mrr:75,tipo:'Voluntário',motivo:'Pouco uso',estado:'Pedido',oferta:'',responsavelId:'',aberto:'2026-07-10',atualizado:'2026-07-10',fechado:null,historico:[{texto:'Pedido de cancelamento recebido: "não estamos a tirar partido do módulo".',data:'2026-07-10'}]},
+    {id:'rt3',numero:'RET-2026-003',clienteId:'cl2',artigo:'Plano de Suporte Premium',mrr:40,tipo:'Involuntário',motivo:'Pagamento falhou',estado:'Em risco',oferta:'',responsavelId:'u3',aberto:'2026-07-08',atualizado:'2026-07-08',fechado:null,historico:[{texto:'Débito recusado (cartão expirado). Subscrição em risco de cancelar.',data:'2026-07-08'}]},
+    {id:'rt4',numero:'RET-2026-004',clienteId:'cl4',artigo:'Licença CRM Base (2 lugares)',mrr:78,tipo:'Voluntário',motivo:'Concorrência',estado:'Cancelado',oferta:'Trocar de plano',ofertaNota:'Oferecida troca para plano anual com desconto; cliente optou por um concorrente.',responsavelId:'u2',aberto:'2026-06-18',atualizado:'2026-06-26',fechado:'2026-06-26',historico:[{texto:'Cliente indicou que ia mudar para um concorrente mais barato.',data:'2026-06-18'},{texto:'Oferta de retenção (troca de plano) não aceite. Contrato cancelado.',data:'2026-06-26'}]},
+    {id:'rt5',numero:'RET-2026-005',clienteId:'cl1',artigo:'Módulo RGPD & Consentimentos',mrr:57,tipo:'Voluntário',motivo:'Já não precisa',estado:'Retido',oferta:'Pausa',ofertaNota:'Pausa de 2 meses aceite; retoma automática depois.',responsavelId:'u3',aberto:'2026-06-22',atualizado:'2026-06-27',fechado:'2026-06-27',historico:[{texto:'Cliente quis cancelar: "por agora não precisamos".',data:'2026-06-22'},{texto:'Aceite pausa de 2 meses em vez do cancelamento. Cliente RETIDO.',data:'2026-06-27'}]},
+  ];
   propostas.forEach((p,i)=>{ p.templateId = p.templateId || (i%2 ? 'pt2' : 'pt1'); p.criadoPor='u2'; p.alteradoPor='u2'; p.alteradoEm=p.criada; });
   // origem 'base': tudo o que vem no arranque (o formador distingue depois do que o formando cria/gera)
   [clientes, propostas, propostaTemplates, templates, prods].forEach(arr=>(arr||[]).forEach(x=>{ if(x && !x.fonte) x.fonte='base'; }));
@@ -1031,7 +1041,7 @@ function demoData(){
         {id:'iva8',regiao:'Açores',tipo:'Intermédia',taxa:9},
         {id:'iva9',regiao:'Açores',tipo:'Reduzida',taxa:4},
       ]},
-    familias:fams, subfamilias:subs, produtos:prods, clientes, propostas, casos,
+    familias:fams, subfamilias:subs, produtos:prods, clientes, propostas, casos, retencoes,
     consentimentos, pedidos, ropa, violacoes, campanhas, utilizadores, loyalty, templates,
     roles, propostaTemplates, envios, automacoes, agendamentos, checklistRGPD:{}
   };
@@ -1052,6 +1062,9 @@ function load(){
   if(state.settings.casoSeq==null) state.settings.casoSeq=(state.casos||[]).length;
   Object.values(state.roles||{}).forEach(r=>{ if(r&&Array.isArray(r.modules)&&!r.modules.includes('casos')&&(r.gestor||r.modules.includes('clientes'))) r.modules.push('casos'); });
   Object.values(state.roles||{}).forEach(r=>{ if(r&&Array.isArray(r.modules)&&!r.modules.includes('decisao')&&(r.gestor||r.modules.includes('analytics'))) r.modules.push('decisao'); });
+  if(!Array.isArray(state.retencoes)) state.retencoes=[];
+  if(state.settings.retSeq==null) state.settings.retSeq=(state.retencoes||[]).length;
+  Object.values(state.roles||{}).forEach(r=>{ if(r&&Array.isArray(r.modules)&&!r.modules.includes('retencao')&&(r.gestor||r.modules.includes('casos'))) r.modules.push('retencao'); });
   if(!Array.isArray(state.settings.ivaRates)||!state.settings.ivaRates.length) state.settings.ivaRates=def.settings.ivaRates;
   if(!Array.isArray(state.settings.origens)||!state.settings.origens.length) state.settings.origens=def.settings.origens;
   if(Array.isArray(state.settings.origens)&&!state.settings.origens.includes('Formulário')){ const io=state.settings.origens.indexOf('Outro'); if(io>=0) state.settings.origens.splice(io,0,'Formulário'); else state.settings.origens.push('Formulário'); }
@@ -1192,6 +1205,22 @@ function casoResponsavel(c){ const u=(state.utilizadores||[]).find(x=>x.id===c.r
 function casosAbertos(){ return (state.casos||[]).filter(casoAberto); }
 function csatMedia(){ const arr=(state.casos||[]).filter(c=>c.csat!=null).map(c=>+c.csat); return arr.length? arr.reduce((s,x)=>s+x,0)/arr.length : null; }
 function npsScore(){ const arr=(state.casos||[]).filter(c=>c.nps!=null).map(c=>+c.nps); if(!arr.length) return null; const prom=arr.filter(x=>x>=9).length, det=arr.filter(x=>x<=6).length; return Math.round((prom-det)/arr.length*100); }
+/* ---------- RETENÇÃO / CHURN (contratos cancelados) ---------- */
+const RET_ESTADOS=['Em risco','Pedido','Em retenção','Retido','Cancelado'];
+const RET_MOTIVOS=['Preço','Pouco uso','Concorrência','Já não precisa','Suporte/experiência','Pagamento falhou'];
+const RET_TIPOS=['Voluntário','Involuntário'];
+const RET_OFERTAS=['Desconto','Pausa','Downgrade','Ajuda / onboarding','Trocar de plano','Atualizar pagamento'];
+// oferta sugerida conforme o motivo (casar oferta ao motivo - a boa prática do save desk)
+const RET_OFERTA_SUG={'Preço':'Desconto','Pouco uso':'Pausa','Concorrência':'Trocar de plano','Já não precisa':'Pausa','Suporte/experiência':'Ajuda / onboarding','Pagamento falhou':'Atualizar pagamento'};
+const retEstadoCor=e=>({'Em risco':'grey','Pedido':'amber','Em retenção':'blue','Retido':'green','Cancelado':'red'}[e]||'grey');
+const retDot=e=>({'Em risco':'#86978d','Pedido':'#d97706','Em retenção':'#2563eb','Retido':'#00A651','Cancelado':'#dc2626'}[e]||'#86978d');
+const retAtivo=r=>!['Retido','Cancelado'].includes(r.estado);
+function retAccount(r){ const cli=getC(r.clienteId); if(cli){ if(cli.empresaId){ const e=(state.empresas||[]).find(x=>x.id===cli.empresaId); if(e) return e.nome; } return ((cli.nome||'')+' '+(cli.apelido||'')).trim(); } return r.empresa||'-'; }
+function retResponsavel(r){ const u=(state.utilizadores||[]).find(x=>x.id===r.responsavelId); return u?((u.nome||'')+' '+(u.apelido||'')).trim():''; }
+function retEmRisco(){ return (state.retencoes||[]).filter(retAtivo); }
+function mrrEmRisco(){ return retEmRisco().reduce((s,r)=>s+(+r.mrr||0),0); }
+function mrrChurn(){ return (state.retencoes||[]).filter(r=>r.estado==='Cancelado'&&!r.recuperado).reduce((s,r)=>s+(+r.mrr||0),0); }
+function saveRate(){ const fechados=(state.retencoes||[]).filter(r=>['Retido','Cancelado'].includes(r.estado)); if(!fechados.length) return null; const ret=fechados.filter(r=>r.estado==='Retido').length; return Math.round(ret/fechados.length*100); }
 const clientValue = id => state.propostas.filter(p=>p.clienteId===id&&p.estado==='Ganha').reduce((s,p)=>s+propTotal(p),0);
 // volumes p/ fidelização: TCV líquido (sem desconto) — evita o ciclo desconto↔loyalty
 const empVolume = id => state.propostas.filter(p=>p.empresaId===id&&p.estado==='Ganha').reduce((s,p)=>s+proposalCalc(p).sub,0);
@@ -1838,7 +1867,10 @@ views.propostas = () => {
         <div class="tabs"><button class="tab ${tab==='kanban'?'active':''}" data-proptab="kanban">Kanban</button><button class="tab ${tab==='tabela'?'active':''}" data-proptab="tabela">Tabela</button></div>
         <div class="search-inp" style="flex:1;min-width:220px">${ic('eye',15)}<input type="search" placeholder="Procurar proposta (número, título, empresa…)" data-search value="${esc(state._q||'')}"></div>
       </div>
-      <button class="btn" data-act="new" data-type="proposta">${ic('doc',16)} Nova proposta</button>
+      <div style="display:flex;gap:8px;flex:0 0 auto">
+        <a class="btn-sec" href="#retencao" title="Contratos cancelados e retenção (churn)">${ic('heart',16)} Retenção</a>
+        <button class="btn" data-act="new" data-type="proposta">${ic('doc',16)} Nova proposta</button>
+      </div>
     </div>
     <div id="propBody">${propBodyHTML()}</div>
   </div>`;
@@ -1966,6 +1998,78 @@ function openCaso360(id){ drawer360Emp=null; drawer360Cli=null; drawer360Caso=id
     </div>`:`<div class="card card-pad"><div class="muted" style="font-size:.85rem">Caso fechado.${c.csat!=null?' CSAT '+c.csat+'/5.':''}${c.nps!=null?' NPS '+c.nps+'/10.':''}</div><div class="toolbar" style="margin-top:10px"><button class="btn-sec" data-act="caso-reabrir" data-id="${c.id}">Reabrir</button></div></div>`)}
   `;
   $('#drawerFoot').innerHTML=`<button class="btn-sec" data-act="edit" data-type="caso" data-id="${c.id}">${ic('cog',15)} Editar dados do caso</button>`;
+  $('#drawerBack').classList.add('open'); $('#drawer').classList.add('open');
+}
+
+/* ---------- RETENÇÃO / CHURN ---------- */
+views.retencao = () => {
+  const emRisco=retEmRisco(); const sr=saveRate();
+  return `
+  <div class="callout green">${ic('heart',18)}<div style="flex:1"><strong>Retenção & churn</strong><span class="ctxt">Contratos em risco ou cancelados. Cada cancelamento é uma oportunidade de retenção (save desk): motivo, oferta à medida e resultado - não confundir com propostas perdidas.</span></div></div>
+  <div class="grid cols-4">
+    ${kpi('Contratos em risco', fmtN(emRisco.length), {icon:'heart', sub:(state.retencoes||[]).length+' no total'})}
+    ${kpi('MRR em risco', money(mrrEmRisco()), {icon:'euro', sub:'receita recorrente/mês'})}
+    ${kpi('Taxa de retenção', sr!=null?sr+'%':'-', {icon:'trend', sub:'salvos / decididos'})}
+    ${kpi('MRR churn', money(mrrChurn()), {icon:'alert', sub:'perdido/mês (líquido de win-back)'})}
+  </div>
+  <div class="card card-pad">
+    <div class="section-head" style="margin-bottom:14px">
+      <div><h3>Fluxo de retenção</h3><div class="sub">Da sinalização de risco ao resultado: salvar ou perder o cliente</div></div>
+      <button class="btn" data-act="new" data-type="retencao">${ic('heart',16)} Registar cancelamento</button>
+    </div>
+    ${retKanbanHTML()}
+  </div>`;
+};
+function retKanbanHTML(){
+  return `<div class="kanban">${RET_ESTADOS.map(st=>{
+    const items=(state.retencoes||[]).filter(r=>r.estado===st);
+    const tot=items.reduce((s,r)=>s+(+r.mrr||0),0);
+    const colBg=st==='Retido'?'background:var(--g100)':st==='Cancelado'?'background:var(--danger-bg)':'';
+    const totCol=st==='Cancelado'?'color:var(--danger)':st==='Retido'?'color:var(--g700)':'color:var(--muted)';
+    return `<div class="kcol"${colBg?` style="${colBg}"`:''}><div class="kcol-head"><span><span class="dot" style="background:${retDot(st)}"></span>${st}</span><span class="cnt">${items.length}</span></div>
+      <div class="klist">${items.map(r=>`<div class="kcard" data-id="${r.id}" data-act="open-ret"><span class="knum">${esc(r.numero)}</span><span class="ktitle">${esc(r.artigo)}</span><div style="margin:4px 0 0;display:flex;gap:4px;flex-wrap:wrap"><span class="pill grey" style="font-size:.6rem">${esc(r.motivo||'-')}</span><span class="pill ${r.tipo==='Involuntário'?'amber':'blue'}" style="font-size:.6rem">${esc(r.tipo||'')}</span>${r.recuperado?'<span class="pill green" style="font-size:.6rem">Recuperado</span>':''}</div><div class="kfoot"><span class="muted" style="font-size:.78rem">${esc(retAccount(r))}</span><span class="kval">${money(+r.mrr||0)}/mês</span></div></div>`).join('')||'<div class="empty" style="padding:14px;font-size:.8rem">Vazio</div>'}</div>
+      <div class="ktotal" style="${totCol}">${money(tot)}/mês</div></div>`;
+  }).join('')}</div>`;
+}
+let drawer360Ret=null;
+function openRet360(id){ drawer360Emp=null;drawer360Cli=null;drawer360Caso=null;drawer360Ret=id;
+  const r=(state.retencoes||[]).find(x=>x.id===id); if(!r) return;
+  const ativo=retAtivo(r); const sug=RET_OFERTA_SUG[r.motivo]||'';
+  $('#drawerTitle').innerHTML=`<h3 style="font-size:1.1rem;font-weight:800">${esc(r.artigo)} <span class="pill ${retEstadoCor(r.estado)}" style="font-size:.66rem;vertical-align:middle">${esc(r.estado)}</span>${r.recuperado?' <span class="pill green" style="font-size:.66rem;vertical-align:middle">Recuperado</span>':''}</h3><div class="sub" style="color:var(--muted);font-size:.82rem">${esc(r.numero)} · ${esc(retAccount(r))} · ${money(+r.mrr||0)}/mês em risco</div>`;
+  $('#drawerBody').innerHTML=`
+    <div class="card card-pad">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <span class="pill ${r.tipo==='Involuntário'?'amber':'blue'}">${esc(r.tipo||'')}</span>
+        <span class="chip">Motivo: ${esc(r.motivo||'-')}</span>
+        <span class="chip">${money(+r.mrr||0)}/mês · ${money((+r.mrr||0)*12)}/ano</span>
+      </div>
+      <dl class="kv">
+        <dt>Responsável</dt><dd>${esc(retResponsavel(r)||'- por atribuir -')}</dd>
+        <dt>Aberto</dt><dd>${dPT(r.aberto)}</dd>
+        ${r.fechado?`<dt>Fechado</dt><dd>${dPT(r.fechado)}</dd>`:''}
+        ${r.oferta?`<dt>Oferta aplicada</dt><dd><span class="pill green">${esc(r.oferta)}</span>${r.ofertaNota?' <span class="muted" style="font-size:.8rem">'+esc(r.ofertaNota)+'</span>':''}</dd>`:''}
+      </dl>
+    </div>
+    ${ativo?`<div class="card card-pad">
+      <h4 style="font-weight:800;font-size:.95rem;margin-bottom:8px">${ic('bulb',15)} Save desk - oferta de retenção</h4>
+      <div class="callout info" style="margin:0 0 12px">${ic('info',16)}<div class="ctxt">Para o motivo <strong>${esc(r.motivo||'-')}</strong>, a oferta sugerida é <strong>${esc(sug||'-')}</strong>. Casar a oferta com o motivo aumenta a probabilidade de salvar o cliente.</div></div>
+      <div class="toolbar" style="gap:6px;flex-wrap:wrap">${RET_OFERTAS.map(o=>`<button class="chip ${r.oferta===o?'active':''}" data-act="ret-oferta" data-id="${r.id}" data-oferta="${esc(o)}"${o===sug&&r.oferta!==o?' style="border-color:var(--g400);color:var(--g700)"':''}>${esc(o)}${o===sug?' ★':''}</button>`).join('')}</div>
+    </div>`:''}
+    <div class="card card-pad">
+      <h4 style="font-weight:800;font-size:.95rem;margin-bottom:10px">${ic('list',15)} Histórico</h4>
+      <div>${(r.historico||[]).map(h=>`<div style="margin-bottom:8px;padding:9px 12px;border-radius:10px;background:var(--surface2)"><div style="font-size:.7rem;font-weight:800;color:var(--muted)">${dPT(h.data)}</div><div style="font-size:.86rem;margin-top:2px;white-space:pre-wrap">${esc(h.texto)}</div></div>`).join('')||'<div class="muted">Sem registos.</div>'}</div>
+      ${ativo?`<div style="margin-top:10px"><textarea id="retNote" rows="2" placeholder="Registar contacto / nota…" style="width:100%;resize:vertical"></textarea><div class="toolbar" style="margin-top:8px"><button class="btn-sec btn-sm" data-act="ret-note" data-id="${r.id}">${ic('send',14)} Adicionar</button></div></div>`:''}
+    </div>
+    ${ativo?`<div class="card card-pad">
+      <h4 style="font-weight:800;font-size:.95rem;margin-bottom:10px">Estado & resultado</h4>
+      <div class="toolbar" style="gap:6px;flex-wrap:wrap;margin-bottom:12px">${['Em risco','Pedido','Em retenção'].map(e=>`<button class="chip ${r.estado===e?'active':''}" data-act="ret-estado" data-id="${r.id}" data-estado="${e}">${e}</button>`).join('')}</div>
+      <div class="toolbar" style="gap:8px"><button class="btn" data-act="ret-retido" data-id="${r.id}">${ic('check',15)} Marcar RETIDO (salvo)</button><button class="btn-danger" data-act="ret-cancelado" data-id="${r.id}">Marcar cancelado</button></div>
+    </div>`:`<div class="card card-pad">
+      <div class="muted" style="font-size:.85rem">${r.estado==='Retido'?('Cliente <strong>salvo</strong>'+(r.oferta?' com a oferta <strong>'+esc(r.oferta)+'</strong>':'')+'.'):('Contrato <strong>cancelado</strong>.'+(r.recuperado?' Recuperado (win-back) em '+dPT(r.recuperado)+'.':''))}</div>
+      <div class="toolbar" style="margin-top:10px;gap:8px">${(r.estado==='Cancelado'&&!r.recuperado)?`<button class="btn" data-act="ret-winback" data-id="${r.id}">${ic('rotate',15)} Marcar recuperado (win-back)</button>`:''}<button class="btn-sec" data-act="ret-reabrir" data-id="${r.id}">Reabrir</button></div>
+    </div>`}
+  `;
+  $('#drawerFoot').innerHTML=`<button class="btn-sec" data-act="edit" data-type="retencao" data-id="${r.id}">${ic('cog',15)} Editar dados</button>`;
   $('#drawerBack').classList.add('open'); $('#drawer').classList.add('open');
 }
 
@@ -2373,6 +2477,22 @@ views.analytics = () => {
       <div class="section-head" style="margin-bottom:14px"><div><h3>Casos por estado</h3><div class="sub">Carga de serviço e cumprimento de SLA</div></div></div>
       ${(()=>{ const byE=CASO_ESTADOS.map(e=>({e,v:(state.casos||[]).filter(c=>c.estado===e).length})); const mx=Math.max(...byE.map(x=>x.v),1); const ab=casosAbertos(); const violados=ab.filter(c=>casoSla(c).estado==='violado').length; const slaOk=ab.length?Math.round((ab.length-violados)/ab.length*100):100; return `<div class="mini-list">${byE.map(x=>`<div class="mini-item"><span class="grow"><strong>${x.e}</strong><div class="progress" style="margin-top:6px"><i style="width:${x.v/mx*100}%"></i></div></span><strong>${x.v}</strong></div>`).join('')}</div>
         <div class="callout ${slaOk>=80?'green':'warn'}" style="margin-top:14px">${ic('bell',16)}<div class="ctxt"><strong>SLA cumprido: ${slaOk}%</strong> dos casos abertos dentro do prazo${violados?` (${violados} violado(s))`:''}.</div></div>`; })()}
+    </div>
+  </div>
+  <div class="split eq">
+    <div class="card card-pad">
+      <div class="section-head" style="margin-bottom:14px"><div><h3>Retenção & churn</h3><div class="sub">Contratos cancelados e salvos (save desk)</div></div></div>
+      ${(()=>{ const sr=saveRate(); const emR=retEmRisco().length; return `
+        <div style="display:flex;gap:12px">
+          <div style="flex:1;background:var(--surface2);border-radius:10px;padding:14px;text-align:center"><div class="muted" style="font-size:.72rem">Taxa de retenção</div><strong style="font-size:1.5rem;color:var(--g700)">${sr!=null?sr+'%':'-'}</strong><div class="muted" style="font-size:.72rem">salvos / decididos</div></div>
+          <div style="flex:1;background:var(--surface2);border-radius:10px;padding:14px;text-align:center"><div class="muted" style="font-size:.72rem">MRR em risco</div><strong style="font-size:1.5rem">${money(mrrEmRisco())}</strong><div class="muted" style="font-size:.72rem">${emR} contrato(s)</div></div>
+          <div style="flex:1;background:var(--danger-bg);border-radius:10px;padding:14px;text-align:center"><div class="muted" style="font-size:.72rem">MRR churn</div><strong style="font-size:1.5rem;color:var(--danger)">${money(mrrChurn())}</strong><div class="muted" style="font-size:.72rem">perdido/mês</div></div>
+        </div>
+        <div class="callout info" style="margin-top:14px">${ic('info',16)}<div class="ctxt">A <strong>taxa de retenção</strong> mede quantos cancelamentos foram salvos; o <strong>MRR churn</strong> é a receita recorrente perdida por mês (líquida de win-back). <a href="#retencao" style="color:var(--g700)">Abrir Retenção →</a></div></div>`; })()}
+    </div>
+    <div class="card card-pad">
+      <div class="section-head" style="margin-bottom:14px"><div><h3>Motivos de cancelamento</h3><div class="sub">Porque saem os clientes</div></div></div>
+      ${(()=>{ const rs=state.retencoes||[]; const byM={}; rs.forEach(r=>{const m=r.motivo||'(sem motivo)';byM[m]=(byM[m]||0)+1;}); const e=Object.entries(byM).sort((a,b)=>b[1]-a[1]); const mx=Math.max(...e.map(x=>x[1]),1); const vol=rs.filter(r=>r.tipo==='Voluntário').length, invol=rs.filter(r=>r.tipo==='Involuntário').length; return e.length?`<div class="funnel">${e.map(([m,n])=>`<div class="funnel-row"><div class="funnel-bar" style="width:${Math.max(14,n/mx*100)}%;background:#d8746c">${esc(m)} · ${n}</div></div>`).join('')}</div><div class="callout info" style="margin-top:14px">${ic('info',16)}<div class="ctxt"><strong>Voluntário: ${vol}</strong> (o cliente decide) · <strong>Involuntário: ${invol}</strong> (falha de pagamento) - resolvem-se de formas diferentes.</div></div>`:empty('Sem cancelamentos'); })()}
     </div>
   </div>
   <div class="split eq">
@@ -3556,6 +3676,16 @@ const SCHEMAS = {
     {n:'estado',l:'Estado',type:'select',opts:['Pendente','Concluída'].map(x=>({v:x,t:x}))},
     {n:'notas',l:'Notas',type:'textarea',full:1},
   ]},
+  retencao:{store:'retencoes',label:'Cancelamento',fem:0,code:r=>{ if(!r.numero){ r.numero='RET-'+todayISO().slice(0,4)+'-'+pad(++state.settings.retSeq,3); } if(!r.aberto){ r.aberto=todayISO(); if(!Array.isArray(r.historico)) r.historico=[]; const primeira=String(r.descricao||'').trim(); if(primeira) r.historico.push({texto:primeira,data:todayISO()}); } r.atualizado=todayISO(); delete r.descricao; },fields:[
+    {n:'clienteId',l:'Empresa / contacto do contrato',type:'combo',src:'clientes',full:1,placeholder:'Escreva o nome do contacto…'},
+    {n:'artigo',l:'O que está a ser cancelado',req:1,full:1,hint:'Módulo, serviço ou produto (ex.: Licença CRM Pro)'},
+    {n:'mrr',l:'Valor recorrente em risco (MRR, €/mês)',type:'number',hint:'O que se perde por mês se cancelar'},
+    {n:'tipo',l:'Tipo de churn',type:'select',opts:RET_TIPOS.map(x=>({v:x,t:x})),def:'Voluntário',hint:'Voluntário = o cliente decide · Involuntário = falha de pagamento'},
+    {n:'motivo',l:'Motivo',type:'select',opts:RET_MOTIVOS.map(x=>({v:x,t:x}))},
+    {n:'responsavelId',l:'Responsável',type:'select',opts:()=>[{v:'',t:'- por atribuir -'}].concat((state.utilizadores||[]).map(u=>({v:u.id,t:((u.nome||'')+' '+(u.apelido||'')).trim()})))},
+    {n:'estado',l:'Estado',type:'select',opts:RET_ESTADOS.map(x=>({v:x,t:x})),def:'Pedido'},
+    {n:'descricao',l:'Nota inicial',type:'textarea',full:1,hint:'O que o cliente disse - fica na 1.ª entrada do histórico.'},
+  ]},
   caso:{store:'casos',label:'Caso',fem:0,code:c=>{ if(!c.numero){ c.numero='CASO-'+todayISO().slice(0,4)+'-'+pad(++state.settings.casoSeq,3); } if(!c.aberto){ c.aberto=todayISO(); if(!Array.isArray(c.mensagens)) c.mensagens=[]; const primeira=String(c.descricao||'').trim(); if(primeira){ c.mensagens.push({de:'cliente',autor:(clientName(c.clienteId)||'Cliente'),texto:primeira,data:todayISO()}); } } c.atualizado=todayISO(); delete c.descricao; },fields:[
     {n:'assunto',l:'Assunto',req:1,full:1},
     {n:'empresaId',l:'Empresa',type:'combo',src:'empresas',placeholder:'Escreva o nome ou NIPC…'},
@@ -3870,10 +4000,12 @@ async function saveModal(){
   if(type==='cliente' && drawer360Cli===obj.id) openClient360(obj.id);
   else if(type==='empresa' && drawer360Emp===obj.id) openEmpresa360(obj.id);
   else if(type==='caso' && drawer360Caso===obj.id) openCaso360(obj.id);
+  else if(type==='retencao' && drawer360Ret===obj.id) openRet360(obj.id);
   toast(id?'Registo atualizado':'Registo criado', sc.label);
   if(isNew && type==='cliente') fireAutomations('novo-cliente',{clienteId:obj.id});
   if(isNew && type==='empresa') openEmpresa360(obj.id);  // abre a ficha p/ adicionar logo as pessoas de contacto
   if(isNew && type==='caso') openCaso360(obj.id);  // abre o caso recém-criado
+  if(isNew && type==='retencao') openRet360(obj.id);  // abre o cancelamento recém-criado
   if(type==='cliente' && drawer360Emp && $('#drawerBack').classList.contains('open')) openEmpresa360(drawer360Emp);  // refresca a ficha da empresa
 }
 
@@ -3941,6 +4073,7 @@ function renderPropForm(){
       <button class="btn-sec btn-sm" type="button" data-act="prop-preview">${ic('eye',15)} Pré-visualizar</button>
       <button class="btn-sec btn-sm" type="button" data-act="prop-pdf">${ic('print',15)} Descarregar PDF</button>
       <button class="btn-sec btn-sm" type="button" data-act="prop-email">${ic('mail',15)} Enviar por email</button>
+      ${p.estado==='Ganha'?`<button class="btn-sec btn-sm" type="button" data-act="prop-cancelar" title="Registar o cancelamento deste contrato (retenção/churn)">${ic('heart',15)} Registar cancelamento</button>`:''}
     </div>
     ${(()=>{ const on=p.online&&p.online.token; return `<div class="card" style="padding:12px 14px;margin-bottom:14px;background:var(--surface2);border:1px solid var(--border)">
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -4095,10 +4228,10 @@ function closeModal(){ $('#modalBack').classList.remove('open'); editing=null; p
 
 /* ---------- drawer ---------- */
 function openDrawer(){ $('#drawerBack').classList.add('open'); $('#drawer').classList.add('open'); }
-function closeDrawer(){ $('#drawerBack').classList.remove('open'); $('#drawer').classList.remove('open'); drawer360Emp=null; drawer360Cli=null; drawer360Caso=null; const df=$('#drawerFoot'); if(df) df.innerHTML=''; }
+function closeDrawer(){ $('#drawerBack').classList.remove('open'); $('#drawer').classList.remove('open'); drawer360Emp=null; drawer360Cli=null; drawer360Caso=null; drawer360Ret=null; const df=$('#drawerFoot'); if(df) df.innerHTML=''; }
 
 /* ---------- eliminar ---------- */
-const STORE_OF={cliente:'clientes',empresa:'empresas',tarefa:'tarefas',produto:'produtos',familia:'familias',subfamilia:'subfamilias',proposta:'propostas',caso:'casos',utilizador:'utilizadores',loyalty:'loyalty',campanha:'campanhas',consentimento:'consentimentos',pedido:'pedidos',ropa:'ropa',violacao:'violacoes',automacao:'automacoes'};
+const STORE_OF={cliente:'clientes',empresa:'empresas',tarefa:'tarefas',produto:'produtos',familia:'familias',subfamilia:'subfamilias',proposta:'propostas',caso:'casos',retencao:'retencoes',utilizador:'utilizadores',loyalty:'loyalty',campanha:'campanhas',consentimento:'consentimentos',pedido:'pedidos',ropa:'ropa',violacao:'violacoes',automacao:'automacoes'};
 async function deleteEntity(type,id){
   const store=STORE_OF[type]; if(!store) return;
   const item=state[store].find(x=>x.id===id);
@@ -4522,7 +4655,7 @@ const HELP_MAP={
   empresas:'modulos/empresas-contactos/', clientes:'modulos/empresas-contactos/',
   produtos:'modulos/produtos/', propostas:'modulos/propostas/', modelos:'modulos/modelos/',
   campanhas:'modulos/campanhas-email/', email:'modulos/campanhas-email/', comunicacao:'modulos/campanhas-email/',
-  casos:'modulos/casos/', decisao:'modulos/decisao/',
+  casos:'modulos/casos/', decisao:'modulos/decisao/', retencao:'modulos/retencao/',
   analytics:'modulos/analytics/', rgpd:'rgpd/', alertas:'modulos/alertas/', definicoes:'modulos/definicoes/'
 };
 function openHelp(){ try{ const v=currentView(); window.open(HELP_BASE+(HELP_MAP[v]||''),'_blank','noopener'); }catch(e){ window.open(HELP_BASE,'_blank','noopener'); } }
@@ -4702,6 +4835,14 @@ document.addEventListener('click', async e=>{
     case 'caso-resolver': { const c=(state.casos||[]).find(x=>x.id===id); if(!c) break; c.estado='Resolvido'; c.atualizado=todayISO(); save(); openCaso360(c.id); render(); toast('Caso resolvido','Feche com o inquérito de satisfação'); } break;
     case 'caso-reabrir': { const c=(state.casos||[]).find(x=>x.id===id); if(!c) break; c.estado='Em curso'; c.fechado=null; c.atualizado=todayISO(); save(); openCaso360(c.id); render(); toast('Caso reaberto'); } break;
     case 'caso-fechar': { const c=(state.casos||[]).find(x=>x.id===id); if(!c) break; uiPrompt('Satisfação do cliente (CSAT) de 1 a 5:','5',{title:'Inquérito de satisfação'}).then(cs=>{ if(cs===false||cs==null) return; const csat=Math.max(1,Math.min(5,Math.round(Number(cs)||0)))||null; uiPrompt('Recomendação do cliente (NPS) de 0 a 10:','9',{title:'Inquérito NPS'}).then(np=>{ const nps=(np===false||np==null||String(np).trim()==='')?null:Math.max(0,Math.min(10,Math.round(Number(np)||0))); if(csat!=null) c.csat=csat; if(nps!=null) c.nps=nps; c.estado='Fechado'; c.fechado=todayISO(); c.atualizado=todayISO(); save(); openCaso360(c.id); render(); toast('Caso fechado','CSAT '+csat+'/5'+(nps!=null?' · NPS '+nps:'')); }); }); } break;
+    case 'open-ret': openRet360(id); break;
+    case 'ret-oferta': { const r=(state.retencoes||[]).find(x=>x.id===id); if(!r) break; r.oferta=el.dataset.oferta; r.atualizado=todayISO(); r.historico=r.historico||[]; r.historico.push({texto:'Oferta de retenção definida: '+r.oferta,data:todayISO()}); save(); openRet360(r.id); } break;
+    case 'ret-estado': { const r=(state.retencoes||[]).find(x=>x.id===id); if(!r) break; r.estado=el.dataset.estado; r.atualizado=todayISO(); save(); openRet360(r.id); render(); } break;
+    case 'ret-note': { const r=(state.retencoes||[]).find(x=>x.id===id); if(!r) break; const ta=$('#retNote'); const txt=ta?String(ta.value||'').trim():''; if(!txt){ toast('Escreva uma nota','','warn'); break; } r.historico=r.historico||[]; r.historico.push({texto:txt,data:todayISO()}); r.atualizado=todayISO(); save(); openRet360(r.id); } break;
+    case 'ret-retido': { const r=(state.retencoes||[]).find(x=>x.id===id); if(!r) break; r.estado='Retido'; r.fechado=todayISO(); r.atualizado=todayISO(); r.historico=r.historico||[]; r.historico.push({texto:'Cliente RETIDO'+(r.oferta?' com a oferta "'+r.oferta+'"':'')+'.',data:todayISO()}); save(); openRet360(r.id); render(); toast('Cliente retido',r.numero+(r.oferta?' · '+r.oferta:'')); } break;
+    case 'ret-cancelado': { const r=(state.retencoes||[]).find(x=>x.id===id); if(!r) break; uiPrompt('Nota do cancelamento (opcional):','',{title:'Marcar como cancelado',okText:'Cancelar contrato'}).then(nt=>{ if(nt===false||nt==null) return; r.estado='Cancelado'; r.fechado=todayISO(); r.atualizado=todayISO(); if(nt) r.ofertaNota=nt; r.historico=r.historico||[]; r.historico.push({texto:'Contrato cancelado (churn).'+(nt?' '+nt:''),data:todayISO()}); save(); openRet360(r.id); render(); toast('Contrato cancelado',money(+r.mrr||0)+'/mês de MRR churn','warn'); }); } break;
+    case 'ret-reabrir': { const r=(state.retencoes||[]).find(x=>x.id===id); if(!r) break; r.estado='Em retenção'; r.fechado=null; r.recuperado=null; r.atualizado=todayISO(); save(); openRet360(r.id); render(); toast('Reaberto'); } break;
+    case 'ret-winback': { const r=(state.retencoes||[]).find(x=>x.id===id); if(!r) break; r.recuperado=todayISO(); r.atualizado=todayISO(); r.historico=r.historico||[]; r.historico.push({texto:'Cliente recuperado (win-back).',data:todayISO()}); save(); openRet360(r.id); render(); toast('Cliente recuperado',r.numero); } break;
     case 'modal-save': saveModal(); break;
     case 'modal-delete': { const ed=Object.assign({},editing); const gname=groupDraft&&groupDraft.orig; const aid=autoDraft&&autoDraft.id; closeModal(); if(ed.type==='__group'){ if(gname) delGroup(gname); } else if(ed.type==='__auto'){ if(aid){ state.automacoes=state.automacoes.filter(x=>x.id!==aid); save(); render(); toast('Automação eliminada'); } } else if(ed.type&&ed.id&&STORE_OF[ed.type]) deleteEntity(ed.type,ed.id); } break;
     case 'login': submitLogin(); break;
@@ -4756,6 +4897,7 @@ document.addEventListener('click', async e=>{
     case 'prop-preview': openPropPreview(); break;
     case 'prop-pdf': if(propDraft){ if(!propDraft.linhas.some(l=>l.produtoId)){ toast('Sem artigos','Adicione artigos do catálogo para exportar','warn'); break; } persistPropDraft(); printProposal(propDraft.id); } break;
     case 'prop-email': if(propDraft){ persistPropDraft(); const pid=propDraft.id; closePreview(); closeModal(); openSendEmail(pid); } break;
+    case 'prop-cancelar': if(propDraft){ const p=propDraft; const mrr=Math.round(proposalTotals(p).mrr||0); const cid=p.clienteId; const art=p.titulo||('Contrato '+p.numero); const num=p.numero; closePreview(); closeModal(); openModal('retencao', null, {clienteId:cid, artigo:art, mrr, tipo:'Voluntário', estado:'Pedido', descricao:'Cancelamento do contrato '+num}); } break;
     case 'pub-publish': if(propDraft){ persistPropDraft(); const b=el; b.disabled=true; const old=b.innerHTML; b.innerHTML='A publicar…';
         pubPublish(propDraft).then(res=>{ if(res.ok){ const st=state.propostas.find(x=>x.id===propDraft.id); if(st) st.online=propDraft.online; save(); toast('Link publicado','A proposta já está online'); renderPropForm(); }
           else { toast('Não foi possível publicar', res.error==='sem ligação'?'Precisa de ligação ao Supabase (turma online)':res.error,'warn'); b.disabled=false; b.innerHTML=old; } })
