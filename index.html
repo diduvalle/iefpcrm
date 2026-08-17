@@ -1821,7 +1821,7 @@ function openClient360(id){ drawer360Emp=null; drawer360Cli=id;
       ${cons.length?`<div class="mini-list">${cons.map(x=>`<div class="mini-item"><span class="grow"><strong>${esc(x.finalidade)}</strong><span>Base: ${esc(x.base)} · ${esc(x.canal)} · ${dPT(x.data)}</span></span><span class="pill ${x.estado==='Ativo'?'green':'red'}">${esc(x.estado)}</span></div>`).join('')}</div>`:empty('Sem consentimentos registados')}
       ${peds.length?`<div class="divider" style="margin:12px 0"></div><div class="muted" style="font-size:.8rem;font-weight:700;margin-bottom:6px">Pedidos de titular</div><div class="mini-list">${peds.map(x=>`<div class="mini-item"><span class="grow"><strong>${esc(x.tipo)}</strong><span>${dPT(x.data)} · prazo ${dPT(x.prazo)}</span></span><span class="pill ${x.estado==='Concluído'?'green':x.estado==='Em curso'?'amber':'blue'}">${esc(x.estado)}</span></div>`).join('')}</div>`:''}
     </div>`;
-  $('#drawerFoot').innerHTML=`<button class="btn-danger" data-act="delete" data-type="cliente" data-id="${id}">Eliminar</button><div style="flex:1"></div><button class="btn-sec" data-act="export-client" data-id="${id}" title="Portabilidade RGPD">${ic('download',16)} Exportar</button><button class="btn-sec" data-act="edit" data-type="cliente" data-id="${id}">Editar ficha</button>`;
+  $('#drawerFoot').innerHTML=`<button class="btn-danger" data-act="delete" data-type="cliente" data-id="${id}">Eliminar</button><div style="flex:1"></div><button class="btn-sec" data-act="export-client-pdf" data-id="${id}" title="Direito de acesso - art. 15.º RGPD (documento legível)">${ic('print',16)} Relatório RGPD</button><button class="btn-sec" data-act="export-client" data-id="${id}" title="Portabilidade - art. 20.º RGPD (formato de leitura automática)">${ic('download',16)} Exportar JSON</button><button class="btn-sec" data-act="edit" data-type="cliente" data-id="${id}">Editar ficha</button>`;
   openDrawer();
 }
 
@@ -4971,6 +4971,7 @@ document.addEventListener('click', async e=>{
     case 'open-nav': $('#app').classList.add('nav-open'); break;
     case 'close-nav': $('#app').classList.remove('nav-open'); break;
     case 'export-client': exportClient(id); break;
+    case 'export-client-pdf': exportClientPDF(id); break;
     case 'import-clients': $('#importClientsFile').click(); break;
     case 'csv-template': downloadClientTemplate(); break;
     case 'import-products': $('#importProductsFile').click(); break;
@@ -5245,6 +5246,140 @@ window.addEventListener('hashchange',()=>{ state._q=''; _pages={}; render(); });
    ========================================================================= */
 
 /* ---------- Portabilidade RGPD: exportar dados de um cliente ---------- */
+/* ---------- Relatório de acesso do titular (RGPD art. 15.º) ----------
+   NÃO substitui a exportação JSON: o JSON serve a PORTABILIDADE (art. 20.º, formato de
+   leitura automática); este PDF serve o DIREITO DE ACESSO (art. 15.º), que exige
+   linguagem clara e as informações obrigatórias das alíneas a) a h). */
+function dsarReportHTML(id){
+  const c=getC(id); if(!c) return '';
+  const s=state.settings||{}; const emp=c.empresaId?(state.empresas||[]).find(e=>e.id===c.empresaId):null;
+  const props=(state.propostas||[]).filter(p=>p.clienteId===id);
+  const cons=(state.consentimentos||[]).filter(x=>x.clienteId===id);
+  const peds=(state.pedidos||[]).filter(x=>x.clienteId===id);
+  const envs=(state.envios||[]).filter(x=>x.clienteId===id);
+  const casos=(state.casos||[]).filter(x=>x.clienteId===id);
+  const score=leadScore(c); const si=scoreInfo(score);
+  const hoje=dPT(todayISO());
+  const linha=(k,v)=>`<tr><th>${esc(k)}</th><td>${v==null||v===''?'<i>(não preenchido)</i>':esc(String(v))}</td></tr>`;
+  const sec=(n,t)=>`<h2><span class="n">${n}</span>${esc(t)}</h2>`;
+  const nada='<p class="vazio">Não existem registos desta natureza.</p>';
+  return `<!doctype html><html lang="pt-PT"><head><meta charset="UTF-8"><title>Relatório de acesso - ${esc(c.nome)} ${esc(c.apelido||'')}</title><style>
+    @page{size:A4;margin:16mm 15mm 18mm}
+    *{box-sizing:border-box} html,body{margin:0;padding:0}
+    body{font-family:Inter,system-ui,sans-serif;color:#15302a;font-size:12px;line-height:1.55;background:#eef2f0}
+    .doc{background:#fff;width:794px;max-width:100%;margin:20px auto;padding:38px 42px 56px;box-shadow:0 10px 40px rgba(0,0,0,.13)}
+    .top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #00A651;padding-bottom:12px;margin-bottom:18px}
+    .top h1{margin:0;font-size:19px;color:#006B3C} .top .sub{font-size:11px;color:#5f746b;margin-top:3px}
+    .top .meta{text-align:right;font-size:10.5px;color:#5f746b}
+    h2{font-size:13px;color:#006B3C;margin:18px 0 7px;display:flex;align-items:center;gap:7px}
+    h2 .n{display:inline-grid;place-items:center;width:19px;height:19px;border-radius:5px;background:#00A651;color:#fff;font-size:11px}
+    table{width:100%;border-collapse:collapse;margin:6px 0 4px} tr,table{page-break-inside:avoid}
+    th,td{border:1px solid #dbe6df;padding:5px 8px;text-align:left;vertical-align:top}
+    th{background:#f1f8f4;font-weight:700;width:32%;color:#15302a}
+    .vazio{color:#6b7c73;font-style:italic;margin:4px 0}
+    .aviso{background:#f1f8f4;border-left:3px solid #00A651;padding:9px 12px;margin:8px 0;font-size:11px}
+    .foot{margin-top:22px;padding-top:10px;border-top:1px solid #dbe6df;font-size:10px;color:#5f746b}
+    ul{margin:5px 0 5px 18px;padding:0} li{margin:2px 0}
+    @media print{body{background:#fff}.doc{width:auto;margin:0;padding:0;box-shadow:none}}
+  </style></head><body><div class="doc">
+    <div class="top">
+      <div><h1>Relatório de acesso a dados pessoais</h1>
+        <div class="sub">Resposta ao direito de acesso - artigo 15.º do RGPD (Regulamento (UE) 2016/679)</div></div>
+      <div class="meta"><strong>${esc(s.entidade||'')}</strong><br>Emitido em ${hoje}<br>Ref.ª ACESSO-${esc(c.numero||'')}</div>
+    </div>
+
+    ${sec(1,'Responsável pelo tratamento')}
+    <table>${linha('Entidade',s.entidade)}${linha('NIF/NIPC',s.nif)}${linha('Contacto',(s.email||'')+(s.telefone?' · '+s.telefone:''))}${linha('Encarregado de Proteção de Dados (EPD)',s.epd)}</table>
+
+    ${sec(2,'Titular a que respeita este relatório')}
+    <table>${linha('Nome',(c.nome||'')+' '+(c.apelido||''))}${linha('N.º de contacto',c.numero)}${linha('Empresa associada',emp?emp.nome:'(sem empresa)')}</table>
+    <div class="aviso"><strong>Verificação de identidade.</strong> Este documento só deve ser entregue depois de confirmada a identidade de quem o solicita (art. 12.º/6). A entrega deve ser feita por canal seguro.</div>
+
+    ${sec(3,'Cópia dos dados pessoais em tratamento (art. 15.º/3)')}
+    <table>
+      ${linha('Nome próprio',c.nome)}${linha('Apelido',c.apelido)}${linha('Email',c.email)}${linha('Telefone',c.telefone)}
+      ${linha('NIF',c.nif)}${linha('Cidade',c.cidade)}${linha('Região',c.regiao)}${linha('Cargo',c.cargo)}${linha('Função',c.funcao)}
+      ${linha('Data de registo',c.criado?dPT(c.criado):'')}${linha('Notas internas',c.notas)}
+    </table>
+    ${(Array.isArray(c.contactosExtra)&&c.contactosExtra.length)?`<p><strong>Contactos adicionais:</strong></p><table><tr><th>Tipo</th><th>Rótulo</th><th>Valor</th></tr>${c.contactosExtra.map(x=>`<tr><td>${esc(x.tipo||'')}</td><td>${esc(x.rotulo||'')}</td><td>${esc(x.valor||'')}</td></tr>`).join('')}</table>`:''}
+    <div class="aviso">As <strong>notas internas</strong> também são dados pessoais e por isso constam deste relatório.</div>
+
+    ${sec(4,'Finalidades do tratamento e base legal (alínea a)')}
+    ${cons.length?`<table><tr><th>Finalidade</th><th>Base legal</th><th>Canal / data</th><th>Estado</th></tr>
+      ${cons.map(x=>`<tr><td>${esc(x.finalidade||'')}</td><td>${esc(x.base||'')}</td><td>${esc(x.canal||'')} · ${dPT(x.data)}</td><td>${esc(x.estado||'')}</td></tr>`).join('')}</table>`
+      :`<p>Gestão da relação comercial e comunicação com o cliente.</p>${nada}`}
+
+    ${sec(5,'Categorias de dados pessoais tratados (alínea b)')}
+    <ul>
+      <li>Dados de identificação e contacto (nome, email, telefone, morada/cidade).</li>
+      <li>Dados fiscais (NIF), quando aplicável.</li>
+      <li>Dados profissionais (empresa, cargo, função).</li>
+      <li>Dados de relação comercial (propostas, contratos e respetivos valores).</li>
+      <li>Dados de interação (comunicações enviadas, aberturas e cliques; pedidos de apoio).</li>
+    </ul>
+    <div class="aviso">Não são tratadas <strong>categorias especiais</strong> de dados (art. 9.º), salvo indicação expressa em contrário.</div>
+
+    ${sec(6,'Destinatários dos dados (alínea c)')}
+    <ul>
+      <li>Colaboradores autorizados da entidade responsável (equipas comercial, marketing e apoio).</li>
+      <li>Subcontratantes de serviços tecnológicos (alojamento, envio de email), sujeitos a contrato nos termos do art. 28.º.</li>
+      <li>Autoridades públicas, quando exista obrigação legal.</li>
+    </ul>
+    <p>Não estão previstas transferências para países terceiros ou organizações internacionais sem as garantias do Capítulo V.</p>
+
+    ${sec(7,'Prazo de conservação (alínea d)')}
+    <ul>
+      <li>Dados contratuais e de faturação: pelo prazo legal aplicável (regra geral, 10 anos).</li>
+      <li>Dados tratados com base no consentimento: até à retirada do consentimento.</li>
+      <li>Restantes dados: enquanto durar a relação e pelo prazo necessário às finalidades indicadas.</li>
+    </ul>
+
+    ${sec(8,'Origem dos dados (alínea g)')}
+    <p>${esc(c.origem||'Recolhidos junto do próprio titular')}${c.origem?' (origem registada no sistema)':''}.</p>
+
+    ${sec(9,'Decisões automatizadas e definição de perfis (alínea h)')}
+    <p>O sistema calcula uma <strong>pontuação de interesse comercial (lead score)</strong> a partir do histórico de compras, do envolvimento com as comunicações e do perfil da empresa.</p>
+    <table>${linha('Pontuação atual',score+'/100 ('+si.l+')')}</table>
+    <div class="aviso">Esta pontuação <strong>apoia</strong> a decisão humana e <strong>não produz</strong> efeitos jurídicos nem afeta significativamente o titular, pelo que não constitui uma decisão exclusivamente automatizada nos termos do art. 22.º.</div>
+
+    ${sec(10,'Registos associados')}
+    <p><strong>Propostas / contratos (${props.length})</strong></p>
+    ${props.length?`<table><tr><th>Número</th><th>Título</th><th>Data</th><th>Estado</th></tr>${props.map(p=>`<tr><td>${esc(p.numero)}</td><td>${esc(p.titulo||'')}</td><td>${dPT(p.criada)}</td><td>${esc(p.estado||'')}</td></tr>`).join('')}</table>`:nada}
+    <p><strong>Comunicações enviadas (${envs.length})</strong></p>
+    ${envs.length?`<table><tr><th>Data</th><th>Assunto</th><th>Interação</th></tr>${envs.map(e=>`<tr><td>${dPT(e.data)}</td><td>${esc(e.assunto||'')}</td><td>${e.clicado?'clicado':(e.aberto?'aberto':'não aberto')}</td></tr>`).join('')}</table>`:nada}
+    <p><strong>Pedidos de apoio (${casos.length})</strong></p>
+    ${casos.length?`<table><tr><th>Número</th><th>Assunto</th><th>Aberto</th><th>Estado</th></tr>${casos.map(x=>`<tr><td>${esc(x.numero)}</td><td>${esc(x.assunto||'')}</td><td>${dPT(x.aberto)}</td><td>${esc(x.estado||'')}</td></tr>`).join('')}</table>`:nada}
+    <p><strong>Pedidos de titular anteriores (${peds.length})</strong></p>
+    ${peds.length?`<table><tr><th>Direito exercido</th><th>Data</th><th>Prazo</th><th>Estado</th></tr>${peds.map(x=>`<tr><td>${esc(x.tipo||'')}</td><td>${dPT(x.data)}</td><td>${dPT(x.prazo)}</td><td>${esc(x.estado||'')}</td></tr>`).join('')}</table>`:nada}
+
+    ${sec(11,'Os seus direitos (alíneas e) e f)')}
+    <ul>
+      <li><strong>Retificação</strong> dos dados inexatos e <strong>apagamento</strong> ("direito a ser esquecido"), nos termos legais.</li>
+      <li><strong>Limitação</strong> do tratamento e <strong>oposição</strong> ao tratamento, incluindo para marketing direto.</li>
+      <li><strong>Portabilidade</strong>: pode receber os seus dados em formato estruturado e de leitura automática (art. 20.º) - disponível em ficheiro JSON.</li>
+      <li><strong>Retirar o consentimento</strong> a qualquer momento, sem afetar a licitude do tratamento anterior.</li>
+      <li><strong>Reclamar</strong> junto da autoridade de controlo - <strong>Comissão Nacional de Proteção de Dados (CNPD)</strong>, www.cnpd.pt.</li>
+    </ul>
+    <p>Para exercer estes direitos, contacte ${esc(s.epd||s.entidade||'o responsável pelo tratamento')}${s.email?' ('+esc(s.email)+')':''}.</p>
+
+    <div class="foot">Documento gerado automaticamente pelo CRM em ${hoje} · ${esc(s.entidade||'')} · A primeira cópia é gratuita (art. 15.º/3). O prazo de resposta é de um mês, prorrogável por mais dois em casos complexos (art. 12.º/3).</div>
+  </div></body></html>`;
+}
+async function exportClientPDF(id){
+  const c=getC(id); if(!c) return;
+  const html=dsarReportHTML(id); if(!html) return;
+  openPrint(html);
+  toast('Relatório de acesso gerado', (c.nome||'')+' '+(c.apelido||'')+' · art. 15.º RGPD');
+  // responsabilidade (art. 5.º/2): se houver um pedido de Acesso em aberto, propor fechá-lo
+  const aberto=(state.pedidos||[]).find(p=>p.clienteId===id && p.tipo==='Acesso' && p.estado!=='Concluído');
+  if(aberto){
+    if(await uiConfirm('Existe um pedido de ACESSO em aberto para este titular (de '+dPT(aberto.data)+'). Marcar como concluído e registar a resposta?',{title:'Registar a resposta ao pedido?',okText:'Marcar concluído',icon:'shield'})){
+      aberto.estado='Concluído';
+      aberto.notas=((aberto.notas||'')+(aberto.notas?' ':'')+'Relatório de acesso (art. 15.º) entregue em '+dPT(todayISO())+'.').trim();
+      save(); render(); toast('Pedido concluído','Resposta registada no processo');
+    }
+  }
+}
 function exportClient(id){
   const c=getC(id); if(!c) return;
   const data={
