@@ -14,7 +14,7 @@ The **Cases** module handles customer support requests end to end: logging, conv
 | **Company** / **Contact** | Who the case relates to |
 | **Channel** | Email, Phone, Chat, Portal or In person |
 | **Priority** | Low, Medium, High or Urgent - sets the SLA deadline |
-| **Owner** | Who handles the case (can be left unassigned) |
+| **Owner** | Who handles the case. The list is made of **your class members** (the support team); can be left unassigned |
 | **Description** | Becomes the **1st message** of the conversation |
 
 !!! tip "Find a case"

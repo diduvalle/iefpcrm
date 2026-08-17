@@ -1200,8 +1200,33 @@ function slaDias(p){ return SLA_DIAS[p]||4; }
 function casoPrazo(c){ return addDays(c.aberto||todayISO(), slaDias(c.prioridade)); }
 function casoSla(c){ if(!casoAberto(c)) return {estado:'-',dias:null}; const d=daysBetween(todayISO(), casoPrazo(c)); if(d<0) return {estado:'violado',dias:d}; if(d<=1) return {estado:'risco',dias:d}; return {estado:'ok',dias:d}; }
 function casoSlaBadge(c){ const s=casoSla(c); if(s.estado==='violado') return `<span class="pill red" style="font-size:.62rem" title="Prazo ultrapassado há ${Math.abs(s.dias)} dia(s)">SLA violado</span>`; if(s.estado==='risco') return `<span class="pill amber" style="font-size:.62rem" title="Faltam ${s.dias} dia(s)">SLA em risco</span>`; if(s.estado==='ok') return `<span class="pill green" style="font-size:.62rem" title="Faltam ${s.dias} dia(s)">No prazo</span>`; return ''; }
+/* ---------- EQUIPA (quem pode ser responsável) ----------
+   O responsável de um caso/cancelamento é alguém da equipa. Em modo turma, a equipa
+   são os colegas (roster do Supabase, em cache); fora de turma, os utilizadores locais. */
+const nomeMembro = m => (((m&&m.nome)||'')+' '+((m&&m.apelido)||'')).trim() || (m&&m.username) || '-';
+function equipaMembros(){
+  const eq=state.equipa;
+  if(Array.isArray(eq)&&eq.length) return eq;
+  return (state.utilizadores||[]);
+}
+function equipaOpts(){ return equipaMembros().map(m=>({v:m.id,t:nomeMembro(m)})); }
+// nome de um responsável, venha da turma ou dos utilizadores locais (não perde nomes antigos)
+function utilizadorNome(id){
+  if(!id) return '';
+  const eq=(state.equipa||[]).find(x=>x.id===id); if(eq) return nomeMembro(eq);
+  const lu=(state.utilizadores||[]).find(x=>x.id===id); return lu?nomeMembro(lu):'';
+}
+// lê a turma do Supabase e guarda em cache (qualquer membro da turma pode listar)
+function carregarEquipa(){
+  if(typeof TURMA==='undefined'||!TURMA||!supaToken()) return Promise.resolve(null);
+  return supaRoster().then(list=>{
+    if(!Array.isArray(list)||!list.length) return null;
+    state.equipa=list.map(u=>({id:u.id,nome:u.nome||'',apelido:u.apelido||'',username:u.username||'',papel:u.papel||''}));
+    save(); return state.equipa;
+  }).catch(()=>null);
+}
 function casoAccount(c){ if(c.empresaId){ const e=(state.empresas||[]).find(x=>x.id===c.empresaId); if(e) return e.nome; } const cli=getC(c.clienteId); if(cli){ if(cli.empresaId){ const e=(state.empresas||[]).find(x=>x.id===cli.empresaId); if(e) return e.nome; } return ((cli.nome||'')+' '+(cli.apelido||'')).trim(); } return '-'; }
-function casoResponsavel(c){ const u=(state.utilizadores||[]).find(x=>x.id===c.responsavelId); return u?((u.nome||'')+' '+(u.apelido||'')).trim():''; }
+function casoResponsavel(c){ return utilizadorNome(c.responsavelId); }
 function casosAbertos(){ return (state.casos||[]).filter(casoAberto); }
 function csatMedia(){ const arr=(state.casos||[]).filter(c=>c.csat!=null).map(c=>+c.csat); return arr.length? arr.reduce((s,x)=>s+x,0)/arr.length : null; }
 function npsScore(){ const arr=(state.casos||[]).filter(c=>c.nps!=null).map(c=>+c.nps); if(!arr.length) return null; const prom=arr.filter(x=>x>=9).length, det=arr.filter(x=>x<=6).length; return Math.round((prom-det)/arr.length*100); }
@@ -1216,7 +1241,7 @@ const retEstadoCor=e=>({'Em risco':'grey','Pedido':'amber','Em retenção':'blue
 const retDot=e=>({'Em risco':'#86978d','Pedido':'#d97706','Em retenção':'#2563eb','Retido':'#00A651','Cancelado':'#dc2626'}[e]||'#86978d');
 const retAtivo=r=>!['Retido','Cancelado'].includes(r.estado);
 function retAccount(r){ const cli=getC(r.clienteId); if(cli){ if(cli.empresaId){ const e=(state.empresas||[]).find(x=>x.id===cli.empresaId); if(e) return e.nome; } return ((cli.nome||'')+' '+(cli.apelido||'')).trim(); } return r.empresa||'-'; }
-function retResponsavel(r){ const u=(state.utilizadores||[]).find(x=>x.id===r.responsavelId); return u?((u.nome||'')+' '+(u.apelido||'')).trim():''; }
+function retResponsavel(r){ return utilizadorNome(r.responsavelId); }
 function retEmRisco(){ return (state.retencoes||[]).filter(retAtivo); }
 function mrrEmRisco(){ return retEmRisco().reduce((s,r)=>s+(+r.mrr||0),0); }
 function mrrChurn(){ return (state.retencoes||[]).filter(r=>r.estado==='Cancelado'&&!r.recuperado).reduce((s,r)=>s+(+r.mrr||0),0); }
@@ -1303,7 +1328,7 @@ function ingestSupaUser(u){
 function restoreSupaSession(){
   if(!TURMA) return;
   const s=supaSession();
-  if(s&&s.user){ ingestSupaUser(s.user); sessionUserId=s.user.id; rememberTurma(TURMA); }
+  if(s&&s.user){ ingestSupaUser(s.user); sessionUserId=s.user.id; rememberTurma(TURMA); carregarEquipa(); }
 }
 // Login numa turma via Supabase
 async function supaLogin(username,password){
@@ -1311,6 +1336,7 @@ async function supaLogin(username,password){
   setSupaSession({token:data.token,user:data.user});
   ingestSupaUser(data.user); sessionUserId=data.user.id;
   rememberTurma(TURMA);
+  carregarEquipa();
   return data.user;
 }
 // Criar turma (gate de email IEFP) - devolve {token,turma,user}
@@ -3252,6 +3278,7 @@ function renderTurmaRoster(){
   const box=$('#turmaRoster'); if(!box) return;
   Promise.all([supaRoster(), supaListarSubmissoes().catch(()=>[])]).then(([list,subs])=>{
     const me=currentUser(); list=list||[]; subs=subs||[];
+    if(list.length){ state.equipa=list.map(u=>({id:u.id,nome:u.nome||'',apelido:u.apelido||'',username:u.username||'',papel:u.papel||''})); save(); }
     const LIM=2, cont={}; subs.forEach(s=>{ const k=String(s.username||'').toLowerCase(); cont[k]=(cont[k]||0)+1; });
     const entregaCell=u=>{ if(u.papel!=='Formando') return '<span class="muted" style="font-size:.72rem">-</span>';
       const n=Math.min(cont[String(u.username||'').toLowerCase()]||0,LIM);
@@ -3682,7 +3709,7 @@ const SCHEMAS = {
     {n:'mrr',l:'Valor recorrente em risco (MRR, €/mês)',type:'number',hint:'O que se perde por mês se cancelar'},
     {n:'tipo',l:'Tipo de churn',type:'select',opts:RET_TIPOS.map(x=>({v:x,t:x})),def:'Voluntário',hint:'Voluntário = o cliente decide · Involuntário = falha de pagamento'},
     {n:'motivo',l:'Motivo',type:'select',opts:RET_MOTIVOS.map(x=>({v:x,t:x}))},
-    {n:'responsavelId',l:'Responsável',type:'select',opts:()=>[{v:'',t:'- por atribuir -'}].concat((state.utilizadores||[]).map(u=>({v:u.id,t:((u.nome||'')+' '+(u.apelido||'')).trim()})))},
+    {n:'responsavelId',l:'Responsável',type:'select',opts:()=>[{v:'',t:'- por atribuir -'}].concat(equipaOpts()),labelFor:id=>utilizadorNome(id),hint:'A equipa é a tua turma.'},
     {n:'estado',l:'Estado',type:'select',opts:RET_ESTADOS.map(x=>({v:x,t:x})),def:'Pedido'},
     {n:'descricao',l:'Nota inicial',type:'textarea',full:1,hint:'O que o cliente disse - fica na 1.ª entrada do histórico.'},
   ]},
@@ -3692,7 +3719,7 @@ const SCHEMAS = {
     {n:'clienteId',l:'Contacto',type:'combo',src:'clientes',placeholder:'Escreva o nome do contacto…'},
     {n:'canal',l:'Canal',type:'select',opts:CASO_CANAIS.map(x=>({v:x,t:x})),def:'Email'},
     {n:'prioridade',l:'Prioridade',type:'select',opts:CASO_PRIORIDADES.map(x=>({v:x,t:x})),def:'Média'},
-    {n:'responsavelId',l:'Responsável',type:'select',opts:()=>[{v:'',t:'- por atribuir -'}].concat((state.utilizadores||[]).map(u=>({v:u.id,t:((u.nome||'')+' '+(u.apelido||'')).trim()})))},
+    {n:'responsavelId',l:'Responsável',type:'select',opts:()=>[{v:'',t:'- por atribuir -'}].concat(equipaOpts()),labelFor:id=>utilizadorNome(id),hint:'A equipa é a tua turma.'},
     {n:'estado',l:'Estado',type:'select',opts:CASO_ESTADOS.map(x=>({v:x,t:x})),def:'Novo'},
     {n:'descricao',l:'Descrição (primeira mensagem)',type:'textarea',full:1,hint:'O que o cliente reportou - fica como a 1.ª entrada da conversa.'},
   ]},
@@ -3834,7 +3861,13 @@ function fieldHTML(f,item){
     return `<div class="${cls} combo" data-combo-src="${esc(f.src)}"><label>${esc(f.l)}${f.req?' *':''}</label>${comboInner(f.n,f.src,v,f.placeholder||'Escreva o nome ou NIPC…')}${hint}</div>`;
   }
   if(f.type==='select'){
-    const opts=typeof f.opts==='function'?f.opts():f.opts;
+    let opts=typeof f.opts==='function'?f.opts():f.opts;
+    // se o valor gravado já não está na lista (ex.: responsável que saiu da turma), mantém-no
+    // como opção - senão o select mostrava outro nome e a gravação trocava o responsável em silêncio
+    if(v!=='' && v!=null && !opts.some(o=>String(o&&o.v!=null?o.v:o)===String(v))){
+      const lbl=(typeof f.labelFor==='function' ? f.labelFor(v) : '') || String(v);
+      opts=opts.concat([{v, t:lbl+' (fora da equipa)'}]);
+    }
     return `<div class="${cls}"><label>${esc(f.l)}</label><select name="${f.n}">${opt(opts,v)}</select>${hint}</div>`;
   }
   if(f.type==='avatar'){ const ini=initialsOf(item); return `<div class="${cls}"><label>${esc(f.l)}</label><div style="display:flex;align-items:center;gap:14px"><div id="avPreview" class="avatar" style="width:58px;height:58px;padding:0;overflow:hidden;font-size:1.15rem">${v?`<img src="${esc(v)}" style="width:100%;height:100%;object-fit:cover">`:esc(ini)}</div><label class="btn-sec btn-sm" style="cursor:pointer">${ic('image',15)} Carregar foto<input type="file" accept="image/*" data-avatar style="display:none"></label><input type="hidden" name="avatar" value="${esc(v)}"><button type="button" class="btn-ghost btn-sm" data-act="av-clear" ${v?'':'style="display:none"'}>Remover</button></div><span class="hint">Imagem quadrada recomendada - fica guardada no perfil do utilizador.</span></div>`; }

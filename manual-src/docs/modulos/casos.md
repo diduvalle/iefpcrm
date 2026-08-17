@@ -14,7 +14,7 @@ O módulo **Casos** gere os pedidos de apoio dos clientes de ponta a ponta: regi
 | **Empresa** / **Contacto** | A quem se refere o caso |
 | **Canal** | Email, Telefone, Chat, Portal ou Presencial |
 | **Prioridade** | Baixa, Média, Alta ou Urgente - define o prazo de SLA |
-| **Responsável** | Quem trata o caso (pode ficar por atribuir) |
+| **Responsável** | Quem trata o caso. A lista são os **elementos da tua turma** (a equipa de apoio); pode ficar por atribuir |
 | **Descrição** | Fica como a **1.ª mensagem** da conversa |
 
 !!! tip "Procurar um caso"
