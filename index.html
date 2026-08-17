@@ -244,7 +244,10 @@
 .drawer.open{transform:none}
 .drawer-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px}
 .drawer-body{padding:20px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:18px}
-.drawer-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+.drawer-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+/* accao destrutiva discreta: so ganha cor quando o rato la esta */
+.drawer-foot .btn-del{width:38px;height:38px;padding:0;justify-content:center;background:transparent;border-color:var(--border);color:var(--muted)}
+.drawer-foot .btn-del:hover{background:var(--danger-bg);border-color:transparent;color:var(--danger)}
 
 /* ---------- LINE EDITOR ---------- */
 .lines{display:flex;flex-direction:column;gap:8px}
@@ -1727,7 +1730,7 @@ function openEmpresa360(id){
       <div style="flex:1;background:var(--surface2);border-radius:10px;padding:12px"><div class="muted" style="font-size:.74rem">Ganhas</div><strong style="font-size:1.2rem">${ganhas.length}</strong></div>
       ${canSeeFinance()?`<div style="flex:1;background:var(--g100);border-radius:10px;padding:12px"><div class="muted" style="font-size:.74rem">Valor ganho</div><strong style="font-size:1.2rem;color:var(--g700)">${money(empValue(id))}</strong></div>`:''}
     </div>`;
-  $('#drawerFoot').innerHTML=`<button class="btn-sec" data-act="edit" data-type="empresa" data-id="${e.id}">${ic('edit',16)} Editar empresa</button><div style="flex:1"></div>`;
+  $('#drawerFoot').innerHTML=`<button class="btn" data-act="edit" data-type="empresa" data-id="${e.id}">${ic('cog',16)} Editar empresa</button>`;
   openDrawer();
 }
 
@@ -1821,7 +1824,7 @@ function openClient360(id){ drawer360Emp=null; drawer360Cli=id;
       ${cons.length?`<div class="mini-list">${cons.map(x=>`<div class="mini-item"><span class="grow"><strong>${esc(x.finalidade)}</strong><span>Base: ${esc(x.base)} · ${esc(x.canal)} · ${dPT(x.data)}</span></span><span class="pill ${x.estado==='Ativo'?'green':'red'}">${esc(x.estado)}</span></div>`).join('')}</div>`:empty('Sem consentimentos registados')}
       ${peds.length?`<div class="divider" style="margin:12px 0"></div><div class="muted" style="font-size:.8rem;font-weight:700;margin-bottom:6px">Pedidos de titular</div><div class="mini-list">${peds.map(x=>`<div class="mini-item"><span class="grow"><strong>${esc(x.tipo)}</strong><span>${dPT(x.data)} · prazo ${dPT(x.prazo)}</span></span><span class="pill ${x.estado==='Concluído'?'green':x.estado==='Em curso'?'amber':'blue'}">${esc(x.estado)}</span></div>`).join('')}</div>`:''}
     </div>`;
-  $('#drawerFoot').innerHTML=`<button class="btn-danger" data-act="delete" data-type="cliente" data-id="${id}">Eliminar</button><div style="flex:1"></div><button class="btn-sec" data-act="export-client-pdf" data-id="${id}" title="Direito de acesso - art. 15.º RGPD (documento legível)">${ic('print',16)} Relatório RGPD</button><button class="btn-sec" data-act="export-client" data-id="${id}" title="Portabilidade - art. 20.º RGPD (formato de leitura automática)">${ic('download',16)} Exportar JSON</button><button class="btn-sec" data-act="edit" data-type="cliente" data-id="${id}">Editar ficha</button>`;
+  $('#drawerFoot').innerHTML=`<button class="btn-sec btn-del" data-act="delete" data-type="cliente" data-id="${id}" title="Eliminar este contacto" aria-label="Eliminar este contacto">${ic('trash',17)}</button><div style="flex:1"></div><button class="btn-sec" data-act="export-client-pdf" data-id="${id}" title="Direito de acesso - art. 15.º RGPD (documento legível)">${ic('print',16)} Relatório RGPD</button><button class="btn-sec" data-act="export-client" data-id="${id}" title="Portabilidade - art. 20.º RGPD (formato de leitura automática)">${ic('download',16)} Exportar JSON</button><button class="btn" data-act="edit" data-type="cliente" data-id="${id}">${ic('cog',16)} Editar</button>`;
   openDrawer();
 }
 
@@ -2023,7 +2026,7 @@ function openCaso360(id){ drawer360Emp=null; drawer360Cli=null; drawer360Caso=id
       <div class="toolbar" style="gap:8px"><button class="btn" data-act="caso-fechar" data-id="${c.id}">${ic('star',15)} Fechar com inquérito</button><button class="btn-sec" data-act="caso-reabrir" data-id="${c.id}">Reabrir</button></div>
     </div>`:`<div class="card card-pad"><div class="muted" style="font-size:.85rem">Caso fechado.${c.csat!=null?' CSAT '+c.csat+'/5.':''}${c.nps!=null?' NPS '+c.nps+'/10.':''}</div><div class="toolbar" style="margin-top:10px"><button class="btn-sec" data-act="caso-reabrir" data-id="${c.id}">Reabrir</button></div></div>`)}
   `;
-  $('#drawerFoot').innerHTML=`<button class="btn-sec" data-act="edit" data-type="caso" data-id="${c.id}">${ic('cog',15)} Editar dados do caso</button>`;
+  $('#drawerFoot').innerHTML=`<button class="btn" data-act="edit" data-type="caso" data-id="${c.id}">${ic('cog',16)} Editar dados do caso</button>`;
   $('#drawerBack').classList.add('open'); $('#drawer').classList.add('open');
 }
 
@@ -2095,7 +2098,7 @@ function openRet360(id){ drawer360Emp=null;drawer360Cli=null;drawer360Caso=null;
       <div class="toolbar" style="margin-top:10px;gap:8px">${(r.estado==='Cancelado'&&!r.recuperado)?`<button class="btn" data-act="ret-winback" data-id="${r.id}">${ic('rotate',15)} Marcar recuperado (win-back)</button>`:''}<button class="btn-sec" data-act="ret-reabrir" data-id="${r.id}">Reabrir</button></div>
     </div>`}
   `;
-  $('#drawerFoot').innerHTML=`<button class="btn-sec" data-act="edit" data-type="retencao" data-id="${r.id}">${ic('cog',15)} Editar dados</button>`;
+  $('#drawerFoot').innerHTML=`<button class="btn" data-act="edit" data-type="retencao" data-id="${r.id}">${ic('cog',16)} Editar dados</button>`;
   $('#drawerBack').classList.add('open'); $('#drawer').classList.add('open');
 }
 
@@ -4353,7 +4356,7 @@ function printRGPDReport(){
   ${fviol.map(v=>row([dPT(v.data),esc(v.descricao),esc(v.risco),fmtN(v.afetados),esc(v.notificada)])).join('')||'<tr><td colspan=5>Sem violações registadas</td></tr>'}</tbody></table>
   <p class="muted" style="margin-top:34px;border-top:1px solid #dbe6df;padding-top:12px">Documento gerado pelo IEFP CRM - ferramenta pedagógica (UFCD 10870 - Administração de CRM / RGPD). Não constitui aconselhamento jurídico.</p>
   </body></html>`);
-  w.document.close(); setTimeout(()=>w.print(),300);
+  w.document.close(); nomearJanela(w); setTimeout(()=>w.print(),300);
 }
 
 /* ---------- relatório de Analytics (imprimível) ---------- */
@@ -5989,7 +5992,10 @@ function proposalDocHTML(tpl,p){
     }
   </style></head><body><div class="doc">${blocksHTML(tpl,p)}</div></body></html>`;
 }
-function openPrint(html){ const w=window.open('','_blank'); if(!w){ toast('Pop-up bloqueado','Permita pop-ups para exportar','warn'); return; } w.document.write(html); w.document.close(); setTimeout(()=>{try{w.print();}catch(e){}},350); }
+function slug(t){ return String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-+|-+$/g,'').toLowerCase()||'documento'; }
+/* o rodape de impressao do browser mostra o endereco do documento; sem nome sairia 'about:blank' */
+function nomearJanela(w,nome){ try{ w.history.replaceState({},'',slug(nome||w.document.title)); }catch(e){} }
+function openPrint(html,nome){ const w=window.open('','_blank'); if(!w){ toast('Pop-up bloqueado','Permita pop-ups para exportar','warn'); return; } w.document.write(html); w.document.close(); nomearJanela(w,nome); setTimeout(()=>{try{w.print();}catch(e){}},350); }
 function exemploProp(){ return state.propostas[0]||{numero:'PROP-0000',titulo:'Proposta de exemplo',clienteId:state.clientes[0]?.id,validade:todayISO(),criada:todayISO(),linhas:[{descricao:'Artigo de exemplo',qtd:1,preco:100,iva:23}]}; }
 
 /* ---- editor por blocos ---- */
