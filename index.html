@@ -3290,7 +3290,7 @@ function openAutoEditor(id){
   if(!Array.isArray(autoDraft.passos)||!autoDraft.passos.length) autoDraft.passos=[{templateId:(state.templates[0]&&state.templates[0].id)||'',atrasoDias:0}];
   editing={type:'__auto',id};
   $('#modalTitle').textContent=(id?'Editar ':'Nova ')+'automação';
-  $('#modalSub').textContent='Evento → sequência de emails';
+  $('#modalSub').textContent='Evento → sequência de ações';
   $('#modal').classList.remove('wide'); $('#modalDelete').style.display=id?'inline-flex':'none';
   renderAutoForm(); $('#modalBack').classList.add('open');
 }
