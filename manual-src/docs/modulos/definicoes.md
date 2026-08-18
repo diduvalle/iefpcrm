@@ -30,7 +30,7 @@ Matriz **papéis × módulos**: define o que cada grupo vê (Administrador/Forma
 Atalho para o construtor de modelos. → [Modelos de Proposta](modelos.md).
 
 ### Outras referências
-**Níveis de loyalty**, **Taxas de IVA** (por região), **Origens de cliente** (lista editável).
+**Níveis de loyalty**, **Taxas de IVA** (por região), **Origens de cliente** (lista editável) e **[Campos personalizados do contacto](empresas-contactos.md#campos-personalizados)** - campos que crias tu e que ficam disponíveis como tag nos modelos.
 
 ## Em modo turma (online)
 

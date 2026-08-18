@@ -1130,6 +1130,10 @@ function load(){
   if(!Array.isArray(state.envios)) state.envios=[];
   if(!Array.isArray(state.automacoes)) state.automacoes=def.automacoes;
   if(!Array.isArray(state.agendamentos)) state.agendamentos=[];
+  if(!Array.isArray(state.camposExtra)) state.camposExtra=[];
+  if(!Array.isArray(state.autoLog)) state.autoLog=[];
+  (state.automacoes||[]).forEach(a=>{ (a.passos||[]).forEach(p=>{ if(!p.tipo) p.tipo='email'; }); if(a.saida==null) a.saida=''; });
+  (state.camposExtra||[]).forEach(c=>{ if(c.ativo==null)c.ativo=true; if(!Array.isArray(c.opcoes))c.opcoes=[]; });
   (state.automacoes||[]).forEach(a=>{ if(!a.condSegmento) a.condSegmento='Todos'; if(!Array.isArray(a.passos)) a.passos=a.templateId?[{templateId:a.templateId,atrasoDias:a.atrasoDias||0}]:[]; });
   // migrar templates de email antigos para o novo modelo
   (state.templates||[]).forEach(t=>{ if(t.cor==null)t.cor='#006B3C'; if(t.mostrarLogo==null)t.mostrarLogo=true; if(t.saudacao==null)t.saudacao='Olá {{cliente.nome}},'; if(t.corpo==null)t.corpo=''; if(t.botaoTexto==null)t.botaoTexto=''; if(t.botaoLink==null)t.botaoLink=''; if(t.assinatura==null)t.assinatura='{{entidade.nome}}'; });
@@ -1256,7 +1260,14 @@ const particularVolume = id => state.propostas.filter(p=>p.clienteId===id&&!p.em
 function recalcLoyalty(){
   const lv=[...state.loyalty].filter(x=>x.estado!=='Inativo').sort((a,b)=>a.minVolume-b.minVolume);
   const tierFor=v=>{ let n=lv[0]?.nome||'Bronze'; lv.forEach(x=>{ if(v>=x.minVolume) n=x.nome; }); return n; };
-  (state.empresas||[]).forEach(e=>{ e.loyalty=tierFor(empVolume(e.id)); });                 // fidelização = da EMPRESA
+  const ordem=lv.map(x=>x.nome);
+  const mudancas=[];
+  (state.empresas||[]).forEach(e=>{                                                        // fidelização = da EMPRESA
+    const novo=tierFor(empVolume(e.id)); const ant=e._loyaltyAnt; e.loyalty=novo;
+    if(ant==null){ e._loyaltyAnt=novo; return; }          // 1.ª vez: só marca, não dispara
+    if(ant!==novo){ e._loyaltyAnt=novo; mudancas.push({empresa:e,de:ant,para:novo,subiu:ordem.indexOf(novo)>ordem.indexOf(ant)}); }
+  });
+  if(mudancas.length) setTimeout(()=>dispararLoyalty(mudancas),0);   // fora do recalc, senão o envio voltava a chamá-lo
   state.clientes.forEach(c=>{ c.loyalty = c.empresaId ? (((state.empresas||[]).find(e=>e.id===c.empresaId)||{}).loyalty||tierFor(0)) : tierFor(particularVolume(c.id)); }); // contacto herda a da empresa; particular usa o seu
 }
 
@@ -1270,7 +1281,7 @@ function isAdmin(){ if(!state.settings.requireLogin) return true; const u=curren
 function can(mod){ if(!state.settings.requireLogin) return true; const r=currentRole(); return r?r.modules.includes(mod):false; }
 function isGestor(){ const r=currentRole(); return !!(r&&r.gestor); }
 /* Sub-permissões (sandbox): acesso a secções específicas das Definições sem dar o módulo completo. */
-const FEATS=[{k:'entidade',l:'Entidade'},{k:'gerador',l:'Gerador de dados'},{k:'loyalty',l:'Níveis de fidelização'},{k:'origens',l:'Origens de cliente'},{k:'funcoes',l:'Função do contacto'},{k:'brand',l:'Marca & Aparência'}];
+const FEATS=[{k:'entidade',l:'Entidade'},{k:'gerador',l:'Gerador de dados'},{k:'loyalty',l:'Níveis de fidelização'},{k:'origens',l:'Origens de cliente'},{k:'campos',l:'Campos personalizados'},{k:'funcoes',l:'Função do contacto'},{k:'brand',l:'Marca & Aparência'}];
 function canFeat(key){ if(!state.settings.requireLogin) return true; if(isAdmin()||can('definicoes')) return true; const r=currentRole(); return !!(r&&r.feats&&r.feats.includes(key)); }
 function hasAnyFeat(){ if(isAdmin()||can('definicoes')) return true; const r=currentRole(); return !!(r&&r.feats&&r.feats.length); }
 function doLogin(username,password){
@@ -1810,6 +1821,7 @@ function openClient360(id){ drawer360Emp=null; drawer360Cli=id;
         <dt>Cargo</dt><dd>${esc(c.cargo||'-')}</dd>
         <dt>Função</dt><dd>${c.funcao?esc(c.funcao):'-'}</dd>
         <dt>Registado</dt><dd>${dPT(c.criado)}</dd>
+        ${camposExtra().map(cx=>`<dt>${esc(cx.titulo)}</dt><dd>${esc(cxTexto(c,cx)||'-')}</dd>`).join('')}
       </dl>
       ${(Array.isArray(c.contactosExtra)&&c.contactosExtra.length)?`<div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px"><div class="muted" style="font-size:.7rem;font-weight:800;letter-spacing:.04em;margin-bottom:6px">CONTACTOS ADICIONAIS</div>${c.contactosExtra.map(x=>{const val=String(x.valor||'');const link=x.tipo==='Email'?`<a href="mailto:${esc(val)}" style="color:var(--g700);text-decoration:underline;text-underline-offset:2px">${esc(val)}</a>`:`<a href="tel:${esc(val.replace(/\s/g,''))}" style="color:var(--g700)">${esc(val)}</a>`;return `<div style="display:flex;justify-content:space-between;gap:10px;padding:3px 0;font-size:.86rem"><span class="muted">${esc(x.rotulo||'')} · ${esc(x.tipo||'')}</span>${link}</div>`;}).join('')}</div>`:''}
       ${c.notas?`<div class="callout info" style="margin-top:12px">${ic('list',16)}<div class="ctxt">${esc(c.notas)}</div></div>`:''}
@@ -2656,7 +2668,8 @@ function rgpdTab(tab, ctx){
 
 /* ---------- COMUNICAÇÃO ---------- */
 /* ========================= COMUNICAÇÃO (email + histórico + automações) ========================= */
-const EMAIL_TAGS=['cliente.nome','cliente.empresa','cliente.email','cliente.telefone','proposta.numero','proposta.titulo','proposta.total','proposta.validade','entidade.nome','entidade.email','data'];
+const EMAIL_TAGS_BASE=['cliente.nome','cliente.empresa','cliente.email','cliente.telefone','proposta.numero','proposta.titulo','proposta.total','proposta.validade','entidade.nome','entidade.email','data'];
+function emailTags(){ return EMAIL_TAGS_BASE.concat(camposExtra().map(c=>'cliente.'+c.chave)); }
 const TRIGGERS=[
   {v:'novo-cliente',t:'Quando é criado um novo cliente'},
   {v:'proposta-criada',t:'Quando é criada uma proposta'},
@@ -2666,8 +2679,11 @@ const TRIGGERS=[
   {v:'email-aberto',t:'Comportamental: o lead abre um email'},
   {v:'email-clicado',t:'Comportamental: o lead clica num email'},
   {v:'sem-contacto',t:'Comportamental: lead sem contacto há N dias'},
+  {v:'loyalty-subiu',t:'Fidelização: a conta SOBE de nível'},
+  {v:'loyalty-desceu',t:'Fidelização: a conta DESCE de nível'},
 ];
-const behavioralTriggers=['lead-quente','email-aberto','email-clicado','sem-contacto'];
+const behavioralTriggers=['lead-quente','email-aberto','email-clicado','sem-contacto','loyalty-subiu','loyalty-desceu'];
+const loyaltyTriggers=['loyalty-subiu','loyalty-desceu'];
 const triggerLabel=v=>(TRIGGERS.find(t=>t.v===v)||{}).t||v;
 function mergeCtx(text, cliente, proposta){
   const c=cliente||{}; const s=state.settings; const t=proposta?documentTotals(proposta):{sub:0,iva:0,total:0,desconto:0};
@@ -2676,6 +2692,7 @@ function mergeCtx(text, cliente, proposta){
     'proposta.numero':proposta?proposta.numero:'','proposta.titulo':proposta?proposta.titulo:'','proposta.validade':proposta?dPT(proposta.validade):'','proposta.total':proposta?fmt(t.total):'','proposta.subtotal':proposta?fmt(t.sub):'','proposta.iva':proposta?fmt(t.iva):'','proposta.desconto':proposta?fmt(t.desconto):'',
     'entidade.nome':s.entidade||'','entidade.nif':s.nif||'','entidade.email':s.email||'','entidade.telefone':s.telefone||'','data':dPT(todayISO()),
   };
+  camposExtra().forEach(cx=>{ map['cliente.'+cx.chave]=cxTexto(c,cx); });   // campos criados pelo utilizador
   return String(text||'').replace(/\{\{([\w.]+)\}\}/g,(m,k)=>map[k]!=null?map[k]:m);
 }
 function hasSignature(u){ u=u||currentUser(); if(!u||!u.assinatura) return false; return !!(u.assinatura.replace(/<[^>]*>/g,'').replace(/&nbsp;/g,' ').trim() || /<img/i.test(u.assinatura)); }
@@ -2787,24 +2804,97 @@ function sendTestEmailJS(){
     .then(()=>toast('Teste enviado',`Verifique a caixa de ${to}`))
     .catch(err=>toast('Falha no teste',String(err&&(err.text||err.message)||err),'err'));
 }
+const ACOES=[{v:'email',t:'Enviar email'},{v:'fase',t:'Mudar a fase da conta'},{v:'tarefa',t:'Criar tarefa na Agenda'},{v:'nota',t:'Registar nota no contacto'}];
+const acaoLabel=v=>(ACOES.find(a=>a.v===v)||{}).t||v;
+/* Executa UM passo de uma automação. Devolve o texto para o registo. */
+function executarPasso(p,ctx,a,idx){
+  const cli=getC(ctx.clienteId); const tipo=p.tipo||'email';
+  if(tipo==='email'){
+    if(!p.templateId) return null;
+    sendEmail({clienteId:ctx.clienteId, templateId:p.templateId, proposta:(a.trigger!=='novo-cliente')?ctx.proposta:null, origem:'Automação', automacaoId:a.id});
+    const t=state.templates.find(x=>x.id===p.templateId);
+    return 'Email enviado: '+((t&&t.nome)||'-');
+  }
+  if(tipo==='fase'){
+    const acc=cli?accEmpOf(cli):null; if(!acc||!p.fase) return null;
+    const antes=acc.fase||'Lead';
+    /* usa o advanceFase do resto da app: o funil só anda para a frente e nunca
+       mexe em 'Perdido'. Uma automação não pode despromover um cliente. */
+    if(!advanceFase(acc,p.fase)) return null;
+    return 'Fase da conta: '+antes+' → '+acc.fase;
+  }
+  if(tipo==='tarefa'){
+    if(!cli) return null;
+    state.tarefas=state.tarefas||[];
+    state.tarefas.push({id:uid('tk'),titulo:p.texto||('Seguimento - '+a.nome),tipo:'Chamada',data:addDays(todayISO(),+p.atrasoDias||0),hora:'09:00',
+      clienteId:cli.id,estado:'Pendente',notas:'Criada pela automação "'+a.nome+'"',criadoPor:(currentUser()?currentUser().id:null),criadoEm:todayISO()});
+    return 'Tarefa criada: '+(p.texto||a.nome);
+  }
+  if(tipo==='nota'){
+    if(!cli||!p.texto) return null;
+    cli.notas=String(cli.notas||'')+(cli.notas?'\n':'')+dPT(todayISO())+' · '+p.texto;
+    return 'Nota registada no contacto';
+  }
+  return null;
+}
+const SAIDAS=[{v:'',t:'Nunca - executa a sequência toda'},{v:'email-clicado',t:'Quando o lead clica num email'},{v:'proposta-ganha',t:'Quando uma proposta é ganha'}];
+const saidaLabel=v=>(SAIDAS.find(x=>x.v===v)||{}).t||'-';
+/* Registo do que a automação fez - é isto que permite explicar à turma porque
+   e quando um email saiu, em vez de ser só um contador de disparos. */
+function autoLog(a,clienteId,evento,resumo){
+  const c=getC(clienteId);
+  state.autoLog=(state.autoLog||[]);
+  state.autoLog.unshift({id:uid('al'),automacaoId:a.id,nome:a.nome||'-',clienteId:clienteId||null,
+    cliente:c?((c.nome||'')+' '+(c.apelido||'')).trim():'-',evento:evento||'',resumo:resumo||'',quando:new Date().toISOString()});
+  if(state.autoLog.length>200) state.autoLog.length=200;   // não deixar o localStorage crescer sem fim
+}
+/* Critério de saída: quando o lead reage, deixa de fazer sentido continuar a
+   insistir. Cancela os passos ainda agendados dessa automação para aquele contacto. */
+function aplicarSaida(evento,clienteId){
+  if(!evento||!clienteId) return 0;
+  const alvo=(state.automacoes||[]).filter(a=>a.saida===evento).map(a=>a.id);
+  if(!alvo.length) return 0;
+  const antes=(state.agendamentos||[]).length;
+  state.agendamentos=(state.agendamentos||[]).filter(g=>!(g.clienteId===clienteId&&alvo.includes(g.automacaoId)));
+  const n=antes-state.agendamentos.length;
+  if(n){ save(); toast('Sequência interrompida',n+' passo(s) cancelado(s) - o cliente já reagiu','info'); }
+  return n;
+}
 function fireAutomations(trigger, ctx){
+  aplicarSaida(trigger, ctx.clienteId);     // o cliente reagiu → parar sequências à espera
   let fired=0, immediate=0, agendados=0; const cli=getC(ctx.clienteId);
   // condições avaliam a CONTA do contacto (empresa, ou o particular)
   (state.automacoes||[]).filter(a=>a.estado==='Ativa'&&a.trigger===trigger).forEach(a=>{
     if(a.condSegmento && a.condSegmento!=='Todos' && (!cli || !accMatchSeg(cli,a.condSegmento))) return;
     if(a.condFase && (!cli || accFaseOf(cli)!==a.condFase)) return;
     if(a.condScore && (!cli || scoreInfo(accScoreOf(cli)).l!==a.condScore)) return;
+    if(a.condNivel && ctx.loyaltyPara && ctx.loyaltyPara!==a.condNivel) return;   // só para este nível de fidelização
     (a.passos||[]).forEach((p,idx)=>{
-      if(!p.templateId) return;
-      if((+p.atrasoDias||0)<=0){ sendEmail({clienteId:ctx.clienteId, templateId:p.templateId, proposta:(trigger!=='novo-cliente')?ctx.proposta:null, origem:'Automação', automacaoId:a.id}); immediate++; }
-      else { scheduleSend({dataAgendada:addDays(todayISO(),+p.atrasoDias), clienteId:ctx.clienteId, templateId:p.templateId, propostaId:(trigger!=='novo-cliente'&&ctx.proposta)?ctx.proposta.id:null, automacaoId:a.id, nome:a.nome+' (passo '+(idx+1)+')'}); agendados++; }
+      const tipo=p.tipo||'email';
+      if(tipo==='email'&&!p.templateId) return;
+      if((+p.atrasoDias||0)<=0){ const r=executarPasso(p,ctx,a,idx); if(r){ immediate++; autoLog(a,ctx.clienteId,trigger,r); } }
+      else { scheduleSend({dataAgendada:addDays(todayISO(),+p.atrasoDias), clienteId:ctx.clienteId, tipo, templateId:p.templateId, fase:p.fase, texto:p.texto,
+          propostaId:(trigger!=='novo-cliente'&&ctx.proposta)?ctx.proposta.id:null, automacaoId:a.id, nome:a.nome+' (passo '+(idx+1)+')'}); agendados++; }
     });
     a.disparos=(a.disparos||0)+1; fired++;
   });
   if(fired){ save(); toast('Automação',`${immediate} enviado(s)${agendados?` · ${agendados} agendado(s)`:''}`,'info'); }
   return fired;
 }
-function scheduleSend(o){ state.agendamentos.push({id:uid('ag'),dataAgendada:o.dataAgendada,clienteId:o.clienteId,templateId:o.templateId,propostaId:o.propostaId||null,automacaoId:o.automacaoId||null,nome:o.nome||'Agendado'}); }
+/* Dispara as automações de fidelização. Corre fora do recalcLoyalty (via setTimeout)
+   porque enviar um email volta a gravar o estado e chamaria o recalc outra vez. */
+let _loyaltyBusy=false;
+function dispararLoyalty(mudancas){
+  if(_loyaltyBusy) return; _loyaltyBusy=true;
+  try{
+    (mudancas||[]).forEach(m=>{
+      const alvo=empContacts(m.empresa.id)[0]; if(!alvo) return;   // sem ninguém a quem escrever
+      const trig=m.subiu?'loyalty-subiu':'loyalty-desceu';
+      fireAutomations(trig,{clienteId:alvo.id, loyaltyDe:m.de, loyaltyPara:m.para});
+    });
+  } finally { _loyaltyBusy=false; }
+}
+function scheduleSend(o){ state.agendamentos.push({id:uid('ag'),dataAgendada:o.dataAgendada,clienteId:o.clienteId,tipo:o.tipo||'email',templateId:o.templateId,fase:o.fase||null,texto:o.texto||null,propostaId:o.propostaId||null,automacaoId:o.automacaoId||null,nome:o.nome||'Agendado'}); }
 // avança a fase da conta (só para a frente; nunca mexe em Perdido)
 function advanceFase(acc, to){ if(!acc) return false; if((acc.fase||'Lead')==='Perdido') return false; const order=['Lead','MQL','SQL','Cliente']; const cur=order.indexOf(acc.fase||'Lead'), tgt=order.indexOf(to); if(tgt>cur){ acc.fase=to; return true; } return false; }
 // gatilho comportamental: a EMPRESA (conta) fica "Quente" (score ≥ 70) - dispara UMA vez; engagement move Lead→MQL
@@ -2822,7 +2912,11 @@ function runSemContacto(){ const autos=(state.automacoes||[]).filter(a=>a.estado
   if(n) save(); return n; }
 function processAgendamentos(){
   const today=todayISO(); const due=(state.agendamentos||[]).filter(a=>a.dataAgendada<=today); let n=0;
-  due.forEach(a=>{ const prop=a.propostaId?state.propostas.find(p=>p.id===a.propostaId):null; sendEmail({clienteId:a.clienteId,templateId:a.templateId,proposta:prop,origem:'Automação',automacaoId:a.automacaoId}); n++; });
+  due.forEach(ag=>{ const prop=ag.propostaId?state.propostas.find(p=>p.id===ag.propostaId):null;
+    const au=(state.automacoes||[]).find(x=>x.id===ag.automacaoId)||{id:ag.automacaoId,nome:ag.nome||'Agendado',trigger:''};
+    const r=executarPasso({tipo:ag.tipo||'email',templateId:ag.templateId,fase:ag.fase,texto:ag.texto,atrasoDias:0},{clienteId:ag.clienteId,proposta:prop},au,0);
+    if(r) autoLog(au,ag.clienteId,'agendado',r);
+    n++; });
   if(n){ state.agendamentos=state.agendamentos.filter(a=>a.dataAgendada>today); save(); }
   n+=runSemContacto();
   return n;
@@ -2830,8 +2924,10 @@ function processAgendamentos(){
 function sendAgendamentoNow(id){
   const a=state.agendamentos.find(x=>x.id===id); if(!a) return;
   const prop=a.propostaId?state.propostas.find(p=>p.id===a.propostaId):null;
-  sendEmail({clienteId:a.clienteId,templateId:a.templateId,proposta:prop,origem:'Automação',automacaoId:a.automacaoId});
-  state.agendamentos=state.agendamentos.filter(x=>x.id!==id); save(); render(); toast('Email enviado','Agendamento processado');
+  const au=(state.automacoes||[]).find(x=>x.id===a.automacaoId)||{id:a.automacaoId,nome:a.nome||'Agendado',trigger:''};
+  const r=executarPasso({tipo:a.tipo||'email',templateId:a.templateId,fase:a.fase,texto:a.texto,atrasoDias:0},{clienteId:a.clienteId,proposta:prop},au,0);
+  if(r) autoLog(au,a.clienteId,'manual',r);
+  state.agendamentos=state.agendamentos.filter(x=>x.id!==id); save(); render(); toast('Passo executado',r||'Agendamento processado');
 }
 function cancelAgendamento(id){ state.agendamentos=state.agendamentos.filter(x=>x.id!==id); save(); render(); toast('Agendamento cancelado'); }
 function sendCampaign(id){
@@ -2869,7 +2965,14 @@ function journeyNode(icon,titulo,sub,cor){ return `<div style="flex:0 0 auto;min
 function journeyHTML(a){
   const passos=(a.passos||[]);
   const nodes=[journeyNode('bell','Início',triggerLabel(a.trigger),'#d97706')];
-  passos.forEach(p=>{ const t=state.templates.find(x=>x.id===p.templateId); const atr=+p.atrasoDias||0; if(atr>0) nodes.push(journeyNode('clock','Esperar',atr+' dia(s)','#2563eb')); nodes.push(journeyNode('mail','Email',(t?t.nome:'-'),'#00A651')); });
+  passos.forEach(p=>{ const atr=+p.atrasoDias||0; const tp=p.tipo||'email';
+    if(atr>0) nodes.push(journeyNode('clock','Esperar',atr+' dia(s)','#2563eb'));
+    if(tp==='email'){ const t=state.templates.find(x=>x.id===p.templateId); nodes.push(journeyNode('mail','Email',(t?t.nome:'-'),'#00A651')); }
+    else if(tp==='fase') nodes.push(journeyNode('trend','Fase',p.fase||'-','#7c3aed'));
+    else if(tp==='tarefa') nodes.push(journeyNode('check','Tarefa',p.texto||'-','#0891b2'));
+    else nodes.push(journeyNode('list','Nota',p.texto||'-','#64748b'));
+  });
+  if(a.saida) nodes.push(journeyNode('flag','Sai se',saidaLabel(a.saida).replace(/^Quando /,''),'#dc2626'));
   const cond=a.condSegmento&&a.condSegmento!=='Todos'?`só ${a.condSegmento}`:(a.condFase?`fase ${a.condFase}`:(a.condScore?`score ${a.condScore}`:'todos'));
   const arrow=`<div style="flex:0 0 auto;align-self:center;color:var(--muted);font-size:1.1rem">→</div>`;
   return `<div style="border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px">
@@ -2878,12 +2981,22 @@ function journeyHTML(a){
     <div class="toolbar" style="margin-top:10px"><button class="btn-sec btn-xs" data-act="auto-edit" data-id="${a.id}">Editar jornada</button></div>
   </div>`;
 }
+function comRegisto(){
+  const log=(state.autoLog||[]).slice(0,40);
+  const quando=iso=>{ try{ const d=new Date(iso); return dPT(iso.slice(0,10))+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); }catch(e){ return "-"; } };
+  return `<div class="card card-pad">
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Registo de execução</h3><div class="sub">O que cada automação fez, a quem e quando. Serve para perceber <em>porque</em> saiu um email - e para o justificar a um cliente que pergunte.</div></div></div>
+    ${log.length?`<div class="table-wrap"><table><thead><tr><th>Quando</th><th>Automação</th><th>Contacto</th><th>Ação executada</th></tr></thead><tbody>
+      ${log.map(l=>`<tr><td class="muted" style="white-space:nowrap">${esc(quando(l.quando))}</td><td>${esc(l.nome)}</td><td>${esc(l.cliente||"-")}</td><td>${esc(l.resumo)}</td></tr>`).join("")}
+    </tbody></table></div>`:empty("Ainda não há execuções registadas","Assim que uma automação disparar, fica aqui o rasto.")}
+  </div>`;
+}
 function comJornadas(){
   const autos=state.automacoes||[];
   return `<div class="card card-pad">
     <div class="section-head" style="margin-bottom:14px"><div><h3>Jornadas do cliente</h3><div class="sub">As automações vistas como um percurso: evento → esperas → emails. Cada jornada nutre o lead ao longo do tempo (UFCD 10867).</div></div><button class="btn" data-act="auto-new">+ Automação</button></div>
     ${autos.length?autos.map(a=>journeyHTML(a)).join(''):empty('Sem jornadas','Crie uma automação para ver a jornada.')}
-  </div>`;
+  </div>`+comRegisto();
 }
 function comHistorico(){
   const list=[...state.envios].sort((a,b)=>(b.data||'').localeCompare(a.data||''));
@@ -3017,7 +3130,7 @@ function newEmailTemplate(){ return {id:uid('t'),nome:'',assunto:'',cor:'#006B3C
 function openEmailEditor(id){ emailDraft=id?clone(state.templates.find(x=>x.id===id)):newEmailTemplate(); if(currentView()!=='comunicacao'){ location.hash='#comunicacao'; setTimeout(render,0); } else render(); }
 function emailEditorHTML(){
   const d=emailDraft; const sample=state.propostas[0]; const sampleCli=sample?getC(sample.clienteId):state.clientes[0];
-  const chips=EMAIL_TAGS.map(tg=>`<button class="tag" type="button" data-act="email-tag" data-tag="${tg}" style="cursor:pointer;border:0;font-size:.68rem">${tg}</button>`).join(' ');
+  const chips=emailTags().map(tg=>`<button class="tag" type="button" data-act="email-tag" data-tag="${tg}" style="cursor:pointer;border:0;font-size:.68rem">${tg}</button>`).join(' ');
   return `
   <div class="card card-pad">
     <div class="section-head" style="align-items:center">
@@ -3189,22 +3302,39 @@ function renderAutoForm(){
       <div class="field"><label>Evento (gatilho) ${infoTip('gatilhos')}</label><select name="atrigger">${TRIGGERS.map(t=>`<option value="${t.v}" ${t.v===d.trigger?'selected':''}>${esc(t.t)}</option>`).join('')}</select></div>
       <div class="field"><label>Estado</label><select name="aestado"><option ${d.estado==='Ativa'?'selected':''}>Ativa</option><option ${d.estado==='Inativa'?'selected':''}>Inativa</option></select></div>
       ${d.trigger==='sem-contacto'?`<div class="field full"><label>Dias sem contacto</label><input name="adias" type="number" min="1" step="1" value="${esc(d.condDias||7)}"><span class="hint">Dispara para leads sem email enviado há este nº de dias.</span></div>`:''}
+      ${loyaltyTriggers.includes(d.trigger)?`<div class="field full"><label>Só quando chega ao nível</label><select name="anivel"><option value="">- qualquer nível -</option>${(state.loyalty||[]).map(l=>`<option value="${esc(l.nome)}" ${(d.condNivel||'')===l.nome?'selected':''}>${esc(l.nome)}</option>`).join('')}</select><span class="hint">O nível é calculado do volume ganho da empresa - a mudança acontece sozinha quando uma proposta é ganha.</span></div>`:''}
     </div>
     <div class="muted" style="font-size:.74rem;margin:2px 0 8px">Condições (todas têm de bater - filtram a quem a automação se aplica):</div>
     <div class="form-grid">
       <div class="field"><label>Só p/ segmento</label><select name="aseg">${['Todos','Micro','PME','Grande Empresa'].map(s=>`<option ${s===d.condSegmento?'selected':''}>${s}</option>`).join('')}</select></div>
       <div class="field"><label>Só p/ fase</label><select name="afase">${['Todas'].concat(FASES).map(s=>{const v=s==='Todas'?'':s;return `<option value="${v}" ${(d.condFase||'')===v?'selected':''}>${s}</option>`;}).join('')}</select></div>
       <div class="field"><label>Só p/ score ${infoTip('leadscore')}</label><select name="ascore">${['Todos','Frio','Morno','Quente'].map(s=>{const v=s==='Todos'?'':s;return `<option value="${v}" ${(d.condScore||'')===v?'selected':''}>${s}</option>`;}).join('')}</select></div>
+      <div class="field full"><label>Parar a sequência quando…</label><select name="asaida">${SAIDAS.map(x=>`<option value="${x.v}" ${(d.saida||'')===x.v?'selected':''}>${esc(x.t)}</option>`).join('')}</select><span class="hint">Evita continuar a insistir com quem já reagiu. Cancela apenas os passos ainda por enviar.</span></div>
     </div>
     <div class="divider" style="margin:16px 0 12px"></div>
-    <div class="section-head" style="margin-bottom:8px"><h3 style="font-size:.95rem">Sequência de emails</h3><button class="btn-sec btn-sm" type="button" data-act="auto-add-step">+ Passo</button></div>
-    <div class="line-head" style="grid-template-columns:1fr 130px auto"><span>Template de email</span><span>Atraso (dias)</span><span></span></div>
-    <div id="autoSteps" style="display:flex;flex-direction:column;gap:8px">${d.passos.map((p,i)=>`<div class="line-row" data-step="${i}" style="grid-template-columns:1fr 130px auto"><div class="field"><select data-as="templateId">${tplOpts(p.templateId)}</select></div><div class="field"><input data-as="atrasoDias" type="number" min="0" step="1" value="${esc(p.atrasoDias||0)}"></div>${d.passos.length>1?`<button class="btn-danger btn-xs" type="button" data-act="auto-del-step" data-i="${i}" style="height:38px">✕</button>`:'<span></span>'}</div>`).join('')}</div>
-    <div class="muted" style="font-size:.74rem;margin-top:8px">0 dias = envia imediatamente. Ex.: passo 1 (0d) → passo 2 (+3d) → passo 3 (+7d).</div>`;
+    <div class="section-head" style="margin-bottom:8px"><h3 style="font-size:.95rem">Sequência de ações</h3><button class="btn-sec btn-sm" type="button" data-act="auto-add-step">+ Passo</button></div>
+    <div class="line-head" style="grid-template-columns:150px 1fr 110px auto"><span>Ação</span><span>Detalhe</span><span>Atraso (dias)</span><span></span></div>
+    <div id="autoSteps" style="display:flex;flex-direction:column;gap:8px">${d.passos.map((p,i)=>{const tp=p.tipo||'email';
+      const detalhe = tp==='email' ? `<select data-as="templateId">${tplOpts(p.templateId)}</select>`
+        : tp==='fase' ? `<select data-as="fase">${FASES.map(f=>`<option ${f===p.fase?'selected':''}>${f}</option>`).join('')}</select>`
+        : `<input data-as="texto" value="${esc(p.texto||'')}" placeholder="${tp==='tarefa'?'Título da tarefa (ex.: Ligar a agradecer)':'Texto da nota'}">`;
+      return `<div class="line-row" data-step="${i}" style="grid-template-columns:150px 1fr 110px auto"><div class="field"><select data-as="tipo" data-act="auto-step-tipo">${ACOES.map(x=>`<option value="${x.v}" ${x.v===tp?'selected':''}>${esc(x.t)}</option>`).join('')}</select></div><div class="field">${detalhe}</div><div class="field"><input data-as="atrasoDias" type="number" min="0" step="1" value="${esc(p.atrasoDias||0)}"></div>${d.passos.length>1?`<button class="btn-danger btn-xs" type="button" data-act="auto-del-step" data-i="${i}" style="height:38px">✕</button>`:'<span></span>'}</div>`;}).join('')}</div>
+    <div class="muted" style="font-size:.74rem;margin-top:8px">A fase só avança (nunca recua, nem sai de "Perdido"). 0 dias = executa imediatamente. Ex.: passo 1 (0d) → passo 2 (+3d) → passo 3 (+7d).</div>`;
 }
 function syncAutoDraft(){ const f=$('#modalForm'); if(!f||!autoDraft) return; autoDraft.nome=f.querySelector('[name="anome"]').value; autoDraft.trigger=f.querySelector('[name="atrigger"]').value; autoDraft.condSegmento=f.querySelector('[name="aseg"]').value; autoDraft.estado=f.querySelector('[name="aestado"]').value;
-  { const fz=f.querySelector('[name="afase"]'); if(fz)autoDraft.condFase=fz.value; const scr=f.querySelector('[name="ascore"]'); if(scr)autoDraft.condScore=scr.value; const dd=f.querySelector('[name="adias"]'); if(dd)autoDraft.condDias=Number(dd.value||7); } $$('[data-step]',f).forEach(row=>{ const i=+row.dataset.step; if(!autoDraft.passos[i])return; const ts=row.querySelector('[data-as="templateId"]'); const at=row.querySelector('[data-as="atrasoDias"]'); if(ts)autoDraft.passos[i].templateId=ts.value; if(at)autoDraft.passos[i].atrasoDias=Number(at.value||0); }); }
-function saveAuto(){ syncAutoDraft(); if(!String(autoDraft.nome||'').trim()){ toast('Falta o nome','Indique o nome da automação','warn'); return; } autoDraft.passos=autoDraft.passos.filter(p=>p.templateId); if(!autoDraft.passos.length){ toast('Sem passos','Adicione pelo menos um email','warn'); return; } const i=state.automacoes.findIndex(x=>x.id===autoDraft.id); if(i>=0)state.automacoes[i]=autoDraft; else state.automacoes.push(autoDraft); const nm=autoDraft.nome; save(); autoDraft=null; closeModal(); render(); toast('Automação guardada',nm); }
+  { const fz=f.querySelector('[name="afase"]'); if(fz)autoDraft.condFase=fz.value; const scr=f.querySelector('[name="ascore"]'); if(scr)autoDraft.condScore=scr.value; const dd=f.querySelector('[name="adias"]'); if(dd)autoDraft.condDias=Number(dd.value||7);
+    const nv=f.querySelector('[name="anivel"]'); if(nv)autoDraft.condNivel=nv.value;
+    const sd=f.querySelector('[name="asaida"]'); if(sd)autoDraft.saida=sd.value; } $$('[data-step]',f).forEach(row=>{ const i=+row.dataset.step; if(!autoDraft.passos[i])return; const P=autoDraft.passos[i];
+    const tp=row.querySelector('[data-as="tipo"]'); if(tp)P.tipo=tp.value;
+    const ts=row.querySelector('[data-as="templateId"]'); if(ts)P.templateId=ts.value;
+    const fa=row.querySelector('[data-as="fase"]'); if(fa)P.fase=fa.value;
+    const tx=row.querySelector('[data-as="texto"]'); if(tx)P.texto=tx.value;
+    const at=row.querySelector('[data-as="atrasoDias"]'); if(at)P.atrasoDias=Number(at.value||0); }); }
+function saveAuto(){ syncAutoDraft(); if(!String(autoDraft.nome||'').trim()){ toast('Falta o nome','Indique o nome da automação','warn'); return; } autoDraft.passos=autoDraft.passos.filter(p=>{ const t=p.tipo||'email';
+    if(t==='email') return !!p.templateId;
+    if(t==='fase') return !!p.fase;
+    return !!String(p.texto||'').trim(); });
+  if(!autoDraft.passos.length){ toast('Sem passos','Adicione pelo menos uma ação completa','warn'); return; } const i=state.automacoes.findIndex(x=>x.id===autoDraft.id); if(i>=0)state.automacoes[i]=autoDraft; else state.automacoes.push(autoDraft); const nm=autoDraft.nome; save(); autoDraft=null; closeModal(); render(); toast('Automação guardada',nm); }
 
 /* ---------- ALERTAS ---------- */
 views.alertas = () => {
@@ -3483,6 +3613,30 @@ function secLoyalty(){ return `<div class="card card-pad">
       ${state.loyalty.map(l=>`<tr><td class="cell-main">${esc(l.nome)}</td><td class="t-right">${fmt(l.minVolume)}</td><td>${esc(l.desconto)}%</td><td><span class="pill ${l.estado==='Ativo'?'green':'grey'}">${esc(l.estado)}</span></td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="loyalty" data-id="${l.id}">Editar</button><button class="btn-danger btn-xs" data-act="delete" data-type="loyalty" data-id="${l.id}">✕</button></div></td></tr>`).join('')}
     </tbody></table></div>
   </div>`; }
+function secCampos(){
+  const list=(state.camposExtra||[]);
+  const tipo=v=>(CX_TIPOS.find(t=>t.v===v)||{}).t||v;
+  return `<div class="card card-pad">
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Campos personalizados do contacto</h3><div class="sub">Campos criados por si, que passam a existir em todos os contactos. Cada um fica disponível como tag nos modelos de proposta e de email.</div></div></div>
+    ${list.length?`<div class="table-wrap"><table><thead><tr><th>Título</th><th>Tag</th><th>Tipo</th><th>Estado</th><th></th></tr></thead><tbody>
+      ${list.map(c=>`<tr>
+        <td><strong>${esc(c.titulo)}</strong>${c.tipo==='lista'&&(c.opcoes||[]).length?`<div class="cell-sub">${esc((c.opcoes||[]).join(' · '))}</div>`:''}</td>
+        <td><code style="font-size:.78rem">{{cliente.${esc(c.chave)}}}</code></td>
+        <td>${esc(tipo(c.tipo))}</td>
+        <td><span class="pill ${c.ativo===false?'':'green'}">${c.ativo===false?'Inativo':'Ativo'}</span></td>
+        <td style="text-align:right;white-space:nowrap">
+          <button class="btn-sec btn-xs" data-act="campo-toggle" data-id="${c.id}">${c.ativo===false?'Ativar':'Desativar'}</button>
+          <button class="btn-danger btn-xs" data-act="campo-del" data-id="${c.id}" title="Apagar a definição">✕</button>
+        </td></tr>`).join('')}
+    </tbody></table></div>`:empty('Ainda não criou campos personalizados')}
+    <div class="toolbar" style="margin-top:14px;flex-wrap:wrap">
+      <div class="search-inp" style="flex:1 1 200px;max-width:280px"><input id="newCampo" placeholder="Título do campo (ex.: Matrícula)…"></div>
+      <select id="newCampoTipo" style="flex:0 0 auto">${CX_TIPOS.map(t=>`<option value="${t.v}">${t.t}</option>`).join('')}</select>
+      <div class="search-inp" style="flex:1 1 200px;max-width:280px"><input id="newCampoOpcoes" placeholder="Opções da lista, separadas por vírgula…"></div>
+      <button class="btn-sec" data-act="add-campo">+ Adicionar</button>
+    </div>
+    <span class="hint" style="display:block;margin-top:8px">Desativar esconde o campo mas <strong>não apaga</strong> o que já foi preenchido. Apagar remove só a definição.</span>
+  </div>`; }
 function secOrigens(s){ return `<div class="card card-pad">
     <div class="section-head" style="margin-bottom:14px"><div><h3>Origens de cliente ${infoTip('origem')}</h3><div class="sub">Canais de aquisição disponíveis no campo "Origem" da ficha de cliente.</div></div></div>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">${(s.origens||[]).map(o=>`<span class="chip" style="gap:8px">${esc(o)}<button data-act="del-origem" data-origem="${esc(o)}" style="border:0;background:none;cursor:pointer;color:var(--danger);font-weight:800;padding:0;line-height:1">✕</button></span>`).join('')||'<span class="muted">Sem origens</span>'}</div>
@@ -3509,6 +3663,7 @@ function defSandboxView(){ const s=state.settings; const secs=[];
   if(canFeat('loyalty')) secs.push(secLoyalty());
   if(canFeat('origens')) secs.push(secOrigens(s));
   if(canFeat('funcoes')) secs.push(secFuncoes(s));
+  if(canFeat('campos')) secs.push(secCampos());
   if(canFeat('brand')) secs.push(secBrand(s));
   return `<div class="card card-pad"><div class="section-head" style="margin-bottom:6px"><div><h3>${ic('settings',18)} Personalizar o meu ambiente</h3><div class="sub">Modo sandbox - todas as alterações ficam <strong>só neste navegador</strong>. Personalize a sua empresa fictícia e os exemplos para os exercícios.</div></div></div></div>`+(secs.join('')||`<div class="card card-pad"><div class="empty">Sem secções disponíveis.</div></div>`); }
 
@@ -3627,6 +3782,7 @@ views.definicoes = () => {
     <div class="toolbar"><div class="search-inp" style="flex:1;max-width:320px"><input id="newOrigem" placeholder="Nova origem (ex.: Evento)…"></div><button class="btn-sec" data-act="add-origem">+ Adicionar</button></div>
   </div>
   ${secFuncoes(s)}
+  ${secCampos()}
   ${isAdmin()?`<div class="card card-pad">
     <div class="section-head" style="margin-bottom:14px"><div><h3>Marca & Aparência <span class="pill grey" style="font-size:.66rem;vertical-align:middle">Admin</span></h3><div class="sub">Personalize nome, cor, logótipo e fundo do login - para replicar o CRM noutras utilizações (white-label).</div></div></div>
     <div class="form-grid">
@@ -3668,6 +3824,33 @@ function funcoesList(){ const f=state.settings&&state.settings.funcoes; return (
 // Ciclo de vida do contacto (gestão de leads): Lead → MQL (interesse) → SQL (oportunidade) → Cliente
 const FASES=['Lead','MQL','SQL','Cliente','Perdido'];
 const faseColor=f=>({Lead:'grey',MQL:'blue',SQL:'amber',Cliente:'green',Perdido:'red'}[f]||'grey');
+/* ---------- CAMPOS PERSONALIZADOS DO CONTACTO ----------
+   Sao definidos uma vez e valem para TODOS os contactos: e isso que permite
+   usa-los como tag {{cliente.<chave>}} nos modelos de proposta e de email.
+   O valor de cada contacto fica em c.extra[chave]. */
+const CX_TIPOS=[{v:'texto',t:'Texto'},{v:'texto-longo',t:'Texto longo'},{v:'numero',t:'Número'},{v:'data',t:'Data'},{v:'lista',t:'Lista de opções'}];
+function camposExtra(){ return (state.camposExtra||[]).filter(c=>c.ativo!==false); }
+function cxField(c){
+  const f={n:'xf_'+c.chave,l:c.titulo,xf:c.chave,hint:'Tag: {{cliente.'+c.chave+'}}'};
+  if(c.tipo==='texto-longo'){ f.type='textarea'; f.full=1; }
+  else if(c.tipo==='numero') f.type='number';
+  else if(c.tipo==='data') f.type='date';
+  else if(c.tipo==='lista'){ f.type='select'; f.opts=[''].concat(c.opcoes||[]).map(x=>({v:x,t:x||'- não definido -'})); }
+  return f; }
+function cxFields(){ return camposExtra().map(cxField); }
+function schemaFields(type,sc){ return type==='cliente' ? sc.fields.concat(cxFields()) : sc.fields; }
+/* a chave nao pode chocar com os campos de origem, senao {{cliente.email}} passava a ser ambiguo */
+const CX_RESERVADAS=['nome','apelido','empresa','nif','email','telefone','cidade','regiao','cargo','funcao','notas','numero','loyalty'];
+function cxChaveLivre(titulo,ignorarId){
+  const base=slug(titulo)||'campo'; let k=base,n=2;
+  const usada=x=>CX_RESERVADAS.includes(x)||(state.camposExtra||[]).some(c=>c.id!==ignorarId&&c.chave===x);
+  while(usada(k)) k=base+'-'+(n++);
+  return k; }
+function cxValor(item,chave){ const v=(item&&item.extra)?item.extra[chave]:''; return v==null?'':v; }
+function cxFlat(item){ const o=Object.assign({},item||{}); camposExtra().forEach(c=>{ o['xf_'+c.chave]=cxValor(item,c.chave); }); return o; }
+/* valor pronto a mostrar (a data crua ISO nao serve para o cliente ler) */
+function cxTexto(item,c){ const v=cxValor(item,c.chave);
+  if(v==='') return ''; return c.tipo==='data'?dPT(v):String(v); }
 const SCHEMAS = {
   cliente:{store:'clientes',label:'Contacto',code:c=>{c.numero=c.numero||pad(++state.settings.numeroSeq,4);},after:c=>{ const e=state.empresas.find(x=>x.id===c.empresaId); if(e){ c.empresa=e.nome; if(!c.cidade)c.cidade=e.cidade; if(!c.regiao)c.regiao=e.regiao; } else if(!c.empresaId){ c.empresa=c.empresa||''; } },fields:[
     {n:'nome',l:'Nome',req:1},{n:'apelido',l:'Apelido',req:1},
@@ -3856,6 +4039,28 @@ function comboSync(wrap){ // repõe o texto do input com o rótulo do valor sele
   if(hid&&inp) inp.value=comboLabel(wrap.dataset.comboSrc, hid.value);
   comboClose(wrap);
 }
+function criarCampoExtra(titulo,tipo,opcoes){
+  const chave=cxChaveLivre(titulo);
+  const c={id:uid('cx'),titulo:String(titulo).trim(),chave,tipo:tipo||'texto',opcoes:opcoes||[],ativo:true};
+  state.camposExtra=(state.camposExtra||[]).concat([c]); save();
+  toast('Campo criado',c.titulo+' · tag {{cliente.'+chave+'}}');
+  return c; }
+function cxNovoHTML(){
+  return `<div class="divider" style="margin:16px 0"></div>
+  <div id="cxNovo">
+    <button type="button" class="btn-sec btn-sm" data-act="campo-novo-abrir">+ Campo personalizado</button>
+    <span class="hint" style="margin-left:10px">Cria um campo que não existe de origem (ex.: Matrícula, Nº de sócio).</span>
+    <div id="cxNovoForm" style="display:none;margin-top:10px;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--surface2)">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+        <div class="field" style="flex:1 1 200px;margin:0"><label>Título do campo</label><input id="cxTitulo" placeholder="ex.: Matrícula"></div>
+        <div class="field" style="flex:0 0 170px;margin:0"><label>Tipo</label><select id="cxTipo">${CX_TIPOS.map(t=>`<option value="${t.v}">${t.t}</option>`).join('')}</select></div>
+        <button type="button" class="btn" data-act="campo-novo-criar">Criar</button>
+      </div>
+      <div class="field" id="cxOpcoesWrap" style="margin:10px 0 0"><label>Opções da lista</label><input id="cxOpcoes" placeholder="ex.: Ouro, Prata, Bronze"><span class="hint">Separadas por vírgula. Só se aplica ao tipo <em>Lista de opções</em>.</span></div>
+      <span class="hint" style="display:block;margin-top:8px">O campo passa a existir em <strong>todos</strong> os contactos e fica disponível como tag nos modelos. Gere-os depois em Definições.</span>
+    </div>
+  </div>`;
+}
 function fieldHTML(f,item){
   let v=item[f.n]!=null?item[f.n]:(f.def!=null?f.def:'');
   const cls='field'+(f.full?' full':'');
@@ -3900,7 +4105,7 @@ function openModal(type, id=null, preset=null){
   editing={type,id,store:sc.store};
   $('#modalTitle').textContent=(isEdit?'Editar ':(sc.fem?'Nova ':'Novo '))+sc.label.toLowerCase();
   $('#modalSub').textContent=isEdit?'A editar registo existente':'A criar novo registo';
-  $('#modalForm').innerHTML=`<div class="form-grid">${sc.fields.map(f=>fieldHTML(f,item)).join('')}</div>`;
+  $('#modalForm').innerHTML=`<div class="form-grid">${schemaFields(type,sc).map(f=>fieldHTML(f,cxFlat(item))).join('')}</div>`+(type==='cliente'?cxNovoHTML():'');
   $('#modal').classList.remove('wide');
   { const sv=$('[data-act="modal-save"]'); if(sv) sv.textContent='Guardar'; }
   $('#modalDelete').style.display=isEdit?'inline-flex':'none';
@@ -3996,7 +4201,9 @@ async function saveModal(){
   const fd=new FormData($('#modalForm'));
   const cur=id?state[store].find(x=>x.id===id):null;
   const obj=cur?clone(cur):{id:uid(type.slice(0,3))};
-  sc.fields.forEach(f=>{ if(f.type==='contactlist') return; if(f.type==='check'){ obj[f.n]=fd.get(f.n)!=null; return; } let v=fd.get(f.n); if(f.type==='number'||f.numeric)v=Number(v||0); obj[f.n]=v; });
+  schemaFields(type,sc).forEach(f=>{ if(f.type==='contactlist') return; if(f.type==='check'){ obj[f.n]=fd.get(f.n)!=null; return; } let v=fd.get(f.n); if(f.type==='number'||f.numeric)v=Number(v||0);
+    if(f.xf){ obj.extra=Object.assign({},obj.extra); obj.extra[f.xf]=v; return; }
+    obj[f.n]=v; });
   { const cxf=sc.fields.find(f=>f.type==='contactlist'); if(cxf){ obj[cxf.n]=$$('#modalForm .cx-row').map(row=>({tipo:(row.querySelector('[data-cx="tipo"]')||{}).value||'Email',rotulo:(row.querySelector('[data-cx="rotulo"]')||{}).value||'Outro',valor:String((row.querySelector('[data-cx="valor"]')||{}).value||'').trim()})).filter(r=>r.valor); } }
   // validação simples
   const miss=sc.fields.filter(f=>f.req&&!String(obj[f.n]||'').trim());
@@ -4296,10 +4503,12 @@ function mergeTags(text,p){
     'entidade.nome':s.entidade||'','entidade.nif':s.nif||'','entidade.email':s.email||'','entidade.telefone':s.telefone||'',
     'data':dPT(todayISO()),
   };
+  camposExtra().forEach(cx=>{ map['cliente.'+cx.chave]=cxTexto(c,cx); });   // campos criados pelo utilizador
   return String(text||'').replace(/\{\{([\w.]+)\}\}/g,(m,k)=>map[k]!=null?map[k]:m);
 }
-const TAGS=['cliente.nome','cliente.empresa','cliente.nif','cliente.email','cliente.telefone','cliente.cidade','proposta.numero','proposta.titulo','proposta.validade','proposta.total','proposta.subtotal','proposta.desconto','proposta.iva','entidade.nome','entidade.nif','entidade.email','entidade.telefone','data'];
+const TAGS_BASE=['cliente.nome','cliente.empresa','cliente.nif','cliente.email','cliente.telefone','cliente.cidade','proposta.numero','proposta.titulo','proposta.validade','proposta.total','proposta.subtotal','proposta.desconto','proposta.iva','entidade.nome','entidade.nif','entidade.email','entidade.telefone','data'];
 
+function tagsProposta(){ return TAGS_BASE.concat(camposExtra().map(c=>'cliente.'+c.chave)); }
 function printProposal(id, tplId){
   const p=state.propostas.find(x=>x.id===id); if(!p) return;
   const tpl=state.propostaTemplates.find(x=>x.id===(tplId||p.templateId))||state.propostaTemplates[0];
@@ -5048,6 +5257,33 @@ document.addEventListener('click', async e=>{
     case 'add-origem': { if(!canFeat('origens')){ toast('Sem permissão','','warn'); break; } const v=($('#newOrigem')?.value||'').trim(); if(!v){ toast('Indique a origem','','warn'); break; } state.settings.origens=state.settings.origens||[]; if(state.settings.origens.some(o=>o.toLowerCase()===v.toLowerCase())){ toast('Já existe','','warn'); break; } state.settings.origens.push(v); save(); render(); toast('Origem adicionada',v); } break;
     case 'del-origem': { if(!canFeat('origens')){ toast('Sem permissão','','warn'); break; } const o=el.dataset.origem; state.settings.origens=(state.settings.origens||[]).filter(x=>x!==o); save(); render(); toast('Origem removida',o); } break;
     case 'add-funcao': { if(!canFeat('funcoes')){ toast('Sem permissão','','warn'); break; } const v=($('#newFuncao')?.value||'').trim(); if(!v){ toast('Indique a função','','warn'); break; } state.settings.funcoes=funcoesList().slice(); if(state.settings.funcoes.some(o=>o.toLowerCase()===v.toLowerCase())){ toast('Já existe','','warn'); break; } state.settings.funcoes.push(v); save(); render(); toast('Função adicionada',v); } break;
+    case 'add-campo': { if(!canFeat('campos')){ toast('Sem permissão','','warn'); break; }
+      const t=($('#newCampo')?.value||'').trim(); if(!t){ toast('Indique o título do campo','','warn'); break; }
+      const tp=($('#newCampoTipo')?.value||'texto');
+      const ops=($('#newCampoOpcoes')?.value||'').split(',').map(x=>x.trim()).filter(Boolean);
+      if(tp==='lista'&&!ops.length){ toast('Faltam as opções','Uma lista precisa de pelo menos uma opção','warn'); break; }
+      criarCampoExtra(t,tp,ops); render(); } break;
+    case 'campo-toggle': { if(!canFeat('campos')){ toast('Sem permissão','','warn'); break; }
+      const c=(state.camposExtra||[]).find(x=>x.id===el.dataset.id); if(!c) break;
+      c.ativo=c.ativo===false; save(); render(); toast(c.ativo?'Campo ativado':'Campo desativado',c.titulo); } break;
+    case 'campo-del': { if(!canFeat('campos')){ toast('Sem permissão','','warn'); break; }
+      const c=(state.camposExtra||[]).find(x=>x.id===el.dataset.id); if(!c) break;
+      uiConfirm('Remove a definição de '+c.titulo+'. Os valores já preenchidos nos contactos deixam de ser mostrados.',{title:'Apagar o campo?',danger:1,okText:'Apagar'}).then(o=>{
+        if(!o) return; state.camposExtra=(state.camposExtra||[]).filter(x=>x.id!==c.id); save(); render(); toast('Campo apagado',c.titulo); }); } break;
+    /* criar um campo a partir da propria ficha do contacto: acrescenta ao fim do
+       formulario sem o redesenhar, para nao perder o que ja la estava escrito */
+    case 'campo-novo-abrir': { const w=$('#cxNovoForm'); if(w) w.style.display=w.style.display==='none'?'block':'none';
+      const ti=$('#cxTitulo'); if(ti) ti.focus(); } break;
+    case 'campo-novo-criar': {
+      const t=($('#cxTitulo')?.value||'').trim(); if(!t){ toast('Indique o título do campo','','warn'); break; }
+      const tp=($('#cxTipo')?.value||'texto');
+      const ops=($('#cxOpcoes')?.value||'').split(',').map(x=>x.trim()).filter(Boolean);
+      if(tp==='lista'&&!ops.length){ toast('Faltam as opções','Uma lista precisa de pelo menos uma opção','warn'); break; }
+      const novo=criarCampoExtra(t,tp,ops); if(!novo) break;
+      const grid=$('#modalForm .form-grid'); if(grid) grid.insertAdjacentHTML('beforeend',fieldHTML(cxField(novo),{}));
+      const w=$('#cxNovoForm'); if(w) w.style.display='none';
+      const ti=$('#cxTitulo'); if(ti) ti.value=''; const op=$('#cxOpcoes'); if(op) op.value='';
+      } break;
     case 'del-funcao': { if(!canFeat('funcoes')){ toast('Sem permissão','','warn'); break; } const o=el.dataset.funcao; state.settings.funcoes=funcoesList().filter(x=>x!==o); save(); render(); toast('Função removida',o); } break;
     case 'email-new': openEmailEditor(); break;
     case 'email-edit': openEmailEditor(id); break;
@@ -5064,7 +5300,7 @@ document.addEventListener('click', async e=>{
     case 'toggle-auto': { const a=state.automacoes.find(x=>x.id===id); if(a){ a.estado=a.estado==='Ativa'?'Inativa':'Ativa'; save(); render(); toast('Automação '+(a.estado==='Ativa'?'ativada':'desativada'),a.nome); } } break;
     case 'auto-new': openAutoEditor(); break;
     case 'auto-edit': openAutoEditor(id); break;
-    case 'auto-add-step': if(autoDraft){ syncAutoDraft(); autoDraft.passos.push({templateId:(state.templates[0]&&state.templates[0].id)||'',atrasoDias:3}); renderAutoForm(); } break;
+    case 'auto-add-step': if(autoDraft){ syncAutoDraft(); autoDraft.passos.push({tipo:'email',templateId:(state.templates[0]&&state.templates[0].id)||'',atrasoDias:3}); renderAutoForm(); } break;
     case 'auto-del-step': if(autoDraft){ syncAutoDraft(); autoDraft.passos.splice(+el.dataset.i,1); if(!autoDraft.passos.length)autoDraft.passos.push({templateId:(state.templates[0]&&state.templates[0].id)||'',atrasoDias:0}); renderAutoForm(); } break;
     case 'send-agend': sendAgendamentoNow(id); break;
     case 'cancel-agend': cancelAgendamento(id); break;
@@ -5096,6 +5332,7 @@ document.addEventListener('change', e=>{
   if(propDraft && e.target.matches('[data-l="produtoId"]')){ syncDraftFromForm(); const row=e.target.closest('.line-row'); const i=+row.dataset.line; const prod=state.produtos.find(x=>x.id===e.target.value); if(prod){ const reg=(getC(propDraft.clienteId)||{}).regiao||'Continente'; propDraft.linhas[i].descricao=prod.nome; propDraft.linhas[i].preco=prod.preco; propDraft.linhas[i].iva=ivaForRegion(prod.iva,reg); propDraft.linhas[i].modelo=prod.modelo; } renderPropForm(); return; }
   if(propDraft && e.target.matches('[data-l="iva"]')){ refreshTotals(); return; }
   if(autoDraft && e.target.name==='atrigger'){ syncAutoDraft(); renderAutoForm(); return; }
+  if(autoDraft && e.target.dataset.as==='tipo'){ syncAutoDraft(); renderAutoForm(); return; }
   if(propDraft && e.target.name==='clienteId'){ syncDraftFromForm(); const cc=getC(propDraft.clienteId); if(cc&&cc.empresaId&&!propDraft.empresaId){ propDraft.empresaId=cc.empresaId; renderPropForm(); } else refreshTotals(); return; }
   if(propDraft && e.target.name==='empresaId'){ refreshTotals(); return; }
   if(emailDraft && (e.target.id==='emCor'||e.target.id==='emLogo'||e.target.dataset.em!=null)){ updateEmailPreview(); return; }
@@ -5303,6 +5540,7 @@ function dsarReportHTML(id){
       ${linha('Nome próprio',c.nome)}${linha('Apelido',c.apelido)}${linha('Email',c.email)}${linha('Telefone',c.telefone)}
       ${linha('NIF',c.nif)}${linha('Cidade',c.cidade)}${linha('Região',c.regiao)}${linha('Cargo',c.cargo)}${linha('Função',c.funcao)}
       ${linha('Data de registo',c.criado?dPT(c.criado):'')}${linha('Notas internas',c.notas)}
+      ${camposExtra().map(cx=>linha(cx.titulo,cxTexto(c,cx))).join('')}
     </table>
     ${(Array.isArray(c.contactosExtra)&&c.contactosExtra.length)?`<p><strong>Contactos adicionais:</strong></p><table><tr><th>Tipo</th><th>Rótulo</th><th>Valor</th></tr>${c.contactosExtra.map(x=>`<tr><td>${esc(x.tipo||'')}</td><td>${esc(x.rotulo||'')}</td><td>${esc(x.valor||'')}</td></tr>`).join('')}</table>`:''}
     <div class="aviso">As <strong>notas internas</strong> também são dados pessoais e por isso constam deste relatório.</div>
@@ -6075,7 +6313,7 @@ function inspectorHTML(b,i){
   const head=`<h4 style="font-weight:800;font-size:.9rem;margin-bottom:12px;color:var(--g700)">${ic('cog',15)} ${esc(BLOCK_LABEL[b.type]||b.type)}</h4>`;
   const F=(l,inner)=>`<div class="field" style="margin-bottom:10px"><label>${l}</label>${inner}</div>`;
   const chk=(f,l)=>`<label style="display:block;margin-bottom:8px;font-size:.85rem;cursor:pointer"><input type="checkbox" data-bi="${i}" data-bf="${f}" ${b[f]?'checked':''} style="vertical-align:-2px;margin-right:8px;width:15px;height:15px;accent-color:var(--g600)">${l}</label>`;
-  const tagbar=`<div class="muted" style="font-size:.72rem;margin:6px 0 4px">Inserir tag no campo:</div><div style="display:flex;flex-wrap:wrap;gap:4px">${TAGS.map(t=>`<button class="tag" data-act="tag-insert" data-tag="${t}" style="cursor:pointer;border:0;font-size:.67rem">${t}</button>`).join('')}</div>`;
+  const tagbar=`<div class="muted" style="font-size:.72rem;margin:6px 0 4px">Inserir tag no campo:</div><div style="display:flex;flex-wrap:wrap;gap:4px">${tagsProposta().map(t=>`<button class="tag" data-act="tag-insert" data-tag="${t}" style="cursor:pointer;border:0;font-size:.67rem">${t}</button>`).join('')}</div>`;
   let body='';
   if(b.type==='header') body=F('Etiqueta',`<input data-bi="${i}" data-bf="badge" value="${esc(b.badge||'')}">`)+chk('logo','Mostrar logótipo')+chk('contactos','Mostrar contactos da entidade');
   else if(b.type==='texto') body=F('Conteúdo',`<textarea data-bi="${i}" data-bf="conteudo" data-tagtarget rows="5">${esc(b.conteudo||'')}</textarea>`)+F('Alinhamento',selAlign(i,b.alinhamento))+tagbar;

@@ -63,6 +63,22 @@ Mostra o cartão **Conta · Empresa** (a fase, o loyalty e o valor **da empresa*
 !!! tip "Atalhos"
     Clica no **email** da ficha para abrir o compositor do CRM já com o contacto como destinatário; clica no **telefone** para ligar (`tel:`). Na empresa, o botão **Procurar** (no NIPC) preenche a ficha a partir dos registos oficiais.
 
+### Campos personalizados
+Nenhum CRM adivinha o que o teu negócio precisa de guardar. Se te falta um campo - **Matrícula**, **Nº de sócio**, **Data de renovação** - crias tu:
+
+1. Abre um contacto (ou **+ Novo contacto**) e clica **+ Campo personalizado**, no fim do formulário.
+2. Dá-lhe um **título** e escolhe o **tipo**: texto, texto longo, número, data ou lista de opções.
+3. **Criar** - o campo aparece logo ali, sem perderes o que já tinhas escrito.
+
+!!! info "O campo é da tua base de dados, não daquele contacto"
+    Um campo criado passa a existir em **todos os contactos**. É isso que permite usá-lo como **tag** nos modelos. Geres a lista em **Definições → Campos personalizados**, onde podes **desativar** (esconde o campo mas guarda o que já foi preenchido) ou **apagar** (remove só a definição).
+
+#### Usar nos modelos
+Cada campo ganha automaticamente uma tag `{{cliente.<chave>}}` - por exemplo `{{cliente.matricula}}` - que aparece **sozinha** na lista de tags do construtor de **modelos de proposta** e do editor de **modelos de email**. Não há nada a configurar: cria o campo, e a tag está lá.
+
+!!! warning "Um campo personalizado é dado pessoal"
+    Tudo o que guardares nestes campos entra no **Relatório de acesso (art. 15.º)** e na **exportação JSON** do titular, tal como os campos de origem. Vale a pena discutir com a turma: *criar um campo é fácil, mas cada campo novo é mais um dado pessoal que passas a ter de justificar, conservar e mostrar a quem o pedir* (minimização - art. 5.º/1 c)).
+
 ---
 
 ## Importar em massa (CSV)

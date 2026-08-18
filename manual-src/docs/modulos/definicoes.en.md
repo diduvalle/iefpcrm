@@ -30,7 +30,7 @@ The **keys** are **fixed** (🔒); you only manage the **mode** (real/simulated)
 Shortcut to the template builder. → [Proposal Templates](modelos.md).
 
 ### Other references
-**Loyalty levels**, **VAT rates** (by region), **Customer sources** (editable list).
+**Loyalty levels**, **VAT rates** (by region), **Customer sources** (editable list) and **[Custom contact fields](empresas-contactos.md#custom-fields)** - fields you create yourself, available as tags in templates.
 
 ## In class mode (online)
 

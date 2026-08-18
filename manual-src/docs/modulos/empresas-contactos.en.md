@@ -63,6 +63,22 @@ Shows the **Account · Company** card (the **company's** stage, loyalty and valu
 !!! tip "Shortcuts"
     Click the **email** on the profile to open the CRM composer with the contact already set as recipient; click the **phone** to call (`tel:`). On a company, the **Look up** button (on the NIPC) fills the profile from the official records.
 
+### Custom fields
+No CRM can guess what your business needs to store. If a field is missing - **Vehicle plate**, **Member no.**, **Renewal date** - you create it yourself:
+
+1. Open a contact (or **+ New contact**) and click **+ Custom field**, at the bottom of the form.
+2. Give it a **title** and pick the **type**: text, long text, number, date or list of options.
+3. **Create** - the field appears right there, without losing anything you had already typed.
+
+!!! info "The field belongs to your database, not to that one contact"
+    A field you create exists on **every contact**. That is what makes it usable as a **tag** in templates. Manage the list in **Settings → Custom fields**, where you can **deactivate** it (hides the field but keeps what was filled in) or **delete** it (removes only the definition).
+
+#### Using it in templates
+Each field automatically gets a `{{cliente.<key>}}` tag - for example `{{cliente.matricula}}` - which shows up **on its own** in the tag list of both the **proposal template** builder and the **email template** editor. Nothing to configure: create the field and the tag is there.
+
+!!! warning "A custom field is personal data"
+    Anything you store in these fields goes into the data subject's **Access report (Art. 15)** and **JSON export**, exactly like the built-in fields. Worth discussing with the class: *creating a field is easy, but every new field is one more piece of personal data you must justify, retain and disclose on request* (minimisation - Art. 5(1)(c)).
+
 ---
 
 ## Bulk import (CSV)

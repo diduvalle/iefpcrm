@@ -50,13 +50,42 @@ Filtro temporal + lista de campanhas (nome, canal, segmento, estado, métricas) 
 Nome, assunto, cor, mostrar logótipo, saudação, corpo, texto/​link do botão, assinatura. Usa **tags** (`{{cliente.nome}}`, `{{entidade.nome}}`).
 
 ### Automações (marketing automation)
-Regras **gatilho → email**:
+Regras **gatilho → sequência de ações**:
 
 - **Gatilhos de ciclo de vida:** novo cliente / proposta criada / proposta enviada / proposta ganha.
 - **Gatilhos comportamentais** (*nurturing*): o lead fica **"quente"** (score ≥ 70) / **abre** um email / **clica** num email / está **sem contacto há N dias**. Reagem ao comportamento do lead, não só a eventos internos.
+- **Gatilhos de fidelização:** a conta **sobe** ou **desce de nível** (Bronze → Prata → Ouro). Podes restringir a um nível concreto ("só quando chega a Ouro").
 - **Condições** (todas têm de bater): por **segmento**, por **fase** (Lead/MQL/SQL/…) e por **score** (Frio/Morno/Quente). No gatilho *sem contacto* defines os **dias**.
 - **Passos** em sequência, cada um com **atraso (dias)** → vão para **Agendados**.
+- **Parar a sequência quando…** - critério de saída (ver abaixo).
 - Toggle **Ativa/Inativa** + contador de disparos.
+
+#### O nível de fidelização muda sozinho
+O nível **não se atribui à mão**: é calculado a partir do **volume ganho da empresa** (Definições → Níveis de fidelização). Quando uma proposta é ganha, o volume sobe e a conta pode mudar de patamar - e é essa mudança que dispara a automação. É por isso que este gatilho é dos mais realistas: reage a negócio a sério, não a um clique de alguém.
+
+!!! note "Não dispara em massa"
+    Na primeira vez que a app calcula os níveis, apenas os **regista**, sem disparar nada. Só mudanças posteriores contam como "subiu" ou "desceu" - senão, ao abrir a app, toda a base de clientes receberia email de uma vez.
+
+#### Ações: nem tudo é email
+Cada passo escolhe **o que faz**:
+
+| Ação | O que acontece |
+|---|---|
+| **Enviar email** | Envia o template escolhido (o comportamento clássico). |
+| **Mudar a fase da conta** | Move a empresa no funil (Lead → MQL → SQL → Cliente). |
+| **Criar tarefa na Agenda** | Cria uma tarefa atribuída ao contacto, com a data do atraso. |
+| **Registar nota no contacto** | Escreve uma nota datada na ficha. |
+
+!!! warning "A fase só avança"
+    A ação de fase **nunca recua** nem tira uma conta de "Perdido" - segue a mesma regra do resto da app. Uma automação não pode despromover um cliente por ele ter clicado num email.
+
+#### Critério de saída
+**Parar a sequência quando…** o lead **clica num email** ou uma **proposta é ganha**. Quando isso acontece, os passos **ainda por enviar** dessa automação são cancelados - só os dela, as outras automações continuam.
+
+É a diferença entre automação e insistência cega: quem já reagiu não deve continuar a receber a sequência de quem não reagiu.
+
+#### Registo de execução
+No separador **Jornadas**, por baixo dos percursos, o **Registo de execução** mostra **o que cada automação fez, a quem e quando**. Serve para responder à pergunta mais incómoda de um cliente - *"porque é que recebi este email?"* - com um facto em vez de um palpite.
 
 !!! tip "Ver os gatilhos comportamentais a disparar"
     No **Histórico de envios**, abre um email e usa **Simular abertura** ou **Simular clique**: o lead é marcado como aberto/clicado e a automação correspondente **dispara à tua frente** (o *email quente* também reavalia o score). Ideal para demonstrar o *nurturing* sem esperar por comportamento real.
@@ -66,7 +95,7 @@ Regras **gatilho → email**:
 *Criar uma automação comportamental (gatilho "email aberto" + condições de fase e score) e vê-la disparar com "Simular abertura".*
 
 ### Jornadas do cliente
-O separador **Jornadas** mostra cada automação como um **percurso visual**: `Início (evento) → Esperar N dias → Email → …`. É a mesma automação, vista como o caminho que o lead percorre ao longo do tempo (*nurturing*). Clica **Editar jornada** para alterar os passos.
+O separador **Jornadas** mostra cada automação como um **percurso visual**: `Início (evento) → Esperar N dias → Email → Tarefa → Sai se…`. É a mesma automação, vista como o caminho que o lead percorre ao longo do tempo (*nurturing*). Cada tipo de ação tem a sua cor, e o critério de saída aparece no fim do percurso. Clica **Editar jornada** para alterar os passos.
 
 <video class="iefp-video" controls preload="metadata" playsinline poster="/manual/assets/screens/jornadas.png"><source src="/manual/assets/videos/jornadas-pt.webm" type="video/webm"><source src="/manual/assets/videos/jornadas-pt.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/jornadas-pt.vtt" srclang="pt" label="Português" default></video>
 
