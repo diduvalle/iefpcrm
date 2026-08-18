@@ -45,9 +45,9 @@ function limpar(html: string) {
     .replace(/javascript:/gi, "");
 }
 
-// {nome} {ufcd} {titulo} {turma} — sempre com o valor escapado.
+// {nome} {titulo} {turma} {modulo} — sempre com o valor escapado.
 function marcadores(txt: string, d: Record<string, string>) {
-  return String(txt ?? "").replace(/\{(nome|ufcd|titulo|turma)\}/g, (_, k) => esc(d[k] || ""));
+  return String(txt ?? "").replace(/\{(nome|titulo|turma|modulo)\}/g, (_, k) => esc(d[k] || ""));
 }
 
 Deno.serve(async (req) => {
@@ -95,7 +95,7 @@ Deno.serve(async (req) => {
     }
     const destinos = (await rDest.json()) as Array<{
       acesso_id: string; email: string; email2: string | null; nome: string; envio_token: string;
-      titulo: string; texto: string; turma: string;
+      titulo: string; texto: string; turma: string; modulo: string;
       assunto: string; cabecalho: string; saudacao: string; botao: string; rodape: string;
     }>;
     if (!destinos.length) return json({ ok: true, enviados: 0, falhados: 0 });
@@ -103,7 +103,7 @@ Deno.serve(async (req) => {
     // 2) Enviar, um a um, com o link tokenizado de cada formando.
     let enviados = 0, falhados = 0;
     for (const d of destinos) {
-      const vars = { nome: d.nome, titulo: d.titulo, turma: d.turma };
+      const vars = { nome: d.nome, titulo: d.titulo, turma: d.turma, modulo: d.modulo || "" };
       const url = `${SUPABASE_URL}/functions/v1/r?t=${d.envio_token}`;
 
       const html = `

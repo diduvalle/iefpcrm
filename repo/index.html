@@ -196,7 +196,7 @@ const SUPA_URL='https://qgfzbyhfyqvmmmdiqycu.supabase.co';
 const SUPA_KEY='sb_publishable_atlEEoeN4-CWY8mD7KQNsw_m1cXjdIE';
 const CHAVE='iefp-repo-root', TEMA='iefp-repo-tema';
 const LINK_TURMA='https://iefpcrm.cr0x.org/repo/';
-const MARCADORES=['{nome}','{titulo}','{turma}'];
+const MARCADORES=['{nome}','{titulo}','{turma}','{modulo}'];
 
 const I={
   pasta:'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z',
@@ -452,6 +452,9 @@ function modalTurma(t){
     <div class="modal-body">
       <div class="field"><label>Pasta do Google Drive</label>
         <input id="tDrive" value="${esc(t.drive_url||'')}" placeholder="https://drive.google.com/drive/folders/..."></div>
+      <div class="field"><label>Módulos / UFCD desta turma</label>
+        <input id="tModulos" value="${esc(t.modulos||'')}" placeholder="10868, 10870">
+        <span class="hint">Separados por vírgula. Aparecem como opção ao criar cada sessão, para distinguir os UFCD.</span></div>
       <div class="vars"><span class="hint" style="margin-right:2px">Marcadores:</span>
         ${MARCADORES.map(v=>`<button type="button" class="var-chip" data-var="${v}">${v}</button>`).join('')}</div>
       <div class="form-grid">
@@ -480,7 +483,8 @@ function modalTurma(t){
         p_cabecalho:f.querySelector('#tCabecalho').value.trim(),
         p_saudacao:f.querySelector('#tSaudacao').value.trim(),
         p_botao:f.querySelector('#tBotao').value.trim(),
-        p_rodape:f.querySelector('#tRodape').value.trim()});
+        p_rodape:f.querySelector('#tRodape').value.trim(),
+        p_modulos:f.querySelector('#tModulos').value.trim()});
       f.remove(); toast('Definições guardadas.'); carregarTurmas();
     }catch(e){ tratar(e); }
   });
@@ -519,7 +523,7 @@ async function carregarSessoes(t){
         const pct=s.destinatarios?Math.round(s.abriram/s.destinatarios*100):0;
         const cor=!s.abriram?'grey':pct>=70?'green':'amber';
         return `<tr class="clickable" data-ver="${s.id}">
-          <td><div class="cell-main">${esc(s.titulo)}</div><div class="cell-sub">${s.criado_em?dt(s.criado_em):''}</div></td>
+          <td><div class="cell-main">${s.modulo?`<span class="tag" style="margin-right:7px">${esc(s.modulo)}</span>`:''}${esc(s.titulo)}</div><div class="cell-sub">${s.criado_em?dt(s.criado_em):''}</div></td>
           <td>${estado(s)}</td>
           <td>${s.enviado_em?`<span class="pill ${cor}">${s.abriram}/${s.destinatarios} · ${pct}%</span>`:'<span class="muted">-</span>'}</td>
           <td class="t-right muted">${s.enviado_em?ic('olho'):ic('lapis')}</td>
@@ -544,12 +548,19 @@ function modalSessao(t,sess){
       .then(v=>{ if(v) modalTurma(t); });
   }
   const vals=sess||{assunto:t.def_assunto,cabecalho:t.def_cabecalho,saudacao:t.def_saudacao,botao:t.def_botao,rodape:t.def_rodape};
+  const mods=(t.modulos||'').split(',').map(x=>x.trim()).filter(Boolean);
   const f=abrirModal(`<div class="modal wide">
     <div class="modal-head"><div><h3>${sess?'Editar rascunho':'Nova sessão'} - Turma ${esc(t.codigo)}</h3>
       <div class="sub">Adiciona o ficheiro à pasta do Drive; aqui escreves o aviso. Nada é enviado sem confirmares.</div></div></div>
     <div class="modal-body">
-      <div class="field"><label>Título da sessão</label>
-        <input id="pTitulo" value="${esc(sess?.titulo||'')}" placeholder="Sessão 03 - novos materiais"></div>
+      <div class="form-grid">
+        <div class="field"><label>Título da sessão</label>
+          <input id="pTitulo" value="${esc(sess?.titulo||'')}" placeholder="Sessão 03 - novos materiais"></div>
+        <div class="field"><label>Módulo / UFCD</label>
+          <input id="pModulo" list="modlist" value="${esc(sess?.modulo||'')}" placeholder="${mods.length?'ex: '+esc(mods[0]):'ex: 10868'}">
+          <datalist id="modlist">${mods.map(m=>`<option value="${esc(m)}">`).join('')}</datalist>
+          <span class="hint">Distingue sessões com o mesmo número noutro UFCD. ${mods.length?'':'Define a lista em Definições da turma.'}</span></div>
+      </div>
       <div class="field"><label>Mensagem</label>
         <div class="rt-toolbar">
           <button type="button" class="rt-tb" data-cmd="bold" title="Negrito"><b>B</b></button>
@@ -626,7 +637,8 @@ function modalSessao(t,sess){
   const subst=s=>esc(s||'')
     .replace(/\{nome\}/g,'<span class="muted">[nome do formando]</span>')
     .replace(/\{titulo\}/g,esc(t2.value.trim()||'(sem título)'))
-    .replace(/\{turma\}/g,esc(t.codigo));
+    .replace(/\{turma\}/g,esc(t.codigo))
+    .replace(/\{modulo\}/g,esc(q('#pModulo').value.trim()));
   function sinc(){
     q('#pvHead').innerHTML=subst(q('#pCabecalho').value);
     q('#pvSaudacao').innerHTML=subst(q('#pSaudacao').value);
@@ -636,7 +648,7 @@ function modalSessao(t,sess){
     q('#pvRodape').innerHTML=subst(q('#pRodape').value);
     q('#pvAssunto').innerHTML='Assunto: '+subst(q('#pAssunto').value);
   }
-  ['#pTitulo','#pAssunto','#pCabecalho','#pSaudacao','#pBotao','#pRodape'].forEach(s=>q(s).addEventListener('input',sinc));
+  ['#pTitulo','#pModulo','#pAssunto','#pCabecalho','#pSaudacao','#pBotao','#pRodape'].forEach(s=>q(s).addEventListener('input',sinc));
   x.addEventListener('input',sinc); sinc();
 
   q('#pGuardar').addEventListener('click',async e=>{
@@ -645,6 +657,7 @@ function modalSessao(t,sess){
     if(!titulo||!link) return toast('Falta o título ou o link.','err');
     b.disabled=true; b.textContent='A guardar...';
     const campos={p_token:sessao.token,p_titulo:titulo,p_texto:x.innerHTML.trim(),p_link:link,
+      p_modulo:q('#pModulo').value.trim(),
       p_assunto:q('#pAssunto').value.trim(),p_cabecalho:q('#pCabecalho').value.trim(),
       p_saudacao:q('#pSaudacao').value.trim(),p_botao:q('#pBotao').value.trim(),p_rodape:q('#pRodape').value.trim()};
     try{
@@ -692,7 +705,7 @@ async function modalEstado(s){
 
   const f=abrirModal(`<div class="modal wide">
     <div class="modal-head">
-      <div><h3>${esc(s.titulo)}</h3>
+      <div><h3>${s.modulo?`<span class="tag" style="vertical-align:middle;margin-right:8px">UFCD ${esc(s.modulo)}</span>`:''}${esc(s.titulo)}</h3>
         <div class="sub">${s.enviados||0} enviado(s) · ${s.abriram} de ${s.destinatarios} já abriram</div></div>
       <button class="icon-btn" id="eRefrescar" title="Atualizar - ver se há aberturas novas">${ic('refrescar')}</button>
     </div>
