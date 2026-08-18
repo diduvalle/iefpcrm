@@ -1817,6 +1817,56 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Automations (marketing automation)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-loyalty-tier-changes-on-its-own" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The loyalty tier changes on its own
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#actions-not-everything-is-an-email" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Actions: not everything is an email
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exit-criterion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exit criterion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execution-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution log
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -2450,6 +2500,56 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Automations (marketing automation)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-loyalty-tier-changes-on-its-own" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The loyalty tier changes on its own
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#actions-not-everything-is-an-email" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Actions: not everything is an email
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exit-criterion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exit criterion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execution-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution log
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -2571,14 +2671,59 @@
 <h3 id="email-templates-field-by-field">Email templates - field by field<a class="headerlink" href="#email-templates-field-by-field" title="Permanent link">¶</a></h3>
 <p>Name, subject, color, show logo, greeting, body, button text/link, signature. Uses <strong>tags</strong> (<code>{{cliente.nome}}</code>, <code>{{entidade.nome}}</code>).</p>
 <h3 id="automations-marketing-automation">Automations (marketing automation)<a class="headerlink" href="#automations-marketing-automation" title="Permanent link">¶</a></h3>
-<p><strong>Trigger → email</strong> rules:</p>
+<p><strong>Trigger → sequence of actions</strong> rules:</p>
 <ul>
 <li><strong>Lifecycle triggers:</strong> new customer / proposal created / proposal sent / proposal won.</li>
 <li><strong>Behavioural triggers</strong> (<em>nurturing</em>): the lead turns <strong>"hot"</strong> (score ≥ 70) / <strong>opens</strong> an email / <strong>clicks</strong> an email / has had <strong>no contact for N days</strong>. They react to the lead's behaviour, not only to internal events.</li>
+<li><strong>Loyalty triggers:</strong> the account <strong>moves up</strong> or <strong>moves down a tier</strong> (Bronze → Silver → Gold). You can restrict it to one specific tier ("only when it reaches Gold").</li>
 <li><strong>Conditions</strong> (all must match): by <strong>segment</strong>, by <strong>stage</strong> (Lead/MQL/SQL/…) and by <strong>score</strong> (Cold/Warm/Hot). The <em>no contact</em> trigger lets you set the <strong>days</strong>.</li>
 <li><strong>Steps</strong> in sequence, each with a <strong>delay (days)</strong> → they go to <strong>Scheduled</strong>.</li>
+<li><strong>Stop the sequence when…</strong> - exit criterion (see below).</li>
 <li><strong>Active/Inactive</strong> toggle + trigger counter.</li>
 </ul>
+<h4 id="the-loyalty-tier-changes-on-its-own">The loyalty tier changes on its own<a class="headerlink" href="#the-loyalty-tier-changes-on-its-own" title="Permanent link">¶</a></h4>
+<p>The tier is <strong>not set by hand</strong>: it is calculated from the company's <strong>won volume</strong> (Settings → Loyalty tiers). When a proposal is won, the volume rises and the account may cross a threshold - and that change is what fires the automation. That is what makes this trigger so realistic: it reacts to actual business, not to someone clicking a button.</p>
+<div class="admonition note">
+<p class="admonition-title">It does not fire in bulk</p>
+<p>The first time the app calculates the tiers it only <strong>records</strong> them, without firing anything. Only later changes count as "moved up" or "moved down" - otherwise opening the app would email your whole customer base at once.</p>
+</div>
+<h4 id="actions-not-everything-is-an-email">Actions: not everything is an email<a class="headerlink" href="#actions-not-everything-is-an-email" title="Permanent link">¶</a></h4>
+<p>Each step chooses <strong>what it does</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>What happens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Send email</strong></td>
+<td>Sends the chosen template (the classic behaviour).</td>
+</tr>
+<tr>
+<td><strong>Change the account stage</strong></td>
+<td>Moves the company along the funnel (Lead → MQL → SQL → Customer).</td>
+</tr>
+<tr>
+<td><strong>Create a task in the Calendar</strong></td>
+<td>Creates a task linked to the contact, dated by the delay.</td>
+</tr>
+<tr>
+<td><strong>Log a note on the contact</strong></td>
+<td>Writes a dated note on the record.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">The stage only moves forward</p>
+<p>The stage action <strong>never moves backwards</strong> and never pulls an account out of "Lost" - it follows the same rule as the rest of the app. An automation must not demote a customer just because they clicked an email.</p>
+</div>
+<h4 id="exit-criterion">Exit criterion<a class="headerlink" href="#exit-criterion" title="Permanent link">¶</a></h4>
+<p><strong>Stop the sequence when…</strong> the lead <strong>clicks an email</strong> or a <strong>proposal is won</strong>. When that happens, the steps of that automation that are <strong>still pending</strong> are cancelled - only its own; other automations carry on.</p>
+<p>That is the difference between automation and blind nagging: someone who has already responded should not keep receiving the sequence built for people who have not.</p>
+<h4 id="execution-log">Execution log<a class="headerlink" href="#execution-log" title="Permanent link">¶</a></h4>
+<p>On the <strong>Journeys</strong> tab, below the journeys, the <strong>Execution log</strong> shows <strong>what each automation did, to whom and when</strong>. It answers a customer's most awkward question - <em>"why did I get this email?"</em> - with a fact instead of a guess.</p>
 <div class="admonition tip">
 <p class="admonition-title">See the behavioural triggers fire</p>
 <p>In <strong>Send history</strong>, open an email and use <strong>Simulate open</strong> or <strong>Simulate click</strong>: the lead is marked as opened/clicked and the matching automation <strong>fires right in front of you</strong> (the <em>hot lead</em> trigger also re-evaluates the score). Perfect for demonstrating <em>nurturing</em> without waiting for real behaviour.</p>
@@ -2587,7 +2732,7 @@
 
 <p><em>Creating a behavioural automation (trigger "email opened" + stage and score conditions) and watching it fire with "Simulate open".</em></p>
 <h3 id="customer-journeys">Customer journeys<a class="headerlink" href="#customer-journeys" title="Permanent link">¶</a></h3>
-<p>The <strong>Journeys</strong> tab shows each automation as a <strong>visual path</strong>: <code>Start (event) → Wait N days → Email → …</code>. It is the same automation, seen as the path the lead travels over time (<em>nurturing</em>). Click <strong>Edit journey</strong> to change the steps.</p>
+<p>The <strong>Journeys</strong> tab shows each automation as a <strong>visual path</strong>: <code>Start (event) → Wait N days → Email → Task → Exits if…</code>. It is the same automation, seen as the path the lead travels over time (<em>nurturing</em>). Each action type has its own colour, and the exit criterion appears at the end of the path. Click <strong>Edit journey</strong> to change the steps.</p>
 <video class="iefp-video" controls="" preload="metadata" playsinline="" poster="/manual/assets/screens/jornadas.png"><source src="/manual/assets/videos/jornadas-en.webm" type="video/webm"><source src="/manual/assets/videos/jornadas-en.mp4" type="video/mp4"><track kind="subtitles" src="/manual/assets/videos/jornadas-en.vtt" srclang="en" label="English" default=""></video>
 
 <p><em>Customer journeys and the web-to-lead capture form.</em></p>
