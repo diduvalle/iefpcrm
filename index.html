@@ -618,7 +618,7 @@ const INFO={
   iva:{t:'Taxa de IVA por região',x:'Continente 23/13/6% · Madeira 22/12/5% · Açores 16/9/4%. Use sempre a taxa correta da região.',r:'Definições → Taxas de IVA'},
   pipeline:{t:'Pipeline',x:'Soma do valor das propostas em aberto (Criada/Enviada/Negociação) - o potencial de receita em curso.',r:'10868 · slide 5 (KPI de operação)'},
   visao360:{t:'Visão 360º do cliente',x:'Vista única com todas as interações: propostas, valor, consentimentos e pedidos RGPD.',r:'10868 · slide 8 (gestão 360º do cliente)'},
-  automacao:{t:'Marketing Automation',x:'Regras que enviam emails automaticamente quando ocorre um evento no CRM (ex.: cliente novo, proposta ganha).',r:'10868 · slide 88 (marketing automatizado)'},
+  automacao:{t:'Marketing Automation',x:'Regras que agem sozinhas quando ocorre um evento no CRM (ex.: cliente novo, proposta ganha, subida de nível): enviar email, mudar a fase, criar tarefa ou registar nota.',r:'10868 · slide 88 (marketing automatizado)'},
   abertura:{t:'Taxa de abertura',x:'Percentagem de emails abertos sobre os enviados - mede o interesse no assunto.',r:'Boa prática - métricas de email (10868)'},
   ctr:{t:'CTR - taxa de cliques',x:'Percentagem de destinatários que clicaram, sobre os emails enviados.',r:'Boa prática - métricas de email (10868)'},
   nif:{t:'NIF / NIPC',x:'Número de Identificação Fiscal - 9 dígitos, validado pelo dígito de controlo.',r:'Identificação do cliente (qualidade de dados)'},
@@ -2143,7 +2143,7 @@ views.campanhas = () => {
     <div class="card card-pad">
       <div class="section-head" style="margin-bottom:14px"><div><h3>Campanhas ${infoTip('segmento')}</h3><div class="sub">Marketing direcionado por segmento</div></div><div class="toolbar"><button class="btn-sec" data-act="wizard">✨ Gerar de persona</button><button class="btn" data-act="new" data-type="campanha">+ Campanha</button></div></div>
       <div class="table-wrap"><table><thead><tr><th>Campanha</th><th>Segmento</th><th>Período</th><th>Abertura</th><th>CTR</th><th>Estado</th><th></th></tr></thead><tbody>
-        ${camps.map(c=>{const ab=c.enviados?c.abertos/c.enviados*100:0;const ct=c.enviados?c.cliques/c.enviados*100:0;return `<tr><td><div class="cell-main">${esc(c.nome)}</div><div class="cell-sub">${esc(c.canal)} · ${fmtN(c.enviados)} envios</div></td><td><span class="chip">${esc(c.segmento)}</span></td><td class="muted">${dPT(c.inicio)} - ${dPT(c.fim)}</td><td>${pct(ab)}</td><td>${pct(ct)}</td><td><span class="pill ${c.estado==='Ativa'?'green':c.estado==='Concluída'?'grey':'blue'}">${esc(c.estado)}</span></td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="campaign-send" data-id="${c.id}">${ic('send',13)} Enviar</button><button class="btn-sec btn-xs" data-act="edit" data-type="campanha" data-id="${c.id}">Editar</button><button class="btn-danger btn-xs" data-act="delete" data-type="campanha" data-id="${c.id}">✕</button></div></td></tr>`;}).join('')||`<tr><td colspan="7">${empty(act?'Sem campanhas no período':'Sem campanhas')}</td></tr>`}
+        ${camps.map(c=>{const ab=c.enviados?c.abertos/c.enviados*100:0;const ct=c.enviados?c.cliques/c.enviados*100:0;return `<tr><td><div class="cell-main">${esc(c.nome)}</div><div class="cell-sub">${esc(c.canal)} · ${fmtN(c.enviados)} envios</div></td><td><span class="chip">${esc(c.segmento||'Todos')}</span>${c.nivel?` <span class="chip">${esc(c.nivel)}</span>`:''}</td><td class="muted">${dPT(c.inicio)} - ${dPT(c.fim)}</td><td>${pct(ab)}</td><td>${pct(ct)}</td><td><span class="pill ${c.estado==='Ativa'?'green':c.estado==='Concluída'?'grey':'blue'}">${esc(c.estado)}</span></td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="campaign-send" data-id="${c.id}">${ic('send',13)} Enviar</button><button class="btn-sec btn-xs" data-act="edit" data-type="campanha" data-id="${c.id}">Editar</button><button class="btn-danger btn-xs" data-act="delete" data-type="campanha" data-id="${c.id}">✕</button></div></td></tr>`;}).join('')||`<tr><td colspan="7">${empty(act?'Sem campanhas no período':'Sem campanhas')}</td></tr>`}
       </tbody></table></div>
     </div>
     <div class="card card-pad">
@@ -2817,9 +2817,8 @@ function sendTestEmailJS(){
     .catch(err=>toast('Falha no teste',String(err&&(err.text||err.message)||err),'err'));
 }
 const ACOES=[{v:'email',t:'Enviar email'},{v:'fase',t:'Mudar a fase da conta'},{v:'tarefa',t:'Criar tarefa na Agenda'},{v:'nota',t:'Registar nota no contacto'}];
-const acaoLabel=v=>(ACOES.find(a=>a.v===v)||{}).t||v;
 /* Executa UM passo de uma automação. Devolve o texto para o registo. */
-function executarPasso(p,ctx,a,idx){
+function executarPasso(p,ctx,a){
   const cli=getC(ctx.clienteId); const tipo=p.tipo||'email';
   if(tipo==='email'){
     if(!p.templateId) return null;
@@ -2885,7 +2884,7 @@ function fireAutomations(trigger, ctx){
     (a.passos||[]).forEach((p,idx)=>{
       const tipo=p.tipo||'email';
       if(tipo==='email'&&!p.templateId) return;
-      if((+p.atrasoDias||0)<=0){ const r=executarPasso(p,ctx,a,idx); if(r){ immediate++; autoLog(a,ctx.clienteId,trigger,r); } }
+      if((+p.atrasoDias||0)<=0){ const r=executarPasso(p,ctx,a); if(r){ immediate++; autoLog(a,ctx.clienteId,trigger,r); } }
       else { scheduleSend({dataAgendada:addDays(todayISO(),+p.atrasoDias), clienteId:ctx.clienteId, tipo, templateId:p.templateId, fase:p.fase, texto:p.texto,
           propostaId:(trigger!=='novo-cliente'&&ctx.proposta)?ctx.proposta.id:null, automacaoId:a.id, nome:a.nome+' (passo '+(idx+1)+')'}); agendados++; }
     });
@@ -2977,6 +2976,24 @@ views.comunicacao = () => {
   ${tab==='historico'?comHistorico():tab==='agendados'?comAgendados():tab==='templates'?comTemplates():tab==='jornadas'?comJornadas():comAutomacoes()}`;
 };
 function journeyNode(icon,titulo,sub,cor){ return `<div style="flex:0 0 auto;min-width:118px;max-width:170px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;text-align:center"><div style="color:${cor||'var(--g600)'}">${ic(icon,18)}</div><div style="font-weight:800;font-size:.8rem;margin-top:4px">${esc(titulo)}</div>${sub?`<div class="muted" style="font-size:.7rem;white-space:normal">${esc(sub)}</div>`:''}</div>`; }
+/* Descricao de um passo, seja qual for a accao. Usada na tabela E na jornada:
+   antes a tabela assumia sempre um template de email e mostrava "-" no resto. */
+function passoDescricao(p){
+  const tp=p.tipo||'email';
+  if(tp==='email'){ const t=state.templates.find(x=>x.id===p.templateId); return 'Email: '+((t&&t.nome)||'-'); }
+  if(tp==='fase')   return 'Fase → '+(p.fase||'-');
+  if(tp==='tarefa') return 'Tarefa: '+(p.texto||'-');
+  return 'Nota: '+(p.texto||'-');
+}
+/* Todas as condicoes ativas, nao so a primeira. */
+function condicoesTexto(a){
+  const r=[];
+  if(a.condSegmento&&a.condSegmento!=='Todos') r.push('segmento '+a.condSegmento);
+  if(a.condNivel) r.push('nível '+a.condNivel);
+  if(a.condFase) r.push('fase '+a.condFase);
+  if(a.condScore) r.push('score '+a.condScore);
+  return r.length?r.join(' · '):'todos';
+}
 function journeyHTML(a){
   const passos=(a.passos||[]);
   const nodes=[journeyNode('bell','Início',triggerLabel(a.trigger),'#d97706')];
@@ -2988,7 +3005,7 @@ function journeyHTML(a){
     else nodes.push(journeyNode('list','Nota',p.texto||'-','#64748b'));
   });
   if(a.saida) nodes.push(journeyNode('flag','Sai se',saidaLabel(a.saida).replace(/^Quando /,''),'#dc2626'));
-  const cond=a.condSegmento&&a.condSegmento!=='Todos'?`só ${a.condSegmento}`:(a.condFase?`fase ${a.condFase}`:(a.condScore?`score ${a.condScore}`:'todos'));
+  const cond=condicoesTexto(a);
   const arrow=`<div style="flex:0 0 auto;align-self:center;color:var(--muted);font-size:1.1rem">→</div>`;
   return `<div style="border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap"><div><strong>${esc(a.nome)}</strong> <span class="pill ${a.estado==='Ativa'?'green':'grey'}" style="font-size:.62rem">${esc(a.estado)}</span></div><div class="muted" style="font-size:.76rem">Condição: ${esc(cond)} · ${fmtN(a.disparos||0)} disparos</div></div>
@@ -3035,9 +3052,9 @@ function comTemplates(){
 }
 function comAutomacoes(){
   return `<div class="card card-pad">
-    <div class="section-head" style="margin-bottom:14px"><div><h3>Marketing Automation ${infoTip('automacao')}</h3><div class="sub">Regras evento → sequência de emails. Cada passo pode ter atraso (dias) para criar sequências.</div></div><button class="btn" data-act="auto-new">+ Automação</button></div>
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Marketing Automation ${infoTip('automacao')}</h3><div class="sub">Regras evento → sequência de ações. Cada passo pode ter atraso (dias) para criar sequências.</div></div><button class="btn" data-act="auto-new">+ Automação</button></div>
     <div class="table-wrap"><table><thead><tr><th>Automação</th><th>Evento (gatilho)</th><th>Sequência</th><th>Condição</th><th>Disparos</th><th>Estado</th><th></th></tr></thead><tbody>
-      ${state.automacoes.map(a=>{const passos=(a.passos||[]);const seq=passos.map(p=>{const t=state.templates.find(x=>x.id===p.templateId);return (t?t.nome:'-')+((+p.atrasoDias||0)?` (+${p.atrasoDias}d)`:'');}).join(' → ');return `<tr><td class="cell-main">${esc(a.nome)}</td><td>${ic('bell',13)} ${esc(triggerLabel(a.trigger))}</td><td style="white-space:normal"><span class="muted" style="font-size:.82rem">${esc(seq||'-')}</span></td><td>${a.condSegmento&&a.condSegmento!=='Todos'?`<span class="chip">${esc(a.condSegmento)}</span>`:'<span class="muted">Todos</span>'}</td><td>${fmtN(a.disparos||0)}</td><td><button class="pill ${a.estado==='Ativa'?'green':'grey'}" data-act="toggle-auto" data-id="${a.id}" style="border:0;cursor:pointer">${esc(a.estado)}</button></td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="auto-edit" data-id="${a.id}">Editar</button><button class="btn-danger btn-xs" data-act="delete" data-type="automacao" data-id="${a.id}">✕</button></div></td></tr>`;}).join('')||`<tr><td colspan="7">${empty('Sem automações')}</td></tr>`}
+      ${state.automacoes.map(a=>{const passos=(a.passos||[]);const seq=passos.map(p=>passoDescricao(p)+((+p.atrasoDias||0)?` (+${p.atrasoDias}d)`:'')).join(' → ');return `<tr><td class="cell-main">${esc(a.nome)}</td><td>${ic('bell',13)} ${esc(triggerLabel(a.trigger))}</td><td style="white-space:normal"><span class="muted" style="font-size:.82rem">${esc(seq||'-')}</span></td><td>${esc(condicoesTexto(a))}</td><td>${fmtN(a.disparos||0)}</td><td><button class="pill ${a.estado==='Ativa'?'green':'grey'}" data-act="toggle-auto" data-id="${a.id}" style="border:0;cursor:pointer">${esc(a.estado)}</button></td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="auto-edit" data-id="${a.id}">Editar</button><button class="btn-danger btn-xs" data-act="delete" data-type="automacao" data-id="${a.id}">✕</button></div></td></tr>`;}).join('')||`<tr><td colspan="7">${empty('Sem automações')}</td></tr>`}
     </tbody></table></div>
     <div class="callout info" style="margin-top:14px">${ic('alert',16)}<div class="ctxt">Ambiente pedagógico: o "envio" é simulado. Passos com atraso ficam em <strong>Agendados</strong> e são processados quando a data chega (ou manualmente).</div></div>
   </div>`;
@@ -3317,12 +3334,11 @@ function renderAutoForm(){
       <div class="field"><label>Evento (gatilho) ${infoTip('gatilhos')}</label><select name="atrigger">${TRIGGERS.map(t=>`<option value="${t.v}" ${t.v===d.trigger?'selected':''}>${esc(t.t)}</option>`).join('')}</select></div>
       <div class="field"><label>Estado</label><select name="aestado"><option ${d.estado==='Ativa'?'selected':''}>Ativa</option><option ${d.estado==='Inativa'?'selected':''}>Inativa</option></select></div>
       ${d.trigger==='sem-contacto'?`<div class="field full"><label>Dias sem contacto</label><input name="adias" type="number" min="1" step="1" value="${esc(d.condDias||7)}"><span class="hint">Dispara para leads sem email enviado há este nº de dias.</span></div>`:''}
-      ${loyaltyTriggers.includes(d.trigger)?`<div class="field full"><label>Só quando chega ao nível</label><select name="anivel"><option value="">- qualquer nível -</option>${(state.loyalty||[]).map(l=>`<option value="${esc(l.nome)}" ${(d.condNivel||'')===l.nome?'selected':''}>${esc(l.nome)}</option>`).join('')}</select><span class="hint">O nível é calculado do volume ganho da empresa - a mudança acontece sozinha quando uma proposta é ganha.</span></div>`:''}
     </div>
     <div class="muted" style="font-size:.74rem;margin:2px 0 8px">Condições (todas têm de bater - filtram a quem a automação se aplica):</div>
     <div class="form-grid">
       <div class="field"><label>Só p/ segmento</label><select name="aseg">${['Todos'].concat(segmentosList()).map(s=>`<option ${s===d.condSegmento?'selected':''}>${s}</option>`).join('')}</select></div>
-      <div class="field"><label>Só p/ nível de fidelização</label><select name="anivelcond">${['Todos'].concat(niveisList()).map(s=>{const v=s==='Todos'?'':s;return `<option value="${v}" ${(d.condNivel||'')===v?'selected':''}>${s}</option>`;}).join('')}</select></div>
+      <div class="field"><label>${loyaltyTriggers.includes(d.trigger)?'Só quando chega ao nível':'Só p/ nível de fidelização'}</label><select name="anivel">${['Todos'].concat(niveisList()).map(s=>{const v=s==='Todos'?'':s;return `<option value="${v}" ${(d.condNivel||'')===v?'selected':''}>${s}</option>`;}).join('')}</select><span class="hint">${loyaltyTriggers.includes(d.trigger)?'O nível é calculado do volume ganho - muda sozinho quando uma proposta é ganha.':'Nível atual da conta.'}</span></div>
       <div class="field"><label>Só p/ fase</label><select name="afase">${['Todas'].concat(FASES).map(s=>{const v=s==='Todas'?'':s;return `<option value="${v}" ${(d.condFase||'')===v?'selected':''}>${s}</option>`;}).join('')}</select></div>
       <div class="field"><label>Só p/ score ${infoTip('leadscore')}</label><select name="ascore">${['Todos','Frio','Morno','Quente'].map(s=>{const v=s==='Todos'?'':s;return `<option value="${v}" ${(d.condScore||'')===v?'selected':''}>${s}</option>`;}).join('')}</select></div>
       <div class="field full"><label>Parar a sequência quando…</label><select name="asaida">${SAIDAS.map(x=>`<option value="${x.v}" ${(d.saida||'')===x.v?'selected':''}>${esc(x.t)}</option>`).join('')}</select><span class="hint">Evita continuar a insistir com quem já reagiu. Cancela apenas os passos ainda por enviar.</span></div>
@@ -3340,7 +3356,6 @@ function renderAutoForm(){
 function syncAutoDraft(){ const f=$('#modalForm'); if(!f||!autoDraft) return; autoDraft.nome=f.querySelector('[name="anome"]').value; autoDraft.trigger=f.querySelector('[name="atrigger"]').value; autoDraft.condSegmento=f.querySelector('[name="aseg"]').value; autoDraft.estado=f.querySelector('[name="aestado"]').value;
   { const fz=f.querySelector('[name="afase"]'); if(fz)autoDraft.condFase=fz.value; const scr=f.querySelector('[name="ascore"]'); if(scr)autoDraft.condScore=scr.value; const dd=f.querySelector('[name="adias"]'); if(dd)autoDraft.condDias=Number(dd.value||7);
     const nv=f.querySelector('[name="anivel"]'); if(nv)autoDraft.condNivel=nv.value;
-    const nvc=f.querySelector('[name="anivelcond"]'); if(nvc)autoDraft.condNivel=nvc.value;
     const sd=f.querySelector('[name="asaida"]'); if(sd)autoDraft.saida=sd.value; } $$('[data-step]',f).forEach(row=>{ const i=+row.dataset.step; if(!autoDraft.passos[i])return; const P=autoDraft.passos[i];
     const tp=row.querySelector('[data-as="tipo"]'); if(tp)P.tipo=tp.value;
     const ts=row.querySelector('[data-as="templateId"]'); if(ts)P.templateId=ts.value;
@@ -3427,14 +3442,13 @@ function turmaUsersCardHTML(){
 }
 function renderTurmaRoster(){
   const box=$('#turmaRoster'); if(!box) return;
-  Promise.all([supaRoster(), supaListarSubmissoes().catch(()=>[])]).then(([list,subs])=>{
-    const me=currentUser(); list=list||[]; subs=subs||[];
+  supaRoster().then(list=>{
+    const me=currentUser(); list=list||[];
     if(list.length){ state.equipa=list.map(u=>({id:u.id,nome:u.nome||'',apelido:u.apelido||'',username:u.username||'',papel:u.papel||''})); save(); }
-    const cont={}; subs.forEach(s=>{ const k=String(s.username||'').toLowerCase(); cont[k]=(cont[k]||0)+1; });
     const limDe=u=>Number(u.limite)||2;   // vem do RPC: exceção do formando, senão o da turma
     const limTurma=Number((list.find(u=>u.limite_turma!=null)||{}).limite_turma)||2;
     const entregaCell=u=>{ if(u.papel!=='Formando') return '<span class="muted" style="font-size:.72rem">-</span>';
-      const lim=limDe(u); const n=(u.envios!=null?Number(u.envios):(cont[String(u.username||'').toLowerCase()]||0));
+      const lim=limDe(u); const n=Number(u.envios)||0;
       const st=n>=lim?'background:var(--g600);color:#fff':(n>0?'background:var(--g100);color:var(--g600)':'background:var(--surface3);color:var(--muted)');
       const excecao=u.limite_proprio!=null;
       return `<span class="chip" data-act="set-limite" data-id="${u.id}" data-lim="${lim}" data-n="${n}" data-nome="${esc(nomeMembro(u))}" data-propria="${excecao?1:''}"`+
@@ -3659,7 +3673,7 @@ function secCampos(){
     </div>
     <span class="hint" style="display:block;margin-top:8px">Desativar esconde o campo mas <strong>não apaga</strong> o que já foi preenchido. Apagar remove só a definição.</span>
   </div>`; }
-function secSegmentos(s){ return `<div class="card card-pad">
+function secSegmentos(){ return `<div class="card card-pad">
     <div class="section-head" style="margin-bottom:14px"><div><h3>Segmentos ${infoTip('segmento')}</h3><div class="sub">Dimensão da empresa, usada no campo "Segmento (dimensão)" da ficha e como alvo de campanhas e automações. <strong>Não confundir com os níveis de fidelização</strong> - esses têm a sua própria lista.</div></div></div>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">${segmentosList().map(o=>`<span class="chip" style="gap:8px">${esc(o)}<button data-act="del-segmento" data-segmento="${esc(o)}" style="border:0;background:none;cursor:pointer;color:var(--muted);font-weight:700" title="Remover">✕</button></span>`).join('')}</div>
     <div class="toolbar"><div class="search-inp" style="flex:1;max-width:320px"><input id="newSegmento" placeholder="Novo segmento (ex.: Startup)…"></div><button class="btn-sec" data-act="add-segmento">+ Adicionar</button></div>
@@ -3689,7 +3703,7 @@ function defSandboxView(){ const s=state.settings; const secs=[];
   if(canFeat('entidade')) secs.push(secEntidade(s));
   if(canFeat('gerador')) secs.push(secGerador());
   if(canFeat('loyalty')) secs.push(secLoyalty());
-  if(canFeat('segmentos')) secs.push(secSegmentos(s));
+  if(canFeat('segmentos')) secs.push(secSegmentos());
   if(canFeat('origens')) secs.push(secOrigens(s));
   if(canFeat('funcoes')) secs.push(secFuncoes(s));
   if(canFeat('campos')) secs.push(secCampos());
@@ -3810,7 +3824,7 @@ views.definicoes = () => {
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">${(s.origens||[]).map(o=>`<span class="chip" style="gap:8px">${esc(o)}<button data-act="del-origem" data-origem="${esc(o)}" style="border:0;background:none;cursor:pointer;color:var(--danger);font-weight:800;padding:0;line-height:1">✕</button></span>`).join('')||'<span class="muted">Sem origens</span>'}</div>
     <div class="toolbar"><div class="search-inp" style="flex:1;max-width:320px"><input id="newOrigem" placeholder="Nova origem (ex.: Evento)…"></div><button class="btn-sec" data-act="add-origem">+ Adicionar</button></div>
   </div>
-  ${secSegmentos(s)}
+  ${secSegmentos()}
   ${secFuncoes(s)}
   ${secCampos()}
   ${isAdmin()?`<div class="card card-pad">
@@ -3877,9 +3891,9 @@ function cxFields(){ return camposExtra().map(cxField); }
 function schemaFields(type,sc){ return type==='cliente' ? sc.fields.concat(cxFields()) : sc.fields; }
 /* a chave nao pode chocar com os campos de origem, senao {{cliente.email}} passava a ser ambiguo */
 const CX_RESERVADAS=['nome','apelido','empresa','nif','email','telefone','cidade','regiao','cargo','funcao','notas','numero','loyalty'];
-function cxChaveLivre(titulo,ignorarId){
+function cxChaveLivre(titulo){
   const base=slug(titulo)||'campo'; let k=base,n=2;
-  const usada=x=>CX_RESERVADAS.includes(x)||(state.camposExtra||[]).some(c=>c.id!==ignorarId&&c.chave===x);
+  const usada=x=>CX_RESERVADAS.includes(x)||(state.camposExtra||[]).some(c=>c.chave===x);
   while(usada(k)) k=base+'-'+(n++);
   return k; }
 function cxValor(item,chave){ const v=(item&&item.extra)?item.extra[chave]:''; return v==null?'':v; }
