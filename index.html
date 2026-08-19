@@ -1131,6 +1131,15 @@ function load(){
   if(!Array.isArray(state.automacoes)) state.automacoes=def.automacoes;
   if(!Array.isArray(state.agendamentos)) state.agendamentos=[];
   if(!Array.isArray(state.camposExtra)) state.camposExtra=[];
+  if(!Array.isArray(state.settings.segmentos)||!state.settings.segmentos.length) state.settings.segmentos=['Micro','PME','Grande Empresa'];
+  /* campanhas antigas guardavam o nivel de fidelizacao no campo do segmento
+     (ex.: "Reativacao clientes Bronze"): separa-os sem perder a intencao */
+  (state.campanhas||[]).forEach(c=>{ if(c.nivel==null) c.nivel='';
+    const nv=(state.loyalty||[]).map(l=>l.nome);
+    if(c.segmento && nv.includes(c.segmento)){ c.nivel=c.segmento; c.segmento='Todos'; } });
+  (state.automacoes||[]).forEach(a=>{ if(a.condNivel==null) a.condNivel='';
+    const nv=(state.loyalty||[]).map(l=>l.nome);
+    if(a.condSegmento && nv.includes(a.condSegmento)){ a.condNivel=a.condSegmento; a.condSegmento='Todos'; } });
   if(!Array.isArray(state.autoLog)) state.autoLog=[];
   (state.automacoes||[]).forEach(a=>{ (a.passos||[]).forEach(p=>{ if(!p.tipo) p.tipo='email'; }); if(a.saida==null) a.saida=''; });
   (state.camposExtra||[]).forEach(c=>{ if(c.ativo==null)c.ativo=true; if(!Array.isArray(c.opcoes))c.opcoes=[]; });
@@ -1281,7 +1290,7 @@ function isAdmin(){ if(!state.settings.requireLogin) return true; const u=curren
 function can(mod){ if(!state.settings.requireLogin) return true; const r=currentRole(); return r?r.modules.includes(mod):false; }
 function isGestor(){ const r=currentRole(); return !!(r&&r.gestor); }
 /* Sub-permissões (sandbox): acesso a secções específicas das Definições sem dar o módulo completo. */
-const FEATS=[{k:'entidade',l:'Entidade'},{k:'gerador',l:'Gerador de dados'},{k:'loyalty',l:'Níveis de fidelização'},{k:'origens',l:'Origens de cliente'},{k:'campos',l:'Campos personalizados'},{k:'funcoes',l:'Função do contacto'},{k:'brand',l:'Marca & Aparência'}];
+const FEATS=[{k:'entidade',l:'Entidade'},{k:'gerador',l:'Gerador de dados'},{k:'loyalty',l:'Níveis de fidelização'},{k:'origens',l:'Origens de cliente'},{k:'segmentos',l:'Segmentos'},{k:'campos',l:'Campos personalizados'},{k:'funcoes',l:'Função do contacto'},{k:'brand',l:'Marca & Aparência'}];
 function canFeat(key){ if(!state.settings.requireLogin) return true; if(isAdmin()||can('definicoes')) return true; const r=currentRole(); return !!(r&&r.feats&&r.feats.includes(key)); }
 function hasAnyFeat(){ if(isAdmin()||can('definicoes')) return true; const r=currentRole(); return !!(r&&r.feats&&r.feats.length); }
 function doLogin(username,password){
@@ -1325,7 +1334,7 @@ const SUPA_ERR={
   SEM_PERMISSAO:'Sem permissão para esta ação.',
   PASSWORD_ATUAL_ERRADA:'A palavra-passe atual está incorreta.',
   RECOVERY_INVALIDO:'Utilizador ou código de recuperação incorretos.',
-  LIMITE_ENVIOS:'Atingiu o limite de 2 entregas. Fale com o formador se precisar de outra.',
+  LIMITE_ENVIOS:'Atingiu o limite de entregas. Fale com o formador se precisar de outra.',
   NAO_ENCONTRADO:'Entrega não encontrada.',
   TURMA_SEM_UTILIZADORES:'Essa turma ainda não tem utilizadores.',
   DADOS_EM_FALTA:'Preencha todos os campos obrigatórios.'};
@@ -2160,7 +2169,8 @@ views.campanhas = () => {
   </div>`;
 };
 function segmentBreakdown(){
-  const colors={'Micro':'#00A651','PME':'#006B3C','Grande Empresa':'#3cba6f','Bronze':'#a16207','Prata':'#94a3b8','Ouro':'#d97706','Todos':'#7AC143'};
+  const paleta=['#00A651','#006B3C','#3cba6f','#7AC143','#0891b2','#7c3aed','#d97706'];
+  const colors={}; segmentosList().forEach((sg,i)=>{ colors[sg]=paleta[i%paleta.length]; }); colors['Particular']='#94a3b8';
   const map={}; state.clientes.forEach(c=>{const s=accSegOf(c)||'Particular';map[s]=(map[s]||0)+1;});
   return Object.entries(map).map(([l,v])=>({l,v,c:colors[l]||'#00A651'}));
 }
@@ -2310,7 +2320,9 @@ function accScoreOf(c){ const e=accEmpOf(c); return e?empLeadScore(e):0; }
 function accSegOf(c){ const e=accEmpOf(c); return e?(e.dimensao||''):''; }
 function accLoyaltyOf(c){ const e=accEmpOf(c); return e?(e.loyalty||'Bronze'):''; }
 // Um contacto bate um segmento-alvo (dimensão OU tier de loyalty) da sua empresa
-function accMatchSeg(c,seg){ if(!seg||seg==='Todos') return true; const e=accEmpOf(c); if(!e) return false; return (e.dimensao||'')===seg || (e.loyalty||'')===seg; }
+function accMatchSeg(c,seg){ if(!seg||seg==='Todos') return true; const e=accEmpOf(c); if(!e) return false; return (e.dimensao||'')===seg; }
+/* nivel de fidelizacao: filtro separado do segmento */
+function accMatchNivel(c,nv){ if(!nv||nv==='Todos') return true; const e=accEmpOf(c); if(!e) return false; return (e.loyalty||'')===nv; }
 // Lista de CONTAS = só empresas (a conta é sempre uma empresa)
 function accountList(){ return (state.empresas||[]).map(e=>({id:e.id,nome:e.nome,fase:e.fase||'Lead',origem:e.origem||'',valor:empValue(e.id),score:empLeadScore(e),criado:e.criado,kind:'emp'})); }
 // Criar EMPRESA EM NOME INDIVIDUAL a partir de um contacto e ligá-lo (atalho p/ ENI)
@@ -2867,6 +2879,7 @@ function fireAutomations(trigger, ctx){
   (state.automacoes||[]).filter(a=>a.estado==='Ativa'&&a.trigger===trigger).forEach(a=>{
     if(a.condSegmento && a.condSegmento!=='Todos' && (!cli || !accMatchSeg(cli,a.condSegmento))) return;
     if(a.condFase && (!cli || accFaseOf(cli)!==a.condFase)) return;
+    if(a.condNivel && !loyaltyTriggers.includes(trigger) && (!cli || !accMatchNivel(cli,a.condNivel))) return;   // nível atual da conta
     if(a.condScore && (!cli || scoreInfo(accScoreOf(cli)).l!==a.condScore)) return;
     if(a.condNivel && ctx.loyaltyPara && ctx.loyaltyPara!==a.condNivel) return;   // só para este nível de fidelização
     (a.passos||[]).forEach((p,idx)=>{
@@ -2932,8 +2945,10 @@ function sendAgendamentoNow(id){
 function cancelAgendamento(id){ state.agendamentos=state.agendamentos.filter(x=>x.id!==id); save(); render(); toast('Agendamento cancelado'); }
 function sendCampaign(id){
   const cp=state.campanhas.find(c=>c.id===id); if(!cp) return;
-  const alvo=state.clientes.filter(c=>accMatchSeg(c,cp.segmento));
-  if(!alvo.length){ toast('Sem destinatários','Nenhum cliente no segmento "'+cp.segmento+'"','warn'); return; }
+  /* o alvo e o cruzamento dos dois filtros: segmento (dimensao) E nivel de fidelizacao */
+  const alvo=state.clientes.filter(c=>accMatchSeg(c,cp.segmento)&&accMatchNivel(c,cp.nivel));
+  if(!alvo.length){ const q=[cp.segmento&&cp.segmento!=='Todos'?('segmento '+cp.segmento):'',cp.nivel?('nível '+cp.nivel):''].filter(Boolean).join(' + ')||'todos';
+    toast('Sem destinatários','Nenhum cliente em: '+q,'warn'); return; }
   const tplId=cp.templateId||(state.templates[0]&&state.templates[0].id);
   let ab=0,cl=0;
   alvo.forEach(c=>{ const ev=sendEmail({clienteId:c.id, templateId:tplId, assunto:cp.nome, origem:'Campanha', campanhaId:cp.id}); if(ev.aberto)ab++; if(ev.clicado)cl++; });
@@ -3306,7 +3321,8 @@ function renderAutoForm(){
     </div>
     <div class="muted" style="font-size:.74rem;margin:2px 0 8px">Condições (todas têm de bater - filtram a quem a automação se aplica):</div>
     <div class="form-grid">
-      <div class="field"><label>Só p/ segmento</label><select name="aseg">${['Todos','Micro','PME','Grande Empresa'].map(s=>`<option ${s===d.condSegmento?'selected':''}>${s}</option>`).join('')}</select></div>
+      <div class="field"><label>Só p/ segmento</label><select name="aseg">${['Todos'].concat(segmentosList()).map(s=>`<option ${s===d.condSegmento?'selected':''}>${s}</option>`).join('')}</select></div>
+      <div class="field"><label>Só p/ nível de fidelização</label><select name="anivelcond">${['Todos'].concat(niveisList()).map(s=>{const v=s==='Todos'?'':s;return `<option value="${v}" ${(d.condNivel||'')===v?'selected':''}>${s}</option>`;}).join('')}</select></div>
       <div class="field"><label>Só p/ fase</label><select name="afase">${['Todas'].concat(FASES).map(s=>{const v=s==='Todas'?'':s;return `<option value="${v}" ${(d.condFase||'')===v?'selected':''}>${s}</option>`;}).join('')}</select></div>
       <div class="field"><label>Só p/ score ${infoTip('leadscore')}</label><select name="ascore">${['Todos','Frio','Morno','Quente'].map(s=>{const v=s==='Todos'?'':s;return `<option value="${v}" ${(d.condScore||'')===v?'selected':''}>${s}</option>`;}).join('')}</select></div>
       <div class="field full"><label>Parar a sequência quando…</label><select name="asaida">${SAIDAS.map(x=>`<option value="${x.v}" ${(d.saida||'')===x.v?'selected':''}>${esc(x.t)}</option>`).join('')}</select><span class="hint">Evita continuar a insistir com quem já reagiu. Cancela apenas os passos ainda por enviar.</span></div>
@@ -3324,6 +3340,7 @@ function renderAutoForm(){
 function syncAutoDraft(){ const f=$('#modalForm'); if(!f||!autoDraft) return; autoDraft.nome=f.querySelector('[name="anome"]').value; autoDraft.trigger=f.querySelector('[name="atrigger"]').value; autoDraft.condSegmento=f.querySelector('[name="aseg"]').value; autoDraft.estado=f.querySelector('[name="aestado"]').value;
   { const fz=f.querySelector('[name="afase"]'); if(fz)autoDraft.condFase=fz.value; const scr=f.querySelector('[name="ascore"]'); if(scr)autoDraft.condScore=scr.value; const dd=f.querySelector('[name="adias"]'); if(dd)autoDraft.condDias=Number(dd.value||7);
     const nv=f.querySelector('[name="anivel"]'); if(nv)autoDraft.condNivel=nv.value;
+    const nvc=f.querySelector('[name="anivelcond"]'); if(nvc)autoDraft.condNivel=nvc.value;
     const sd=f.querySelector('[name="asaida"]'); if(sd)autoDraft.saida=sd.value; } $$('[data-step]',f).forEach(row=>{ const i=+row.dataset.step; if(!autoDraft.passos[i])return; const P=autoDraft.passos[i];
     const tp=row.querySelector('[data-as="tipo"]'); if(tp)P.tipo=tp.value;
     const ts=row.querySelector('[data-as="templateId"]'); if(ts)P.templateId=ts.value;
@@ -3360,6 +3377,7 @@ async function supaRoster(){ return await supaRpc('listar_utilizadores',{p_token
 async function supaAddFormando(p){ return await supaRpc('criar_formando',{p_token:supaToken(),p_username:p.username,p_password:p.password,p_nome:p.nome,p_apelido:p.apelido||'',p_email:p.email||'',p_papel:p.papel||'Formando',p_email2:p.email2||''}); }
 async function supaRemove(id){ return await supaRpc('remover_utilizador',{p_token:supaToken(),p_user_id:id}); }
 async function supaResetPwd(id,pwd){ return await supaRpc('redefinir_password',{p_token:supaToken(),p_user_id:id,p_nova_password:pwd}); }
+async function supaLimiteEnvios(userId,limite){ return await supaRpc('definir_limite_envios',{p_token:supaToken(),p_user_id:userId||null,p_limite:limite==null?null:Number(limite)}); }
 async function supaMarcarConvite(id){ return await supaRpc('marcar_convite',{p_token:supaToken(),p_user_id:id}); }
 async function supaMudarMinhaPwd(atual,nova){ return await supaRpc('mudar_minha_password',{p_token:supaToken(),p_atual:atual,p_nova:nova}); }
 async function supaAtualizarPerfil(p){ return await supaRpc('atualizar_meu_perfil',{p_token:supaToken(),p_nome:p.nome||'',p_apelido:p.apelido||'',p_email:p.email||''}); }
@@ -3412,11 +3430,15 @@ function renderTurmaRoster(){
   Promise.all([supaRoster(), supaListarSubmissoes().catch(()=>[])]).then(([list,subs])=>{
     const me=currentUser(); list=list||[]; subs=subs||[];
     if(list.length){ state.equipa=list.map(u=>({id:u.id,nome:u.nome||'',apelido:u.apelido||'',username:u.username||'',papel:u.papel||''})); save(); }
-    const LIM=2, cont={}; subs.forEach(s=>{ const k=String(s.username||'').toLowerCase(); cont[k]=(cont[k]||0)+1; });
+    const cont={}; subs.forEach(s=>{ const k=String(s.username||'').toLowerCase(); cont[k]=(cont[k]||0)+1; });
+    const limDe=u=>Number(u.limite)||2;   // vem do RPC: exceção do formando, senão o da turma
+    const limTurma=Number((list.find(u=>u.limite_turma!=null)||{}).limite_turma)||2;
     const entregaCell=u=>{ if(u.papel!=='Formando') return '<span class="muted" style="font-size:.72rem">-</span>';
-      const n=Math.min(cont[String(u.username||'').toLowerCase()]||0,LIM);
-      const st=n>=LIM?'background:var(--g600);color:#fff':(n>0?'background:var(--g100);color:var(--g600)':'background:var(--surface3);color:var(--muted)');
-      return `<span class="chip" style="${st};font-weight:700" title="Entregas submetidas por este formando">${ic('send',12)} ${n}/${LIM}</span>`; };
+      const lim=limDe(u); const n=(u.envios!=null?Number(u.envios):(cont[String(u.username||'').toLowerCase()]||0));
+      const st=n>=lim?'background:var(--g600);color:#fff':(n>0?'background:var(--g100);color:var(--g600)':'background:var(--surface3);color:var(--muted)');
+      const excecao=u.limite_proprio!=null;
+      return `<span class="chip" data-act="set-limite" data-id="${u.id}" data-lim="${lim}" data-n="${n}" data-nome="${esc(nomeMembro(u))}" data-propria="${excecao?1:''}"`+
+        ` style="${st};font-weight:700;cursor:pointer" title="${n} de ${lim} entregas. Clique para alterar o limite desta pessoa.">${ic('send',12)} ${n}/${lim}${excecao?' *':''}</span>`; };
     // estado do convite (enviado manualmente pelo formador; convite_em vem do Supabase)
     const convCell=u=>{ if(u.papel!=='Formando') return '<span class="muted" style="font-size:.72rem">-</span>';
       if(u.convite_em) return `<span class="pill green" style="font-size:.62rem" title="Convite enviado">${ic('check',11)} ${dPT(String(u.convite_em).slice(0,10))}</span>`;
@@ -3431,7 +3453,7 @@ function renderTurmaRoster(){
       <td>${entregaCell(u)}</td>
       <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="roster-pwd" data-id="${u.id}" data-nome="${esc(u.username)}">Repor palavra-passe</button>${me&&me.id===u.id?`<span class="btn-xs" style="color:var(--muted2)" title="A sua conta">${ic('lock',13)}</span>`:`<button class="btn-danger btn-xs" data-act="roster-del" data-id="${u.id}" data-nome="${esc(((u.nome||'')+' '+(u.apelido||'')).trim())}">✕</button><button class="${u.convite_em?'btn-sec':'btn'} btn-xs" data-act="roster-invite" data-id="${u.id}" data-username="${esc(u.username)}" data-nome="${esc(u.nome||'')}" data-apelido="${esc(u.apelido||'')}" data-email="${esc(u.email||'')}" data-email2="${esc(u.email2||'')}" data-conv="${u.convite_em?'1':''}" title="Repor palavra-passe (regra do sistema) e enviar o convite por email">${ic('send',13)} ${u.convite_em?'Reenviar':'Enviar convite'}</button>`}</div></td></tr>`).join('');
     const barra=pendentes.length?`<div class="callout ${realSendOn()?'info':'warn'}" style="margin:0 0 12px;align-items:center">${ic('mail',16)}<div class="ctxt" style="flex:1"><strong>${pendentes.length} convite(s) por enviar.</strong> ${realSendOn()?'A turma já está criada - envie quando quiser.':'Ative o envio real em Definições → EmailJS para poder enviar.'}</div>${realSendOn()?`<button class="btn btn-sm" data-act="roster-invite-all" style="flex:0 0 auto;white-space:nowrap">${ic('send',15)} Enviar ${pendentes.length} convite(s)</button>`:''}</div>`:'';
-    box.innerHTML=`${barra}<div class="table-wrap"><table><thead><tr><th>Nome</th><th>Utilizador</th><th>Email</th><th>Papel</th><th>Convite</th><th>Entregas</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="7" class="muted" style="padding:14px">Ainda sem utilizadores nesta turma. Adicione um formando ou importe a lista.</td></tr>`}</tbody></table></div><div class="muted" style="font-size:.76rem;margin-top:8px">${list.length} utilizador(es) · turma ${esc(TURMA)}</div>`;
+    box.innerHTML=`${barra}<div class="table-wrap"><table><thead><tr><th>Nome</th><th>Utilizador</th><th>Email</th><th>Papel</th><th>Convite</th><th>Entregas</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="7" class="muted" style="padding:14px">Ainda sem utilizadores nesta turma. Adicione um formando ou importe a lista.</td></tr>`}</tbody></table></div><div class="muted" style="font-size:.76rem;margin-top:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span>${list.length} utilizador(es) · turma ${esc(TURMA)}</span><button class="btn-sec btn-xs" data-act="set-limite-turma" data-lim="${limTurma}" title="Valor por omissão para quem não tem exceção">${ic('send',12)} Limite da turma: ${limTurma}</button>${list.some(u=>u.limite_proprio!=null)?`<span title="Formandos com limite próprio">* = limite individual</span>`:''}</div>`;
   }).catch(e=>{ box.innerHTML=`<div class="callout warn" style="margin:0">${ic('alert',16)}<div class="ctxt">${esc(supaMsg(e))}</div></div>`; });
 }
 /* ---------- Entrega & validação de trabalhos (formador) ---------- */
@@ -3637,6 +3659,12 @@ function secCampos(){
     </div>
     <span class="hint" style="display:block;margin-top:8px">Desativar esconde o campo mas <strong>não apaga</strong> o que já foi preenchido. Apagar remove só a definição.</span>
   </div>`; }
+function secSegmentos(s){ return `<div class="card card-pad">
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Segmentos ${infoTip('segmento')}</h3><div class="sub">Dimensão da empresa, usada no campo "Segmento (dimensão)" da ficha e como alvo de campanhas e automações. <strong>Não confundir com os níveis de fidelização</strong> - esses têm a sua própria lista.</div></div></div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">${segmentosList().map(o=>`<span class="chip" style="gap:8px">${esc(o)}<button data-act="del-segmento" data-segmento="${esc(o)}" style="border:0;background:none;cursor:pointer;color:var(--muted);font-weight:700" title="Remover">✕</button></span>`).join('')}</div>
+    <div class="toolbar"><div class="search-inp" style="flex:1;max-width:320px"><input id="newSegmento" placeholder="Novo segmento (ex.: Startup)…"></div><button class="btn-sec" data-act="add-segmento">+ Adicionar</button></div>
+    <span class="hint" style="display:block;margin-top:8px">Remover um segmento não altera as empresas que já o têm - deixa apenas de estar disponível para escolher.</span>
+  </div>`; }
 function secOrigens(s){ return `<div class="card card-pad">
     <div class="section-head" style="margin-bottom:14px"><div><h3>Origens de cliente ${infoTip('origem')}</h3><div class="sub">Canais de aquisição disponíveis no campo "Origem" da ficha de cliente.</div></div></div>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">${(s.origens||[]).map(o=>`<span class="chip" style="gap:8px">${esc(o)}<button data-act="del-origem" data-origem="${esc(o)}" style="border:0;background:none;cursor:pointer;color:var(--danger);font-weight:800;padding:0;line-height:1">✕</button></span>`).join('')||'<span class="muted">Sem origens</span>'}</div>
@@ -3661,6 +3689,7 @@ function defSandboxView(){ const s=state.settings; const secs=[];
   if(canFeat('entidade')) secs.push(secEntidade(s));
   if(canFeat('gerador')) secs.push(secGerador());
   if(canFeat('loyalty')) secs.push(secLoyalty());
+  if(canFeat('segmentos')) secs.push(secSegmentos(s));
   if(canFeat('origens')) secs.push(secOrigens(s));
   if(canFeat('funcoes')) secs.push(secFuncoes(s));
   if(canFeat('campos')) secs.push(secCampos());
@@ -3781,6 +3810,7 @@ views.definicoes = () => {
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">${(s.origens||[]).map(o=>`<span class="chip" style="gap:8px">${esc(o)}<button data-act="del-origem" data-origem="${esc(o)}" style="border:0;background:none;cursor:pointer;color:var(--danger);font-weight:800;padding:0;line-height:1">✕</button></span>`).join('')||'<span class="muted">Sem origens</span>'}</div>
     <div class="toolbar"><div class="search-inp" style="flex:1;max-width:320px"><input id="newOrigem" placeholder="Nova origem (ex.: Evento)…"></div><button class="btn-sec" data-act="add-origem">+ Adicionar</button></div>
   </div>
+  ${secSegmentos(s)}
   ${secFuncoes(s)}
   ${secCampos()}
   ${isAdmin()?`<div class="card card-pad">
@@ -3820,6 +3850,12 @@ const refClientes = ()=>state.clientes.map(c=>({v:c.id,t:`${c.numero} · ${c.nom
 // Função da pessoa na empresa (a quem recorrer em cada tema) - modelo Account/Contact.
 // FUNCOES = lista PADRÃO; a lista ativa é editável em Definições (state.settings.funcoes).
 const FUNCOES=['','Dono / Sócio-gerente','Administração','Financeiro / Contabilidade','Comercial / Vendas','Compras','Marketing','Técnico / Operações','Recursos Humanos','Rececionista / Geral','Outro'];
+/* Segmentos = dimensao da empresa. Editaveis em Definicoes, tal como as origens.
+   NAO confundir com os niveis de fidelizacao (Bronze/Prata/Ouro), que sao outra coisa
+   e tem a sua propria lista - antes partilhavam o mesmo campo e baralhavam-se. */
+const SEGMENTOS_DEF=['Micro','PME','Grande Empresa'];
+function segmentosList(){ const f=state.settings&&state.settings.segmentos; return (Array.isArray(f)&&f.length)?f:SEGMENTOS_DEF.slice(); }
+function niveisList(){ return (state.loyalty||[]).filter(l=>l.estado!=='Inativo').map(l=>l.nome); }
 function funcoesList(){ const f=state.settings&&state.settings.funcoes; return (Array.isArray(f)&&f.length)?f:FUNCOES.filter(Boolean); }
 // Ciclo de vida do contacto (gestão de leads): Lead → MQL (interesse) → SQL (oportunidade) → Cliente
 const FASES=['Lead','MQL','SQL','Cliente','Perdido'];
@@ -3868,7 +3904,7 @@ const SCHEMAS = {
     {n:'nipc',l:'NIPC / NIF',hint:'9 dígitos - validado pelo dígito de controlo'},
     {n:'cae',l:'CAE (código de atividade)'},
     {n:'setor',l:'Setor',type:'select',opts:['Comércio','Indústria','Serviços','Hotelaria','Restauração','Saúde','Tecnologia','Construção','Educação','Transportes','Outro'].map(x=>({v:x,t:x}))},
-    {n:'dimensao',l:'Dimensão (segmento)',type:'select',opts:['Micro','PME','Grande Empresa'].map(x=>({v:x,t:x}))},
+    {n:'dimensao',l:'Dimensão (segmento)',type:'select',opts:()=>segmentosList().map(x=>({v:x,t:x})),hint:'Editável em Definições → Segmentos.'},
     {n:'natureza',l:'Natureza jurídica',hint:'SA · Lda · Unipessoal · ENI (preenche-se com Procurar)'},
     {n:'fase',l:'Fase (ciclo de vida)',type:'select',opts:FASES.map(x=>({v:x,t:x})),def:'Lead',hint:'Lead → MQL (demonstrou interesse) → SQL (oportunidade real) → Cliente'},
     {n:'origem',l:'Origem (aquisição)',type:'select',opts:()=>[''].concat(state.settings.origens||[]).map(x=>({v:x,t:x||'- não definida -'})),hint:'Canal por onde a empresa chegou - base do funil e do ROI'},
@@ -3949,7 +3985,8 @@ const SCHEMAS = {
   campanha:{store:'campanhas',label:'Campanha',fields:[
     {n:'nome',l:'Nome da campanha',req:1,full:1},
     {n:'canal',l:'Canal',type:'select',opts:['Email','SMS','Redes Sociais','Telefone'].map(x=>({v:x,t:x}))},
-    {n:'segmento',l:'Segmento-alvo',type:'select',opts:['Todos','Micro','PME','Grande Empresa','Bronze','Prata','Ouro'].map(x=>({v:x,t:x}))},
+    {n:'segmento',l:'Segmento-alvo',type:'select',opts:()=>['Todos'].concat(segmentosList()).map(x=>({v:x,t:x})),hint:'Dimensão da empresa.'},
+    {n:'nivel',l:'Nível de fidelização',type:'select',opts:()=>['Todos'].concat(niveisList()).map(x=>({v:x==='Todos'?'':x,t:x})),hint:'Filtro independente do segmento - pode usar os dois.'},
     {n:'templateId',l:'Template de email',type:'select',opts:()=>state.templates.map(t=>({v:t.id,t:t.nome}))},
     {n:'inicio',l:'Início',type:'date'},{n:'fim',l:'Fim',type:'date'},
     {n:'enviados',l:'Enviados',type:'number'},{n:'abertos',l:'Abertos',type:'number'},
@@ -4710,7 +4747,7 @@ function openSubmitWork(){
 }
 function sendSubmitWork(){
   const u=currentUser(); if(!u){ closeModal(); return; }
-  if(submitEnvios && submitEnvios.enviados>=submitEnvios.limite){ toast('Limite atingido','Já usou as 2 entregas','warn'); return; }
+  if(submitEnvios && submitEnvios.enviados>=submitEnvios.limite){ toast('Limite atingido','Já usou as '+submitEnvios.limite+' entregas','warn'); return; }
   const f=$('#modalForm'); if(!f) return;
   const g=n=>String((f.querySelector('[name="'+n+'"]')||{}).value||'').trim();
   const to=g('swto'), subject=g('swsubject')||'Entrega de trabalho', msg=g('swmsg');
@@ -5267,6 +5304,39 @@ document.addEventListener('click', async e=>{
     case 'add-origem': { if(!canFeat('origens')){ toast('Sem permissão','','warn'); break; } const v=($('#newOrigem')?.value||'').trim(); if(!v){ toast('Indique a origem','','warn'); break; } state.settings.origens=state.settings.origens||[]; if(state.settings.origens.some(o=>o.toLowerCase()===v.toLowerCase())){ toast('Já existe','','warn'); break; } state.settings.origens.push(v); save(); render(); toast('Origem adicionada',v); } break;
     case 'del-origem': { if(!canFeat('origens')){ toast('Sem permissão','','warn'); break; } const o=el.dataset.origem; state.settings.origens=(state.settings.origens||[]).filter(x=>x!==o); save(); render(); toast('Origem removida',o); } break;
     case 'add-funcao': { if(!canFeat('funcoes')){ toast('Sem permissão','','warn'); break; } const v=($('#newFuncao')?.value||'').trim(); if(!v){ toast('Indique a função','','warn'); break; } state.settings.funcoes=funcoesList().slice(); if(state.settings.funcoes.some(o=>o.toLowerCase()===v.toLowerCase())){ toast('Já existe','','warn'); break; } state.settings.funcoes.push(v); save(); render(); toast('Função adicionada',v); } break;
+    case 'set-limite': {
+      const id=el.dataset.id, nome=el.dataset.nome||'este formando';
+      const lim=Number(el.dataset.lim)||2, feitas=Number(el.dataset.n)||0, propria=!!el.dataset.propria;
+      uiPrompt('Quantas entregas pode '+nome+' fazer ao todo? Já fez '+feitas+'.',String(lim),
+        {title:'Limite de entregas',okText:'Guardar',placeholder:'ex.: 3'}).then(v=>{
+          if(v==null) return;
+          const t=String(v).trim();
+          /* deixar em branco devolve a pessoa ao valor por omissão da turma */
+          const novo = t==='' ? null : Number(t);
+          if(novo!=null && (!Number.isFinite(novo)||novo<1||novo>50)){ toast('Valor inválido','Indique um número entre 1 e 50 (ou deixe vazio para usar o da turma)','warn'); return; }
+          if(novo!=null && novo<feitas){ toast('Limite abaixo do que já entregou',nome+' já fez '+feitas+' entrega(s)','warn'); return; }
+          supaLimiteEnvios(id,novo).then(()=>{ toast('Limite atualizado', novo==null?(nome+' volta ao limite da turma'):(nome+': '+novo+' entregas')); renderTurmaRoster(); })
+            .catch(e=>toast('Não foi possível alterar',String(e&&e.message||e),'err'));
+        }); } break;
+    case 'set-limite-turma': {
+      uiPrompt('Limite por omissão para os formandos desta turma. As exceções individuais (marcadas com *) não são afetadas.',String(el.dataset.lim||2),
+        {title:'Limite da turma',okText:'Guardar'}).then(v=>{
+          if(v==null) return; const novo=Number(String(v).trim());
+          if(!Number.isFinite(novo)||novo<1||novo>50){ toast('Valor inválido','Indique um número entre 1 e 50','warn'); return; }
+          supaLimiteEnvios(null,novo).then(()=>{ toast('Limite da turma atualizado',novo+' entregas por formando'); renderTurmaRoster(); })
+            .catch(e=>toast('Não foi possível alterar',String(e&&e.message||e),'err'));
+        }); } break;
+    case 'add-segmento': { if(!canFeat('segmentos')){ toast('Sem permissão','','warn'); break; }
+      const v=($('#newSegmento')?.value||'').trim(); if(!v){ toast('Indique o segmento','','warn'); break; }
+      if(segmentosList().some(x=>x.toLowerCase()===v.toLowerCase())){ toast('Já existe',v,'warn'); break; }
+      if(niveisList().some(x=>x.toLowerCase()===v.toLowerCase())){ toast('Nome já usado num nível de fidelização','Escolha outro nome para não voltar a misturar os dois','warn'); break; }
+      state.settings.segmentos=segmentosList().concat([v]); save(); render(); toast('Segmento adicionado',v); } break;
+    case 'del-segmento': { if(!canFeat('segmentos')){ toast('Sem permissão','','warn'); break; }
+      const o=el.dataset.segmento; const restantes=segmentosList().filter(x=>x!==o);
+      if(!restantes.length){ toast('Tem de existir pelo menos um segmento','','warn'); break; }
+      const usadas=(state.empresas||[]).filter(e=>e.dimensao===o).length;
+      state.settings.segmentos=restantes; save(); render();
+      toast('Segmento removido', usadas?(o+' · '+usadas+' empresa(s) mantêm o valor'):o); } break;
     case 'add-campo': { if(!canFeat('campos')){ toast('Sem permissão','','warn'); break; }
       const t=($('#newCampo')?.value||'').trim(); if(!t){ toast('Indique o título do campo','','warn'); break; }
       const tp=($('#newCampoTipo')?.value||'texto');
