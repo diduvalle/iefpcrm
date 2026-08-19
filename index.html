@@ -3999,6 +3999,16 @@ const COMBO_SRC = {
   empresas: ()=>[{v:'',t:'- sem empresa (particular) -',none:1}].concat(
     (state.empresas||[]).slice().sort((a,b)=>String(a.nome||'').localeCompare(String(b.nome||''),'pt'))
       .map(e=>({v:e.id,t:`${e.nome}${e.nipc?' · '+e.nipc:''}`}))),
+  /* o contacto da proposta so pode ser de quem trabalha na empresa escolhida:
+     enquanto nao houver empresa mostra todos (permite comecar pelo contacto) */
+  clientesDaEmpresa: ()=>{
+    const emp=(typeof propDraft!=='undefined'&&propDraft)?propDraft.empresaId:'';
+    const sel=(typeof propDraft!=='undefined'&&propDraft)?propDraft.clienteId:'';
+    const lista=(state.clientes||[]).filter(c=>!emp||c.empresaId===emp||c.id===sel);
+    return [{v:'',t:'- nenhum -',none:1}].concat(
+      lista.slice().sort((a,b)=>(`${a.nome||''} ${a.apelido||''}`).localeCompare(`${b.nome||''} ${b.apelido||''}`,'pt'))
+        .map(c=>({v:c.id,t:`${c.nome||''} ${c.apelido||''}${c.empresa?' · '+c.empresa:''}`.trim()})));
+  },
   clientes: ()=>[{v:'',t:'- nenhum -',none:1}].concat(
     (state.clientes||[]).slice().sort((a,b)=>(`${a.nome||''} ${a.apelido||''}`).localeCompare(`${b.nome||''} ${b.apelido||''}`,'pt'))
       .map(c=>({v:c.id,t:`${c.nome||''} ${c.apelido||''}${c.empresa?' · '+c.empresa:''}`.trim()}))),
@@ -4257,7 +4267,7 @@ let propDraft=null;
 function openPropModal(id){
   const isEdit=!!id;
   propDraft=isEdit?clone(state.propostas.find(x=>x.id===id)):{
-    id:uid('prop'),numero:nextProposalNumber(),titulo:'',clienteId:state.clientes[0]?.id||'',empresaId:(state.clientes[0]?.empresaId)||'',meses:12,
+    id:uid('prop'),numero:nextProposalNumber(),titulo:'',clienteId:'',empresaId:'',meses:12,
     criada:todayISO(),validade:addDays(todayISO(),30),estado:'Criada',linhas:[{produtoId:'',descricao:'',qtd:1,preco:0,iva:defaultIva(),modelo:'Único'}]
   };
   // garantir produtoId nas linhas (associação ao catálogo)
@@ -4342,7 +4352,7 @@ function renderPropForm(){
         ? `<div class="field"><label>Empresa (cliente da venda)</label><input value="${esc(comboLabel('empresas',p.empresaId)||'- particular -')}" readonly style="background:var(--surface3);color:var(--muted);cursor:not-allowed"><input type="hidden" name="empresaId" value="${esc(p.empresaId||'')}"></div>
            <div class="field"><label>Contacto</label><input value="${esc(comboLabel('clientes',p.clienteId)||'- nenhum -')}" readonly style="background:var(--surface3);color:var(--muted);cursor:not-allowed"><input type="hidden" name="clienteId" value="${esc(p.clienteId||'')}"></div>`
         : `<div class="field combo" data-combo-src="empresas"><label>Empresa (cliente da venda)</label>${comboInner('empresaId','empresas',p.empresaId,'Escreva o nome ou NIPC da empresa…')}</div>
-           <div class="field combo" data-combo-src="clientes"><label>Contacto <span class="muted" style="font-weight:500;font-size:.78rem">(com quem se negoceia)</span></label>${comboInner('clienteId','clientes',p.clienteId,'Escreva o nome do contacto…')}</div>`}
+           <div class="field combo" data-combo-src="clientesDaEmpresa"><label>Contacto <span class="muted" style="font-weight:500;font-size:.78rem">(com quem se negoceia)</span></label>${comboInner('clienteId','clientesDaEmpresa',p.clienteId,p.empresaId?'Escolha quem negoceia nesta empresa…':'Escreva o nome do contacto…')}</div>`}
       <div class="field"><label>Validade</label><input type="date" name="validade" value="${esc(p.validade)}" ${locked?'readonly':''}></div>
       <div class="field"><label>Meses de fidelização <span class="muted" style="font-weight:500;font-size:.78rem">(SaaS recorrente)</span></label><input type="number" name="meses" min="1" step="1" value="${esc(p.meses||12)}" ${locked?'readonly':''}></div>
       <div class="field full"><label>Modelo de proposta (para exportar PDF)</label><select name="templateId">${opt(state.propostaTemplates.map(t=>({v:t.id,t:t.nome})),p.templateId||state.propostaTemplates[0]?.id)}</select></div>
@@ -5334,7 +5344,20 @@ document.addEventListener('change', e=>{
   if(autoDraft && e.target.name==='atrigger'){ syncAutoDraft(); renderAutoForm(); return; }
   if(autoDraft && e.target.dataset.as==='tipo'){ syncAutoDraft(); renderAutoForm(); return; }
   if(propDraft && e.target.name==='clienteId'){ syncDraftFromForm(); const cc=getC(propDraft.clienteId); if(cc&&cc.empresaId&&!propDraft.empresaId){ propDraft.empresaId=cc.empresaId; renderPropForm(); } else refreshTotals(); return; }
-  if(propDraft && e.target.name==='empresaId'){ refreshTotals(); return; }
+  if(propDraft && e.target.name==='empresaId'){
+    syncDraftFromForm();
+    const cli=getC(propDraft.clienteId);
+    if(propDraft.empresaId && (!cli || cli.empresaId!==propDraft.empresaId)){
+      const lista=empContacts(propDraft.empresaId);
+      /* com um unico contacto nao ha duvida; com varios fica em branco de proposito,
+         para nao escolher a pessoa errada em silencio */
+      propDraft.clienteId = lista.length===1 ? lista[0].id : '';
+      renderPropForm();
+      if(!lista.length) toast('Empresa sem contactos','Crie um contacto associado a esta empresa','warn');
+      else if(lista.length>1) toast('Escolha o contacto',lista.length+' pessoas nesta empresa','info');
+      return;
+    }
+    refreshTotals(); return; }
   if(emailDraft && (e.target.id==='emCor'||e.target.id==='emLogo'||e.target.dataset.em!=null)){ updateEmailPreview(); return; }
   if(sendDraft && e.target.dataset.send==='templateId'){ syncSendDraft(); renderSendForm(); return; }
   const fl=e.target.closest('[data-filter]'); if(fl){ if(fl.dataset.filter==='fFam'){state._fFam=fl.value;state._fSub='';} else state._fSub=fl.value; render(); return; }
