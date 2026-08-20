@@ -3483,7 +3483,7 @@ function renderTurmaRoster(){
 let revisaoPayload=null, revisaoNome='';
 function entregasCardHTML(){
   return `<div class="card card-pad">
-    <div class="section-head" style="margin-bottom:14px"><div><h3>Entrega & validação de trabalhos</h3><div class="sub">Trabalhos submetidos pelos formandos desta turma.</div></div><div class="toolbar" style="gap:8px"><button class="btn-sec btn-sm" data-act="entrega-upload">${ic('upload',15)} Carregar .json</button><button class="btn-sec btn-sm" data-act="entregas-reload">Atualizar</button></div></div>
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Entrega & validação de trabalhos</h3><div class="sub">Trabalhos submetidos pelos formandos desta turma.</div></div><div class="toolbar" style="gap:8px"><button class="btn" data-act="comparar-turma" title="Ler todas as entregas e comparar">${ic('chart',15)} Comparar a turma</button><button class="btn-sec btn-sm" data-act="entrega-upload">${ic('upload',15)} Carregar .json</button><button class="btn-sec btn-sm" data-act="entregas-reload">Atualizar</button></div></div>
     <input type="file" id="entregaFile" accept=".json,application/json" style="display:none">
     <div class="callout info" style="margin-bottom:14px">${ic('alert',16)}<div class="ctxt">Cada formando pode submeter até <strong>2 entregas</strong> (chegam aqui automaticamente). Clique em <strong>Rever</strong> para ver o trabalho que o formando criou, ou <strong>Carregar .json</strong> para validar um ficheiro recebido por fora.</div></div>
     <div id="entregasBox"><div class="muted" style="padding:10px">A carregar…</div></div>
@@ -3516,6 +3516,244 @@ function fonteBadge(it){ const f=itemFonte(it);
   if(f==='gerado') return `<span class="chip" style="background:var(--surface3);color:var(--muted)" title="Gerado pelo botão Gerador de dados de exemplo">Gerado</span>`;
   if(f==='base')   return `<span class="chip" style="background:var(--surface3);color:var(--muted2)" title="Veio nos dados de exemplo (arranque)">Base</span>`;
   return `<span class="muted" style="font-size:.72rem" title="Origem não registada (entrega anterior a esta funcionalidade)">—</span>`; }
+/* ================== ANÁLISE DE UMA ENTREGA ==================
+   A submissão traz o estado inteiro do CRM do formando. O problema nunca foi
+   o que se captura - é o que se consegue LER. Isto transforma o payload num
+   conjunto de indicadores comparáveis entre formandos.
+
+   Regra central: separar o que veio no BERÇO (dados de exemplo, iguais para
+   todos) do que a pessoa CRIOU. Sem isto, 13 formandos parecem todos iguais. */
+
+/* ids do seed sao curtos e fixos (cl1, pt2, au3); os criados usam uid() =
+   prefixo + 6 caracteres aleatorios (empab12cd) */
+const ehSeedId = id => /^[a-z]{1,4}[0-9]{1,3}$/.test(String(id||""));
+/* empresas e tarefas do seed nascem com uid() na migracao: identificam-se pelo nome */
+const EMP_SEED=["Silva & Filhos, Lda.","Costa Eventos","Nunes Hotelaria SA","Almeida Consultores","Ferreira Retalho","Rodrigues Clínica"];
+const TAREFA_SEED=["Ligar para follow-up da proposta","Reunião de apresentação","Enviar proposta revista"];
+function proprios(lista,tipo){
+  const a=Array.isArray(lista)?lista:[];
+  if(tipo==="empresa") return a.filter(x=>!EMP_SEED.includes(String(x&&x.nome||"").trim()));
+  if(tipo==="tarefa")  return a.filter(x=>!TAREFA_SEED.includes(String(x&&x.titulo||"").trim()));
+  return a.filter(x=>!ehSeedId(x&&x.id));
+}
+const pc=(n,d)=>d?Math.round(n/d*100):0;
+
+/* Práticas esperadas: cada uma é um SIM/NÃO verificável no trabalho entregue.
+   A "cobertura" é a percentagem destas que a pessoa demonstrou - é isso que
+   permite comparar A com B sem inventar uma nota. */
+function praticasEntrega(p){
+  p=p||{};
+  const cli=p.clientes||[], emp=p.empresas||[], prop=p.propostas||[], prod=p.produtos||[];
+  const camp=p.campanhas||[], auto=p.automacoes||[], tpl=p.templates||[], mod=p.propostaTemplates||[];
+  const casos=p.casos||[], ret=p.retencoes||[], cons=p.consentimentos||[], ped=p.pedidos||[];
+  const ropa=p.ropa||[], viol=p.violacoes||[], tar=p.tarefas||[], cx=p.camposExtra||[];
+  const set=p.settings||{};
+  const pEmp=proprios(emp,"empresa"), pCli=proprios(cli), pProp=proprios(prop), pProd=proprios(prod);
+  const pCamp=proprios(camp), pAuto=proprios(auto), pTpl=proprios(tpl), pMod=proprios(mod);
+  const pCasos=proprios(casos), pRet=proprios(ret), pCons=proprios(cons), pPed=proprios(ped);
+  const pTar=proprios(tar,"tarefa"), pRopa=proprios(ropa), pViol=proprios(viol);
+
+  /* Estes sinais olham SÓ para o que a pessoa criou. Se olhassem para o conjunto
+     todo, os dados de exemplo davam-nos de graça a toda a gente - e quem não
+     fez nada aparecia com meia dúzia de práticas cumpridas. */
+  const temLinhasCatalogo = pProp.some(x=>(x.linhas||[]).some(l=>l.produtoId));
+  const estadosUsados = new Set(pProp.map(x=>x.estado).filter(Boolean));
+  const perdidaComMotivo = pProp.some(x=>x.estado==="Perdida") && pProp.filter(x=>x.estado==="Perdida").every(x=>String(x.motivoPerda||"").trim());
+  const modComTags = pMod.some(m=>(m.blocks||[]).some(b=>/\{\{[\w.]+\}\}/.test(String(b.conteudo||""))));
+  const autoMultiPasso = pAuto.some(a=>(a.passos||[]).length>1);
+  const autoComCondicao = pAuto.some(a=>(a.condSegmento&&a.condSegmento!=="Todos")||a.condFase||a.condScore||a.condNivel);
+  const autoNaoEmail = pAuto.some(a=>(a.passos||[]).some(x=>(x.tipo||"email")!=="email"));
+  const autoComSaida = pAuto.some(a=>a.saida);
+  const casosFechados = pCasos.filter(c=>/Resolvid|Fechad/i.test(String(c.estado||""))).length;
+  const casosComCsat = pCasos.filter(c=>c.csat!=null&&c.csat!=="").length;
+  /* responder a um pedido do seed É trabalho dele - mas o seed já traz um
+     concluído (d1), por isso só conta a partir do segundo */
+  const pedRespondidos = ped.filter(x=>/Conclu/i.test(String(x.estado||""))).length;
+  const pedAlemDoSeed = pedRespondidos > 1;
+  const cliComEmpresa = pCli.filter(c=>c.empresaId).length;
+  const prodComStock = pProd.filter(x=>x.controlaStock).length;
+
+  /* [chave, rótulo, cumpriu?, módulo] */
+  const L=[
+    ["emp","Criou empresas próprias", pEmp.length>0, "Contas"],
+    ["cli","Criou contactos próprios", pCli.length>0, "Contas"],
+    ["assoc","Ligou os contactos que criou a empresas", pCli.length>0 && pc(cliComEmpresa,pCli.length)>=80, "Contas"],
+    ["prod","Criou artigos no catálogo", pProd.length>0, "Catálogo"],
+    ["stock","Usou controlo de stock", prodComStock>0, "Catálogo"],
+    ["prop","Criou propostas próprias", pProp.length>0, "Vendas"],
+    ["cat","Propostas com artigos do catálogo", temLinhasCatalogo, "Vendas"],
+    ["pipe","Moveu propostas no pipeline (≥3 estados)", estadosUsados.size>=3, "Vendas"],
+    ["ganha","Fechou pelo menos uma proposta", estadosUsados.has("Ganha"), "Vendas"],
+    ["perda","Registou o motivo de todas as perdas", perdidaComMotivo, "Vendas"],
+    ["mod","Construiu um modelo de proposta", pMod.length>0, "Modelos"],
+    ["modtag","Usou tags dinâmicas no modelo", modComTags, "Modelos"],
+    ["tpl","Criou/editou templates de email", pTpl.length>0, "Marketing"],
+    ["camp","Criou campanhas", pCamp.length>0, "Marketing"],
+    ["auto","Criou automações próprias", pAuto.length>0, "Marketing"],
+    ["autopass","Automação com mais do que um passo", autoMultiPasso, "Marketing"],
+    ["autocond","Automação com condições", autoComCondicao, "Marketing"],
+    ["autoacao","Automação com ação que não é email", autoNaoEmail, "Marketing"],
+    ["autosaida","Automação com critério de saída", autoComSaida, "Marketing"],
+    ["caso","Abriu casos de apoio", pCasos.length>0, "Serviço"],
+    ["casofecha","Resolveu casos", casosFechados>0, "Serviço"],
+    ["csat","Registou satisfação (CSAT/NPS)", casosComCsat>0, "Serviço"],
+    ["ret","Trabalhou retenção/churn", pRet.length>0, "Serviço"],
+    ["cons","Registou consentimentos", pCons.length>0, "RGPD"],
+    ["ped","Respondeu a pedidos de titular", pedAlemDoSeed, "RGPD"],
+    ["ropa","Preencheu o ROPA", pRopa.length>0, "RGPD"],
+    ["viol","Registou violações de dados", pViol.length>0, "RGPD"],
+    ["cx","Criou campos personalizados", cx.length>0, "Parametrização"],
+    ["ent","Personalizou a entidade", !!String(set.entidade||"").trim() && set.entidade!=="IEFP CRM - Centro de Formação", "Parametrização"],
+    ["tar","Agendou tarefas próprias", pTar.length>0, "Parametrização"],
+  ];
+  return {lista:L, feitas:L.filter(x=>x[2]).length, total:L.length,
+    numeros:{
+      empresas:pEmp.length, contactos:pCli.length, produtos:pProd.length, propostas:pProp.length,
+      modelos:pMod.length, templates:pTpl.length, campanhas:pCamp.length, automacoes:pAuto.length,
+      casos:pCasos.length, retencoes:pRet.length, consentimentos:pCons.length, pedidos:pPed.length,
+      tarefas:pTar.length, campos:cx.length,
+      totalCriado:pEmp.length+pCli.length+pProd.length+pProp.length+pMod.length+pTpl.length+
+                  pCamp.length+pAuto.length+pCasos.length+pRet.length+pCons.length+pPed.length+pTar.length+cx.length
+    }};
+}
+/* módulos com pelo menos uma prática cumprida */
+function modulosCobertos(pr){
+  const m={}; pr.lista.forEach(([,,feito,mod])=>{ if(feito) m[mod]=true; });
+  return Object.keys(m);
+}
+/* Barra de cobertura reutilizada nas duas vistas */
+function barraCob(feitas,total){
+  const p=total?Math.round(feitas/total*100):0;
+  const cor=p>=75?"var(--g600)":p>=45?"#d97706":"var(--danger)";
+  return `<div title="${feitas} de ${total} práticas" style="min-width:120px">
+    <div style="height:8px;border-radius:99px;background:var(--surface3);overflow:hidden"><div style="height:100%;width:${p}%;background:${cor}"></div></div>
+    <div class="muted" style="font-size:.7rem;margin-top:3px">${p}% · ${feitas}/${total}</div></div>`;
+}
+
+/* Ficha detalhada de UMA entrega: o que criou, por módulo, e que práticas demonstrou */
+function fichaEntregaHTML(p){
+  const pr=praticasEntrega(p); const n=pr.numeros;
+  const porMod={}; pr.lista.forEach(x=>{ (porMod[x[3]]=porMod[x[3]]||[]).push(x); });
+  const linha=(l,v)=>`<div style="display:flex;justify-content:space-between;gap:10px;padding:2px 0;font-size:.84rem"><span class="muted">${l}</span><strong>${v}</strong></div>`;
+  return `
+  <div class="callout ${pr.feitas>=Math.round(pr.total*0.75)?"green":"info"}" style="margin:0 0 14px">${ic("check",18)}<div class="ctxt" style="flex:1">
+    <strong>Cobertura: ${Math.round(pr.feitas/pr.total*100)}%</strong> - demonstrou <strong>${pr.feitas}</strong> das <strong>${pr.total}</strong> práticas esperadas, em <strong>${modulosCobertos(pr).length}</strong> áreas.
+    <div class="muted" style="font-size:.78rem;margin-top:4px">Criou <strong>${n.totalCriado}</strong> registos próprios (não conta os dados de exemplo que vieram com a app).</div></div></div>
+  <div class="grid cols-4" style="gap:10px;margin-bottom:16px">
+    ${kpi("Registos criados",n.totalCriado)}${kpi("Propostas",n.propostas)}${kpi("Automações",n.automacoes)}${kpi("Casos",n.casos)}
+  </div>
+  <div class="grid cols-2" style="gap:14px">
+    ${Object.keys(porMod).map(m=>`<div class="card card-pad" style="padding:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px">
+        <strong style="font-size:.9rem">${esc(m)}</strong>
+        <span class="pill ${porMod[m].every(x=>x[2])?"green":porMod[m].some(x=>x[2])?"amber":"grey"}">${porMod[m].filter(x=>x[2]).length}/${porMod[m].length}</span></div>
+      ${porMod[m].map(x=>`<div style="display:flex;gap:8px;align-items:flex-start;padding:3px 0;font-size:.83rem">
+        <span style="color:${x[2]?"var(--g600)":"var(--muted)"};flex:0 0 auto">${x[2]?ic("check",14):"—"}</span>
+        <span style="${x[2]?"":"color:var(--muted)"}">${esc(x[1])}</span></div>`).join("")}
+    </div>`).join("")}
+  </div>
+  <div class="card card-pad" style="padding:14px;margin-top:14px">
+    <strong style="font-size:.9rem;display:block;margin-bottom:8px">O que criou, por tipo</strong>
+    <div class="grid cols-3" style="gap:2px 20px">
+      ${linha("Empresas",n.empresas)}${linha("Contactos",n.contactos)}${linha("Artigos",n.produtos)}
+      ${linha("Propostas",n.propostas)}${linha("Modelos de proposta",n.modelos)}${linha("Templates de email",n.templates)}
+      ${linha("Campanhas",n.campanhas)}${linha("Automações",n.automacoes)}${linha("Casos",n.casos)}
+      ${linha("Retenções",n.retencoes)}${linha("Consentimentos",n.consentimentos)}${linha("Pedidos RGPD",n.pedidos)}
+      ${linha("Tarefas",n.tarefas)}${linha("Campos personalizados",n.campos)}
+    </div>
+    <span class="hint" style="display:block;margin-top:8px">Só conta o que a pessoa criou. Os dados de exemplo (6 contactos, 6 propostas, 3 automações…) são iguais para todos e ficam de fora.</span>
+  </div>`;
+}
+
+/* ---------- Comparar a turma ---------- */
+let compCache=null;
+function abrirComparacao(){
+  editing={type:"__comparar"};
+  $("#modalTitle").textContent="Comparar a turma";
+  $("#modalSub").textContent="Indicadores lidos de cada trabalho entregue";
+  $("#modal").classList.add("wide");
+  $("#modalDelete").style.display="none";
+  { const sv=$("[data-act=\"modal-save\"]"); if(sv){ sv.style.display=""; sv.disabled=false; sv.textContent="Fechar"; } }
+  $("#modalForm").innerHTML=`<div id="compBox"><span class="muted">A carregar as entregas…</span></div>`;
+  $("#modalBack").classList.add("open");
+  carregarComparacao();
+}
+/* Carrega o payload de cada entrega. São pedidos separados (um por entrega),
+   por isso mostra-se o progresso - numa turma de 13 são 13 pedidos. */
+async function carregarComparacao(force){
+  const box=()=>$("#compBox");
+  if(compCache&&!force){ desenharComparacao(compCache); return; }
+  try{
+    const list=await supaListarSubmissoes();
+    /* uma linha por FORMANDO: a entrega mais recente é a que conta */
+    const ultima={};
+    (list||[]).forEach(sb=>{ const k=String(sb.username||"").toLowerCase();
+      if(!ultima[k]||String(sb.criado_em)>String(ultima[k].criado_em)) ultima[k]=sb; });
+    const alvos=Object.values(ultima);
+    if(!alvos.length){ box().innerHTML=empty("Ainda não há entregas","Assim que os formandos submeterem, a comparação aparece aqui."); return; }
+    const linhas=[];
+    for(let i=0;i<alvos.length;i++){
+      const sb=alvos[i];
+      if(box()) box().innerHTML=`<span class="muted">A ler entregas… ${i+1} de ${alvos.length}</span>`;
+      try{
+        const pay=await supaObterSubmissao(sb.id);
+        const pr=praticasEntrega(pay);
+        linhas.push({id:sb.id,nome:sb.nome||sb.username,username:sb.username,quando:sb.criado_em,
+                     entregas:(list||[]).filter(x=>String(x.username||"").toLowerCase()===String(sb.username||"").toLowerCase()).length,
+                     pr,areas:modulosCobertos(pr).length});
+      }catch(e){ linhas.push({id:sb.id,nome:sb.nome||sb.username,username:sb.username,quando:sb.criado_em,erro:supaMsg(e)}); }
+    }
+    compCache=linhas; desenharComparacao(linhas);
+  }catch(e){ if(box()) box().innerHTML=`<div class="callout warn" style="margin:0">${ic("alert",16)}<div class="ctxt">${esc(supaMsg(e))}</div></div>`; }
+}
+let compOrd="cobertura";
+function desenharComparacao(linhas){
+  const box=$("#compBox"); if(!box) return;
+  const val=(l,k)=>{ if(l.erro) return -1;
+    if(k==="cobertura") return l.pr.feitas;
+    if(k==="areas") return l.areas;
+    if(k==="criado") return l.pr.numeros.totalCriado;
+    return l.pr.numeros[k]||0; };
+  const ord=[...linhas].sort((a,b)=>val(b,compOrd)-val(a,compOrd)||String(a.nome).localeCompare(String(b.nome),"pt"));
+  const cols=[["cobertura","Cobertura"],["areas","Áreas"],["criado","Criados"],["propostas","Prop."],["modelos","Mod."],
+              ["automacoes","Autom."],["campanhas","Camp."],["casos","Casos"],["consentimentos","Consent."],["campos","Campos"]];
+  const med=k=>{ const v=linhas.filter(l=>!l.erro).map(l=>val(l,k)); return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length*10)/10:0; };
+  box.innerHTML=`
+  <div class="callout info" style="margin:0 0 12px">${ic("info",16)}<div class="ctxt">Cada linha é a <strong>entrega mais recente</strong> de cada formando. Clica num cabeçalho para ordenar; clica no <strong>nome</strong> para abrir a ficha completa.</div></div>
+  <div class="table-wrap"><table><thead><tr><th>Formando</th>
+    ${cols.map(c=>`<th data-act="comp-ord" data-k="${c[0]}" style="cursor:pointer;white-space:nowrap" title="Ordenar">${c[1]}${compOrd===c[0]?" ▾":""}</th>`).join("")}</tr></thead><tbody>
+    ${ord.map(l=>l.erro?`<tr><td>${esc(l.nome)}</td><td colspan="${cols.length}" class="muted">${esc(l.erro)}</td></tr>`:`<tr>
+      <td data-act="comp-abrir" data-id="${l.id}" data-nome="${esc(l.nome)}" style="cursor:pointer">
+        <div class="cell-main" style="color:var(--g700);text-decoration:underline;text-underline-offset:2px">${esc(l.nome)}</div>
+        <div class="cell-sub">${esc(l.username)} · ${esc(dtPT(l.quando))}${l.entregas>1?" · "+l.entregas+" entregas":""}</div></td>
+      <td>${barraCob(l.pr.feitas,l.pr.total)}</td>
+      <td><strong>${l.areas}</strong>/8</td>
+      <td><strong>${l.pr.numeros.totalCriado}</strong></td>
+      ${cols.slice(3).map(c=>`<td>${l.pr.numeros[c[0]]||0}</td>`).join("")}
+    </tr>`).join("")}
+  </tbody><tfoot><tr><td class="muted"><strong>Média da turma</strong></td>
+    <td class="muted">${med("cobertura")} práticas</td><td class="muted">${med("areas")}</td><td class="muted">${med("criado")}</td>
+    ${cols.slice(3).map(c=>`<td class="muted">${med(c[0])}</td>`).join("")}</tr></tfoot></table></div>
+  <div class="toolbar" style="margin-top:12px">
+    <button class="btn-sec btn-sm" type="button" data-act="comp-csv">${ic("download",15)} Exportar CSV</button>
+    <button class="btn-sec btn-sm" type="button" data-act="comp-recarregar">${ic("rotate",15)} Recarregar</button>
+  </div>
+  <span class="hint" style="display:block;margin-top:8px">A <strong>cobertura</strong> é a percentagem de práticas esperadas demonstradas no trabalho - não é uma nota. Serve para ver <em>onde</em> cada pessoa está, e o que ficou por tocar.</span>`;
+}
+function comparacaoCSV(){
+  if(!compCache) return;
+  const cab=["Formando","Utilizador","Entrega","Entregas","Praticas","Total praticas","Cobertura %","Areas","Criados",
+             "Empresas","Contactos","Produtos","Propostas","Modelos","Templates","Campanhas","Automacoes","Casos","Retencoes","Consentimentos","Pedidos","Tarefas","Campos"];
+  const linhas=compCache.filter(l=>!l.erro).map(l=>{ const n=l.pr.numeros; return [
+    l.nome,l.username,dtPT(l.quando),l.entregas,l.pr.feitas,l.pr.total,Math.round(l.pr.feitas/l.pr.total*100),l.areas,n.totalCriado,
+    n.empresas,n.contactos,n.produtos,n.propostas,n.modelos,n.templates,n.campanhas,n.automacoes,n.casos,n.retencoes,n.consentimentos,n.pedidos,n.tarefas,n.campos];});
+  const esc2=v=>{ const t=String(v==null?"":v); return /[";\n]/.test(t)?('"'+t.replace(/"/g,'""')+'"'):t; };
+  const csv=[cab.join(";")].concat(linhas.map(r=>r.map(esc2).join(";"))).join("\r\n");
+  const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download="comparacao-turma-"+todayISO()+".csv"; a.click(); URL.revokeObjectURL(a.href);
+  toast("CSV exportado",compCache.length+" formando(s)");
+}
 function renderRevisao(p,nome){
   p=p||{}; revisaoPayload=p; revisaoNome=nome||'aluno';
   editing={type:'__revisao'};
@@ -3526,7 +3764,8 @@ function renderRevisao(p,nome){
   { const sv=$('[data-act="modal-save"]'); if(sv){ sv.style.display=''; sv.disabled=false; sv.textContent='Fechar'; } }
   const cli=(p.clientes||[]), prop=(p.propostas||[]), emp=(p.empresas||[]), mods=(p.propostaTemplates||[]);
   const cn=cid=>{ const c=cli.find(x=>x.id===cid); return c?((c.nome||'')+' '+(c.apelido||'')).trim():'-'; };
-  $('#modalForm').innerHTML=`
+  $('#modalForm').innerHTML=fichaEntregaHTML(p)+`
+    <div class="divider" style="margin:18px 0"></div>
     <div class="grid cols-4" style="gap:10px;margin-bottom:14px">${kpi('Empresas',emp.length)}${kpi('Clientes',cli.length)}${kpi('Propostas',prop.length)}${kpi('Campanhas',(p.campanhas||[]).length)}</div>
     <h3 style="font-size:.95rem;margin:6px 0 8px">Clientes (${cli.length})</h3>
     <div class="table-wrap" style="max-height:210px;overflow:auto;margin-bottom:14px"><table><thead><tr><th>Nome</th><th>Empresa</th><th>Email</th><th>Segmento</th><th>Origem</th></tr></thead><tbody>${cli.slice(0,150).map(c=>`<tr><td>${esc(((c.nome||'')+' '+(c.apelido||'')).trim())}</td><td>${esc(c.empresa||'-')}</td><td>${esc(c.email||'-')}</td><td>${esc(c.segmento||'-')}</td><td>${fonteBadge(c)}</td></tr>`).join('')||`<tr><td colspan="5" class="muted" style="padding:10px">Sem clientes.</td></tr>`}</tbody></table></div>
@@ -5372,6 +5611,11 @@ document.addEventListener('click', async e=>{
     case 'root-del': rootDelete(el); break;
     case 'root-end': rootEndSupport(); break;
     case 'entrega-upload': { const fi=$('#entregaFile'); if(fi){ fi.onchange=()=>{ const file=fi.files&&fi.files[0]; if(file) revisarFicheiro(file); fi.value=''; }; fi.click(); } } break;
+    case 'comparar-turma': abrirComparacao(); break;
+    case 'comp-ord': { compOrd=el.dataset.k||'cobertura'; if(compCache) desenharComparacao(compCache); } break;
+    case 'comp-csv': comparacaoCSV(); break;
+    case 'comp-recarregar': { const b=$('#compBox'); if(b) b.innerHTML='<span class="muted">A recarregar…</span>'; carregarComparacao(true); } break;
+    case 'comp-abrir': openRevisao(el.dataset.id, el.dataset.nome); break;
     case 'entrega-rever': openRevisao(el.dataset.id, el.dataset.nome); break;
     case 'entrega-baixar': downloadEntrega(el.dataset.id, el.dataset.nome); break;
     case 'entrega-baixar-atual': if(revisaoPayload) baixarJSON(revisaoPayload,'trabalho-'+revisaoNome+'.json'); break;
