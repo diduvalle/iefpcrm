@@ -1685,7 +1685,7 @@ function empBodyHTML(){
         <td><div class="cell-main">${esc(e.nome)} <span class="pill" style="background:${si.c}22;color:${si.c};font-size:.62rem" title="Lead score ${sc}/100">${si.l} ${sc}</span></div><div class="cell-sub">${esc(e.cidade||'')}${e.regiao&&e.regiao!=='Continente'?' · '+esc(e.regiao):''}</div></td>
         <td><span class="pill ${faseColor(fz)}">${esc(fz)}</span></td>
         <td><span class="chip">${esc(e.setor||'-')}</span> <span class="pill grey">${esc(e.dimensao||'-')}</span></td>
-        <td>${e.origem?`<span class="chip">${esc(e.origem)}</span>`:'<span class="muted">-</span>'}</td>
+        <td>${e.origem?`<span class="chip" title="${esc(comDetalhe(e.origem,e.origemOutro))}">${esc(comDetalhe(e.origem,e.origemOutro))}</span>`:'<span class="muted">-</span>'}</td>
         <td class="t-center"><strong>${nc}</strong></td>
         <td><span class="pill ${lyl==='Ouro'?'amber':lyl==='Prata'?'grey':'green'}">${esc(lyl)}</span></td>
         ${canSeeFinance()?`<td class="t-right"><strong>${money(empValue(e.id))}</strong></td>`:''}
@@ -1734,7 +1734,7 @@ function openEmpresa360(id){
     <dl class="kv">
       <dt>Fase (lead) ${infoTip('fase')}</dt><dd><span class="pill ${faseColor(fz)}">${esc(fz)}</span></dd>
       <dt>Lead score</dt><dd><span class="pill" style="background:${si.c}22;color:${si.c}">${si.l} · ${sc}/100</span> <span class="muted" style="font-size:.76rem">agrega o engagement das pessoas</span></dd>
-      <dt>Origem (aquisição)</dt><dd>${esc(e.origem||'-')}</dd>
+      <dt>Origem (aquisição)</dt><dd>${esc(comDetalhe(e.origem,e.origemOutro)||'-')}</dd>
       <dt>Segmento (dimensão)</dt><dd>${esc(e.dimensao||'-')}</dd>
       <dt>Loyalty</dt><dd><span class="pill ${lyl==='Ouro'?'amber':lyl==='Prata'?'grey':'green'}">${esc(lyl)}</span></dd>
       <dt>NIPC / NIF</dt><dd>${esc(e.nipc||'-')}</dd>
@@ -1769,7 +1769,7 @@ function cliBodyHTML(){
         <td class="muted">${esc(c.numero)}</td>
         <td><div class="cell-main">${esc(c.nome)} ${esc(c.apelido||'')}</div><div class="cell-sub">${esc(c.email||'')}</div></td>
         <td>${e?`${esc(e.nome)} <span class="pill ${faseColor(fz)}" style="font-size:.62rem" title="Fase de lead da empresa">${esc(fz)}</span>`:'<span class="muted">sem empresa</span>'}</td>
-        <td>${c.cargo?esc(c.cargo):(c.funcao?`<span class="chip">${esc(c.funcao)}</span>`:'<span class="muted">-</span>')}</td>
+        <td>${c.cargo?esc(c.cargo):(c.funcao?`<span class="chip">${esc(comDetalhe(c.funcao,c.funcaoOutro))}</span>`:'<span class="muted">-</span>')}</td>
         <td>${esc(c.cidade||'-')}</td>
         <td>${esc(c.telefone||'-')}</td>
         <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="cliente" data-id="${c.id}" data-stop>Editar</button></div></td>
@@ -1831,7 +1831,7 @@ function openClient360(id){ drawer360Emp=null; drawer360Cli=id;
         <dt>NIF (pessoal)</dt><dd>${esc(c.nif||'-')}</dd>
         <dt>Cidade</dt><dd>${esc(c.cidade||'-')}</dd>
         <dt>Cargo</dt><dd>${esc(c.cargo||'-')}</dd>
-        <dt>Função</dt><dd>${c.funcao?esc(c.funcao):'-'}</dd>
+        <dt>Função</dt><dd>${c.funcao?esc(comDetalhe(c.funcao,c.funcaoOutro)):'-'}</dd>
         <dt>Registado</dt><dd>${dPT(c.criado)}</dd>
         ${camposExtra().map(cx=>`<dt>${esc(cx.titulo)}</dt><dd>${esc(cxTexto(c,cx)||'-')}</dd>`).join('')}
       </dl>
@@ -2255,7 +2255,10 @@ function agendaWeekHTML(tasks,today){
   </div>`;
 }
 function taskColor(t){ return {Chamada:'blue','Reunião':'green','Follow-up':'amber','Email':'purple'}[t&&t.tipo]||'grey'; }
-function taskRow(t){ const c=t.clienteId?getC(t.clienteId):null; const over=t.estado!=='Concluída'&&t.data<todayISO(); const done=t.estado==='Concluída'; return `<div class="mini-item" style="${done?'opacity:.55':''}"><button class="task-check ${done?'on':''}" data-act="task-done" data-id="${t.id}" data-stop title="${done?'Reabrir':'Concluir'}">${done?ic('check',13):''}</button><span class="grow" data-act="edit" data-type="tarefa" data-id="${t.id}" style="cursor:pointer"><strong style="${done?'text-decoration:line-through':''}">${esc(t.titulo)}</strong><div class="muted" style="font-size:.74rem">${ic('calendar',12)} ${dPT(t.data)}${t.hora?' · '+esc(t.hora):''}${c?' · '+esc(c.nome)+' '+esc(c.apelido||''):''}</div></span><span class="pill ${over?'red':taskColor(t)}">${esc(t.tipo||'-')}</span></div>`; }
+/* "Outro" sozinho nao diz nada a quem le a ficha: mostra o que foi escrito */
+function comDetalhe(valor,detalhe){ const v=String(valor||''); const d=String(detalhe||'').trim();
+  return (v && d) ? (v+': '+d) : v; }
+function taskRow(t){ const c=t.clienteId?getC(t.clienteId):null; const over=t.estado!=='Concluída'&&t.data<todayISO(); const done=t.estado==='Concluída'; return `<div class="mini-item" style="${done?'opacity:.55':''}"><button class="task-check ${done?'on':''}" data-act="task-done" data-id="${t.id}" data-stop title="${done?'Reabrir':'Concluir'}">${done?ic('check',13):''}</button><span class="grow" data-act="edit" data-type="tarefa" data-id="${t.id}" style="cursor:pointer"><strong style="${done?'text-decoration:line-through':''}">${esc(t.titulo)}</strong><div class="muted" style="font-size:.74rem">${ic('calendar',12)} ${dPT(t.data)}${t.hora?' · '+esc(t.hora):''}${c?' · '+esc(c.nome)+' '+esc(c.apelido||''):''}</div></span>${String(t.notas||'').trim()?`<button class="icon-btn" data-act="task-nota" data-id="${t.id}" data-stop title="Tem notas - clique para ler" style="width:30px;height:30px;flex:0 0 auto">${ic('list',15)}</button>`:''}<span class="pill ${over?'red':taskColor(t)}">${esc(t.tipo||'-')}</span></div>`; }
 views.agenda = () => {
   if(!agendaYM) agendaYM=curYM();
   if(!agendaWeek) agendaWeek=mondayOf(todayISO());
@@ -3714,9 +3717,9 @@ function renderUsoEmail(){
       </div>
       <div style="height:8px;border-radius:99px;background:var(--surface3);margin:10px 0 4px;overflow:hidden"><div style="height:100%;width:${pc}%;background:${cor}"></div></div>
       <div class="muted" style="font-size:.76rem">Restam ${Math.max(0,teto-n)} envios${d.repoeEm?" · repõe a "+dPT(d.repoeEm):""}. ${custoConvitesTexto()}</div>
-      ${hist.length?`<div class="table-wrap" style="margin-top:12px;max-height:240px;overflow:auto"><table><thead><tr><th>Quando</th><th>Para</th><th>Assunto</th><th>Estado</th></tr></thead><tbody>
-        ${hist.map(h=>`<tr><td class="muted" style="white-space:nowrap">${esc(h.quando||"-")}</td><td>${esc(h.para||"-")}</td><td>${esc(h.assunto||"-")}</td><td><span class="pill ${h.ok?"green":"red"}">${h.ok?"Enviado":"Falhou"}</span></td></tr>`).join("")}
-      </tbody></table></div>`:""}`;
+      ${hist.length?`<div class="table-wrap" style="margin-top:12px;max-height:240px;overflow:auto"><table><thead><tr><th>Quando</th><th>Estado</th></tr></thead><tbody>
+        ${hist.map(h=>`<tr><td class="muted" style="white-space:nowrap">${esc(h.quando||"-")}</td><td><span class="pill ${h.ok?"green":"red"}">${h.ok?"Enviado":"Falhou"}</span></td></tr>`).join("")}
+      </tbody></table></div><span class="hint" style="display:block;margin-top:6px">O EmailJS não devolve o destinatário no histórico - para ver a quem foi, use o painel do EmailJS.</span>`:""}`;
   }).catch(e=>{
     box.innerHTML=`<div class="callout warn" style="margin:0">${ic("alert",16)}<div class="ctxt">Não consegui ler o consumo do EmailJS (${esc(String(e.message||e))}). Confirme que a função <code>emailjs-uso</code> está publicada e que o segredo <code>EMAILJS_PRIVATE_KEY</code> está definido.</div></div>`;
   });
@@ -3965,7 +3968,7 @@ const SCHEMAS = {
     {n:'nome',l:'Nome',req:1},{n:'apelido',l:'Apelido',req:1},
     {n:'empresaId',l:'Empresa',type:'combo',src:'empresas',full:1,placeholder:'Escreva o nome ou NIPC da empresa…'},
     {n:'cargo',l:'Cargo / função',hint:'ex.: Diretor Comercial, Responsável de Compras'},
-    {n:'funcao',l:'Função na empresa',type:'select',opts:()=>[''].concat(funcoesList()).map(x=>({v:x,t:x||'- não definida -'})),hint:'A quem recorrer nesta empresa (financeiro, dono, etc.)'},
+    {n:'funcao',l:'Função na empresa',type:'select',outro:'Outro',outroPlaceholder:'Qual a função?',opts:()=>[''].concat(funcoesList()).map(x=>({v:x,t:x||'- não definida -'})),hint:'A quem recorrer nesta empresa (financeiro, dono, etc.)'},
     {n:'email',l:'Email',type:'email'},{n:'telefone',l:'Telefone',type:'tel'},
     {n:'nif',l:'NIF (pessoal)',hint:'9 dígitos - validado'},{n:'cidade',l:'Cidade'},
     {n:'regiao',l:'Região (IVA)',type:'select',opts:['Continente','Madeira','Açores'].map(x=>({v:x,t:x}))},
@@ -3980,7 +3983,7 @@ const SCHEMAS = {
     {n:'dimensao',l:'Dimensão (segmento)',type:'select',opts:()=>segmentosList().map(x=>({v:x,t:x})),hint:'Editável em Definições → Segmentos.'},
     {n:'natureza',l:'Natureza jurídica',hint:'SA · Lda · Unipessoal · ENI (preenche-se com Procurar)'},
     {n:'fase',l:'Fase (ciclo de vida)',type:'select',opts:FASES.map(x=>({v:x,t:x})),def:'Lead',hint:'Lead → MQL (demonstrou interesse) → SQL (oportunidade real) → Cliente'},
-    {n:'origem',l:'Origem (aquisição)',type:'select',opts:()=>[''].concat(state.settings.origens||[]).map(x=>({v:x,t:x||'- não definida -'})),hint:'Canal por onde a empresa chegou - base do funil e do ROI'},
+    {n:'origem',l:'Origem (aquisição)',type:'select',outro:'Outro',outroPlaceholder:'Que canal?',opts:()=>[''].concat(state.settings.origens||[]).map(x=>({v:x,t:x||'- não definida -'})),hint:'Canal por onde a empresa chegou - base do funil e do ROI'},
     {n:'moradaFiscal',l:'Morada fiscal',full:1},
     {n:'codigoPostal',l:'Código postal'},{n:'cidade',l:'Cidade'},
     {n:'regiao',l:'Região (IVA)',type:'select',opts:['Continente','Madeira','Açores'].map(x=>({v:x,t:x}))},
@@ -4196,6 +4199,11 @@ function fieldHTML(f,item){
       const lbl=(typeof f.labelFor==='function' ? f.labelFor(v) : '') || String(v);
       opts=opts.concat([{v, t:lbl+' (fora da equipa)'}]);
     }
+    if(f.outro){
+      const aberto = String(v)===f.outro;
+      return `<div class="${cls}"><label>${esc(f.l)}</label><select name="${f.n}" data-outro="${esc(f.outro)}" data-outro-alvo="${f.n}">${opt(opts,v)}</select>`+
+        `<input name="${f.n}__outro" id="outro_${f.n}" value="${esc(item[f.n+'Outro']||'')}" placeholder="${esc(f.outroPlaceholder||'Qual?')}" style="margin-top:8px;${aberto?'':'display:none'}">${hint}</div>`;
+    }
     return `<div class="${cls}"><label>${esc(f.l)}</label><select name="${f.n}">${opt(opts,v)}</select>${hint}</div>`;
   }
   if(f.type==='avatar'){ const ini=initialsOf(item); return `<div class="${cls}"><label>${esc(f.l)}</label><div style="display:flex;align-items:center;gap:14px"><div id="avPreview" class="avatar" style="width:58px;height:58px;padding:0;overflow:hidden;font-size:1.15rem">${v?`<img src="${esc(v)}" style="width:100%;height:100%;object-fit:cover">`:esc(ini)}</div><label class="btn-sec btn-sm" style="cursor:pointer">${ic('image',15)} Carregar foto<input type="file" accept="image/*" data-avatar style="display:none"></label><input type="hidden" name="avatar" value="${esc(v)}"><button type="button" class="btn-ghost btn-sm" data-act="av-clear" ${v?'':'style="display:none"'}>Remover</button></div><span class="hint">Imagem quadrada recomendada - fica guardada no perfil do utilizador.</span></div>`; }
@@ -4322,6 +4330,7 @@ async function saveModal(){
   const cur=id?state[store].find(x=>x.id===id):null;
   const obj=cur?clone(cur):{id:uid(type.slice(0,3))};
   schemaFields(type,sc).forEach(f=>{ if(f.type==='contactlist') return; if(f.type==='check'){ obj[f.n]=fd.get(f.n)!=null; return; } let v=fd.get(f.n); if(f.type==='number'||f.numeric)v=Number(v||0);
+    if(f.outro){ obj[f.n]=v; obj[f.n+'Outro'] = (String(v)===f.outro) ? String(fd.get(f.n+'__outro')||'').trim() : ''; return; }
     if(f.xf){ obj.extra=Object.assign({},obj.extra); obj.extra[f.xf]=v; return; }
     obj[f.n]=v; });
   { const cxf=sc.fields.find(f=>f.type==='contactlist'); if(cxf){ obj[cxf.n]=$$('#modalForm .cx-row').map(row=>({tipo:(row.querySelector('[data-cx="tipo"]')||{}).value||'Email',rotulo:(row.querySelector('[data-cx="rotulo"]')||{}).value||'Outro',valor:String((row.querySelector('[data-cx="valor"]')||{}).value||'').trim()})).filter(r=>r.valor); } }
@@ -5287,6 +5296,8 @@ document.addEventListener('click', async e=>{
     case 'clear-log': state.activityLog=[]; save(); render(); break;
     case 'cal-day': { if(e.target.closest('[data-stop]')) break; openModal('tarefa'); const di=$('#modalForm [name="data"]'); if(di&&el.dataset.date) di.value=el.dataset.date; const ti=$('#modalForm [name="titulo"]'); if(ti) ti.focus(); } break;
     case 'cal-slot': { if(e.target.closest('[data-stop]')) break; const rect=el.getBoundingClientRect(); const yy=e.clientY-rect.top; let mins=WK_START*60 + Math.round((yy/WK_HPX*60)/15)*15; mins=Math.max(WK_START*60,Math.min(mins,WK_END*60-15)); const hh=Math.floor(mins/60), mm=mins%60; openModal('tarefa'); const di=$('#modalForm [name="data"]'); if(di) di.value=el.dataset.date; const hi=$('#modalForm [name="hora"]'); if(hi) hi.value=pad(hh,2)+':'+pad(mm,2); const ti=$('#modalForm [name="titulo"]'); if(ti) ti.focus(); } break;
+    case 'task-nota': { const t=(state.tarefas||[]).find(x=>x.id===id); if(!t) break;
+      uiAlert(t.notas||'(sem notas)',{title:t.titulo,icon:'list'}); } break;
     case 'task-done': { e.stopPropagation(); const t=(state.tarefas||[]).find(x=>x.id===id); if(t){ t.estado=t.estado==='Concluída'?'Pendente':'Concluída'; save(); render(); } } break;
     case 'close-preview': closePreview(); break;
     case 'del-line': syncDraftFromForm(); propDraft.linhas.splice(+el.dataset.i,1); if(!propDraft.linhas.length)propDraft.linhas.push({descricao:'',qtd:1,preco:0,iva:23}); renderPropForm(); break;
@@ -5498,6 +5509,10 @@ document.addEventListener('change', e=>{
   if(propDraft && e.target.matches('[data-l="iva"]')){ refreshTotals(); return; }
   if(autoDraft && e.target.name==='atrigger'){ syncAutoDraft(); renderAutoForm(); return; }
   if(autoDraft && e.target.dataset.as==='tipo'){ syncAutoDraft(); renderAutoForm(); return; }
+  if(e.target.dataset && e.target.dataset.outro!=null){   // select com caixa "Qual?"
+    const cx=document.getElementById('outro_'+e.target.dataset.outroAlvo);
+    if(cx){ const abrir=e.target.value===e.target.dataset.outro; cx.style.display=abrir?'':'none'; if(abrir) cx.focus(); else cx.value=''; }
+    return; }
   if(propDraft && e.target.name==='clienteId'){ syncDraftFromForm(); const cc=getC(propDraft.clienteId); if(cc&&cc.empresaId&&!propDraft.empresaId){ propDraft.empresaId=cc.empresaId; renderPropForm(); } else refreshTotals(); return; }
   if(propDraft && e.target.name==='empresaId'){
     syncDraftFromForm();
