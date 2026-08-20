@@ -45,6 +45,9 @@ Clica num **dia** (vista mês) ou numa **hora** (vista semana) - a data/hora ent
 - **Cliente** associado.
 - **Estado** (Pendente / Concluída) e **Notas**.
 
+### Notas de uma tarefa
+Na lista lateral (**Próximas tarefas**), as tarefas que **têm notas** mostram um **ícone de documento** à direita. Clica para **ler a nota** sem abrir a ficha inteira - útil para verificar rapidamente o que ficou combinado antes de uma chamada ou reunião.
+
 ### Gerir
 - **Concluir/reabrir** uma tarefa pelo *checkbox* (fica riscada).
 - Tarefas de **hoje** ou em **atraso** entram nos **Alertas** (sino).

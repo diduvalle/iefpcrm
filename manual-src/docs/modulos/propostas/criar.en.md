@@ -4,7 +4,10 @@
 
 *Creating a proposal, from client to totals.*
 
-Click **+ Proposal** (or an existing card to edit). The modal opens with the proposal header.
+Click **+ Proposal** (or an existing card to edit). The modal opens with the proposal header, with **no company and no contact selected** - the choice is always yours.
+
+!!! note "Changing the company brings the contact along"
+    If you change the company halfway, the contact follows: with **one** person at that company it is picked automatically; with **several**, the field is left **blank** and the app tells you how many there are; with **none**, it tells you to create a contact. With several people it does **not** pick silently - that would be the easiest way to send the proposal to the wrong person.
 
 ## Field by field
 

@@ -4,7 +4,10 @@
 
 *Criar uma proposta, do cliente aos totais.*
 
-Clica **+ Proposta** (ou num cartão existente para editar). O modal abre com o cabeçalho da proposta.
+Clica **+ Proposta** (ou num cartão existente para editar). O modal abre com o cabeçalho da proposta, **sem empresa nem contacto escolhidos** - a escolha é sempre tua.
+
+!!! note "Trocar de empresa arrasta o contacto"
+    Se mudares a empresa a meio, o contacto acompanha: com **uma** pessoa nessa empresa, é escolhida automaticamente; com **várias**, o campo fica **em branco** e a app avisa quantas há; com **nenhuma**, avisa para criares um contacto. Com várias pessoas **não se escolhe em silêncio** - seria a forma mais fácil de mandar a proposta à pessoa errada.
 
 ## Campo a campo
 
@@ -12,7 +15,7 @@ Clica **+ Proposta** (ou num cartão existente para editar). O modal abre com o 
 |---|---|
 | **Número** | Automático (`PROP-{ano}-{nº}`), só leitura - reinicia a cada ano. |
 | **Empresa (cliente da venda)** | A **empresa** a quem se vende - é a **âncora da venda**. O valor, o loyalty e o desconto vivem aqui. Pesquisa por nome ou NIPC. *(Uma venda a um particular fica sem empresa.)* |
-| **Contacto (com quem se negoceia)** | A pessoa da empresa com quem se fala. Escolher o contacto **auto-preenche a empresa**. É informativo: se a pessoa **mudar de empresa**, a venda **não vai com ela** - fica na empresa. |
+| **Contacto (com quem se negoceia)** | A pessoa da empresa com quem se fala. A lista mostra **só quem trabalha na empresa escolhida**. Escolher primeiro o contacto **auto-preenche a empresa**. É informativo: se a pessoa **mudar de empresa**, a venda **não vai com ela** - fica na empresa. |
 | **Meses de fidelização** | Duração do compromisso **SaaS recorrente**; entra no cálculo do valor total do contrato (TCV). |
 | **Título** | Nome da proposta (ex.: *Licenciamento CRM*). |
 | **Validade** | Data até à qual a proposta é válida. |

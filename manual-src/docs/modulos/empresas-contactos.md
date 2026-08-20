@@ -27,7 +27,7 @@ A **empresa é a conta comercial**: é aqui que vive a venda, o valor, o loyalty
 - **CAE** e **Setor**.
 - **Dimensão (segmento)** - Micro / PME / Grande Empresa.
 - **Fase (ciclo de vida)** - **Lead** → **MQL** (*Marketing Qualified Lead*, uma das suas pessoas demonstrou interesse) → **SQL** (*Sales Qualified Lead*, oportunidade real com proposta) → **Cliente** / **Perdido**. A app **infere** a fase e **avança-a** sozinha: *engagement* de email → MQL, proposta → SQL, ganha → Cliente.
-- **Origem (aquisição)** - canal por onde a empresa chegou (Website, Recomendação, Feira, Campanha Email…) - base do **funil de aquisição** e do **ROI por origem** no Analytics.
+- **Origem (aquisição)** - canal por onde a empresa chegou (Website, Recomendação, Feira, Campanha Email…) - base do **funil de aquisição** e do **ROI por origem** no Analytics. Ao escolher **Outro**, abre uma caixa para **especificar qual** (ver abaixo).
 - **Morada fiscal**, **Código postal**, **Cidade**.
 - **Região** - Continente / Madeira / Açores (influencia o IVA das propostas).
 - **Website**, **Telefone**, **Email**, **Notas**.
@@ -62,6 +62,14 @@ Mostra o cartão **Conta · Empresa** (a fase, o loyalty e o valor **da empresa*
 
 !!! tip "Atalhos"
     Clica no **email** da ficha para abrir o compositor do CRM já com o contacto como destinatário; clica no **telefone** para ligar (`tel:`). Na empresa, o botão **Procurar** (no NIPC) preenche a ficha a partir dos registos oficiais.
+
+### "Outro" pede sempre o quê
+Nos campos **Função na empresa** (contacto) e **Origem (aquisição)** (empresa), escolher **Outro** abre uma **caixa para especificar**. O que escreveres aparece a seguir ao valor - *"Outro: Formador externo"* - na ficha, na gaveta e nas tabelas.
+
+Escolher outro valor **fecha a caixa e apaga** o texto, para não ficar informação escondida por trás de uma opção que já não está selecionada.
+
+!!! tip "Porque não escrever direto no campo"
+    O valor continua a ser **Outro**, e é isso que faz os agrupamentos funcionarem: no funil de aquisição e no ROI por origem, esses casos continuam a somar todos em *Outro*, em vez de se dispersarem em dezenas de rótulos únicos. O texto livre é a **explicação**, não a categoria.
 
 ### Campos personalizados
 Nenhum CRM adivinha o que o teu negócio precisa de guardar. Se te falta um campo - **Matrícula**, **Nº de sócio**, **Data de renovação** - crias tu:

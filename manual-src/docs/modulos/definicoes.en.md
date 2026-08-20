@@ -23,11 +23,29 @@ Quickly creates realistic **companies, contacts and proposals** (PT) - adds to t
 ### Real email sending (EmailJS) *(Admin)*
 The **keys** are **fixed** (🔒); you only manage the **mode** (real/simulated) + **Send test**. → [Email & Brand](../formador/email-marca.md).
 
+**Invitations and password resets** - you choose whether the email goes to the **IEFP address + the personal one** (2 sends per person) or **only the IEFP one** (1 send). Each address counts as one send against your plan: in a class of 13, that is the difference between **26** and **13** sends every time you invite the class.
+
+**Plan usage** - the **Check usage** button reads the **real EmailJS history** and shows how many sends were made **in this cycle**, a progress bar (amber at 70%, red at 90%) and the reset date. Under **Cap and cycle day** you enter both values from your plan as `200/4` (200 sends, resets on the 4th) - the EmailJS dashboard states *"Resets on…"*.
+
+!!! note "Why the cycle isn't the month"
+    EmailJS resets the quota on the **plan's anniversary day**, not on the 1st. Counting by calendar month would disagree with EmailJS **precisely at the start of each month**, which is exactly when the number matters.
+
+!!! warning "What consumes sends"
+    **Invitations and password resets** (1 or 2 per person), the **notification for each submitted assignment**, the **CRM emails** sent by the trainer and the **test email**. Trainees are in **simulated mode** inside the CRM - the only real messages they trigger are submission notifications. The **Session repository** uses a different service and does **not** count against this plan.
+
 ### User Groups *(Admin)*
 **Roles × modules** matrix: defines what each group sees (Administrator/Trainer = everything; Trainee limited). Includes the option to **hide financial values** by group.
 
 ### Proposal Templates
 Shortcut to the template builder. → [Proposal Templates](modelos.md).
+
+### Segments
+Editable list of the **company size** (Micro / SME / Large Company, out of the box). It feeds the **Segment (size)** field on the company record, the **campaign target**, the **automation condition** and the **Segmentation** chart.
+
+Type the name and **+ Add**; **✕** removes it. Removing does **not** change companies that already use it - it just stops being offered.
+
+!!! warning "Segment is not loyalty level"
+    These are **two different things** and, until August 2026, they shared the same field - which is why the campaign target list mixed *Micro/SME/Large* with *Bronze/Silver/Gold*. They are now separate: the **segment** is the company's **size** (it never changes on its own); the **level** is computed from **won volume**. Campaigns and automations have **both filters separately** and can combine them ("SME **and** Bronze"), which was impossible before. The app refuses to create a segment named after a loyalty level, so the two can't get mixed up again.
 
 ### Other references
 **Loyalty levels**, **VAT rates** (by region), **Customer sources** (editable list) and **[Custom contact fields](empresas-contactos.md#custom-fields)** - fields you create yourself, available as tags in templates.

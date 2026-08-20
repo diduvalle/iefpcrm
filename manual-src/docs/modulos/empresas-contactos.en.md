@@ -27,7 +27,7 @@ The **company is the commercial account**: this is where the sale, the value, th
 - **CAE** and **Sector**.
 - **Size (segment)** - Micro / SME / Large Enterprise.
 - **Stage (lifecycle)** - **Lead** → **MQL** (*Marketing Qualified Lead*, one of its people has shown interest) → **SQL** (*Sales Qualified Lead*, a real opportunity with a proposal) → **Customer** / **Lost**. The app **infers** the stage and **advances it** on its own: email *engagement* → MQL, proposal → SQL, won → Customer.
-- **Source (acquisition)** - the channel the company came through (Website, Referral, Trade fair, Email Campaign…) - the basis of the **acquisition funnel** and **ROI by source** in Analytics.
+- **Source (acquisition)** - the channel the company came through (Website, Referral, Trade fair, Email Campaign…) - the basis of the **acquisition funnel** and **ROI by source** in Analytics. Picking **Other** opens a box to **say which** (see below).
 - **Tax address**, **Postal code**, **City**.
 - **Region** - Mainland / Madeira / Azores (affects the VAT on proposals).
 - **Website**, **Phone**, **Email**, **Notes**.
@@ -62,6 +62,14 @@ Shows the **Account · Company** card (the **company's** stage, loyalty and valu
 
 !!! tip "Shortcuts"
     Click the **email** on the profile to open the CRM composer with the contact already set as recipient; click the **phone** to call (`tel:`). On a company, the **Look up** button (on the NIPC) fills the profile from the official records.
+
+### "Other" always asks which
+In **Role at the company** (contact) and **Source (acquisition)** (company), picking **Other** opens a **box to specify**. What you type shows next to the value - *"Other: External trainer"* - on the record, in the drawer and in the tables.
+
+Picking a different value **closes the box and clears** the text, so no information stays hidden behind an option that is no longer selected.
+
+!!! tip "Why not just type into the field"
+    The value stays **Other**, and that is what keeps grouping working: in the acquisition funnel and in ROI by source, those cases still add up under *Other* instead of scattering into dozens of one-off labels. The free text is the **explanation**, not the category.
 
 ### Custom fields
 No CRM can guess what your business needs to store. If a field is missing - **Vehicle plate**, **Member no.**, **Renewal date** - you create it yourself:

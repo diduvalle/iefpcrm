@@ -45,6 +45,9 @@ Click a **day** (month view) or an **hour** (week view) - the date/time are fill
 - **Customer** associated.
 - **Status** (Pending / Done) and **Notes**.
 
+### Task notes
+In the side list (**Upcoming tasks**), tasks that **have notes** show a **document icon** on the right. Click it to **read the note** without opening the whole record - handy for checking what was agreed just before a call or a meeting.
+
 ### Manage
 - **Complete/reopen** a task via the *checkbox* (it gets struck through).
 - **Today's** or **overdue** tasks enter the **Alerts** (bell).
