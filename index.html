@@ -1073,6 +1073,8 @@ function load(){
   if(Array.isArray(state.settings.origens)&&!state.settings.origens.includes('Formulário')){ const io=state.settings.origens.indexOf('Outro'); if(io>=0) state.settings.origens.splice(io,0,'Formulário'); else state.settings.origens.push('Formulário'); }
   if(!Array.isArray(state.settings.funcoes)||!state.settings.funcoes.length) state.settings.funcoes=FUNCOES.filter(Boolean);
   if(!state.settings.emailjs||typeof state.settings.emailjs!=='object') state.settings.emailjs=Object.assign({},EMAILJS_DEFAULT);
+  if(state.settings.conviteAmbos==null) state.settings.conviteAmbos=true;   // comportamento atual: IEFP + pessoal
+  if(state.settings.emailPlano==null) state.settings.emailPlano=200;        // tecto mensal do plano EmailJS (lido do dashboard)
   if(state.settings.emailjs && !state.settings.emailjs.serviceId && !state.settings.emailjs.templateId && !state.settings.emailjs.publicKey) state.settings.emailjs=Object.assign({},EMAILJS_DEFAULT);
   { const _a=(state.settings.emailjs&&typeof state.settings.emailjs.ativo==='boolean')?state.settings.emailjs.ativo:true; state.settings.emailjs=Object.assign({},EMAILJS_DEFAULT,{ativo:_a}); }  // chaves SEMPRE fixas; só o modo é por-turma
   if(state.settings.email==='geral@iefpcrm.pt') state.settings.email='iefpcrm@cr0x.org';  // reply-to: placeholder antigo → email real
@@ -2773,7 +2775,10 @@ function buildInviteTpl(f,pwd){ const u=currentUser()||{}; const forNome=((u.nom
 function inviteBodyText(t){ const parts=[t.saudacao,t.corpo]; if(t.botaoTexto&&t.botaoLink) parts.push(t.botaoTexto+':\n'+t.botaoLink); if(t.assinatura) parts.push(t.assinatura); return parts.filter(Boolean).join('\n\n'); }
 function sendInvite(f,pwd){ if(!realSendOn()) return Promise.resolve({sent:false,reason:'emailjs'});
   // envia para os DOIS emails (IEFP + pessoal), únicos e sem vazios
-  const emails=[f&&f.email, f&&f.email2].map(x=>String(x||'').trim()).filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i);
+  // cada endereco e um envio: mandar para os dois duplica o custo de uma ronda de convites
+  const dois=state.settings.conviteAmbos!==false;
+  const emails=(dois?[f&&f.email, f&&f.email2]:[f&&f.email||f&&f.email2])
+    .map(x=>String(x||'').trim()).filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i);
   if(!emails.length) return Promise.resolve({sent:false,reason:'noemail'});
   const tpl=buildInviteTpl(f,pwd);   // EmailJS trata {{message}} como TEXTO → enviamos texto (não HTML)
   const toName=((f.nome||'')+' '+(f.apelido||'')).trim()||f.username;
@@ -3679,6 +3684,54 @@ function secSegmentos(){ return `<div class="card card-pad">
     <div class="toolbar"><div class="search-inp" style="flex:1;max-width:320px"><input id="newSegmento" placeholder="Novo segmento (ex.: Startup)…"></div><button class="btn-sec" data-act="add-segmento">+ Adicionar</button></div>
     <span class="hint" style="display:block;margin-top:8px">Remover um segmento não altera as empresas que já o têm - deixa apenas de estar disponível para escolher.</span>
   </div>`; }
+/* Consumo do EmailJS.
+   O endpoint /history do EmailJS exige a chave PRIVADA - que nao pode andar neste
+   ficheiro, porque o site e publico. Por isso passa por uma Edge Function que a
+   guarda como segredo, tal como o nif-lookup. */
+let emailUso=null;
+async function carregarUsoEmail(){
+  const r=await fetch(SUPA_URL+"/functions/v1/emailjs-uso",{method:"POST",
+    headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY,"Content-Type":"application/json"},body:"{}"});
+  if(!r.ok) throw new Error("HTTP "+r.status);
+  return r.json();
+}
+function renderUsoEmail(){
+  const box=$("#emailUsoBox"); if(!box) return;
+  box.innerHTML="<span class=\"muted\" style=\"font-size:.82rem\">A consultar o EmailJS…</span>";
+  carregarUsoEmail().then(d=>{
+    emailUso=d;
+    const teto=Number(state.settings.emailPlano)||200;
+    const n=Number(d.mes)||0; const pc=Math.min(100,Math.round(n/teto*100));
+    const cor=pc>=90?"var(--danger)":pc>=70?"#d97706":"var(--g600)";
+    const hist=(d.recentes||[]).slice(0,12);
+    box.innerHTML=`
+      <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
+        <strong style="font-size:1.5rem;color:${cor}">${n}</strong><span class="muted" style="margin-left:6px">de ${teto} este mês</span>
+        ${d.falhas?`<span class="pill red">${d.falhas} falha(s)</span>`:""}
+        <button class="btn-sec btn-xs" data-act="set-plano" data-lim="${teto}" style="margin-left:auto">Alterar o teto do plano</button>
+        <button class="btn-sec btn-xs" data-act="uso-email">Atualizar</button>
+      </div>
+      <div style="height:8px;border-radius:99px;background:var(--surface3);margin:10px 0 4px;overflow:hidden"><div style="height:100%;width:${pc}%;background:${cor}"></div></div>
+      <div class="muted" style="font-size:.76rem">Restam ${Math.max(0,teto-n)} envios este mês. ${custoConvitesTexto()}</div>
+      ${hist.length?`<div class="table-wrap" style="margin-top:12px;max-height:240px;overflow:auto"><table><thead><tr><th>Quando</th><th>Para</th><th>Assunto</th><th>Estado</th></tr></thead><tbody>
+        ${hist.map(h=>`<tr><td class="muted" style="white-space:nowrap">${esc(h.quando||"-")}</td><td>${esc(h.para||"-")}</td><td>${esc(h.assunto||"-")}</td><td><span class="pill ${h.ok?"green":"red"}">${h.ok?"Enviado":"Falhou"}</span></td></tr>`).join("")}
+      </tbody></table></div>`:""}`;
+  }).catch(e=>{
+    box.innerHTML=`<div class="callout warn" style="margin:0">${ic("alert",16)}<div class="ctxt">Não consegui ler o consumo do EmailJS (${esc(String(e.message||e))}). Confirme que a função <code>emailjs-uso</code> está publicada e que o segredo <code>EMAILJS_PRIVATE_KEY</code> está definido.</div></div>`;
+  });
+}
+/* quantos envios custa uma ronda de convites; sem turma carregada so sabemos o custo por pessoa */
+function custoConvites(){
+  const dois=state.settings.conviteAmbos!==false;
+  const eq=(state.equipa||[]).filter(u=>u.papel==="Formando");
+  return dois?eq.length*2:eq.length;
+}
+function custoConvitesTexto(){
+  const dois=state.settings.conviteAmbos!==false;
+  const n=custoConvites();
+  return n ? ('Convidar a turma inteira custa '+n+' envio(s).')
+           : ('Cada convite custa '+(dois?2:1)+' envio(s) por pessoa.');
+}
 function secOrigens(s){ return `<div class="card card-pad">
     <div class="section-head" style="margin-bottom:14px"><div><h3>Origens de cliente ${infoTip('origem')}</h3><div class="sub">Canais de aquisição disponíveis no campo "Origem" da ficha de cliente.</div></div></div>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">${(s.origens||[]).map(o=>`<span class="chip" style="gap:8px">${esc(o)}<button data-act="del-origem" data-origem="${esc(o)}" style="border:0;background:none;cursor:pointer;color:var(--danger);font-weight:800;padding:0;line-height:1">✕</button></span>`).join('')||'<span class="muted">Sem origens</span>'}</div>
@@ -3845,8 +3898,13 @@ views.definicoes = () => {
       <div class="field"><label>Template ID ${ic('lock',12)}</label><input value="${esc(s.emailjs.templateId)}" readonly title="Fixo - não editável" style="background:var(--surface3);color:var(--muted);cursor:not-allowed"></div>
       <div class="field"><label>Public Key ${ic('lock',12)}</label><input value="${esc(s.emailjs.publicKey)}" readonly title="Fixo - não editável" style="background:var(--surface3);color:var(--muted);cursor:not-allowed"></div>
       <div class="field"><label>Modo de envio</label><label style="cursor:pointer;display:flex;align-items:center;gap:8px;padding-top:9px"><input type="checkbox" data-ejs="ativo" ${s.emailjs.ativo?'checked':''} style="width:15px;height:15px;accent-color:var(--g600)">Ativar envio real</label></div>
+      <div class="field"><label>Convite e reposição de password</label><select data-ejs="conviteAmbos"><option value="1" ${s.conviteAmbos!==false?'selected':''}>Email do IEFP + pessoal (2 envios por pessoa)</option><option value="0" ${s.conviteAmbos===false?'selected':''}>Só o email do IEFP (1 envio por pessoa)</option></select><span class="hint">Cada endereço conta como um envio no plano. Com ${(state.equipa||[]).filter(u=>u.papel==='Formando').length||0} formando(s), a diferença é ${custoConvites()} vs ${Math.round(custoConvites()/(s.conviteAmbos!==false?2:1))} envios.</span></div>
     </div>
     <div class="toolbar" style="margin-top:8px;align-items:center"><button class="btn" data-act="save-emailjs">Guardar configuração</button>${emailjsActive()?'<span class="pill green">Modo real ATIVO</span>':'<span class="pill grey">Simulado</span>'}</div>
+    <div class="divider" style="margin:18px 0"></div>
+    <h4 style="font-weight:800;font-size:.95rem;margin-bottom:4px">${ic('send',15)} Consumo do plano</h4>
+    <div class="sub" style="margin-bottom:10px">Lido do histórico do EmailJS, por isso conta também o que for enviado fora desta app.</div>
+    <div id="emailUsoBox"><button class="btn-sec btn-sm" data-act="uso-email">${ic('send',14)} Consultar consumo</button><span class="hint" style="margin-left:10px">Vai ao histórico do EmailJS.</span></div>
     <div class="callout warn" style="margin-top:14px">${ic('alert',16)}<div class="ctxt">A <strong>Public Key</strong> fica visível no código do site - em <strong>EmailJS → Account → Security</strong> restrinja os domínios autorizados a <strong>iefpcrm.cr0x.org</strong>. No plano grátis <strong>não há anexo de PDF</strong> (a proposta vai como referência no texto). O template usa as variáveis: to_email, to_name, subject, message.</div></div>
   </div>
   <div class="card card-pad" id="siteAnalyticsCard">
@@ -5312,7 +5370,15 @@ document.addEventListener('click', async e=>{
     case 'save-brand': { if(!canFeat('brand')) break; $$('[data-brand]').forEach(el2=>{ state.settings.brand[el2.dataset.brand]=el2.value; }); save(); applyBrand(); render(); toast('Marca aplicada','Aparência atualizada'); } break;
     case 'brand-clear': { if(!canFeat('brand')) break; state.settings.brand[el.dataset.k]=''; save(); applyBrand(); render(); toast('Reposto'); } break;
     case 'brand-reset': { if(!canFeat('brand')) break; state.settings.brand={nome:'',cor:'',logo:'',loginBg:''}; save(); applyBrand(); render(); toast('Marca reposta','IEFP CRM'); } break;
-    case 'save-emailjs': { if(!isAdmin()){ toast('Sem permissão','Só administradores','warn'); break; } const at=$('[data-ejs="ativo"]'); state.settings.emailjs=Object.assign({}, EMAILJS_DEFAULT, {ativo: at?at.checked:true}); save(); render(); toast('Modo de envio guardado', emailjsActive()?'Envio real ATIVO':'Modo simulado'); } break;
+    case 'save-emailjs': { if(!isAdmin()){ toast('Sem permissão','Só administradores','warn'); break; } const at=$('[data-ejs="ativo"]'); state.settings.emailjs=Object.assign({}, EMAILJS_DEFAULT, {ativo: at?at.checked:true});
+      { const cv=$('[data-ejs="conviteAmbos"]'); if(cv) state.settings.conviteAmbos = cv.value==='1'; } save(); render(); toast('Modo de envio guardado', emailjsActive()?'Envio real ATIVO':'Modo simulado'); } break;
+    case 'uso-email': if(!isAdmin()){ toast('Sem permissão','Só administradores','warn'); break; } renderUsoEmail(); break;
+    case 'set-plano': { if(!isAdmin()){ toast('Sem permissão','Só administradores','warn'); break; }
+      uiPrompt('Quantos envios inclui o teu plano EmailJS por mês? Vê em EmailJS → Account. Serve só para o aviso - não altera nada no EmailJS.',String(el.dataset.lim||200),
+        {title:'Teto do plano',okText:'Guardar'}).then(v=>{
+          if(v==null) return; const n=Number(String(v).trim());
+          if(!Number.isFinite(n)||n<1){ toast('Valor inválido','Indique o número de envios do plano','warn'); return; }
+          state.settings.emailPlano=n; save(); renderUsoEmail(); toast('Teto atualizado',n+' envios/mês'); }); } break;
     case 'test-emailjs': if(!isAdmin()){ toast('Sem permissão','Só administradores','warn'); break; } sendTestEmailJS(); break;
     case 'av-clear': { const hid=$('#modalForm [name="avatar"]'); if(hid) hid.value=''; const prev=$('#avPreview'); if(prev){ const fd=new FormData($('#modalForm')); prev.textContent=initialsOf({nome:fd.get('nome'),apelido:fd.get('apelido')}); } el.style.display='none'; } break;
     case 'add-origem': { if(!canFeat('origens')){ toast('Sem permissão','','warn'); break; } const v=($('#newOrigem')?.value||'').trim(); if(!v){ toast('Indique a origem','','warn'); break; } state.settings.origens=state.settings.origens||[]; if(state.settings.origens.some(o=>o.toLowerCase()===v.toLowerCase())){ toast('Já existe','','warn'); break; } state.settings.origens.push(v); save(); render(); toast('Origem adicionada',v); } break;
