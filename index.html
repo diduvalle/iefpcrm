@@ -1074,7 +1074,8 @@ function load(){
   if(!Array.isArray(state.settings.funcoes)||!state.settings.funcoes.length) state.settings.funcoes=FUNCOES.filter(Boolean);
   if(!state.settings.emailjs||typeof state.settings.emailjs!=='object') state.settings.emailjs=Object.assign({},EMAILJS_DEFAULT);
   if(state.settings.conviteAmbos==null) state.settings.conviteAmbos=true;   // comportamento atual: IEFP + pessoal
-  if(state.settings.emailPlano==null) state.settings.emailPlano=200;        // tecto mensal do plano EmailJS (lido do dashboard)
+  if(state.settings.emailPlano==null) state.settings.emailPlano=200;      // teto do plano (EmailJS -> Account)
+  if(state.settings.emailDiaCiclo==null) state.settings.emailDiaCiclo=4;  // o ciclo repoe neste dia, nao no dia 1
   if(state.settings.emailjs && !state.settings.emailjs.serviceId && !state.settings.emailjs.templateId && !state.settings.emailjs.publicKey) state.settings.emailjs=Object.assign({},EMAILJS_DEFAULT);
   { const _a=(state.settings.emailjs&&typeof state.settings.emailjs.ativo==='boolean')?state.settings.emailjs.ativo:true; state.settings.emailjs=Object.assign({},EMAILJS_DEFAULT,{ativo:_a}); }  // chaves SEMPRE fixas; só o modo é por-turma
   if(state.settings.email==='geral@iefpcrm.pt') state.settings.email='iefpcrm@cr0x.org';  // reply-to: placeholder antigo → email real
@@ -3691,7 +3692,7 @@ function secSegmentos(){ return `<div class="card card-pad">
 let emailUso=null;
 async function carregarUsoEmail(){
   const r=await fetch(SUPA_URL+"/functions/v1/emailjs-uso",{method:"POST",
-    headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY,"Content-Type":"application/json"},body:"{}"});
+    headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY,"Content-Type":"application/json"},body:JSON.stringify({diaCiclo:Number(state.settings.emailDiaCiclo)||1})});
   if(!r.ok) throw new Error("HTTP "+r.status);
   return r.json();
 }
@@ -3706,13 +3707,13 @@ function renderUsoEmail(){
     const hist=(d.recentes||[]).slice(0,12);
     box.innerHTML=`
       <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
-        <strong style="font-size:1.5rem;color:${cor}">${n}</strong><span class="muted" style="margin-left:6px">de ${teto} este mês</span>
+        <strong style="font-size:1.5rem;color:${cor}">${n}</strong><span class="muted" style="margin-left:6px">de ${teto} neste ciclo</span>
         ${d.falhas?`<span class="pill red">${d.falhas} falha(s)</span>`:""}
-        <button class="btn-sec btn-xs" data-act="set-plano" data-lim="${teto}" style="margin-left:auto">Alterar o teto do plano</button>
+        <button class="btn-sec btn-xs" data-act="set-plano" data-lim="${teto}" style="margin-left:auto">Teto e dia do ciclo</button>
         <button class="btn-sec btn-xs" data-act="uso-email">Atualizar</button>
       </div>
       <div style="height:8px;border-radius:99px;background:var(--surface3);margin:10px 0 4px;overflow:hidden"><div style="height:100%;width:${pc}%;background:${cor}"></div></div>
-      <div class="muted" style="font-size:.76rem">Restam ${Math.max(0,teto-n)} envios este mês. ${custoConvitesTexto()}</div>
+      <div class="muted" style="font-size:.76rem">Restam ${Math.max(0,teto-n)} envios${d.repoeEm?" · repõe a "+dPT(d.repoeEm):""}. ${custoConvitesTexto()}</div>
       ${hist.length?`<div class="table-wrap" style="margin-top:12px;max-height:240px;overflow:auto"><table><thead><tr><th>Quando</th><th>Para</th><th>Assunto</th><th>Estado</th></tr></thead><tbody>
         ${hist.map(h=>`<tr><td class="muted" style="white-space:nowrap">${esc(h.quando||"-")}</td><td>${esc(h.para||"-")}</td><td>${esc(h.assunto||"-")}</td><td><span class="pill ${h.ok?"green":"red"}">${h.ok?"Enviado":"Falhou"}</span></td></tr>`).join("")}
       </tbody></table></div>`:""}`;
@@ -5374,11 +5375,15 @@ document.addEventListener('click', async e=>{
       { const cv=$('[data-ejs="conviteAmbos"]'); if(cv) state.settings.conviteAmbos = cv.value==='1'; } save(); render(); toast('Modo de envio guardado', emailjsActive()?'Envio real ATIVO':'Modo simulado'); } break;
     case 'uso-email': if(!isAdmin()){ toast('Sem permissão','Só administradores','warn'); break; } renderUsoEmail(); break;
     case 'set-plano': { if(!isAdmin()){ toast('Sem permissão','Só administradores','warn'); break; }
-      uiPrompt('Quantos envios inclui o teu plano EmailJS por mês? Vê em EmailJS → Account. Serve só para o aviso - não altera nada no EmailJS.',String(el.dataset.lim||200),
-        {title:'Teto do plano',okText:'Guardar'}).then(v=>{
-          if(v==null) return; const n=Number(String(v).trim());
-          if(!Number.isFinite(n)||n<1){ toast('Valor inválido','Indique o número de envios do plano','warn'); return; }
-          state.settings.emailPlano=n; save(); renderUsoEmail(); toast('Teto atualizado',n+' envios/mês'); }); } break;
+      uiPrompt('Envios do plano e dia em que o ciclo repõe, separados por barra. O dashboard do EmailJS diz "Resets on <dia>".',
+        (state.settings.emailPlano||200)+'/'+(state.settings.emailDiaCiclo||1),
+        {title:'Plano EmailJS',okText:'Guardar',placeholder:'ex.: 200/4'}).then(v=>{
+          if(v==null) return;
+          const p=String(v).split('/'); const n=Number(p[0]); const dia=p.length>1?Number(p[1]):(state.settings.emailDiaCiclo||1);
+          if(!Number.isFinite(n)||n<1){ toast('Valor inválido','Indique os envios do plano (ex.: 200/4)','warn'); return; }
+          if(!Number.isFinite(dia)||dia<1||dia>28){ toast('Dia inválido','O dia do ciclo tem de estar entre 1 e 28','warn'); return; }
+          state.settings.emailPlano=n; state.settings.emailDiaCiclo=dia; save(); renderUsoEmail();
+          toast('Plano atualizado',n+' envios · repõe dia '+dia); }); } break;
     case 'test-emailjs': if(!isAdmin()){ toast('Sem permissão','Só administradores','warn'); break; } sendTestEmailJS(); break;
     case 'av-clear': { const hid=$('#modalForm [name="avatar"]'); if(hid) hid.value=''; const prev=$('#avPreview'); if(prev){ const fd=new FormData($('#modalForm')); prev.textContent=initialsOf({nome:fd.get('nome'),apelido:fd.get('apelido')}); } el.style.display='none'; } break;
     case 'add-origem': { if(!canFeat('origens')){ toast('Sem permissão','','warn'); break; } const v=($('#newOrigem')?.value||'').trim(); if(!v){ toast('Indique a origem','','warn'); break; } state.settings.origens=state.settings.origens||[]; if(state.settings.origens.some(o=>o.toLowerCase()===v.toLowerCase())){ toast('Já existe','','warn'); break; } state.settings.origens.push(v); save(); render(); toast('Origem adicionada',v); } break;
