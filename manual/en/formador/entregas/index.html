@@ -2268,7 +2268,21 @@
 <p>The trainee doesn't attach a PDF: the app <strong>reconstructs</strong> the proposal from the submitted data (including the proposal template they created). It is always consistent with the submission.</p>
 </div>
 <h2 id="submission-limit">Submission limit<a class="headerlink" href="#submission-limit" title="Permanent link">¶</a></h2>
-<p>The maximum of <strong>2 submissions per trainee</strong> is enforced on the server - it can't be bypassed. It also serves to keep email sending within the free plan.</p>
+<p>The limit starts at <strong>2 submissions per trainee</strong> and is counted <strong>on the server</strong> - a trainee can't get around it from the browser.</p>
+<p><strong>To change it</strong>, in <strong>Settings → Class trainees</strong>:</p>
+<ul>
+<li><strong>One trainee</strong> - click the <strong>X/Y</strong> badge on their row and type the new number. They get a <strong>*</strong> in the list, marking a personal limit.</li>
+<li><strong>The whole class</strong> - the <strong>Class limit</strong> button below the table. It does not touch anyone with a personal limit.</li>
+<li>Leaving the field <strong>empty</strong> returns that person to the class value.</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">It can't go below what was already submitted</p>
+<p>If someone has already made 3 submissions, the limit won't drop to 2 - past submissions don't undo themselves and the list would read <em>3/2</em>. The app refuses, in the browser <strong>and</strong> on the server.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Every submission costs an email</p>
+<p>The submission itself goes to the database, but it triggers an <strong>email notification</strong> to the trainer. Raising the limit from 2 to 4 in a class of 13 means <strong>up to 26 more emails</strong> against the plan - see <strong>Plan usage</strong> in <a href="../../modulos/definicoes/#real-email-sending-emailjs-admin">Settings</a>.</p>
+</div>
 
 
 

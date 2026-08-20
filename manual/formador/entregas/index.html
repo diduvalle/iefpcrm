@@ -2268,7 +2268,21 @@
 <p>O formando não anexa um PDF: a app <strong>reconstrói</strong> a proposta a partir dos dados submetidos (incluindo o modelo de proposta que ele criou). Está sempre coerente com a entrega.</p>
 </div>
 <h2 id="limite-de-entregas">Limite de entregas<a class="headerlink" href="#limite-de-entregas" title="Permanent link">¶</a></h2>
-<p>O máximo de <strong>2 entregas por formando</strong> é controlado no servidor - não é contornável. Serve também para manter o envio de email dentro do plano gratuito.</p>
+<p>O limite arranca em <strong>2 entregas por formando</strong> e é contado <strong>no servidor</strong> - o formando não o contorna mexendo no browser.</p>
+<p><strong>Para o alterar</strong>, em <strong>Definições → Formandos da turma</strong>:</p>
+<ul>
+<li><strong>Um formando</strong> - clica no selo <strong>X/Y</strong> da linha dele e escreve o novo número. Fica marcado com <strong>*</strong> na lista, a assinalar que tem limite próprio.</li>
+<li><strong>A turma toda</strong> - botão <strong>Limite da turma</strong>, por baixo da tabela. Não mexe em quem tem limite próprio.</li>
+<li>Deixar o campo <strong>vazio</strong> devolve essa pessoa ao valor da turma.</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Não se pode baixar abaixo do que já foi entregue</p>
+<p>Se alguém já fez 3 entregas, o limite não desce para 2 - as entregas feitas não se desfazem e a lista passaria a mostrar <em>3/2</em>. A app recusa, no browser <strong>e</strong> no servidor.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Cada entrega gasta um email</p>
+<p>A submissão em si vai para a base de dados, mas dispara um <strong>aviso por email</strong> ao formador. Subir o limite de 2 para 4 numa turma de 13 significa <strong>até mais 26 emails</strong> no plano - ver <strong>Consumo do plano</strong> em <a href="../../modulos/definicoes/#envio-de-email-real-emailjs-admin">Definições</a>.</p>
+</div>
 
 
 

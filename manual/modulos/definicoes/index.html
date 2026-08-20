@@ -1904,6 +1904,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#segmentos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Segmentos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#outras-referencias" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2369,6 +2380,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#segmentos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Segmentos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#outras-referencias" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2429,10 +2451,27 @@
 <p><em>White-label</em>: <strong>nome</strong>, <strong>cor principal</strong> (deriva a paleta), <strong>logótipo</strong>, <strong>fundo do login</strong>. <strong>Aplicar</strong> / <strong>Repor IEFP</strong>. → <a href="../../formador/email-marca/">Email &amp; Marca</a>.</p>
 <h3 id="envio-de-email-real-emailjs-admin">Envio de email real (EmailJS) <em>(Admin)</em><a class="headerlink" href="#envio-de-email-real-emailjs-admin" title="Permanent link">¶</a></h3>
 <p>As <strong>chaves</strong> estão <strong>fixas</strong> (🔒); geres só o <strong>modo</strong> (real/simulado) + <strong>Enviar teste</strong>. → <a href="../../formador/email-marca/">Email &amp; Marca</a>.</p>
+<p><strong>Convite e reposição de password</strong> - escolhes se o email vai para o <strong>endereço do IEFP + o pessoal</strong> (2 envios por pessoa) ou <strong>só para o do IEFP</strong> (1 envio). Cada endereço conta como um envio no plano: numa turma de 13, é a diferença entre <strong>26</strong> e <strong>13</strong> envios de cada vez que convidas a turma.</p>
+<p><strong>Consumo do plano</strong> - o botão <strong>Consultar consumo</strong> vai ao <strong>histórico real do EmailJS</strong> e mostra quantos envios já foram feitos <strong>neste ciclo</strong>, a barra de progresso (laranja aos 70%, vermelha aos 90%) e a data em que repõe. Em <strong>Teto e dia do ciclo</strong> escreves os dois valores do teu plano no formato <code>200/4</code> (200 envios, repõe dia 4) - o painel do EmailJS diz <em>"Resets on…"</em>.</p>
+<div class="admonition note">
+<p class="admonition-title">Porque é que o ciclo não é o mês</p>
+<p>O EmailJS repõe a quota no <strong>dia de aniversário do plano</strong>, não no dia 1. Contar por mês de calendário daria números diferentes dos dele <strong>precisamente no início de cada mês</strong>, que é quando a informação interessa.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">O que gasta envios</p>
+<p><strong>Convites e reposições de password</strong> (1 ou 2 por pessoa), o <strong>aviso de cada entrega</strong> de trabalho, os <strong>emails do CRM</strong> enviados pelo formador e o <strong>email de teste</strong>. Os formandos ficam em <strong>modo simulado</strong> no CRM - as únicas mensagens reais que eles provocam são os avisos de entrega. O <strong>Repositório de sessões</strong> usa outro serviço e <strong>não</strong> conta para este plano.</p>
+</div>
 <h3 id="grupos-de-utilizadores-admin">Grupos de Utilizadores <em>(Admin)</em><a class="headerlink" href="#grupos-de-utilizadores-admin" title="Permanent link">¶</a></h3>
 <p>Matriz <strong>papéis × módulos</strong>: define o que cada grupo vê (Administrador/Formador = tudo; Formando limitado). Inclui a opção <strong>ocultar valores financeiros</strong> por grupo.</p>
 <h3 id="modelos-de-proposta">Modelos de Proposta<a class="headerlink" href="#modelos-de-proposta" title="Permanent link">¶</a></h3>
 <p>Atalho para o construtor de modelos. → <a href="../modelos/">Modelos de Proposta</a>.</p>
+<h3 id="segmentos">Segmentos<a class="headerlink" href="#segmentos" title="Permanent link">¶</a></h3>
+<p>Lista editável da <strong>dimensão da empresa</strong> (Micro / PME / Grande Empresa, de origem). Alimenta o campo <strong>Segmento (dimensão)</strong> da ficha da empresa, o <strong>alvo das campanhas</strong>, a <strong>condição das automações</strong> e o gráfico de <strong>Segmentação</strong>.</p>
+<p>Escreve o nome e <strong>+ Adicionar</strong>; o <strong>✕</strong> remove. Remover <strong>não altera</strong> as empresas que já o têm - deixa apenas de estar disponível para escolher.</p>
+<div class="admonition warning">
+<p class="admonition-title">Segmento não é nível de fidelização</p>
+<p>São <strong>dois conceitos diferentes</strong> e, até agosto de 2026, partilhavam o mesmo campo - por isso a lista de alvo das campanhas misturava <em>Micro/PME/Grande Empresa</em> com <em>Bronze/Prata/Ouro</em>. Agora estão separados: o <strong>segmento</strong> é a <strong>dimensão</strong> da empresa (não muda sozinho); o <strong>nível</strong> é calculado do <strong>volume ganho</strong>. Campanhas e automações têm os <strong>dois filtros em separado</strong> e podem cruzá-los ("PME <strong>e</strong> Bronze"), o que antes era impossível. A app recusa criar um segmento com o nome de um nível, para não voltar a baralhar.</p>
+</div>
 <h3 id="outras-referencias">Outras referências<a class="headerlink" href="#outras-referencias" title="Permanent link">¶</a></h3>
 <p><strong>Níveis de loyalty</strong>, <strong>Taxas de IVA</strong> (por região), <strong>Origens de cliente</strong> (lista editável) e <strong><a href="../empresas-contactos/#campos-personalizados">Campos personalizados do contacto</a></strong> - campos que crias tu e que ficam disponíveis como tag nos modelos.</p>
 <h2 id="em-modo-turma-online">Em modo turma (online)<a class="headerlink" href="#em-modo-turma-online" title="Permanent link">¶</a></h2>

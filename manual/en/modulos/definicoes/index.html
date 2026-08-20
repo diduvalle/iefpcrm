@@ -1904,6 +1904,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#segments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Segments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#other-references" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2369,6 +2380,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#segments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Segments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#other-references" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2429,10 +2451,27 @@
 <p><em>White-label</em>: <strong>name</strong>, <strong>primary color</strong> (derives the palette), <strong>logo</strong>, <strong>login background</strong>. <strong>Apply</strong> / <strong>Reset IEFP</strong>. → <a href="../../formador/email-marca/">Email &amp; Brand</a>.</p>
 <h3 id="real-email-sending-emailjs-admin">Real email sending (EmailJS) <em>(Admin)</em><a class="headerlink" href="#real-email-sending-emailjs-admin" title="Permanent link">¶</a></h3>
 <p>The <strong>keys</strong> are <strong>fixed</strong> (🔒); you only manage the <strong>mode</strong> (real/simulated) + <strong>Send test</strong>. → <a href="../../formador/email-marca/">Email &amp; Brand</a>.</p>
+<p><strong>Invitations and password resets</strong> - you choose whether the email goes to the <strong>IEFP address + the personal one</strong> (2 sends per person) or <strong>only the IEFP one</strong> (1 send). Each address counts as one send against your plan: in a class of 13, that is the difference between <strong>26</strong> and <strong>13</strong> sends every time you invite the class.</p>
+<p><strong>Plan usage</strong> - the <strong>Check usage</strong> button reads the <strong>real EmailJS history</strong> and shows how many sends were made <strong>in this cycle</strong>, a progress bar (amber at 70%, red at 90%) and the reset date. Under <strong>Cap and cycle day</strong> you enter both values from your plan as <code>200/4</code> (200 sends, resets on the 4th) - the EmailJS dashboard states <em>"Resets on…"</em>.</p>
+<div class="admonition note">
+<p class="admonition-title">Why the cycle isn't the month</p>
+<p>EmailJS resets the quota on the <strong>plan's anniversary day</strong>, not on the 1st. Counting by calendar month would disagree with EmailJS <strong>precisely at the start of each month</strong>, which is exactly when the number matters.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">What consumes sends</p>
+<p><strong>Invitations and password resets</strong> (1 or 2 per person), the <strong>notification for each submitted assignment</strong>, the <strong>CRM emails</strong> sent by the trainer and the <strong>test email</strong>. Trainees are in <strong>simulated mode</strong> inside the CRM - the only real messages they trigger are submission notifications. The <strong>Session repository</strong> uses a different service and does <strong>not</strong> count against this plan.</p>
+</div>
 <h3 id="user-groups-admin">User Groups <em>(Admin)</em><a class="headerlink" href="#user-groups-admin" title="Permanent link">¶</a></h3>
 <p><strong>Roles × modules</strong> matrix: defines what each group sees (Administrator/Trainer = everything; Trainee limited). Includes the option to <strong>hide financial values</strong> by group.</p>
 <h3 id="proposal-templates">Proposal Templates<a class="headerlink" href="#proposal-templates" title="Permanent link">¶</a></h3>
 <p>Shortcut to the template builder. → <a href="../modelos/">Proposal Templates</a>.</p>
+<h3 id="segments">Segments<a class="headerlink" href="#segments" title="Permanent link">¶</a></h3>
+<p>Editable list of the <strong>company size</strong> (Micro / SME / Large Company, out of the box). It feeds the <strong>Segment (size)</strong> field on the company record, the <strong>campaign target</strong>, the <strong>automation condition</strong> and the <strong>Segmentation</strong> chart.</p>
+<p>Type the name and <strong>+ Add</strong>; <strong>✕</strong> removes it. Removing does <strong>not</strong> change companies that already use it - it just stops being offered.</p>
+<div class="admonition warning">
+<p class="admonition-title">Segment is not loyalty level</p>
+<p>These are <strong>two different things</strong> and, until August 2026, they shared the same field - which is why the campaign target list mixed <em>Micro/SME/Large</em> with <em>Bronze/Silver/Gold</em>. They are now separate: the <strong>segment</strong> is the company's <strong>size</strong> (it never changes on its own); the <strong>level</strong> is computed from <strong>won volume</strong>. Campaigns and automations have <strong>both filters separately</strong> and can combine them ("SME <strong>and</strong> Bronze"), which was impossible before. The app refuses to create a segment named after a loyalty level, so the two can't get mixed up again.</p>
+</div>
 <h3 id="other-references">Other references<a class="headerlink" href="#other-references" title="Permanent link">¶</a></h3>
 <p><strong>Loyalty levels</strong>, <strong>VAT rates</strong> (by region), <strong>Customer sources</strong> (editable list) and <strong><a href="../empresas-contactos/#custom-fields">Custom contact fields</a></strong> - fields you create yourself, available as tags in templates.</p>
 <h2 id="in-class-mode-online">In class mode (online)<a class="headerlink" href="#in-class-mode-online" title="Permanent link">¶</a></h2>
