@@ -2987,9 +2987,10 @@ views.comunicacao = () => {
 function journeyNode(icon,titulo,sub,cor){ return `<div style="flex:0 0 auto;min-width:118px;max-width:170px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;text-align:center"><div style="color:${cor||'var(--g600)'}">${ic(icon,18)}</div><div style="font-weight:800;font-size:.8rem;margin-top:4px">${esc(titulo)}</div>${sub?`<div class="muted" style="font-size:.7rem;white-space:normal">${esc(sub)}</div>`:''}</div>`; }
 /* Descricao de um passo, seja qual for a accao. Usada na tabela E na jornada:
    antes a tabela assumia sempre um template de email e mostrava "-" no resto. */
-function passoDescricao(p){
+/* tpls: ao avaliar uma entrega, os templates sao os DO FORMANDO, nao os meus */
+function passoDescricao(p,tpls){
   const tp=p.tipo||'email';
-  if(tp==='email'){ const t=state.templates.find(x=>x.id===p.templateId); return 'Email: '+((t&&t.nome)||'-'); }
+  if(tp==='email'){ const lista=tpls||state.templates||[]; const t=lista.find(x=>x.id===p.templateId); return 'Email: '+((t&&t.nome)||'-'); }
   if(tp==='fase')   return 'Fase → '+(p.fase||'-');
   if(tp==='tarefa') return 'Tarefa: '+(p.texto||'-');
   return 'Nota: '+(p.texto||'-');
@@ -3573,40 +3574,84 @@ function praticasEntrega(p){
   const cliComEmpresa = pCli.filter(c=>c.empresaId).length;
   const prodComStock = pProd.filter(x=>x.controlaStock).length;
 
-  /* [chave, rótulo, cumpriu?, módulo] */
+  /* Cada prática: chave, rótulo, cumpriu, área, e - o que interessa para
+     avaliar - QUANTOS e QUAIS. Sem os nomes, "criou empresas" não diz nada. */
+  const P_=(k,l,feito,mod,n,itens)=>({k,l,feito:!!feito,mod,n:n||0,itens:(itens||[]).filter(Boolean)});
+  const nomeCli=c=>((c.nome||'')+' '+(c.apelido||'')).trim()||c.email||'(sem nome)';
+  const nomeProp=x=>(x.numero?x.numero+' · ':'')+(x.titulo||'(sem título)');
   const L=[
-    ["emp","Criou empresas próprias", pEmp.length>0, "Contas"],
-    ["cli","Criou contactos próprios", pCli.length>0, "Contas"],
-    ["assoc","Ligou os contactos que criou a empresas", pCli.length>0 && pc(cliComEmpresa,pCli.length)>=80, "Contas"],
-    ["prod","Criou artigos no catálogo", pProd.length>0, "Catálogo"],
-    ["stock","Usou controlo de stock", prodComStock>0, "Catálogo"],
-    ["prop","Criou propostas próprias", pProp.length>0, "Vendas"],
-    ["cat","Propostas com artigos do catálogo", temLinhasCatalogo, "Vendas"],
-    ["pipe","Moveu propostas no pipeline (≥3 estados)", estadosUsados.size>=3, "Vendas"],
-    ["ganha","Fechou pelo menos uma proposta", estadosUsados.has("Ganha"), "Vendas"],
-    ["perda","Registou o motivo de todas as perdas", perdidaComMotivo, "Vendas"],
-    ["mod","Construiu um modelo de proposta", pMod.length>0, "Modelos"],
-    ["modtag","Usou tags dinâmicas no modelo", modComTags, "Modelos"],
-    ["tpl","Criou/editou templates de email", pTpl.length>0, "Marketing"],
-    ["camp","Criou campanhas", pCamp.length>0, "Marketing"],
-    ["auto","Criou automações próprias", pAuto.length>0, "Marketing"],
-    ["autopass","Automação com mais do que um passo", autoMultiPasso, "Marketing"],
-    ["autocond","Automação com condições", autoComCondicao, "Marketing"],
-    ["autoacao","Automação com ação que não é email", autoNaoEmail, "Marketing"],
-    ["autosaida","Automação com critério de saída", autoComSaida, "Marketing"],
-    ["caso","Abriu casos de apoio", pCasos.length>0, "Serviço"],
-    ["casofecha","Resolveu casos", casosFechados>0, "Serviço"],
-    ["csat","Registou satisfação (CSAT/NPS)", casosComCsat>0, "Serviço"],
-    ["ret","Trabalhou retenção/churn", pRet.length>0, "Serviço"],
-    ["cons","Registou consentimentos", pCons.length>0, "RGPD"],
-    ["ped","Respondeu a pedidos de titular", pedAlemDoSeed, "RGPD"],
-    ["ropa","Preencheu o ROPA", pRopa.length>0, "RGPD"],
-    ["viol","Registou violações de dados", pViol.length>0, "RGPD"],
-    ["cx","Criou campos personalizados", cx.length>0, "Parametrização"],
-    ["ent","Personalizou a entidade", !!String(set.entidade||"").trim() && set.entidade!=="IEFP CRM - Centro de Formação", "Parametrização"],
-    ["tar","Agendou tarefas próprias", pTar.length>0, "Parametrização"],
+    P_("emp","Criou empresas próprias", pEmp.length>0, "Contas", pEmp.length,
+       pEmp.map(x=>x.nome+(x.dimensao?' · '+x.dimensao:'')+(x.fase?' · '+x.fase:''))),
+    P_("cli","Criou contactos próprios", pCli.length>0, "Contas", pCli.length,
+       pCli.map(c=>nomeCli(c)+(c.empresa?' · '+c.empresa:' · (sem empresa)'))),
+    P_("assoc","Ligou os contactos que criou a empresas", pCli.length>0 && pc(cliComEmpresa,pCli.length)>=80, "Contas", cliComEmpresa,
+       pCli.filter(c=>!c.empresaId).map(c=>nomeCli(c)+' - por ligar')),
+    P_("prod","Criou artigos no catálogo", pProd.length>0, "Catálogo", pProd.length,
+       pProd.map(x=>x.nome+(x.preco!=null?' · '+money(x.preco):''))),
+    P_("stock","Usou controlo de stock", prodComStock>0, "Catálogo", prodComStock,
+       pProd.filter(x=>x.controlaStock).map(x=>x.nome+' · stock '+(x.stock!=null?x.stock:'-'))),
+    P_("prop","Criou propostas próprias", pProp.length>0, "Vendas", pProp.length,
+       pProp.map(x=>nomeProp(x)+' · '+(x.estado||'-'))),
+    P_("cat","Propostas com artigos do catálogo", temLinhasCatalogo, "Vendas",
+       pProp.filter(x=>(x.linhas||[]).some(l=>l.produtoId)).length,
+       pProp.filter(x=>(x.linhas||[]).some(l=>l.produtoId)).map(x=>nomeProp(x)+' · '+(x.linhas||[]).filter(l=>l.produtoId).length+' artigo(s)')),
+    P_("pipe","Moveu propostas no pipeline (≥3 estados)", estadosUsados.size>=3, "Vendas", estadosUsados.size,
+       [...estadosUsados].map(e=>e+' · '+pProp.filter(x=>x.estado===e).length+' proposta(s)')),
+    P_("ganha","Fechou pelo menos uma proposta", estadosUsados.has("Ganha"), "Vendas",
+       pProp.filter(x=>x.estado==="Ganha").length,
+       pProp.filter(x=>x.estado==="Ganha").map(nomeProp)),
+    P_("perda","Registou o motivo de todas as perdas", perdidaComMotivo, "Vendas",
+       pProp.filter(x=>x.estado==="Perdida").length,
+       pProp.filter(x=>x.estado==="Perdida").map(x=>nomeProp(x)+' · '+(String(x.motivoPerda||'').trim()||'SEM MOTIVO'))),
+    P_("mod","Construiu um modelo de proposta", pMod.length>0, "Modelos", pMod.length,
+       pMod.map(m=>(m.nome||'(sem nome)')+' · '+((m.blocks||[]).length)+' bloco(s)')),
+    P_("modtag","Usou tags dinâmicas no modelo", modComTags, "Modelos",
+       pMod.filter(m=>(m.blocks||[]).some(b=>/\{\{[\w.]+\}\}/.test(String(b.conteudo||"")))).length,
+       pMod.filter(m=>(m.blocks||[]).some(b=>/\{\{[\w.]+\}\}/.test(String(b.conteudo||"")))).map(m=>{
+         const t=new Set(); (m.blocks||[]).forEach(b=>String(b.conteudo||'').replace(/\{\{([\w.]+)\}\}/g,(x,g)=>{t.add(g);return x;}));
+         return (m.nome||'(sem nome)')+' · '+[...t].join(', '); })),
+    P_("tpl","Criou/editou templates de email", pTpl.length>0, "Marketing", pTpl.length,
+       pTpl.map(t=>(t.nome||'(sem nome)')+(t.assunto?' · '+t.assunto:''))),
+    P_("camp","Criou campanhas", pCamp.length>0, "Marketing", pCamp.length,
+       pCamp.map(c=>(c.nome||'(sem nome)')+' · '+(c.segmento||'Todos')+(c.nivel?' + '+c.nivel:'')+' · '+(c.estado||'-'))),
+    P_("auto","Criou automações próprias", pAuto.length>0, "Marketing", pAuto.length,
+       pAuto.map(a=>(a.nome||'(sem nome)')+' · '+triggerLabel(a.trigger))),
+    P_("autopass","Automação com mais do que um passo", autoMultiPasso, "Marketing",
+       pAuto.filter(a=>(a.passos||[]).length>1).length,
+       pAuto.filter(a=>(a.passos||[]).length>1).map(a=>(a.nome||'-')+' · '+(a.passos||[]).map(x=>passoDescricao(x,tpl)).join(' → '))),
+    P_("autocond","Automação com condições", autoComCondicao, "Marketing",
+       pAuto.filter(a=>(a.condSegmento&&a.condSegmento!=="Todos")||a.condFase||a.condScore||a.condNivel).length,
+       pAuto.filter(a=>(a.condSegmento&&a.condSegmento!=="Todos")||a.condFase||a.condScore||a.condNivel).map(a=>(a.nome||'-')+' · '+condicoesTexto(a))),
+    P_("autoacao","Automação com ação que não é email", autoNaoEmail, "Marketing",
+       pAuto.filter(a=>(a.passos||[]).some(x=>(x.tipo||"email")!=="email")).length,
+       pAuto.filter(a=>(a.passos||[]).some(x=>(x.tipo||"email")!=="email")).map(a=>(a.nome||'-')+' · '+(a.passos||[]).filter(x=>(x.tipo||'email')!=='email').map(x=>passoDescricao(x,tpl)).join(' + '))),
+    P_("autosaida","Automação com critério de saída", autoComSaida, "Marketing",
+       pAuto.filter(a=>a.saida).length,
+       pAuto.filter(a=>a.saida).map(a=>(a.nome||'-')+' · sai se '+saidaLabel(a.saida))),
+    P_("caso","Abriu casos de apoio", pCasos.length>0, "Serviço", pCasos.length,
+       pCasos.map(c=>(c.titulo||c.assunto||'(sem título)')+' · '+(c.estado||'-'))),
+    P_("casofecha","Resolveu casos", casosFechados>0, "Serviço", casosFechados,
+       pCasos.filter(c=>/Resolvid|Fechad/i.test(String(c.estado||""))).map(c=>c.titulo||c.assunto||'(sem título)')),
+    P_("csat","Registou satisfação (CSAT/NPS)", casosComCsat>0, "Serviço", casosComCsat,
+       pCasos.filter(c=>c.csat!=null&&c.csat!=="").map(c=>(c.titulo||'(sem título)')+' · CSAT '+c.csat)),
+    P_("ret","Trabalhou retenção/churn", pRet.length>0, "Serviço", pRet.length,
+       pRet.map(r=>{const e=(emp.find(x=>x.id===r.empresaId)||{}).nome||'(empresa)'; return e+' · '+(r.estado||'-')+(r.motivo?' · '+r.motivo:'');})),
+    P_("cons","Registou consentimentos", pCons.length>0, "RGPD", pCons.length,
+       pCons.map(c=>{const t=cli.find(x=>x.id===c.clienteId); return (t?nomeCli(t):'(titular)')+' · '+(c.finalidade||'-')+' · '+(c.base||'-')+' · '+(c.estado||'-');})),
+    P_("ped","Respondeu a pedidos de titular", pedAlemDoSeed, "RGPD", pedRespondidos,
+       ped.map(x=>{const t=cli.find(c=>c.id===x.clienteId); return (x.tipo||'-')+' · '+(t?nomeCli(t):'(titular)')+' · '+(x.estado||'-');})),
+    P_("ropa","Preencheu o ROPA", pRopa.length>0, "RGPD", pRopa.length,
+       pRopa.map(r=>(r.atividade||'(sem nome)')+(r.base?' · '+r.base:''))),
+    P_("viol","Registou violações de dados", pViol.length>0, "RGPD", pViol.length,
+       pViol.map(v=>(v.descricao||v.tipo||'(sem descrição)'))),
+    P_("cx","Criou campos personalizados", cx.length>0, "Parametrização", cx.length,
+       cx.map(c=>(c.titulo||'-')+' · {{cliente.'+(c.chave||'')+'}} · '+(c.tipo||'texto'))),
+    P_("ent","Personalizou a entidade", !!String(set.entidade||"").trim() && set.entidade!=="IEFP CRM - Centro de Formação", "Parametrização",
+       set.entidade&&set.entidade!=="IEFP CRM - Centro de Formação"?1:0, [String(set.entidade||'(por preencher)')]),
+    P_("tar","Agendou tarefas próprias", pTar.length>0, "Parametrização", pTar.length,
+       pTar.map(t=>(t.titulo||'(sem título)')+' · '+(t.data?dPT(t.data):'-')+' · '+(t.estado||'-'))),
   ];
-  return {lista:L, feitas:L.filter(x=>x[2]).length, total:L.length,
+  return {lista:L, feitas:L.filter(x=>x.feito).length, total:L.length,
     numeros:{
       empresas:pEmp.length, contactos:pCli.length, produtos:pProd.length, propostas:pProp.length,
       modelos:pMod.length, templates:pTpl.length, campanhas:pCamp.length, automacoes:pAuto.length,
@@ -3618,7 +3663,7 @@ function praticasEntrega(p){
 }
 /* módulos com pelo menos uma prática cumprida */
 function modulosCobertos(pr){
-  const m={}; pr.lista.forEach(([,,feito,mod])=>{ if(feito) m[mod]=true; });
+  const m={}; pr.lista.forEach(x=>{ if(x.feito) m[x.mod]=true; });
   return Object.keys(m);
 }
 /* Barra de cobertura reutilizada nas duas vistas */
@@ -3631,9 +3676,31 @@ function barraCob(feitas,total){
 }
 
 /* Ficha detalhada de UMA entrega: o que criou, por módulo, e que práticas demonstrou */
+/* Uma prática: se houver itens, o rótulo abre uma gaveta com os nomes.
+   "Criou empresas" sem dizer quantas nem quais não serve para avaliar. */
+const MAX_ITENS=25;
+function praticaHTML(x){
+  const cor = x.feito ? "var(--g600)" : "var(--muted)";
+  const marca = x.feito ? ic("check",14) : "—";
+  const cont = x.n ? `<span class="pill ${x.feito?"green":"grey"}" style="font-size:.62rem;flex:0 0 auto">${x.n}</span>` : "";
+  const rot = `<span style="${x.feito?"":"color:var(--muted)"};flex:1">${esc(x.l)}</span>${cont}`;
+  const cab = `<span style="color:${cor};flex:0 0 auto;line-height:1">${marca}</span>`;
+  if(!x.itens.length){
+    return `<div style="display:flex;gap:8px;align-items:center;padding:3px 0;font-size:.83rem">${cab}${rot}</div>`;
+  }
+  const mostra=x.itens.slice(0,MAX_ITENS);
+  const resto=x.itens.length-mostra.length;
+  return `<details style="padding:2px 0">
+    <summary style="display:flex;gap:8px;align-items:center;font-size:.83rem;cursor:pointer;list-style:none">${cab}${rot}
+      <span class="muted" style="flex:0 0 auto;font-size:.7rem">ver</span></summary>
+    <div style="margin:4px 0 6px 22px;padding-left:10px;border-left:2px solid var(--border)">
+      ${mostra.map(i=>`<div class="muted" style="font-size:.78rem;padding:1px 0">${esc(i)}</div>`).join("")}
+      ${resto>0?`<div class="muted" style="font-size:.74rem;padding-top:2px">… e mais ${resto}</div>`:""}
+    </div></details>`;
+}
 function fichaEntregaHTML(p){
   const pr=praticasEntrega(p); const n=pr.numeros;
-  const porMod={}; pr.lista.forEach(x=>{ (porMod[x[3]]=porMod[x[3]]||[]).push(x); });
+  const porMod={}; pr.lista.forEach(x=>{ (porMod[x.mod]=porMod[x.mod]||[]).push(x); });
   const linha=(l,v)=>`<div style="display:flex;justify-content:space-between;gap:10px;padding:2px 0;font-size:.84rem"><span class="muted">${l}</span><strong>${v}</strong></div>`;
   return `
   <div class="callout ${pr.feitas>=Math.round(pr.total*0.75)?"green":"info"}" style="margin:0 0 14px">${ic("check",18)}<div class="ctxt" style="flex:1">
@@ -3646,10 +3713,8 @@ function fichaEntregaHTML(p){
     ${Object.keys(porMod).map(m=>`<div class="card card-pad" style="padding:14px">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px">
         <strong style="font-size:.9rem">${esc(m)}</strong>
-        <span class="pill ${porMod[m].every(x=>x[2])?"green":porMod[m].some(x=>x[2])?"amber":"grey"}">${porMod[m].filter(x=>x[2]).length}/${porMod[m].length}</span></div>
-      ${porMod[m].map(x=>`<div style="display:flex;gap:8px;align-items:flex-start;padding:3px 0;font-size:.83rem">
-        <span style="color:${x[2]?"var(--g600)":"var(--muted)"};flex:0 0 auto">${x[2]?ic("check",14):"—"}</span>
-        <span style="${x[2]?"":"color:var(--muted)"}">${esc(x[1])}</span></div>`).join("")}
+        <span class="pill ${porMod[m].every(x=>x.feito)?"green":porMod[m].some(x=>x.feito)?"amber":"grey"}">${porMod[m].filter(x=>x.feito).length}/${porMod[m].length}</span></div>
+      ${porMod[m].map(x=>praticaHTML(x)).join("")}
     </div>`).join("")}
   </div>
   <div class="card card-pad" style="padding:14px;margin-top:14px">
