@@ -2265,6 +2265,27 @@ function taskColor(t){ return {Chamada:'blue','Reunião':'green','Follow-up':'am
 function comDetalhe(valor,detalhe){ const v=String(valor||''); const d=String(detalhe||'').trim();
   return (v && d) ? (v+': '+d) : v; }
 function taskRow(t){ const c=t.clienteId?getC(t.clienteId):null; const over=t.estado!=='Concluída'&&t.data<todayISO(); const done=t.estado==='Concluída'; return `<div class="mini-item" style="${done?'opacity:.55':''}"><button class="task-check ${done?'on':''}" data-act="task-done" data-id="${t.id}" data-stop title="${done?'Reabrir':'Concluir'}">${done?ic('check',13):''}</button><span class="grow" data-act="edit" data-type="tarefa" data-id="${t.id}" style="cursor:pointer"><strong style="${done?'text-decoration:line-through':''}">${esc(t.titulo)}</strong><div class="muted" style="font-size:.74rem">${ic('calendar',12)} ${dPT(t.data)}${t.hora?' · '+esc(t.hora):''}${c?' · '+esc(c.nome)+' '+esc(c.apelido||''):''}</div></span>${String(t.notas||'').trim()?`<button class="icon-btn" data-act="task-nota" data-id="${t.id}" data-stop title="Tem notas - clique para ler" style="width:30px;height:30px;flex:0 0 auto">${ic('doc',15)}</button>`:''}<span class="pill ${over?'red':taskColor(t)}">${esc(t.tipo||'-')}</span></div>`; }
+/* Painel de tarefas da Agenda. Vive numa função própria para que filtrar troque
+   SÓ esta lista - chamar render() redesenhava a página inteira e piscava. */
+function agendaPainelHTML(){
+  const tasks=state.tarefas||[]; const today=todayISO();
+  const pend=tasks.filter(t=>t.estado!=='Concluída');
+  const overdueList=pend.filter(t=>t.data<today).sort((a,b)=>a.data.localeCompare(b.data));
+  const hojeList=tasks.filter(t=>t.data===today&&t.estado!=='Concluída').sort((a,b)=>String(a.hora||'').localeCompare(String(b.hora||'')));
+  const feitasList=tasks.filter(t=>t.estado==='Concluída').sort((a,b)=>String(b.data).localeCompare(String(a.data)));
+  const upcoming=pend.filter(t=>t.data>=today).sort((a,b)=>(a.data+(a.hora||"24")).localeCompare(b.data+(b.hora||"24")));
+  const F={pendentes:['Tarefas pendentes',pend.slice().sort((a,b)=>String(a.data).localeCompare(String(b.data)))],
+           hoje:['Para hoje',hojeList], atraso:['Em atraso',overdueList], concluidas:['Concluídas',feitasList]};
+  const f=F[agendaFiltro]||null;
+  const cab=`<div class="section-head" style="margin-bottom:12px"><div><h3>${f?esc(f[0]):"Próximas tarefas"}</h3>`+
+    (f?`<div class="sub">${f[1].length} tarefa(s) · filtro do cartão</div>`:"")+"</div>"+
+    (f?`<button class="btn-sec btn-xs" data-act="ag-filtro" data-f="">Limpar filtro</button>`:"")+"</div>";
+  if(f) return cab+`<div class="mini-list">${f[1].length?f[1].map(taskRow).join(""):
+    empty("Nenhuma tarefa",agendaFiltro==="atraso"?"Nada em atraso - bom sinal.":"Sem tarefas neste filtro.")}</div>`;
+  return cab+
+    (overdueList.length?`<div style="font-size:.76rem;font-weight:800;color:var(--danger);margin-bottom:6px">${ic("alert",13)} Em atraso (${overdueList.length})</div><div class="mini-list" style="margin-bottom:12px">${overdueList.map(taskRow).join("")}</div>`:"")+
+    `<div class="mini-list">${upcoming.length?upcoming.slice(0,8).map(taskRow).join(""):(overdueList.length?"":empty("Sem tarefas","Crie a primeira tarefa no calendário."))}</div>`;
+}
 views.agenda = () => {
   if(!agendaYM) agendaYM=curYM();
   if(!agendaWeek) agendaWeek=mondayOf(todayISO());
@@ -2300,10 +2321,7 @@ views.agenda = () => {
       ${agendaView==='semana'?agendaWeekHTML(tasks,today):agendaMonthHTML(tasks,today)}
     </div>
     <div class="card card-pad">
-      <div class="section-head" style="margin-bottom:12px"><div><h3>${filtroAtivo?esc(filtroAtivo[0]):'Próximas tarefas'}</h3>${filtroAtivo?`<div class="sub">${listaFiltrada.length} tarefa(s) · filtro do cartão</div>`:''}</div>${filtroAtivo?`<button class="btn-sec btn-xs" data-act="ag-filtro" data-f="">Limpar filtro</button>`:''}</div>
-      ${filtroAtivo?`<div class="mini-list">${listaFiltrada.length?listaFiltrada.map(taskRow).join(''):empty('Nenhuma tarefa',(agendaFiltro==='atraso'?'Nada em atraso - bom sinal.':'Sem tarefas neste filtro.'))}</div>`:`
-      ${overdueList.length?`<div style="font-size:.76rem;font-weight:800;color:var(--danger);margin-bottom:6px">${ic('alert',13)} Em atraso (${overdueList.length})</div><div class="mini-list" style="margin-bottom:14px">${overdueList.slice(0,5).map(taskRow).join('')}</div>`:''}
-      <div class="mini-list">${upcoming.length?upcoming.slice(0,8).map(taskRow).join(''):(overdueList.length?'':empty('Sem tarefas','Crie a primeira tarefa no calendário.'))}</div>`}
+      <div id="agPainel">${agendaPainelHTML()}</div>
     </div>
   </div>`;
 };
@@ -5629,7 +5647,10 @@ document.addEventListener('click', async e=>{
     /* clicar no KPI filtra a lista ao lado; clicar no mesmo outra vez limpa */
     case 'ag-filtro': { const f=el.dataset.f||'';
       agendaFiltro = (!f || agendaFiltro===f) ? null : f;
-      render(); } break;
+      /* trocar só a lista e a moldura dos cartões: render() redesenhava tudo e piscava */
+      const p=$('#agPainel'); if(p) p.innerHTML=agendaPainelHTML(); else { render(); break; }
+      $$('.kpi[data-f]').forEach(k=>k.classList.toggle('kpi-on', !!agendaFiltro && k.dataset.f===agendaFiltro));
+    } break;
     case 'cal-view': agendaView=el.dataset.view; render(); break;
     case 'cal-prev': if(agendaView==='semana') agendaWeek=addDays(agendaWeek||mondayOf(todayISO()),-7); else agendaYM=shiftYM(agendaYM||curYM(),-1); render(); break;
     case 'cal-next': if(agendaView==='semana') agendaWeek=addDays(agendaWeek||mondayOf(todayISO()),7); else agendaYM=shiftYM(agendaYM||curYM(),1); render(); break;
