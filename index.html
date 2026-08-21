@@ -256,7 +256,10 @@
 .bar-tip strong{display:block;margin-bottom:4px;font-size:.78rem}
 .bar-tip .mais{opacity:.7;margin-top:2px}
 .barchart-col:hover .bar-tip{opacity:1}
-.gtip{position:fixed;opacity:0;transition:opacity .1s;white-space:nowrap}
+/* o .gtip reutiliza o visual do .bar-tip mas e posicionado por JS:
+   e preciso anular o posicionamento absoluto que vem da outra classe */
+.gtip{position:fixed;left:0;top:0;right:auto;bottom:auto;transform:none;margin:0;
+  opacity:0;transition:opacity .1s;white-space:nowrap;max-width:min(420px,92vw)}
 .gtip strong{margin-bottom:4px}
 .barchart-plot{overflow:visible}
 .kpi[data-act]{cursor:pointer;transition:border-color .15s,box-shadow .15s}
