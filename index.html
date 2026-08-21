@@ -1164,6 +1164,8 @@ function load(){
     const nv=(state.loyalty||[]).map(l=>l.nome);
     if(a.condSegmento && nv.includes(a.condSegmento)){ a.condNivel=a.condSegmento; a.condSegmento='Todos'; } });
   if(!Array.isArray(state.autoLog)) state.autoLog=[];
+  if(!state.settings.metas||typeof state.settings.metas!=='object') state.settings.metas={mensal:0,pessoas:{}};
+  if(!state.settings.metas.pessoas) state.settings.metas.pessoas={};
   (state.automacoes||[]).forEach(a=>{ (a.passos||[]).forEach(p=>{ if(!p.tipo) p.tipo='email'; }); if(a.saida==null) a.saida=''; });
   (state.camposExtra||[]).forEach(c=>{ if(c.ativo==null)c.ativo=true; if(!Array.isArray(c.opcoes))c.opcoes=[]; });
   (state.automacoes||[]).forEach(a=>{ if(!a.condSegmento) a.condSegmento='Todos'; if(!Array.isArray(a.passos)) a.passos=a.templateId?[{templateId:a.templateId,atrasoDias:a.atrasoDias||0}]:[]; });
@@ -1313,7 +1315,7 @@ function isAdmin(){ if(!state.settings.requireLogin) return true; const u=curren
 function can(mod){ if(!state.settings.requireLogin) return true; const r=currentRole(); return r?r.modules.includes(mod):false; }
 function isGestor(){ const r=currentRole(); return !!(r&&r.gestor); }
 /* Sub-permissões (sandbox): acesso a secções específicas das Definições sem dar o módulo completo. */
-const FEATS=[{k:'entidade',l:'Entidade'},{k:'gerador',l:'Gerador de dados'},{k:'loyalty',l:'Níveis de fidelização'},{k:'origens',l:'Origens de cliente'},{k:'segmentos',l:'Segmentos'},{k:'campos',l:'Campos personalizados'},{k:'funcoes',l:'Função do contacto'},{k:'brand',l:'Marca & Aparência'}];
+const FEATS=[{k:'entidade',l:'Entidade'},{k:'gerador',l:'Gerador de dados'},{k:'loyalty',l:'Níveis de fidelização'},{k:'origens',l:'Origens de cliente'},{k:'segmentos',l:'Segmentos'},{k:'metas',l:'Metas de vendas'},{k:'campos',l:'Campos personalizados'},{k:'funcoes',l:'Função do contacto'},{k:'brand',l:'Marca & Aparência'}];
 function canFeat(key){ if(!state.settings.requireLogin) return true; if(isAdmin()||can('definicoes')) return true; const r=currentRole(); return !!(r&&r.feats&&r.feats.includes(key)); }
 function hasAnyFeat(){ if(isAdmin()||can('definicoes')) return true; const r=currentRole(); return !!(r&&r.feats&&r.feats.length); }
 function doLogin(username,password){
@@ -1649,6 +1651,7 @@ views.dashboard = () => {
     ${kpi('Ticket médio', money(ticket), {icon:'trend', sub:`${ganhas.length} propostas ganhas`})}
     ${kpi('Pedidos RGPD abertos', fmtN(pedAbertos), {icon:'shield', sub:'titulares de dados'})}
   </div>
+  ${metaCardHTML()}
 
   <div class="dash-cols">
     <div class="card card-pad">
@@ -2508,6 +2511,62 @@ function respMatch(x,filtro){
   if(filtro==='eu') return !!eu && x.responsavelId===eu.id;
   if(filtro==='sem') return !x.responsavelId;
   return x.responsavelId===filtro;
+}
+/* ================== METAS DE VENDAS ==================
+   Tinhamos previsão mas não tínhamos contra o que a comparar. Uma meta
+   transforma um número num objetivo - é o que o Pipedrive chama goal tracking.
+   Com o responsável já em cada proposta, dá para ter meta de equipa E por
+   pessoa (o que os CRM chamam quota). */
+function metasCfg(){ const m=(state.settings&&state.settings.metas)||{}; return {mensal:Number(m.mensal)||0, pessoas:m.pessoas||{}}; }
+/* receita GANHA do mês corrente (opcionalmente só de uma pessoa) */
+function receitaMes(userId){
+  const hoje=todayISO(), ym=hoje.slice(0,7);
+  return (state.propostas||[])
+    .filter(p=>p.estado==='Ganha' && String(p.criada||'').slice(0,7)===ym)
+    .filter(p=>!userId || p.responsavelId===userId)
+    .reduce((t,p)=>t+propTotal(p),0);
+}
+/* projeção simples: ao ritmo de hoje, onde fecha o mês */
+function ritmoMes(valor){
+  const hoje=todayISO(); const dia=+hoje.slice(8,10);
+  const [y,m]=hoje.split("-").map(Number); const dias=new Date(y,m,0).getDate();
+  return {dia, dias, faltam:dias-dia, projecao: dia?Math.round(valor/dia*dias):0};
+}
+function metaBarra(valor, meta){
+  const pc = meta? Math.min(100, Math.round(valor/meta*100)) : 0;
+  const cor = !meta ? "var(--surface3)" : pc>=100 ? "var(--g600)" : pc>=60 ? "#d97706" : "var(--danger)";
+  return `<div style="height:9px;border-radius:99px;background:var(--surface3);overflow:hidden"><div style="height:100%;width:${pc}%;background:${cor};transition:width .3s"></div></div>`;
+}
+function metaCardHTML(){
+  const cfg=metasCfg(); const eu=currentUser();
+  const valor=receitaMes(); const r=ritmoMes(valor);
+  const pc=cfg.mensal?Math.round(valor/cfg.mensal*100):0;
+  const equipa=equipaMembros().filter(u=>Number(cfg.pessoas[u.id])>0);
+  const meuValor=eu?receitaMes(eu.id):0; const minhaMeta=eu?Number(cfg.pessoas[eu.id])||0:0;
+  if(!cfg.mensal && !equipa.length) return `<div class="card card-pad">
+    <div class="section-head" style="margin-bottom:8px"><div><h3>Meta do mês</h3><div class="sub">Sem meta definida</div></div></div>
+    <p class="muted" style="font-size:.85rem;margin:0">Defina a meta em <strong>Definições → Metas de vendas</strong>. Sem meta, a receita é só um número - com meta, passa a dizer se o mês está a correr bem.</p></div>`;
+  return `<div class="card card-pad">
+    <div class="section-head" style="margin-bottom:10px"><div><h3>Meta do mês</h3><div class="sub">Receita ganha em ${esc(MONTHS_PT[+todayISO().slice(5,7)-1])} · faltam ${r.faltam} dia(s)</div></div>
+      <button class="btn-sec btn-xs" data-act="ir-metas">Definir metas</button></div>
+    ${cfg.mensal?`
+      <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+        <strong style="font-size:1.5rem">${money(valor)}</strong>
+        <span class="muted">de ${money(cfg.mensal)}</span>
+        <span class="pill ${pc>=100?"green":pc>=60?"amber":"red"}" style="margin-left:auto">${pc}%</span>
+      </div>
+      ${metaBarra(valor,cfg.mensal)}
+      <div class="muted" style="font-size:.76rem;margin-top:6px">Ao ritmo atual fecha o mês em <strong>${money(r.projecao)}</strong>${cfg.mensal?(r.projecao>=cfg.mensal?" - acima da meta":" - "+money(cfg.mensal-r.projecao)+" abaixo"):""}.</div>`:""}
+    ${minhaMeta?`<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:5px"><span><strong>A minha meta</strong></span><span>${money(meuValor)} de ${money(minhaMeta)}</span></div>
+      ${metaBarra(meuValor,minhaMeta)}</div>`:""}
+    ${equipa.length?`<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
+      <div class="muted" style="font-size:.72rem;font-weight:800;letter-spacing:.04em;margin-bottom:6px">POR PESSOA</div>
+      ${equipa.map(u=>{const v=receitaMes(u.id); const mt=Number(cfg.pessoas[u.id])||0; const p=mt?Math.round(v/mt*100):0;
+        return `<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:3px">
+          <span>${esc(nomeMembro(u))}</span><span class="muted">${money(v)} / ${money(mt)} · ${p}%</span></div>${metaBarra(v,mt)}</div>`;}).join("")}
+    </div>`:""}
+  </div>`;
 }
 function comDetalhe(valor,detalhe){ const v=String(valor||''); const d=String(detalhe||'').trim();
   return (v && d) ? (v+': '+d) : v; }
@@ -4315,6 +4374,21 @@ function secCampos(){
     </div>
     <span class="hint" style="display:block;margin-top:8px">Desativar esconde o campo mas <strong>não apaga</strong> o que já foi preenchido. Apagar remove só a definição.</span>
   </div>`; }
+function secMetas(){
+  const cfg=metasCfg(); const eq=equipaMembros();
+  return `<div class="card card-pad">
+    <div class="section-head" style="margin-bottom:14px"><div><h3>Metas de vendas</h3><div class="sub">Objetivo de <strong>receita ganha</strong> no mês. Sem meta, a receita é só um número; com meta, diz se o mês está a correr bem.</div></div></div>
+    <div class="form-grid">
+      <div class="field"><label>Meta da equipa (€/mês)</label><input id="metaMensal" type="number" min="0" step="500" value="${esc(cfg.mensal||0)}"><span class="hint">0 = sem meta de equipa.</span></div>
+    </div>
+    ${eq.length?`<div class="divider" style="margin:14px 0 10px"></div>
+      <div class="muted" style="font-size:.72rem;font-weight:800;letter-spacing:.04em;margin-bottom:8px">METAS INDIVIDUAIS (QUOTAS)</div>
+      <div class="form-grid">${eq.map(u=>`<div class="field"><label>${esc(nomeMembro(u))}</label>
+        <input data-meta="${u.id}" type="number" min="0" step="250" value="${esc(Number(cfg.pessoas[u.id])||0)}"></div>`).join("")}</div>
+      <span class="hint" style="display:block;margin-top:6px">Conta a receita das propostas <strong>ganhas</strong> de que cada pessoa é responsável.</span>`:`
+      <p class="muted" style="font-size:.84rem;margin-top:10px">As metas individuais aparecem aqui quando houver equipa (numa turma, são os formandos).</p>`}
+    <div class="toolbar" style="margin-top:14px"><button class="btn" data-act="save-metas">Guardar metas</button></div>
+  </div>`; }
 function secSegmentos(){ return `<div class="card card-pad">
     <div class="section-head" style="margin-bottom:14px"><div><h3>Segmentos ${infoTip('segmento')}</h3><div class="sub">Dimensão da empresa, usada no campo "Segmento (dimensão)" da ficha e como alvo de campanhas e automações. <strong>Não confundir com os níveis de fidelização</strong> - esses têm a sua própria lista.</div></div></div>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">${segmentosList().map(o=>`<span class="chip" style="gap:8px">${esc(o)}<button data-act="del-segmento" data-segmento="${esc(o)}" style="border:0;background:none;cursor:pointer;color:var(--muted);font-weight:700" title="Remover">✕</button></span>`).join('')}</div>
@@ -4393,6 +4467,7 @@ function defSandboxView(){ const s=state.settings; const secs=[];
   if(canFeat('entidade')) secs.push(secEntidade(s));
   if(canFeat('gerador')) secs.push(secGerador());
   if(canFeat('loyalty')) secs.push(secLoyalty());
+  if(canFeat('metas')) secs.push(secMetas());
   if(canFeat('segmentos')) secs.push(secSegmentos());
   if(canFeat('origens')) secs.push(secOrigens(s));
   if(canFeat('funcoes')) secs.push(secFuncoes(s));
@@ -4514,6 +4589,7 @@ views.definicoes = () => {
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">${(s.origens||[]).map(o=>`<span class="chip" style="gap:8px">${esc(o)}<button data-act="del-origem" data-origem="${esc(o)}" style="border:0;background:none;cursor:pointer;color:var(--danger);font-weight:800;padding:0;line-height:1">✕</button></span>`).join('')||'<span class="muted">Sem origens</span>'}</div>
     <div class="toolbar"><div class="search-inp" style="flex:1;max-width:320px"><input id="newOrigem" placeholder="Nova origem (ex.: Evento)…"></div><button class="btn-sec" data-act="add-origem">+ Adicionar</button></div>
   </div>
+  ${secMetas()}
   ${secSegmentos()}
   ${secFuncoes(s)}
   ${secCampos()}
@@ -5976,6 +6052,12 @@ document.addEventListener('click', async e=>{
       else { state._rgpdFiltro=f; state._rgpdTab=(f==='ativos')?'consent':'pedidos'; }
       rgpdRefresca(); } break;
     case 'duplicados': abrirDuplicados(); break;
+    case 'ir-metas': location.hash='#definicoes'; setTimeout(()=>{ const el=$('#metaMensal'); if(el){ el.closest('.card').scrollIntoView({block:'center',behavior:'smooth'}); el.focus(); } },400); break;
+    case 'save-metas': { if(!canFeat('metas')){ toast('Sem permissão','','warn'); break; }
+      const m={mensal:Number(($('#metaMensal')||{}).value||0)||0, pessoas:{}};
+      $$('[data-meta]').forEach(el=>{ const v=Number(el.value||0)||0; if(v>0) m.pessoas[el.dataset.meta]=v; });
+      state.settings.metas=m; save(); render();
+      toast('Metas guardadas', m.mensal?money(m.mensal)+'/mês · '+Object.keys(m.pessoas).length+' meta(s) individual(is)':'sem meta de equipa'); } break;
     case 'dup-fundir': {
       const gi=el.dataset.g; const card=el.closest('[data-dupg]'); if(!card) break;
       const tipo=card.dataset.tipo;
