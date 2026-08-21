@@ -1196,6 +1196,9 @@ const lineTotals = linhas => {
 const propTotal = p => proposalTotals(p).total;
 const PROP_STATES = ['Criada','Enviada','Negociação','Ganha','Perdida'];
 const LOSS_REASONS = ['Preço','Concorrência','Timing / adiado','Sem orçamento','Sem resposta','Necessidade mudou','Funcionalidades','Outro'];
+/* Registamos porque se perde - mas é o porquê de GANHAR que se quer repetir.
+   Sem isto, a equipa aprende a evitar erros e não a repetir acertos. */
+const WIN_REASONS = ['Preço','Funcionalidades','Relação / confiança','Prazo de entrega','Recomendação','Fornecedor único','Rapidez de resposta','Outro'];
 const stateColor = s => ({Criada:'grey',Enviada:'blue',Negociação:'amber',Ganha:'green',Perdida:'red'}[s]||'grey');
 const stateDot = s => ({Criada:'#86978d',Enviada:'#2563eb',Negociação:'#d97706',Ganha:'#00A651',Perdida:'#dc2626'}[s]||'#86978d');
 /* ---------- Ciclo de aprovação de propostas (UFCD 10865 - approval mechanisms) ---------- */
@@ -2587,7 +2590,7 @@ function timelineEmpresa(empId){
 
   (state.propostas||[]).filter(p=>p.empresaId===empId).forEach(p=>{
     add(p.criada,"doc","#00A651","Proposta "+(p.numero||""),(p.titulo||"")+" · "+money(propTotal(p)));
-    if(p.estado==="Ganha")   add(p.alteradoEm||p.criada,"check","#00A651","Proposta ganha",(p.numero||"")+" · "+money(propTotal(p)));
+    if(p.estado==="Ganha")   add(p.alteradoEm||p.criada,"check","#00A651","Proposta ganha",(p.numero||"")+" · "+money(propTotal(p))+(p.motivoGanho?" · "+p.motivoGanho:""));
     if(p.estado==="Perdida") add(p.alteradoEm||p.criada,"alert","#dc2626","Proposta perdida",(p.numero||"")+(p.motivoPerda?" · "+p.motivoPerda:""));
   });
 
@@ -2876,6 +2879,8 @@ views.analytics = () => {
   // --- pedagógicos avançados ---
   const lossR={}; perdidas.forEach(p=>{ const m=(p.motivoPerda||'').trim()||'(por classificar)'; lossR[m]=(lossR[m]||0)+1; });
   const lossE=Object.entries(lossR).sort((a,b)=>b[1]-a[1]); const lossMax=Math.max(...lossE.map(e=>e[1]),1); const topLoss=lossE[0]?lossE[0][0]:null;
+  const winR={}; ganhas.forEach(p=>{ const m=(p.motivoGanho||'').trim()||'(por classificar)'; winR[m]=(winR[m]||0)+1; });
+  const winE=Object.entries(winR).sort((a,b)=>b[1]-a[1]); const winMax=Math.max(...winE.map(e=>e[1]),1);
   const cacBudget=+state.settings.cacBudget||0; const cac=novos?cacBudget/novos:0; const ltvCac=cac?ltv/cac:0;
   const hot=accountList().filter(a=>a.score>=70);
   const insights=aiInsights({conv,churn,ltv,cac,ltvCac,topLoss,hot:hot.length});
@@ -2960,6 +2965,10 @@ views.analytics = () => {
     </div>
   </div>
   <div class="split eq">
+    <div class="card card-pad">
+      <div class="section-head" style="margin-bottom:14px"><div><h3>Análise de ganhos</h3><div class="sub">Porque se ganharam ${ganhas.length} proposta(s) - é isto que se quer repetir</div></div></div>
+      ${ganhas.length?`<div class="funnel">${winE.map(([m,n])=>`<div class="funnel-row"><div class="funnel-bar" style="width:${Math.max(14,n/winMax*100)}%;background:#3cba6f">${esc(m)} · ${n}</div><span class="funnel-meta">${Math.round(n/ganhas.length*100)}%</span></div>`).join('')}</div>`:empty('Sem propostas ganhas')}
+    </div>
     <div class="card card-pad">
       <div class="section-head" style="margin-bottom:14px"><div><h3>Análise de perdas ${infoTip('motivoperda')}</h3><div class="sub">Porque se perderam ${perdidas.length} proposta(s)</div></div></div>
       ${perdidas.length?`<div class="funnel">${lossE.map(([m,n])=>`<div class="funnel-row"><div class="funnel-bar" style="width:${Math.max(14,n/lossMax*100)}%;background:#d8746c">${esc(m)} · ${n}</div><span class="funnel-meta">${Math.round(n/perdidas.length*100)}%</span></div>`).join('')}</div>${(topLoss&&topLoss!=='(por classificar)')?`<div class="callout warn" style="margin-top:14px">${ic('alert',16)}<div class="ctxt">Maior causa de perda: <strong>${esc(topLoss)}</strong>. Crie um argumentário específico para reduzir estas perdas.</div></div>`:''}`:empty('Sem perdas no período','Nenhuma proposta perdida - bom trabalho.')}
@@ -5246,6 +5255,8 @@ function renderPropForm(){
       <div class="field"><label>Responsável</label><select name="responsavelId" ${locked?'disabled':''}>${opt([{v:'',t:'- por atribuir -'}].concat(equipaOpts()),p.responsavelId||'')}</select><span class="hint">Quem conduz este negócio.</span></div>
       ${p.estado==='Perdida'?`<div class="field"><label>Motivo da perda ${infoTip('motivoperda')}</label><select name="motivoPerda">${opt([{v:'',t:'- selecione -'}].concat(LOSS_REASONS.map(x=>({v:x,t:x}))),p.motivoPerda||'')}</select></div>
       <div class="field full"><label>Detalhe do motivo (opcional)</label><input name="motivoPerdaNota" value="${esc(p.motivoPerdaNota||'')}" placeholder="ex.: concorrente 15% mais barato"></div>`:''}
+      ${p.estado==='Ganha'?`<div class="field"><label>Motivo do ganho</label><select name="motivoGanho">${opt([{v:'',t:'- selecione -'}].concat(WIN_REASONS.map(x=>({v:x,t:x}))),p.motivoGanho||'')}</select><span class="hint">O que fez o cliente decidir - é isto que se quer repetir.</span></div>
+      <div class="field full"><label>Detalhe (opcional)</label><input name="motivoGanhoNota" value="${esc(p.motivoGanhoNota||'')}" placeholder="ex.: única solução com RGPD incluído"></div>`:''}
       <div class="field full"><label>Título *</label><input name="titulo" value="${esc(p.titulo)}" ${locked?'readonly':''}></div>
       ${locked
         ? `<div class="field"><label>Empresa (cliente da venda)</label><input value="${esc(comboLabel('empresas',p.empresaId)||'- particular -')}" readonly style="background:var(--surface3);color:var(--muted);cursor:not-allowed"><input type="hidden" name="empresaId" value="${esc(p.empresaId||'')}"></div>
@@ -5310,7 +5321,7 @@ function propTotalsHTML(p){
 }
 function syncDraftFromForm(){
   const f=$('#modalForm'); if(!f) return;
-  ['numero','titulo','empresaId','clienteId','validade','estado','templateId','motivoPerda','motivoPerdaNota','meses','interesse','responsavelId'].forEach(k=>{ const el=f.querySelector(`[name="${k}"]`); if(el) propDraft[k]=el.value; });
+  ['numero','titulo','empresaId','clienteId','validade','estado','templateId','motivoPerda','motivoPerdaNota','motivoGanho','motivoGanhoNota','meses','interesse','responsavelId'].forEach(k=>{ const el=f.querySelector(`[name="${k}"]`); if(el) propDraft[k]=el.value; });
   $$('.line-row',f).forEach(row=>{ const i=+row.dataset.line; const L=propDraft.linhas[i]; if(!L)return;
     const ps=row.querySelector('[data-l="produtoId"]'); if(ps){ L.produtoId=ps.value; const prod=state.produtos.find(x=>x.id===ps.value); L.descricao=prod?prod.nome:(L.descricao||''); L.modelo=prod?prod.modelo:(L.modelo||'Único'); }
     const q=row.querySelector('[data-l="qtd"]'); if(q)L.qtd=Number(q.value||0);
@@ -5388,6 +5399,7 @@ function onPropStatusChange(p, oldS, newS){
   if(newS==='Ganha') fireAutomations('proposta-ganha',{clienteId:p.clienteId,proposta:p});
   else if(newS==='Enviada') fireAutomations('proposta-enviada',{clienteId:p.clienteId,proposta:p});
   else if(newS==='Perdida' && !p.motivoPerda){ toast('Registe o motivo da perda','Porque perdeu este negócio?','warn'); setTimeout(()=>openModal('proposta',p.id),350); }
+  if(newS==='Ganha' && !p.motivoGanho) toast('Registe o motivo do ganho','O que fez o cliente decidir? É isso que se quer repetir','info');
 }
 function persistPropDraft(){
   if(!propDraft) return false; syncDraftFromForm();
@@ -6378,6 +6390,9 @@ document.addEventListener('change', e=>{
     if(cx){ const abrir=e.target.value===e.target.dataset.outro; cx.style.display=abrir?'':'none'; if(abrir) cx.focus(); else cx.value=''; }
     return; }
   if(propDraft && e.target.name==='clienteId'){ syncDraftFromForm(); const cc=getC(propDraft.clienteId); if(cc&&cc.empresaId&&!propDraft.empresaId){ propDraft.empresaId=cc.empresaId; renderPropForm(); } else refreshTotals(); return; }
+  /* trocar o estado faz aparecer o campo do motivo (ganho ou perda) na hora,
+     em vez de so ao reabrir a proposta */
+  if(propDraft && e.target.name==='estado'){ syncDraftFromForm(); renderPropForm(); return; }
   if(propDraft && e.target.name==='empresaId'){
     syncDraftFromForm();
     const cli=getC(propDraft.clienteId);
