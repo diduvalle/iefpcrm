@@ -1746,9 +1746,11 @@ function propAccObj(p){ return p&&p.empresaId ? ((state.empresas||[]).find(e=>e.
 function empBodyHTML(){
   const q=(state._q||'').toLowerCase();
   const fase=state._faseFilter||'';
-  const list=state.empresas.filter(e=>!q||[e.numero,e.nome,e.nipc,e.cidade,e.setor].join(' ').toLowerCase().includes(q)).filter(e=>!fase||(e.fase||'Lead')===fase);
+  const list=state.empresas.filter(e=>!q||[e.numero,e.nome,e.nipc,e.cidade,e.setor].join(' ').toLowerCase().includes(q))
+    .filter(e=>!fase||(e.fase||'Lead')===fase)
+    .filter(e=>respMatch(e,state._respF||''));
   const pg=paginate(list,'empresas');
-  return `<div class="table-wrap"><table><thead><tr><th>N.º</th><th>Empresa</th><th>Fase</th><th>Setor / Dimensão</th><th>Origem</th><th class="t-center">Pessoas</th><th>Loyalty</th>${canSeeFinance()?'<th class="t-right">Valor</th>':''}<th></th></tr></thead><tbody>
+  return `<div class="table-wrap"><table><thead><tr><th>N.º</th><th>Empresa</th><th>Fase</th><th>Setor / Dimensão</th><th>Origem</th><th class="t-center">Pessoas</th><th>Loyalty</th><th>Responsável</th>${canSeeFinance()?'<th class="t-right">Valor</th>':''}<th></th></tr></thead><tbody>
       ${list.length?pg.slice.map(e=>{const nc=empContacts(e.id).length;const sc=empLeadScore(e);const si=scoreInfo(sc);const fz=e.fase||'Lead';const lyl=e.loyalty||'Bronze';return `<tr data-act="open-empresa" data-id="${e.id}" style="cursor:pointer">
         <td class="muted">${esc(e.numero||'-')}</td>
         <td><div class="cell-main">${esc(e.nome)} <span class="pill" style="background:${si.c}22;color:${si.c};font-size:.62rem" title="Lead score ${sc}/100">${si.l} ${sc}</span></div><div class="cell-sub">${esc(e.cidade||'')}${e.regiao&&e.regiao!=='Continente'?' · '+esc(e.regiao):''}</div></td>
@@ -1757,6 +1759,7 @@ function empBodyHTML(){
         <td>${e.origem?`<span class="chip" title="${esc(comDetalhe(e.origem,e.origemOutro))}">${esc(comDetalhe(e.origem,e.origemOutro))}</span>`:'<span class="muted">-</span>'}</td>
         <td class="t-center"><strong>${nc}</strong></td>
         <td><span class="pill ${lyl==='Ouro'?'amber':lyl==='Prata'?'grey':'green'}">${esc(lyl)}</span></td>
+        <td>${respSelo(e.responsavelId)}</td>
         ${canSeeFinance()?`<td class="t-right"><strong>${money(empValue(e.id))}</strong></td>`:''}
         <td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="empresa" data-id="${e.id}" data-stop>Editar</button></div></td>
       </tr>`;}).join(''):`<tr><td colspan="9">${empty('Sem empresas','Crie a primeira empresa, ou adicione contactos com empresa associada.')}</td></tr>`}
@@ -1778,6 +1781,7 @@ views.empresas = () => {
       <div><h3>Empresas ${infoTip('empresa')}</h3><div class="sub">A conta comercial: dados fiscais, fase do lead, loyalty e valor. Clique para ver a ficha e as pessoas.</div></div>
       <div class="toolbar">
         <div class="search-inp">${ic('eye',15)}<input type="search" placeholder="Filtrar empresas…" data-search value="${esc(state._q||'')}"></div>
+        ${respFiltroHTML(state._respF||'')}
         <button class="btn-sec" data-act="duplicados" title="Procurar empresas repetidas">${ic('shield',15)} Duplicados</button>
         <button class="btn" data-act="new" data-type="empresa">${ic('building',16)} Nova empresa</button>
       </div>
@@ -1993,6 +1997,7 @@ views.propostas = () => {
       </div>
       <div style="display:flex;gap:8px;flex:0 0 auto">
         <a class="btn-sec" href="#retencao" title="Contratos cancelados e retenção (churn)">${ic('heart',16)} Retenção</a>
+        ${respFiltroHTML(state._respF||'')}
         <button class="btn" data-act="new" data-type="proposta">${ic('doc',16)} Nova proposta</button>
       </div>
     </div>
@@ -2014,7 +2019,10 @@ function aprovacaoPanelHTML(){
     </tbody></table></div>
   </div>`;
 }
-function propListFiltered(){ const q=(state._q||'').toLowerCase().trim(); let list=state.propostas; if(q) list=list.filter(p=>[p.numero,p.titulo,propAccount(p),clientName(p.clienteId)].join(' ').toLowerCase().includes(q)); return list; }
+function propListFiltered(){
+  /* o filtro por responsável aplica-se antes de tudo o resto */
+  const q=(state._q||'').toLowerCase().trim();
+  let list=state.propostas.filter(p=>respMatch(p,state._respF||'')); if(q) list=list.filter(p=>[p.numero,p.titulo,propAccount(p),clientName(p.clienteId)].join(' ').toLowerCase().includes(q)); return list; }
 function kanbanHTML(){
   const src=propListFiltered();
   return `<div class="kanban">${PROP_STATES.map(st=>{
@@ -2475,6 +2483,31 @@ function abrirDuplicados(){
   { const sv=$("[data-act=\"modal-save\"]"); if(sv){ sv.style.display=""; sv.disabled=false; sv.textContent="Fechar"; } }
   $("#modalForm").innerHTML=`<div id="dupBox">${dupModalHTML()}</div>`;
   $("#modalBack").classList.add("open");
+}
+/* Selo do responsável. Cada conta e cada negócio têm dono - é a base do "as
+   minhas propostas" e de se saber a quem perguntar. */
+function respSelo(id){
+  const n=utilizadorNome(id);
+  if(!n) return '<span class="muted" style="font-size:.72rem">- por atribuir -</span>';
+  const eu=currentUser(); const meu=eu&&eu.id===id;
+  return `<span class="chip" style="font-size:.68rem${meu?';background:var(--g100);color:var(--g700);font-weight:700':''}" title="Responsável">${esc(n)}${meu?' (eu)':''}</span>`;
+}
+/* filtro partilhado pelas duas listas: '', 'eu', ou o id de alguém */
+function respFiltroHTML(valor){
+  const eu=currentUser();
+  return `<select data-act="resp-filtro" style="flex:0 0 auto" title="Filtrar por responsável">
+    <option value="">Todos os responsáveis</option>
+    ${eu?`<option value="eu" ${valor==='eu'?'selected':''}>As minhas</option>`:''}
+    <option value="sem" ${valor==='sem'?'selected':''}>Por atribuir</option>
+    ${equipaOpts().map(o=>`<option value="${o.v}" ${valor===o.v?'selected':''}>${esc(o.t)}</option>`).join('')}
+  </select>`;
+}
+function respMatch(x,filtro){
+  if(!filtro) return true;
+  const eu=currentUser();
+  if(filtro==='eu') return !!eu && x.responsavelId===eu.id;
+  if(filtro==='sem') return !x.responsavelId;
+  return x.responsavelId===filtro;
 }
 function comDetalhe(valor,detalhe){ const v=String(valor||''); const d=String(detalhe||'').trim();
   return (v && d) ? (v+': '+d) : v; }
@@ -4589,6 +4622,7 @@ const SCHEMAS = {
     {n:'regiao',l:'Região (IVA)',type:'select',opts:['Continente','Madeira','Açores'].map(x=>({v:x,t:x}))},
     {n:'website',l:'Website'},{n:'telefone',l:'Telefone',type:'tel'},{n:'email',l:'Email',type:'email'},
     {n:'atividade',l:'Atividade / objeto social',type:'textarea',full:1,hint:'O que a empresa faz (preenche-se com Procurar)'},
+    {n:'responsavelId',l:'Responsável',type:'select',opts:()=>[{v:'',t:'- por atribuir -'}].concat(equipaOpts()),labelFor:id=>utilizadorNome(id),hint:'Quem trata desta conta. A equipa é a tua turma.'},
     {n:'notas',l:'Notas',type:'textarea',full:1},
   ]},
   tarefa:{store:'tarefas',label:'Tarefa',fem:1,fields:[
@@ -4966,6 +5000,8 @@ async function saveModal(){
   const i=state[store].findIndex(x=>x.id===obj.id);
   const isNew=i<0;
   if(isNew && !obj.fonte) obj.fonte='manual';   // criado à mão (distingue de 'gerado'/'base' na revisão do formador)
+  /* quem cria fica responsável, como em qualquer CRM - pode trocar-se depois */
+  if(isNew && 'responsavelId' in obj && !obj.responsavelId){ const u=currentUser(); if(u) obj.responsavelId=u.id; }
   if(i>=0) state[store][i]=obj; else state[store].push(obj);
   recalcLoyalty(); save(); closeModal(); render();
   // se a ficha 360 desta conta/contacto estava aberta, refresca-a com os dados novos
@@ -4987,6 +5023,7 @@ function openPropModal(id){
   const isEdit=!!id;
   propDraft=isEdit?clone(state.propostas.find(x=>x.id===id)):{
     id:uid('prop'),numero:nextProposalNumber(),titulo:'',clienteId:'',empresaId:'',meses:12,
+    responsavelId:(currentUser()?currentUser().id:''),
     criada:todayISO(),validade:addDays(todayISO(),30),estado:'',linhas:[{produtoId:'',descricao:'',qtd:1,preco:0,iva:defaultIva(),modelo:'Único'}]
   };
   // garantir produtoId nas linhas (associação ao catálogo)
@@ -5063,6 +5100,7 @@ function renderPropForm(){
     <div class="form-grid">
       <div class="field"><label>Número (automático)</label><input name="numero" value="${esc(p.numero)}" readonly style="background:var(--surface3);color:var(--muted);cursor:not-allowed"></div>
       <div class="field"><label>Nível de interesse do cliente</label><select name="interesse">${opt(INTERESSE.map(s=>({v:s,t:s})),p.interesse||'Por classificar')}</select></div>
+      <div class="field"><label>Responsável</label><select name="responsavelId" ${locked?'disabled':''}>${opt([{v:'',t:'- por atribuir -'}].concat(equipaOpts()),p.responsavelId||'')}</select><span class="hint">Quem conduz este negócio.</span></div>
       ${p.estado==='Perdida'?`<div class="field"><label>Motivo da perda ${infoTip('motivoperda')}</label><select name="motivoPerda">${opt([{v:'',t:'- selecione -'}].concat(LOSS_REASONS.map(x=>({v:x,t:x}))),p.motivoPerda||'')}</select></div>
       <div class="field full"><label>Detalhe do motivo (opcional)</label><input name="motivoPerdaNota" value="${esc(p.motivoPerdaNota||'')}" placeholder="ex.: concorrente 15% mais barato"></div>`:''}
       <div class="field full"><label>Título *</label><input name="titulo" value="${esc(p.titulo)}" ${locked?'readonly':''}></div>
@@ -5129,7 +5167,7 @@ function propTotalsHTML(p){
 }
 function syncDraftFromForm(){
   const f=$('#modalForm'); if(!f) return;
-  ['numero','titulo','empresaId','clienteId','validade','estado','templateId','motivoPerda','motivoPerdaNota','meses','interesse'].forEach(k=>{ const el=f.querySelector(`[name="${k}"]`); if(el) propDraft[k]=el.value; });
+  ['numero','titulo','empresaId','clienteId','validade','estado','templateId','motivoPerda','motivoPerdaNota','meses','interesse','responsavelId'].forEach(k=>{ const el=f.querySelector(`[name="${k}"]`); if(el) propDraft[k]=el.value; });
   $$('.line-row',f).forEach(row=>{ const i=+row.dataset.line; const L=propDraft.linhas[i]; if(!L)return;
     const ps=row.querySelector('[data-l="produtoId"]'); if(ps){ L.produtoId=ps.value; const prod=state.produtos.find(x=>x.id===ps.value); L.descricao=prod?prod.nome:(L.descricao||''); L.modelo=prod?prod.modelo:(L.modelo||'Único'); }
     const q=row.querySelector('[data-l="qtd"]'); if(q)L.qtd=Number(q.value||0);
@@ -6207,6 +6245,7 @@ document.addEventListener('change', e=>{
     refreshTotals(); return; }
   if(emailDraft && (e.target.id==='emCor'||e.target.id==='emLogo'||e.target.dataset.em!=null)){ updateEmailPreview(); return; }
   if(sendDraft && e.target.dataset.send==='templateId'){ syncSendDraft(); renderSendForm(); return; }
+  if(e.target.dataset&&e.target.dataset.act==='resp-filtro'){ state._respF=e.target.value; render(); return; }
   const fl=e.target.closest('[data-filter]'); if(fl){ if(fl.dataset.filter==='fFam'){state._fFam=fl.value;state._fSub='';} else state._fSub=fl.value; render(); return; }
   const dr=e.target.closest('[data-drange]'); if(dr){ const a=dr.dataset.drange.split(':'); setDateField(a[0],a[1],dr.value); return; }
   const perm=e.target.closest('[data-perm]'); if(perm){ togglePerm(perm.dataset.perm, perm.dataset.mod, perm.checked, perm); return; }
