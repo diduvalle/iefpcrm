@@ -4851,7 +4851,7 @@ function openPropModal(id){
   const isEdit=!!id;
   propDraft=isEdit?clone(state.propostas.find(x=>x.id===id)):{
     id:uid('prop'),numero:nextProposalNumber(),titulo:'',clienteId:'',empresaId:'',meses:12,
-    criada:todayISO(),validade:addDays(todayISO(),30),estado:'Criada',linhas:[{produtoId:'',descricao:'',qtd:1,preco:0,iva:defaultIva(),modelo:'Único'}]
+    criada:todayISO(),validade:addDays(todayISO(),30),estado:'',linhas:[{produtoId:'',descricao:'',qtd:1,preco:0,iva:defaultIva(),modelo:'Único'}]
   };
   // garantir produtoId nas linhas (associação ao catálogo)
   propDraft.linhas.forEach(l=>{ if(!l.produtoId){ const pr=state.produtos.find(x=>x.nome===l.descricao); if(pr) l.produtoId=pr.id; } });
@@ -4926,7 +4926,6 @@ function renderPropForm(){
     </div>`; })()}
     <div class="form-grid">
       <div class="field"><label>Número (automático)</label><input name="numero" value="${esc(p.numero)}" readonly style="background:var(--surface3);color:var(--muted);cursor:not-allowed"></div>
-      <div class="field"><label>Estado</label><select name="estado">${opt(PROP_STATES.map(s=>({v:s,t:s})),p.estado)}</select><span class="hint">Num negócio fechado na hora, pode escolher já <strong>Ganha</strong> - não é preciso passar pelo pipeline.</span></div>
       <div class="field"><label>Nível de interesse do cliente</label><select name="interesse">${opt(INTERESSE.map(s=>({v:s,t:s})),p.interesse||'Por classificar')}</select></div>
       ${p.estado==='Perdida'?`<div class="field"><label>Motivo da perda ${infoTip('motivoperda')}</label><select name="motivoPerda">${opt([{v:'',t:'- selecione -'}].concat(LOSS_REASONS.map(x=>({v:x,t:x}))),p.motivoPerda||'')}</select></div>
       <div class="field full"><label>Detalhe do motivo (opcional)</label><input name="motivoPerdaNota" value="${esc(p.motivoPerdaNota||'')}" placeholder="ex.: concorrente 15% mais barato"></div>`:''}
@@ -4946,6 +4945,10 @@ function renderPropForm(){
     <div class="line-head"><span>Artigo (catálogo)</span><span>Qtd</span><span>Preço</span><span>Desc. %</span><span>Total</span><span>IVA</span><span></span></div>
     <div class="lines" id="lines">${p.linhas.map((l,i)=>lineRow(l,i,locked)).join('')}</div>
     <div id="propTotalsWrap">${propTotalsHTML(p)}</div>
+    <div class="divider" style="margin:16px 0 12px"></div>
+    <div class="form-grid">
+      <div class="field"><label>Estado da proposta *</label><select name="estado">${opt([{v:'',t:'- por definir -'}].concat(PROP_STATES.map(s=>({v:s,t:s}))),p.estado||'')}</select><span class="hint">Fica para o fim de propósito: escolher <strong>Ganha</strong> ou <strong>Perdida</strong> <strong>fecha a proposta</strong> e deixa de se poder editar os artigos. Num negócio fechado na hora, pode escolher já Ganha.</span></div>
+    </div>
     <div class="muted" style="font-size:.74rem;margin-top:14px;border-top:1px solid var(--border);padding-top:8px">${ic('users',12)} Criada por ${esc(aC?aC.nome+' '+(aC.apelido||''):'-')}${p.criadoEm?' em '+dPT(p.criadoEm):''} · Última alteração: ${esc(aA?aA.nome+' '+(aA.apelido||''):'-')}${p.alteradoEm?' em '+dPT(p.alteradoEm):''}</div>
     ${versoesHTML(p)}`;
   syncDraftFromForm();
@@ -5010,6 +5013,13 @@ function savePropModal(closeAfter){
   if(!propDraft.empresaId){ toast('Falta a empresa','A venda é sempre a uma empresa. Escolha a empresa (para clientes em nome individual, crie a empresa a partir do contacto).','warn'); return; }
   if(!propDraft.titulo.trim()){ toast('Falta o título','Indique um título para a proposta','warn'); return; }
   if(!(propDraft.linhas||[]).some(l=>l.produtoId)){ toast('Sem artigos','Adicione pelo menos um artigo do catálogo','warn'); return; }
+  /* o estado é uma decisão, não um valor por omissão: obriga a dizer em que ponto está */
+  if(!propDraft.estado){
+    toast('Falta o estado','Indique em que ponto está a proposta - o campo está no fim do formulário','warn');
+    const sel=$('#modalForm [name="estado"]');
+    if(sel){ sel.scrollIntoView({block:'center',behavior:'smooth'}); setTimeout(()=>sel.focus(),300); }
+    return;
+  }
   const i=state.propostas.findIndex(x=>x.id===propDraft.id);
   const oldEstado=i>=0?state.propostas[i].estado:null;
   /* proposta NOVA que ja nasce ganha: confirmar, porque as consequências
