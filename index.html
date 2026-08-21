@@ -1778,6 +1778,7 @@ views.empresas = () => {
       <div><h3>Empresas ${infoTip('empresa')}</h3><div class="sub">A conta comercial: dados fiscais, fase do lead, loyalty e valor. Clique para ver a ficha e as pessoas.</div></div>
       <div class="toolbar">
         <div class="search-inp">${ic('eye',15)}<input type="search" placeholder="Filtrar empresas…" data-search value="${esc(state._q||'')}"></div>
+        <button class="btn-sec" data-act="duplicados" title="Procurar empresas repetidas">${ic('shield',15)} Duplicados</button>
         <button class="btn" data-act="new" data-type="empresa">${ic('building',16)} Nova empresa</button>
       </div>
     </div>
@@ -1863,6 +1864,7 @@ views.clientes = () => {
       <div><h3>Contactos ${infoTip('empresa')}</h3><div class="sub">Lista de pessoas (como as páginas amarelas). A <strong>venda, o valor, o loyalty e a fase de lead são da empresa</strong> - ver o menu Empresas.</div></div>
       <div class="toolbar">
         <div class="search-inp">${ic('eye',15)}<input type="search" placeholder="Filtrar pessoas…" data-search value="${esc(state._q||'')}"></div>
+        <button class="btn-sec" data-act="duplicados" title="Procurar contactos repetidos">${ic('shield',15)} Duplicados</button>
         <button class="btn" data-act="new" data-type="cliente">${ic('users',16)} Novo contacto</button>
       </div>
     </div>
@@ -2343,6 +2345,137 @@ function agendaWeekHTML(tasks,today){
 }
 function taskColor(t){ return {Chamada:'blue','Reunião':'green','Follow-up':'amber','Email':'purple'}[t&&t.tipo]||'grey'; }
 /* "Outro" sozinho nao diz nada a quem le a ficha: mostra o que foi escrito */
+/* ================== QUALIDADE DE DADOS: DUPLICADOS ==================
+   A app já IMPEDE duplicados na criação (NIPC, email, NIF). O que faltava era
+   limpar os que já lá estão - e entram: pela importação CSV, pelo gerador, e
+   sempre que o email/NIF ficam vazios (aí a verificação não dispara).
+
+   Não é só arrumação: um titular duplicado recebe o email duas vezes e o
+   relatório de acesso (art. 15.º) sai incompleto. O RGPD exige exatidão
+   (art. 5.º/1 d)). */
+
+const dupTxt = t => String(t||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+  .replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();
+const dupDig = v => String(v||"").replace(/\D/g,"");
+/* o nome da empresa compara-se sem a forma societária: "Silva & Filhos, Lda."
+   e "Silva e Filhos Lda" são a mesma empresa */
+const DUP_SUF=["lda","sa","unipessoal","eni","sociedade anonima","s a"];
+function dupEmpNome(n){ let t=dupTxt(n).replace(/\b(e|and)\b/g," ");
+  DUP_SUF.forEach(x=>{ t=t.replace(new RegExp("\\b"+x+"\\b","g")," "); });
+  return t.replace(/\s+/g," ").trim(); }
+
+/* Agrupa por uma chave; devolve só os grupos com mais do que um registo. */
+function dupGrupos(lista, chaveFn, porque){
+  const m={};
+  (lista||[]).forEach(x=>{ const k=chaveFn(x); if(!k) return; (m[k]=m[k]||[]).push(x); });
+  return Object.keys(m).filter(k=>m[k].length>1).map(k=>({chave:k, porque, itens:m[k]}));
+}
+/* Um registo só aparece num grupo: a regra mais forte ganha. */
+function dupDetetar(){
+  const emp=state.empresas||[], cli=state.clientes||[];
+  const usado=new Set(); const out=[];
+  const junta=gs=>gs.forEach(g=>{
+    const itens=g.itens.filter(x=>!usado.has(x.id));
+    if(itens.length>1){ itens.forEach(x=>usado.add(x.id)); out.push(Object.assign({},g,{itens})); }
+  });
+  junta(dupGrupos(emp, e=>dupDig(e.nipc).length===9?"nipc:"+dupDig(e.nipc):"", "NIPC igual"));
+  junta(dupGrupos(emp, e=>{const n=dupEmpNome(e.nome); return n.length>2?"nome:"+n:"";}, "Mesmo nome (ignorando Lda/SA)"));
+  const empOut=out.map(g=>Object.assign({},g,{tipo:"empresa"}));
+
+  const usado2=new Set(); const out2=[];
+  const junta2=gs=>gs.forEach(g=>{
+    const itens=g.itens.filter(x=>!usado2.has(x.id));
+    if(itens.length>1){ itens.forEach(x=>usado2.add(x.id)); out2.push(Object.assign({},g,{itens})); }
+  });
+  junta2(dupGrupos(cli, c=>c.email?"em:"+dupTxt(c.email):"", "Email igual"));
+  junta2(dupGrupos(cli, c=>dupDig(c.nif).length===9?"nif:"+dupDig(c.nif):"", "NIF igual"));
+  junta2(dupGrupos(cli, c=>dupDig(c.telefone).length>=9?"tel:"+dupDig(c.telefone):"", "Telefone igual"));
+  junta2(dupGrupos(cli, c=>{const n=dupTxt((c.nome||"")+" "+(c.apelido||"")); return n.length>4?"nm:"+n:"";}, "Mesmo nome"));
+  return empOut.concat(out2.map(g=>Object.assign({},g,{tipo:"contacto"})));
+}
+
+/* Reaponta QUALQUER referência ao registo que vai desaparecer. Percorre todo o
+   state em vez de uma lista fixa de coleções: se amanhã houver uma coleção nova,
+   continua a funcionar e não ficam referências penduradas. */
+function dupReapontar(campo, de, para){
+  let n=0;
+  Object.keys(state).forEach(k=>{
+    if(!Array.isArray(state[k])) return;
+    state[k].forEach(x=>{ if(x && typeof x==="object" && x[campo]===de){ x[campo]=para; n++; } });
+  });
+  return n;
+}
+/* quantos campos preenchidos tem - serve para sugerir qual fica */
+function dupRiqueza(o){ return Object.keys(o||{}).filter(k=>k[0]!=="_"&&o[k]!=null&&o[k]!==""&&!(Array.isArray(o[k])&&!o[k].length)).length; }
+
+function dupFundir(tipo, ficaId, outrosIds){
+  const store = tipo==="empresa" ? "empresas" : "clientes";
+  const campo = tipo==="empresa" ? "empresaId" : "clienteId";
+  const fica=(state[store]||[]).find(x=>x.id===ficaId); if(!fica) return null;
+  let refs=0, campos=0;
+  outrosIds.forEach(oid=>{
+    const o=(state[store]||[]).find(x=>x.id===oid); if(!o) return;
+    /* o que o principal não tem, herda do duplicado - não se perde informação */
+    Object.keys(o).forEach(k=>{
+      if(k==="id"||k[0]==="_") return;
+      const v=fica[k];
+      if(v==null||v===""||(Array.isArray(v)&&!v.length)){ if(o[k]!=null&&o[k]!==""){ fica[k]=o[k]; campos++; } }
+    });
+    refs+=dupReapontar(campo, oid, ficaId);
+    state[store]=state[store].filter(x=>x.id!==oid);
+  });
+  /* o nome da empresa está copiado nos contactos e propostas: acertar */
+  if(tipo==="empresa"){ (state.clientes||[]).forEach(c=>{ if(c.empresaId===ficaId) c.empresa=fica.nome; });
+    (state.propostas||[]).forEach(p=>{ if(p.empresaId===ficaId) p.empresa=fica.nome; }); }
+  recalcLoyalty(); save();
+  return {refs, campos, apagados:outrosIds.length};
+}
+function dupRotulo(tipo,x){
+  if(tipo==="empresa") return (x.nome||"(sem nome)")+(x.nipc?" · "+x.nipc:"")+(x.cidade?" · "+x.cidade:"");
+  return (((x.nome||"")+" "+(x.apelido||"")).trim()||"(sem nome)")+(x.email?" · "+x.email:"")+(x.empresa?" · "+x.empresa:"");
+}
+/* o que este registo arrasta consigo - ajuda a decidir qual fica */
+function dupPeso(tipo,x){
+  const campo=tipo==="empresa"?"empresaId":"clienteId"; let n=0;
+  Object.keys(state).forEach(k=>{ if(Array.isArray(state[k])) state[k].forEach(o=>{ if(o&&o[campo]===x.id) n++; }); });
+  return n;
+}
+function dupModalHTML(){
+  const gs=dupDetetar();
+  if(!gs.length) return `<div class="callout green" style="margin:0">${ic("check",18)}<div class="ctxt"><strong>Sem duplicados à vista.</strong> Nenhuma empresa ou contacto partilha NIPC, email, NIF, telefone ou nome.</div></div>`;
+  return `
+  <div class="callout warn" style="margin:0 0 14px">${ic("alert",16)}<div class="ctxt"><strong>${gs.length} grupo(s) de possíveis duplicados.</strong> Escolha qual fica: os outros são apagados e <strong>tudo o que lhes está ligado passa para o escolhido</strong> (propostas, casos, consentimentos, tarefas…). O que faltar no escolhido é herdado dos outros.</div></div>
+  ${gs.map((g,gi)=>{
+    /* sugere-se o registo mais COMPLETO, e em caso de empate o mais antigo.
+       O nº de ligações não conta: elas passam todas para o escolhido de qualquer
+       forma, por isso não distingue nada - o que importa é qual tem melhor ficha. */
+    const sug=g.itens.slice().sort((a,b)=>(dupRiqueza(b)-dupRiqueza(a))
+      || String(a.criado||a.criadoEm||"").localeCompare(String(b.criado||b.criadoEm||""))
+      || String(a.id).localeCompare(String(b.id)))[0];
+    return `<div class="card card-pad" style="padding:14px;margin-bottom:12px" data-dupg="${gi}" data-tipo="${g.tipo}">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
+        <span class="pill ${g.tipo==="empresa"?"blue":"green"}">${g.tipo==="empresa"?"Empresa":"Contacto"}</span>
+        <strong style="font-size:.9rem">${esc(g.porque)}</strong>
+        <span class="muted" style="font-size:.78rem">${g.itens.length} registos</span>
+        <button class="btn btn-xs" data-act="dup-fundir" data-g="${gi}" style="margin-left:auto">Fundir</button>
+      </div>
+      ${g.itens.map(x=>`<label style="display:flex;gap:9px;align-items:flex-start;padding:5px 0;cursor:pointer;font-size:.85rem">
+        <input type="radio" name="dup${gi}" value="${x.id}" ${x.id===sug.id?"checked":""} style="margin-top:3px;accent-color:var(--g600)">
+        <span style="flex:1">${esc(dupRotulo(g.tipo,x))}
+          <span class="muted" style="display:block;font-size:.74rem">${dupPeso(g.tipo,x)} registo(s) ligado(s) · ${dupRiqueza(x)} campos preenchidos${x.id===sug.id?" · <strong>sugerido</strong>":""}</span>
+        </span></label>`).join("")}
+    </div>`;}).join("")}`;
+}
+function abrirDuplicados(){
+  editing={type:"__dup"};
+  $("#modalTitle").textContent="Duplicados";
+  $("#modalSub").textContent="Qualidade dos dados - RGPD art. 5.º/1 d) (exatidão)";
+  $("#modal").classList.add("wide");
+  $("#modalDelete").style.display="none";
+  { const sv=$("[data-act=\"modal-save\"]"); if(sv){ sv.style.display=""; sv.disabled=false; sv.textContent="Fechar"; } }
+  $("#modalForm").innerHTML=`<div id="dupBox">${dupModalHTML()}</div>`;
+  $("#modalBack").classList.add("open");
+}
 function comDetalhe(valor,detalhe){ const v=String(valor||''); const d=String(detalhe||'').trim();
   return (v && d) ? (v+': '+d) : v; }
 function taskRow(t){ const c=t.clienteId?getC(t.clienteId):null; const over=t.estado!=='Concluída'&&t.data<todayISO(); const done=t.estado==='Concluída'; return `<div class="mini-item" style="${done?'opacity:.55':''}"><button class="task-check ${done?'on':''}" data-act="task-done" data-id="${t.id}" data-stop title="${done?'Reabrir':'Concluir'}">${done?ic('check',13):''}</button><span class="grow" data-act="edit" data-type="tarefa" data-id="${t.id}" style="cursor:pointer"><strong style="${done?'text-decoration:line-through':''}">${esc(t.titulo)}</strong><div class="muted" style="font-size:.74rem">${ic('calendar',12)} ${dPT(t.data)}${t.hora?' · '+esc(t.hora):''}${c?' · '+esc(c.nome)+' '+esc(c.apelido||''):''}</div></span>${String(t.notas||'').trim()?`<button class="icon-btn" data-act="task-nota" data-id="${t.id}" data-stop title="Tem notas - clique para ler" style="width:30px;height:30px;flex:0 0 auto">${ic('doc',15)}</button>`:''}<span class="pill ${over?'red':taskColor(t)}">${esc(t.tipo||'-')}</span></div>`; }
@@ -5804,6 +5937,23 @@ document.addEventListener('click', async e=>{
       else if(state._rgpdFiltro===f){ state._rgpdFiltro=null; }
       else { state._rgpdFiltro=f; state._rgpdTab=(f==='ativos')?'consent':'pedidos'; }
       rgpdRefresca(); } break;
+    case 'duplicados': abrirDuplicados(); break;
+    case 'dup-fundir': {
+      const gi=el.dataset.g; const card=el.closest('[data-dupg]'); if(!card) break;
+      const tipo=card.dataset.tipo;
+      const escolhido=(card.querySelector('input[type="radio"]:checked')||{}).value;
+      const outros=[...card.querySelectorAll('input[type="radio"]')].map(r=>r.value).filter(v=>v!==escolhido);
+      if(!escolhido||!outros.length) break;
+      const fica=(state[tipo==='empresa'?'empresas':'clientes']||[]).find(x=>x.id===escolhido);
+      uiConfirm('Fica "'+dupRotulo(tipo,fica)+'". Os outros '+outros.length+' são apagados e tudo o que lhes está ligado passa para este. Não há como desfazer.',
+        {title:'Fundir '+(tipo==='empresa'?'empresas':'contactos')+'?',danger:1,okText:'Fundir'}).then(o=>{
+          if(!o) return;
+          const r=dupFundir(tipo, escolhido, outros);
+          if(!r) return;
+          toast('Fundido', r.apagados+' registo(s) apagado(s) · '+r.refs+' ligação(ões) reapontada(s)'+(r.campos?' · '+r.campos+' campo(s) herdado(s)':''));
+          const box=$('#dupBox'); if(box) box.innerHTML=dupModalHTML();
+          render();
+        }); } break;
     case 'ir-propostas': location.hash='#propostas'; break;
     case 'ag-filtro': { const f=el.dataset.f||'';
       agendaFiltro = (!f || agendaFiltro===f) ? null : f;
