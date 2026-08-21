@@ -1090,6 +1090,8 @@ function load(){
   Object.values(state.roles||{}).forEach(r=>{ if(r&&Array.isArray(r.modules)&&!r.modules.includes('retencao')&&(r.gestor||r.modules.includes('casos'))) r.modules.push('retencao'); });
   if(!Array.isArray(state.settings.ivaRates)||!state.settings.ivaRates.length) state.settings.ivaRates=def.settings.ivaRates;
   if(!Array.isArray(state.settings.origens)||!state.settings.origens.length) state.settings.origens=def.settings.origens;
+  /* o rótulo "Outro" saiu da lista: quem já o tinha passa a Profissional */
+  (state.clientes||[]).forEach(c=>{ if(Array.isArray(c.contactosExtra)) c.contactosExtra.forEach(x=>{ if(x.rotulo==='Outro') x.rotulo='Profissional'; }); });
   if(Array.isArray(state.settings.origens)&&!state.settings.origens.includes('Formulário')){ const io=state.settings.origens.indexOf('Outro'); if(io>=0) state.settings.origens.splice(io,0,'Formulário'); else state.settings.origens.push('Formulário'); }
   if(!Array.isArray(state.settings.funcoes)||!state.settings.funcoes.length) state.settings.funcoes=FUNCOES.filter(Boolean);
   if(!state.settings.emailjs||typeof state.settings.emailjs!=='object') state.settings.emailjs=Object.assign({},EMAILJS_DEFAULT);
@@ -1752,7 +1754,7 @@ function propAccObj(p){ return p&&p.empresaId ? ((state.empresas||[]).find(e=>e.
 function empBodyHTML(){
   const q=(state._q||'').toLowerCase();
   const fase=state._faseFilter||'';
-  const list=state.empresas.filter(e=>!q||[e.numero,e.nome,e.nipc,e.cidade,e.setor].join(' ').toLowerCase().includes(q))
+  const list=state.empresas.filter(e=>!q||[e.numero,e.nome,e.nipc,e.cidade,e.setor,e.setorOutro].join(' ').toLowerCase().includes(q))
     .filter(e=>!fase||(e.fase||'Lead')===fase)
     .filter(e=>respMatch(e,state._respF||''));
   const pg=paginate(list,'empresas');
@@ -1761,7 +1763,7 @@ function empBodyHTML(){
         <td class="muted">${esc(e.numero||'-')}</td>
         <td><div class="cell-main">${esc(e.nome)} <span class="pill" style="background:${si.c}22;color:${si.c};font-size:.62rem" title="Lead score ${sc}/100">${si.l} ${sc}</span></div><div class="cell-sub">${esc(e.cidade||'')}${e.regiao&&e.regiao!=='Continente'?' · '+esc(e.regiao):''}</div></td>
         <td><span class="pill ${faseColor(fz)}">${esc(fz)}</span></td>
-        <td><span class="chip">${esc(e.setor||'-')}</span> <span class="pill grey">${esc(e.dimensao||'-')}</span></td>
+        <td><span class="chip" title="${esc(comDetalhe(e.setor,e.setorOutro))}">${esc(comDetalhe(e.setor,e.setorOutro)||'-')}</span> <span class="pill grey">${esc(e.dimensao||'-')}</span></td>
         <td>${e.origem?`<span class="chip" title="${esc(comDetalhe(e.origem,e.origemOutro))}">${esc(comDetalhe(e.origem,e.origemOutro))}</span>`:'<span class="muted">-</span>'}</td>
         <td class="t-center"><strong>${nc}</strong></td>
         <td><span class="pill ${lyl==='Ouro'?'amber':lyl==='Prata'?'grey':'green'}">${esc(lyl)}</span></td>
@@ -1809,7 +1811,7 @@ function openEmpresa360(id){
   const props=empProps(id);   // vendas ANCORADAS na empresa (não seguem o contacto)
   const ganhas=props.filter(p=>p.estado==='Ganha');
   const lyl=e.loyalty||'Bronze'; const fz=e.fase||'Lead'; const sc=empLeadScore(e); const si=scoreInfo(sc);
-  $('#drawerTitle').innerHTML=`<h3 style="font-size:1.1rem;font-weight:800">${esc(e.nome)} <span class="pill ${faseColor(fz)}" style="font-size:.66rem;vertical-align:middle">${esc(fz)}</span> <span class="pill" style="background:${si.c}22;color:${si.c};font-size:.66rem;vertical-align:middle" title="Lead score">${si.l} ${sc}</span></h3><div class="sub" style="color:var(--muted);font-size:.82rem">${esc(e.numero||'')} · ${esc(e.setor||'-')} · ${esc(e.dimensao||'-')} · <span class="pill ${lyl==='Ouro'?'amber':lyl==='Prata'?'grey':'green'}" style="font-size:.62rem">${esc(lyl)}</span></div>`;
+  $('#drawerTitle').innerHTML=`<h3 style="font-size:1.1rem;font-weight:800">${esc(e.nome)} <span class="pill ${faseColor(fz)}" style="font-size:.66rem;vertical-align:middle">${esc(fz)}</span> <span class="pill" style="background:${si.c}22;color:${si.c};font-size:.66rem;vertical-align:middle" title="Lead score">${si.l} ${sc}</span></h3><div class="sub" style="color:var(--muted);font-size:.82rem">${esc(e.numero||'')} · ${esc(comDetalhe(e.setor,e.setorOutro)||'-')} · ${esc(e.dimensao||'-')} · <span class="pill ${lyl==='Ouro'?'amber':lyl==='Prata'?'grey':'green'}" style="font-size:.62rem">${esc(lyl)}</span></div>`;
   $('#drawerBody').innerHTML=`
     <dl class="kv">
       <dt>Fase (lead) ${infoTip('fase')}</dt><dd><span class="pill ${faseColor(fz)}">${esc(fz)}</span></dd>
@@ -2590,8 +2592,8 @@ function timelineEmpresa(empId){
 
   (state.propostas||[]).filter(p=>p.empresaId===empId).forEach(p=>{
     add(p.criada,"doc","#00A651","Proposta "+(p.numero||""),(p.titulo||"")+" · "+money(propTotal(p)));
-    if(p.estado==="Ganha")   add(p.alteradoEm||p.criada,"check","#00A651","Proposta ganha",(p.numero||"")+" · "+money(propTotal(p))+(p.motivoGanho?" · "+p.motivoGanho:""));
-    if(p.estado==="Perdida") add(p.alteradoEm||p.criada,"alert","#dc2626","Proposta perdida",(p.numero||"")+(p.motivoPerda?" · "+p.motivoPerda:""));
+    if(p.estado==="Ganha")   add(p.alteradoEm||p.criada,"check","#00A651","Proposta ganha",(p.numero||"")+" · "+money(propTotal(p))+(p.motivoGanho?" · "+motivoTxt(p.motivoGanho,p.motivoGanhoNota):""));
+    if(p.estado==="Perdida") add(p.alteradoEm||p.criada,"alert","#dc2626","Proposta perdida",(p.numero||"")+(p.motivoPerda?" · "+motivoTxt(p.motivoPerda,p.motivoPerdaNota):""));
   });
 
   (state.envios||[]).filter(x=>ids.includes(x.clienteId)).forEach(x=>{
@@ -2638,9 +2640,12 @@ function timelineHTML(empId,limite){
     ${ev.length>n?`<div class="muted" style="font-size:.76rem;margin-top:6px">… e mais ${ev.length-n} acontecimento(s)</div>`:""}
   </div>`;
 }
+/* Onde só cabe uma palavra (selo, gráfico, linha do tempo), "Outro" é ruído:
+   mostra-se o que a pessoa escreveu. comDetalhe() é para onde cabe tudo. */
+function motivoTxt(m,nota){ const v=String(m||'').trim(), d=String(nota||'').trim(); return (v==='Outro'&&d)?d:v; }
 function comDetalhe(valor,detalhe){ const v=String(valor||''); const d=String(detalhe||'').trim();
   return (v && d) ? (v+': '+d) : v; }
-function taskRow(t){ const c=t.clienteId?getC(t.clienteId):null; const over=t.estado!=='Concluída'&&t.data<todayISO(); const done=t.estado==='Concluída'; return `<div class="mini-item" style="${done?'opacity:.55':''}"><button class="task-check ${done?'on':''}" data-act="task-done" data-id="${t.id}" data-stop title="${done?'Reabrir':'Concluir'}">${done?ic('check',13):''}</button><span class="grow" data-act="edit" data-type="tarefa" data-id="${t.id}" style="cursor:pointer"><strong style="${done?'text-decoration:line-through':''}">${esc(t.titulo)}</strong><div class="muted" style="font-size:.74rem">${ic('calendar',12)} ${dPT(t.data)}${t.hora?' · '+esc(t.hora):''}${c?' · '+esc(c.nome)+' '+esc(c.apelido||''):''}</div></span>${String(t.notas||'').trim()?`<button class="icon-btn" data-act="task-nota" data-id="${t.id}" data-stop title="Tem notas - clique para ler" style="width:30px;height:30px;flex:0 0 auto">${ic('doc',15)}</button>`:''}<span class="pill ${over?'red':taskColor(t)}">${esc(t.tipo||'-')}</span></div>`; }
+function taskRow(t){ const c=t.clienteId?getC(t.clienteId):null; const over=t.estado!=='Concluída'&&t.data<todayISO(); const done=t.estado==='Concluída'; return `<div class="mini-item" style="${done?'opacity:.55':''}"><button class="task-check ${done?'on':''}" data-act="task-done" data-id="${t.id}" data-stop title="${done?'Reabrir':'Concluir'}">${done?ic('check',13):''}</button><span class="grow" data-act="edit" data-type="tarefa" data-id="${t.id}" style="cursor:pointer"><strong style="${done?'text-decoration:line-through':''}">${esc(t.titulo)}</strong><div class="muted" style="font-size:.74rem">${ic('calendar',12)} ${dPT(t.data)}${t.hora?' · '+esc(t.hora):''}${c?' · '+esc(c.nome)+' '+esc(c.apelido||''):''}</div></span>${String(t.notas||'').trim()?`<button class="icon-btn" data-act="task-nota" data-id="${t.id}" data-stop title="Tem notas - clique para ler" style="width:30px;height:30px;flex:0 0 auto">${ic('doc',15)}</button>`:''}<span class="pill ${over?'red':taskColor(t)}" title="${esc(comDetalhe(t.tipo,t.tipoOutro))}">${esc(motivoTxt(t.tipo,t.tipoOutro)||'-')}</span></div>`; }
 /* Painel de tarefas da Agenda. Vive numa função própria para que filtrar troque
    SÓ esta lista - chamar render() redesenhava a página inteira e piscava. */
 function agendaPainelHTML(){
@@ -2877,9 +2882,9 @@ views.analytics = () => {
   const topClients=Object.entries(valByAcc).map(([k,v])=>({name:accNameOf(k),v})).sort((a,b)=>b.v-a.v).slice(0,5);
   const tmax=topClients[0]?.v||1;
   // --- pedagógicos avançados ---
-  const lossR={}; perdidas.forEach(p=>{ const m=(p.motivoPerda||'').trim()||'(por classificar)'; lossR[m]=(lossR[m]||0)+1; });
+  const lossR={}; perdidas.forEach(p=>{ const m=motivoTxt(p.motivoPerda,p.motivoPerdaNota)||'(por classificar)'; lossR[m]=(lossR[m]||0)+1; });
   const lossE=Object.entries(lossR).sort((a,b)=>b[1]-a[1]); const lossMax=Math.max(...lossE.map(e=>e[1]),1); const topLoss=lossE[0]?lossE[0][0]:null;
-  const winR={}; ganhas.forEach(p=>{ const m=(p.motivoGanho||'').trim()||'(por classificar)'; winR[m]=(winR[m]||0)+1; });
+  const winR={}; ganhas.forEach(p=>{ const m=motivoTxt(p.motivoGanho,p.motivoGanhoNota)||'(por classificar)'; winR[m]=(winR[m]||0)+1; });
   const winE=Object.entries(winR).sort((a,b)=>b[1]-a[1]); const winMax=Math.max(...winE.map(e=>e[1]),1);
   const cacBudget=+state.settings.cacBudget||0; const cac=novos?cacBudget/novos:0; const ltvCac=cac?ltv/cac:0;
   const hot=accountList().filter(a=>a.score>=70);
@@ -4764,7 +4769,7 @@ const SCHEMAS = {
     {n:'nome',l:'Razão social / Nome da empresa',req:1,full:1},
     {n:'nipc',l:'NIPC / NIF',hint:'9 dígitos - validado pelo dígito de controlo'},
     {n:'cae',l:'CAE (código de atividade)'},
-    {n:'setor',l:'Setor',type:'select',opts:['Comércio','Indústria','Serviços','Hotelaria','Restauração','Saúde','Tecnologia','Construção','Educação','Transportes','Outro'].map(x=>({v:x,t:x}))},
+    {n:'setor',l:'Setor',type:'select',outro:'Outro',outroPlaceholder:'Que setor?',opts:['Comércio','Indústria','Serviços','Hotelaria','Restauração','Saúde','Tecnologia','Construção','Educação','Transportes','Outro'].map(x=>({v:x,t:x}))},
     {n:'dimensao',l:'Dimensão (segmento)',type:'select',opts:()=>segmentosList().map(x=>({v:x,t:x})),hint:'Editável em Definições → Segmentos.'},
     {n:'natureza',l:'Natureza jurídica',hint:'SA · Lda · Unipessoal · ENI (preenche-se com Procurar)'},
     {n:'fase',l:'Fase (ciclo de vida)',type:'select',opts:FASES.map(x=>({v:x,t:x})),def:'Lead',hint:'Lead → MQL (demonstrou interesse) → SQL (oportunidade real) → Cliente'},
@@ -4779,7 +4784,7 @@ const SCHEMAS = {
   ]},
   tarefa:{store:'tarefas',label:'Tarefa',fem:1,fields:[
     {n:'titulo',l:'Título da tarefa',req:1,full:1},
-    {n:'tipo',l:'Tipo',type:'select',opts:['Chamada','Reunião','Follow-up','Email','Outro'].map(x=>({v:x,t:x}))},
+    {n:'tipo',l:'Tipo',type:'select',outro:'Outro',outroPlaceholder:'Que tipo? (ex.: visita, formação)',opts:['Chamada','Reunião','Follow-up','Email','Outro'].map(x=>({v:x,t:x}))},
     {n:'data',l:'Data',type:'date'},
     {n:'hora',l:'Hora',type:'time',hint:'deixe vazio para "dia todo"'},
     {n:'duracao',l:'Duração (min)',type:'select',numeric:1,def:30,opts:[15,30,45,60,90,120].map(x=>({v:x,t:x+' min'}))},
@@ -4997,7 +5002,7 @@ function fieldHTML(f,item){
   if(f.type==='contactlist'){
     const rows=Array.isArray(item[f.n])?item[f.n]:[];
     const selHTML=(opts,val)=>opts.map(o=>`<option ${o===val?'selected':''}>${o}</option>`).join('');
-    const rowHTML=r=>`<div class="cx-row" style="display:flex;gap:8px;margin-bottom:8px;align-items:center"><select data-cx="tipo" style="flex:0 0 108px">${selHTML(['Email','Telefone'],r.tipo||'Email')}</select><select data-cx="rotulo" style="flex:0 0 130px">${selHTML(['Profissional','Pessoal','Outro'],r.rotulo||'Profissional')}</select><input data-cx="valor" value="${esc(r.valor||'')}" placeholder="email ou telefone" style="flex:1"><button type="button" class="btn-danger btn-xs" data-act="cx-del" style="height:38px" title="Remover">✕</button></div>`;
+    const rowHTML=r=>`<div class="cx-row" style="display:flex;gap:8px;margin-bottom:8px;align-items:center"><select data-cx="tipo" style="flex:0 0 108px">${selHTML(['Email','Telefone'],r.tipo||'Email')}</select><select data-cx="rotulo" style="flex:0 0 130px">${selHTML(['Profissional','Pessoal'],r.rotulo||'Profissional')}</select><input data-cx="valor" value="${esc(r.valor||'')}" placeholder="email ou telefone" style="flex:1"><button type="button" class="btn-danger btn-xs" data-act="cx-del" style="height:38px" title="Remover">✕</button></div>`;
     return `<div class="${cls}"><label>${esc(f.l)}</label><div id="cxList">${rows.map(rowHTML).join('')}</div><button type="button" class="btn-sec btn-sm" data-act="cx-add">+ Contacto</button>${hint}</div>`;
   }
   if(f.type==='check'){ return `<div class="${cls}"><label style="cursor:pointer;display:flex;align-items:center;gap:8px;font-weight:600"><input type="checkbox" name="${f.n}" ${v?'checked':''} style="width:15px;height:15px;accent-color:var(--g600)">${esc(f.l)}</label>${hint}</div>`; }
@@ -5119,10 +5124,15 @@ async function saveModal(){
     if(f.outro){ obj[f.n]=v; obj[f.n+'Outro'] = (String(v)===f.outro) ? String(fd.get(f.n+'__outro')||'').trim() : ''; return; }
     if(f.xf){ obj.extra=Object.assign({},obj.extra); obj.extra[f.xf]=v; return; }
     obj[f.n]=v; });
-  { const cxf=sc.fields.find(f=>f.type==='contactlist'); if(cxf){ obj[cxf.n]=$$('#modalForm .cx-row').map(row=>({tipo:(row.querySelector('[data-cx="tipo"]')||{}).value||'Email',rotulo:(row.querySelector('[data-cx="rotulo"]')||{}).value||'Outro',valor:String((row.querySelector('[data-cx="valor"]')||{}).value||'').trim()})).filter(r=>r.valor); } }
+  { const cxf=sc.fields.find(f=>f.type==='contactlist'); if(cxf){ obj[cxf.n]=$$('#modalForm .cx-row').map(row=>({tipo:(row.querySelector('[data-cx="tipo"]')||{}).value||'Email',rotulo:(row.querySelector('[data-cx="rotulo"]')||{}).value||'Profissional',valor:String((row.querySelector('[data-cx="valor"]')||{}).value||'').trim()})).filter(r=>r.valor); } }
   // validação simples
   const miss=sc.fields.filter(f=>f.req&&!String(obj[f.n]||'').trim());
   if(miss.length){ toast('Campos obrigatórios',miss.map(m=>m.l).join(', '),'warn'); return; }
+  /* escolher "Outro" e não dizer qual não regista nada - fica um campo
+     preenchido que não se pode ler, filtrar nem contar. */
+  const semQual=schemaFields(type,sc).filter(f=>f.outro && String(obj[f.n]||'')===f.outro && !String(obj[f.n+'Outro']||'').trim());
+  if(semQual.length){ toast('Diga qual', semQual.map(m=>m.l).join(', ')+': escolheu "Outro" - escreva qual na caixa por baixo.','warn');
+    const el=$('#outro_'+semQual[0].n); if(el){ el.scrollIntoView({block:'center',behavior:'smooth'}); setTimeout(()=>el.focus(),250); } return; }
   if(type==='utilizador'){
     const rawPw=String(obj.password||'').trim();
     obj.password = rawPw ? hashPwd(rawPw) : (cur?cur.password:hashPwd('1234'));
@@ -5254,9 +5264,9 @@ function renderPropForm(){
       <div class="field"><label>Nível de interesse do cliente</label><select name="interesse">${opt(INTERESSE.map(s=>({v:s,t:s})),p.interesse||'Por classificar')}</select></div>
       <div class="field"><label>Responsável</label><select name="responsavelId" ${locked?'disabled':''}>${opt([{v:'',t:'- por atribuir -'}].concat(equipaOpts()),p.responsavelId||'')}</select><span class="hint">Quem conduz este negócio.</span></div>
       ${p.estado==='Perdida'?`<div class="field"><label>Motivo da perda ${infoTip('motivoperda')}</label><select name="motivoPerda">${opt([{v:'',t:'- selecione -'}].concat(LOSS_REASONS.map(x=>({v:x,t:x}))),p.motivoPerda||'')}</select></div>
-      <div class="field full"><label>Detalhe do motivo (opcional)</label><input name="motivoPerdaNota" value="${esc(p.motivoPerdaNota||'')}" placeholder="ex.: concorrente 15% mais barato"></div>`:''}
+      <div class="field full"><label>${p.motivoPerda==='Outro'?'Qual foi o motivo? *':'Detalhe do motivo (opcional)'}</label><input name="motivoPerdaNota" value="${esc(p.motivoPerdaNota||'')}" placeholder="${p.motivoPerda==='Outro'?'Escreva o motivo da perda':'ex.: concorrente 15% mais barato'}"></div>`:''}
       ${p.estado==='Ganha'?`<div class="field"><label>Motivo do ganho</label><select name="motivoGanho">${opt([{v:'',t:'- selecione -'}].concat(WIN_REASONS.map(x=>({v:x,t:x}))),p.motivoGanho||'')}</select><span class="hint">O que fez o cliente decidir - é isto que se quer repetir.</span></div>
-      <div class="field full"><label>Detalhe (opcional)</label><input name="motivoGanhoNota" value="${esc(p.motivoGanhoNota||'')}" placeholder="ex.: única solução com RGPD incluído"></div>`:''}
+      <div class="field full"><label>${p.motivoGanho==='Outro'?'Qual foi o motivo? *':'Detalhe (opcional)'}</label><input name="motivoGanhoNota" value="${esc(p.motivoGanhoNota||'')}" placeholder="${p.motivoGanho==='Outro'?'Escreva o que fez o cliente decidir':'ex.: única solução com RGPD incluído'}"></div>`:''}
       <div class="field full"><label>Título *</label><input name="titulo" value="${esc(p.titulo)}" ${locked?'readonly':''}></div>
       ${locked
         ? `<div class="field"><label>Empresa (cliente da venda)</label><input value="${esc(comboLabel('empresas',p.empresaId)||'- particular -')}" readonly style="background:var(--surface3);color:var(--muted);cursor:not-allowed"><input type="hidden" name="empresaId" value="${esc(p.empresaId||'')}"></div>
@@ -5348,6 +5358,12 @@ function savePropModal(closeAfter){
     if(sel){ sel.scrollIntoView({block:'center',behavior:'smooth'}); setTimeout(()=>sel.focus(),300); }
     return;
   }
+  /* mesmo princípio dos outros formulários: "Outro" tem de dizer qual */
+  const semQual=(mv,nota,campo,lbl)=>{ if(mv!=='Outro'||String(nota||'').trim()) return false;
+    toast('Diga qual', lbl+': escolheu "Outro" - escreva-o na caixa por baixo.','warn');
+    const el=$('#modalForm [name="'+campo+'"]'); if(el){ el.scrollIntoView({block:'center',behavior:'smooth'}); setTimeout(()=>el.focus(),300); } return true; };
+  if(semQual(propDraft.motivoPerda,propDraft.motivoPerdaNota,'motivoPerdaNota','Motivo da perda')) return;
+  if(semQual(propDraft.motivoGanho,propDraft.motivoGanhoNota,'motivoGanhoNota','Motivo do ganho')) return;
   const i=state.propostas.findIndex(x=>x.id===propDraft.id);
   const oldEstado=i>=0?state.propostas[i].estado:null;
   /* proposta NOVA que ja nasce ganha: confirmar, porque as consequências
@@ -5994,7 +6010,7 @@ document.addEventListener('click', async e=>{
     case 'open-empresa': if(!e.target.closest('[data-stop]')) openEmpresa360(id); break;
     case 'eni-create': createENI(id); break;
     case 'email-to': { mailDraft=defaultMailDraft(); mailDraft.clienteId=el.dataset.id||''; if(mailDraft.templateId) applyMailTemplate(); closeDrawer(); location.hash='#email'; setTimeout(render,0); const cc=getC(el.dataset.id); toast('Compositor de email', cc?('Para: '+cc.nome+' '+(cc.apelido||'')):'destinatário selecionado'); } break;
-    case 'cx-add': { const list=$('#cxList'); if(list){ const div=document.createElement('div'); div.className='cx-row'; div.style.cssText='display:flex;gap:8px;margin-bottom:8px;align-items:center'; div.innerHTML='<select data-cx="tipo" style="flex:0 0 108px"><option>Email</option><option>Telefone</option></select><select data-cx="rotulo" style="flex:0 0 130px"><option>Profissional</option><option>Pessoal</option><option>Outro</option></select><input data-cx="valor" placeholder="email ou telefone" style="flex:1"><button type="button" class="btn-danger btn-xs" data-act="cx-del" style="height:38px" title="Remover">✕</button>'; list.appendChild(div); const inp=div.querySelector('[data-cx="valor"]'); if(inp) inp.focus(); } } break;
+    case 'cx-add': { const list=$('#cxList'); if(list){ const div=document.createElement('div'); div.className='cx-row'; div.style.cssText='display:flex;gap:8px;margin-bottom:8px;align-items:center'; div.innerHTML='<select data-cx="tipo" style="flex:0 0 108px"><option>Email</option><option>Telefone</option></select><select data-cx="rotulo" style="flex:0 0 130px"><option>Profissional</option><option>Pessoal</option></select><input data-cx="valor" placeholder="email ou telefone" style="flex:1"><button type="button" class="btn-danger btn-xs" data-act="cx-del" style="height:38px" title="Remover">✕</button>'; list.appendChild(div); const inp=div.querySelector('[data-cx="valor"]'); if(inp) inp.focus(); } } break;
     case 'cx-del': { const row=el.closest('.cx-row'); if(row) row.remove(); } break;
     case 'nif-lookup': { const inp=$('#modalForm [name="nipc"]'); const nif=inp?String(inp.value||'').replace(/\D/g,''):'';
       if(!/^\d{9}$/.test(nif)){ toast('NIPC incompleto','Escreva os 9 dígitos do NIPC primeiro','warn'); break; }
@@ -6392,7 +6408,7 @@ document.addEventListener('change', e=>{
   if(propDraft && e.target.name==='clienteId'){ syncDraftFromForm(); const cc=getC(propDraft.clienteId); if(cc&&cc.empresaId&&!propDraft.empresaId){ propDraft.empresaId=cc.empresaId; renderPropForm(); } else refreshTotals(); return; }
   /* trocar o estado faz aparecer o campo do motivo (ganho ou perda) na hora,
      em vez de so ao reabrir a proposta */
-  if(propDraft && e.target.name==='estado'){ syncDraftFromForm(); renderPropForm(); return; }
+  if(propDraft && ['estado','motivoPerda','motivoGanho'].includes(e.target.name)){ syncDraftFromForm(); renderPropForm(); return; }
   if(propDraft && e.target.name==='empresaId'){
     syncDraftFromForm();
     const cli=getC(propDraft.clienteId);
