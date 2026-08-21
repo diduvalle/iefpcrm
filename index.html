@@ -4926,7 +4926,7 @@ function renderPropForm(){
     </div>`; })()}
     <div class="form-grid">
       <div class="field"><label>Número (automático)</label><input name="numero" value="${esc(p.numero)}" readonly style="background:var(--surface3);color:var(--muted);cursor:not-allowed"></div>
-      <div class="field"><label>Estado</label><select name="estado">${opt(PROP_STATES.map(s=>({v:s,t:s})),p.estado)}</select></div>
+      <div class="field"><label>Estado</label><select name="estado">${opt(PROP_STATES.map(s=>({v:s,t:s})),p.estado)}</select><span class="hint">Num negócio fechado na hora, pode escolher já <strong>Ganha</strong> - não é preciso passar pelo pipeline.</span></div>
       <div class="field"><label>Nível de interesse do cliente</label><select name="interesse">${opt(INTERESSE.map(s=>({v:s,t:s})),p.interesse||'Por classificar')}</select></div>
       ${p.estado==='Perdida'?`<div class="field"><label>Motivo da perda ${infoTip('motivoperda')}</label><select name="motivoPerda">${opt([{v:'',t:'- selecione -'}].concat(LOSS_REASONS.map(x=>({v:x,t:x}))),p.motivoPerda||'')}</select></div>
       <div class="field full"><label>Detalhe do motivo (opcional)</label><input name="motivoPerdaNota" value="${esc(p.motivoPerdaNota||'')}" placeholder="ex.: concorrente 15% mais barato"></div>`:''}
@@ -5012,7 +5012,26 @@ function savePropModal(closeAfter){
   if(!(propDraft.linhas||[]).some(l=>l.produtoId)){ toast('Sem artigos','Adicione pelo menos um artigo do catálogo','warn'); return; }
   const i=state.propostas.findIndex(x=>x.id===propDraft.id);
   const oldEstado=i>=0?state.propostas[i].estado:null;
+  /* proposta NOVA que ja nasce ganha: confirmar, porque as consequências
+     saem do CRM (podem enviar email ao cliente) */
+  if(i<0 && propDraft.estado==='Ganha' && !propDraft._confirmadaGanha){
+    const acc=propAccObj(propDraft);
+    const efeitos=[];
+    if(acc && (acc.fase||'Lead')!=='Cliente') efeitos.push('a conta '+(acc.nome||'')+' passa a Cliente');
+    { const arts=(propDraft.linhas||[]).filter(l=>{ const pr=(state.produtos||[]).find(x=>x.id===l.produtoId); return pr&&pr.controlaStock; });
+      if(arts.length) efeitos.push('o stock de '+arts.length+' artigo(s) é abatido'); }
+    { const n=(state.automacoes||[]).filter(a=>a.estado==='Ativa'&&a.trigger==='proposta-ganha').length;
+      if(n) efeitos.push(n+' automação(ões) de "proposta ganha" disparam - podem enviar email'); }
+    efeitos.push('o valor entra na receita e no nível de fidelização');
+    propDraft._confirmadaGanha=true;
+    uiConfirm('Ao guardar já como Ganha: '+efeitos.join('; ')+'.',
+      {title:'Registar a proposta já como ganha?',okText:'Registar como ganha'}).then(o=>{
+        if(o) savePropModal(closeAfter); else propDraft._confirmadaGanha=false;
+      });
+    return;
+  }
   const uid2=currentUser()?currentUser().id:null;
+  delete propDraft._confirmadaGanha;
   propDraft.alteradoPor=uid2; propDraft.alteradoEm=todayISO();
   const isNew=i<0;
   if(isNew){ propDraft.criadoPor=uid2; propDraft.criadoEm=todayISO(); if(!propDraft.fonte) propDraft.fonte='manual'; }
