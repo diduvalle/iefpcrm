@@ -1095,9 +1095,9 @@ function load(){
   if(!Array.isArray(state.tarefas)) state.tarefas=[];
   if(!state.tarefas.length && Array.isArray(state.clientes) && state.clientes.length){
     const c=state.clientes;
-    state.tarefas.push({id:uid('tk'),titulo:'Ligar para follow-up da proposta',tipo:'Chamada',data:todayISO(),hora:'10:00',clienteId:c[0].id,estado:'Pendente',notas:'',criadoPor:'u1',criadoEm:todayISO()});
-    state.tarefas.push({id:uid('tk'),titulo:'Reunião de apresentação',tipo:'Reunião',data:addDays(todayISO(),2),hora:'15:00',clienteId:(c[1]||c[0]).id,estado:'Pendente',notas:'Levar demo do CRM',criadoPor:'u1',criadoEm:todayISO()});
-    state.tarefas.push({id:uid('tk'),titulo:'Enviar proposta revista',tipo:'Email',data:addDays(todayISO(),-1),hora:'',clienteId:(c[2]||c[0]).id,estado:'Pendente',notas:'',criadoPor:'u1',criadoEm:todayISO()});
+    state.tarefas.push({fonte:'base',id:uid('tk'),titulo:'Ligar para follow-up da proposta',tipo:'Chamada',data:todayISO(),hora:'10:00',clienteId:c[0].id,estado:'Pendente',notas:'',criadoPor:'u1',criadoEm:todayISO()});
+    state.tarefas.push({fonte:'base',id:uid('tk'),titulo:'Reunião de apresentação',tipo:'Reunião',data:addDays(todayISO(),2),hora:'15:00',clienteId:(c[1]||c[0]).id,estado:'Pendente',notas:'Levar demo do CRM',criadoPor:'u1',criadoEm:todayISO()});
+    state.tarefas.push({fonte:'base',id:uid('tk'),titulo:'Enviar proposta revista',tipo:'Email',data:addDays(todayISO(),-1),hora:'',clienteId:(c[2]||c[0]).id,estado:'Pendente',notas:'',criadoPor:'u1',criadoEm:todayISO()});
   }
   Object.values(state.roles||{}).forEach(r=>{ if(r&&Array.isArray(r.modules)&&!r.modules.includes('agenda')&&(r.gestor||r.modules.includes('clientes'))) r.modules.push('agenda'); });
   if(!Array.isArray(state.activityLog)) state.activityLog=[];
@@ -3527,15 +3527,28 @@ function fonteBadge(it){ const f=itemFonte(it);
 
 /* ids do seed sao curtos e fixos (cl1, pt2, au3); os criados usam uid() =
    prefixo + 6 caracteres aleatorios (empab12cd) */
+/* PROVENIÊNCIA - a app já a regista em cada registo, no campo `fonte`:
+     base   = veio com a app (dados de exemplo do arranque)
+     gerado = veio do "Gerador de dados de exemplo" (um clique, dezenas de registos)
+     manual = criado à mão pela pessoa      <- é isto que conta como trabalho
+     form   = entrou pelo formulário web-to-lead (também é ação dela)
+   Onde `fonte` existe, é a fonte da verdade. Nem tudo a tem (automações,
+   modelos, campos personalizados...), e aí cai-se na forma do id: os do
+   arranque são curtos e fixos (cl1, pt2, au3), os criados usam uid(). */
 const ehSeedId = id => /^[a-z]{1,4}[0-9]{1,3}$/.test(String(id||""));
-/* empresas e tarefas do seed nascem com uid() na migracao: identificam-se pelo nome */
-const EMP_SEED=["Silva & Filhos, Lda.","Costa Eventos","Nunes Hotelaria SA","Almeida Consultores","Ferreira Retalho","Rodrigues Clínica"];
-const TAREFA_SEED=["Ligar para follow-up da proposta","Reunião de apresentação","Enviar proposta revista"];
-function proprios(lista,tipo){
-  const a=Array.isArray(lista)?lista:[];
-  if(tipo==="empresa") return a.filter(x=>!EMP_SEED.includes(String(x&&x.nome||"").trim()));
-  if(tipo==="tarefa")  return a.filter(x=>!TAREFA_SEED.includes(String(x&&x.titulo||"").trim()));
-  return a.filter(x=>!ehSeedId(x&&x.id));
+const FONTE_PROPRIA=["manual","form"];
+function ehProprio(x){
+  const f=x&&x.fonte;
+  if(f) return FONTE_PROPRIA.includes(f);
+  return !ehSeedId(x&&x.id);
+}
+function ehGerado(x){ return !!(x&&x.fonte==="gerado"); }
+function proprios(lista){ return (Array.isArray(lista)?lista:[]).filter(ehProprio); }
+/* quantos registos vieram do gerador - mostra-se, não se esconde */
+function contaGerador(p){
+  p=p||{};
+  return ["empresas","clientes","propostas","produtos","casos","retencoes","consentimentos","pedidos","tarefas","campanhas"]
+    .reduce((t,k)=>t+(p[k]||[]).filter(ehGerado).length,0);
 }
 const pc=(n,d)=>d?Math.round(n/d*100):0;
 
@@ -3549,10 +3562,10 @@ function praticasEntrega(p){
   const casos=p.casos||[], ret=p.retencoes||[], cons=p.consentimentos||[], ped=p.pedidos||[];
   const ropa=p.ropa||[], viol=p.violacoes||[], tar=p.tarefas||[], cx=p.camposExtra||[];
   const set=p.settings||{};
-  const pEmp=proprios(emp,"empresa"), pCli=proprios(cli), pProp=proprios(prop), pProd=proprios(prod);
+  const pEmp=proprios(emp), pCli=proprios(cli), pProp=proprios(prop), pProd=proprios(prod);
   const pCamp=proprios(camp), pAuto=proprios(auto), pTpl=proprios(tpl), pMod=proprios(mod);
   const pCasos=proprios(casos), pRet=proprios(ret), pCons=proprios(cons), pPed=proprios(ped);
-  const pTar=proprios(tar,"tarefa"), pRopa=proprios(ropa), pViol=proprios(viol);
+  const pTar=proprios(tar), pRopa=proprios(ropa), pViol=proprios(viol);
 
   /* Estes sinais olham SÓ para o que a pessoa criou. Se olhassem para o conjunto
      todo, os dados de exemplo davam-nos de graça a toda a gente - e quem não
@@ -3705,7 +3718,7 @@ function fichaEntregaHTML(p){
   return `
   <div class="callout ${pr.feitas>=Math.round(pr.total*0.75)?"green":"info"}" style="margin:0 0 14px">${ic("check",18)}<div class="ctxt" style="flex:1">
     <strong>Cobertura: ${Math.round(pr.feitas/pr.total*100)}%</strong> - demonstrou <strong>${pr.feitas}</strong> das <strong>${pr.total}</strong> práticas esperadas, em <strong>${modulosCobertos(pr).length}</strong> áreas.
-    <div class="muted" style="font-size:.78rem;margin-top:4px">Criou <strong>${n.totalCriado}</strong> registos próprios (não conta os dados de exemplo que vieram com a app).</div></div></div>
+    <div class="muted" style="font-size:.78rem;margin-top:4px">Criou <strong>${n.totalCriado}</strong> registos <strong>à mão</strong>. ${(()=>{const g=contaGerador(p); return g?`Além destes, <strong>${g}</strong> vieram do <em>Gerador de dados de exemplo</em> e <strong>não contam</strong>.`:'Não usou o gerador de dados de exemplo.';})()} Os dados que vêm com a app também ficam de fora.</div></div></div>
   <div class="grid cols-4" style="gap:10px;margin-bottom:16px">
     ${kpi("Registos criados",n.totalCriado)}${kpi("Propostas",n.propostas)}${kpi("Automações",n.automacoes)}${kpi("Casos",n.casos)}
   </div>
