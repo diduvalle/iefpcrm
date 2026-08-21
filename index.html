@@ -247,6 +247,16 @@
 .drawer-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
 /* accao destrutiva discreta: so ganha cor quando o rato la esta */
 /* KPI que filtra: so ganha aspeto de botao quando e clicavel */
+/* detalhe ao passar o rato numa barra: instantaneo, ao contrario do title do browser */
+.barchart-col{position:relative}
+.bar-tip{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:10px;
+  background:var(--g900,#0b3a24);color:#fff;padding:9px 11px;border-radius:9px;font-size:.74rem;
+  line-height:1.5;white-space:nowrap;text-align:left;opacity:0;pointer-events:none;
+  transition:opacity .12s;z-index:6;box-shadow:0 8px 24px -6px rgba(0,0,0,.35)}
+.bar-tip strong{display:block;margin-bottom:4px;font-size:.78rem}
+.bar-tip .mais{opacity:.7;margin-top:2px}
+.barchart-col:hover .bar-tip{opacity:1}
+.barchart-plot{overflow:visible}
 .kpi[data-act]{cursor:pointer;transition:border-color .15s,box-shadow .15s}
 .kpi[data-act]:hover{border-color:var(--g300);box-shadow:var(--shadow)}
 .kpi.kpi-on{border-color:var(--g600);box-shadow:inset 0 0 0 1px var(--g600)}
@@ -1529,9 +1539,11 @@ const kpi=(label,val,opts={})=>`<div class="kpi${opts.on?' kpi-on':''}"${opts.ac
 const empty=(msg,sub='')=>`<div class="empty">${ic('list',34)}<div><strong>${esc(msg)}</strong>${sub?`<div class="muted" style="font-size:.84rem;margin-top:3px">${esc(sub)}</div>`:''}</div></div>`;
 
 /* ---------- gráficos SVG ---------- */
+/* Cada fatia leva um `tip` (o que representa) e, se quiseres, um `act` (para onde leva).
+   Sem isso, o gráfico é bonito mas mudo: ve-se a fatia verde e nao se sabe o que e. */
 function donut(segs, size=148){
   const total=segs.reduce((s,x)=>s+x.v,0)||1; const r=size/2-14, cx=size/2, cy=size/2, C=2*Math.PI*r; let off=0;
-  const arcs=segs.filter(s=>s.v>0).map(s=>{ const len=s.v/total*C; const el=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.c}" stroke-width="20" stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}" transform="rotate(-90 ${cx} ${cy})" stroke-linecap="butt"/>`; off+=len; return el; }).join('');
+  const arcs=segs.filter(s=>s.v>0).map(s=>{ const len=s.v/total*C; const el=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.c}" stroke-width="20" stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}" transform="rotate(-90 ${cx} ${cy})"${s.tip?` style="cursor:${s.act?'pointer':'default'}"`:''}${s.act?` data-act="${s.act}"`:''} stroke-linecap="butt">${s.tip?`<title>${esc(s.tip)}</title>`:''}</circle>`; off+=len; return el; }).join('');
   return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--surface3)" stroke-width="20"/>${arcs}<text x="${cx}" y="${cy-2}" text-anchor="middle" font-size="22" font-weight="800" fill="var(--text)">${fmtN(total)}</text><text x="${cx}" y="${cy+16}" text-anchor="middle" font-size="10" fill="var(--muted)">TOTAL</text></svg>`;
 }
 function barShort(v){ if(!v) return ''; return v>=1000?(v/1000).toFixed(v>=10000?0:1).replace('.',',')+'k€':Math.round(v)+'€'; }
@@ -1539,7 +1551,9 @@ function bars(data, h=150, fill){
   const max=Math.max(...data.map(d=>d.v),1);
   return `<div class="barchart"${fill?' style="flex:1;display:flex;flex-direction:column"':''}>
     <div class="barchart-plot" style="${fill?`flex:1;min-height:${h}px`:`height:${h}px`}">
-      ${data.map(d=>{const p=Math.round(d.v/max*100); return `<div class="barchart-col" title="${esc(d.l)}: ${money(d.v)}"><div class="barchart-val">${barShort(d.v)}</div><div class="barchart-fill" style="height:${d.v?Math.max(3,p):0}%"></div></div>`;}).join('')}
+      ${data.map(d=>{const p=Math.round(d.v/max*100);
+        const tip=(d.tip&&d.tip.length)?`<div class="bar-tip"><strong>${esc(d.l)} · ${money(d.v)}</strong>${d.tip.map((t,i)=>`<div>${i+1}. ${esc(t.nome)} · ${money(t.v)}</div>`).join('')}${d.mais?`<div class="mais">… e mais ${d.mais}</div>`:''}</div>`:'';
+        return `<div class="barchart-col" title="${esc(d.l)}: ${money(d.v)}">${tip}<div class="barchart-val">${barShort(d.v)}</div><div class="barchart-fill" style="height:${d.v?Math.max(3,p):0}%"></div></div>`;}).join('')}
     </div>
     <div class="barchart-labels">${data.map(d=>`<div>${esc(d.l)}</div>`).join('')}</div>
   </div>`;
@@ -1568,7 +1582,11 @@ views.dashboard = () => {
   const consAtivos=state.consentimentos.filter(c=>c.estado==='Ativo').length;
   const pedAbertos=state.pedidos.filter(p=>p.estado!=='Concluído').length;
   const recent=[...props].sort((a,b)=>(b.criada||'').localeCompare(a.criada||'')).slice(0,5);
-  const donutSegs=PROP_STATES.map(s=>({l:s,v:props.filter(p=>p.estado===s).length,c:stateDot(s)}));
+  const donutSegs=PROP_STATES.map(s=>{ const ps=props.filter(p=>p.estado===s);
+    const val=ps.reduce((t,p)=>t+propTotal(p),0);
+    const pct=props.length?Math.round(ps.length/props.length*100):0;
+    return {l:s, v:ps.length, c:stateDot(s), act:'ir-propostas',
+      tip:`${s}: ${ps.length} proposta(s) · ${pct}% do pipeline · ${money(val)}`}; });
   return `
   <div class="hero">
     <div>
@@ -1602,7 +1620,7 @@ views.dashboard = () => {
       </tbody></table></div>
     </div>
     <div class="card card-pad" style="display:flex;flex-direction:column">
-      <div class="section-head" style="margin-bottom:10px"><div><h3>Pipeline por estado ${infoTip('pipeline')}</h3><div class="sub">Distribuição das propostas</div></div></div>
+      <div class="section-head" style="margin-bottom:10px"><div><h3>Pipeline por estado ${infoTip('pipeline')}</h3><div class="sub">Distribuição das propostas</div></div><button class="btn-sec btn-sm" data-act="ir-propostas">${ic('doc',15)} Ver propostas</button></div>
       <div style="flex:1;display:flex;flex-direction:column;justify-content:center">
         <div style="display:flex;justify-content:center;margin:6px 0 14px">${donut(donutSegs)}</div>
         <div class="legend" style="justify-content:center">${donutSegs.map(s=>`<span><i style="background:${s.c}"></i>${s.l} · ${s.v}</span>`).join('')}</div>
@@ -1628,7 +1646,12 @@ function monthlyRevenue(props){
   props=props||state.propostas;
   const names=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
   const m={};  // chave absoluta ano*12+mês (aguenta várias anos)
-  props.filter(p=>p.estado==='Ganha').forEach(p=>{ const d=(p.criada||''); const yr=+d.slice(0,4), mi=+d.slice(5,7)-1; if(yr&&mi>=0){ const k=yr*12+mi; m[k]=(m[k]||0)+propTotal(p); } });
+  const porEmp={};   // quem gerou o valor de cada mes - alimenta o detalhe do gráfico
+  props.filter(p=>p.estado==='Ganha').forEach(p=>{ const d=(p.criada||''); const yr=+d.slice(0,4), mi=+d.slice(5,7)-1;
+    if(yr&&mi>=0){ const k=yr*12+mi; const v=propTotal(p); m[k]=(m[k]||0)+v;
+      const e=(state.empresas||[]).find(x=>x.id===p.empresaId);
+      const nome=(e&&e.nome)||p.empresa||clientName(p.clienteId)||'(sem empresa)';
+      porEmp[k]=porEmp[k]||{}; porEmp[k][nome]=(porEmp[k][nome]||0)+v; } });
   const now=todayISO(); const nowKey=(+now.slice(0,4))*12+(+now.slice(5,7)-1);
   const dk=Object.keys(m).map(Number);
   let hi=dk.length?Math.max(nowKey,...dk):nowKey;
@@ -1636,7 +1659,10 @@ function monthlyRevenue(props){
   if(hi-lo<5) lo=hi-5;                 // janela mínima de 6 meses para o gráfico não ficar "vazio"
   if(hi-lo>11) lo=hi-11;               // no máximo 12 meses
   const out=[];
-  for(let k=lo;k<=hi;k++) out.push({l:names[((k%12)+12)%12], v:m[k]||0});
+  for(let k=lo;k<=hi;k++){
+    const todas=Object.entries(porEmp[k]||{}).map(([nome,v])=>({nome,v})).sort((a,b)=>b.v-a.v);
+    out.push({l:names[((k%12)+12)%12], v:m[k]||0, tip:todas.slice(0,5), mais:Math.max(0,todas.length-5)});
+  }
   return out;
 }
 
@@ -5711,6 +5737,7 @@ document.addEventListener('click', async e=>{
       else if(state._rgpdFiltro===f){ state._rgpdFiltro=null; }
       else { state._rgpdFiltro=f; state._rgpdTab=(f==='ativos')?'consent':'pedidos'; }
       rgpdRefresca(); } break;
+    case 'ir-propostas': location.hash='#propostas'; break;
     case 'ag-filtro': { const f=el.dataset.f||'';
       agendaFiltro = (!f || agendaFiltro===f) ? null : f;
       /* trocar só a lista e a moldura dos cartões: render() redesenhava tudo e piscava */
