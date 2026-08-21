@@ -1829,7 +1829,7 @@ function openEmpresa360(id){
       <div style="flex:1;background:var(--surface2);border-radius:10px;padding:12px"><div class="muted" style="font-size:.74rem">Propostas</div><strong style="font-size:1.2rem">${props.length}</strong></div>
       <div style="flex:1;background:var(--surface2);border-radius:10px;padding:12px"><div class="muted" style="font-size:.74rem">Ganhas</div><strong style="font-size:1.2rem">${ganhas.length}</strong></div>
       ${canSeeFinance()?`<div style="flex:1;background:var(--g100);border-radius:10px;padding:12px"><div class="muted" style="font-size:.74rem">Valor ganho</div><strong style="font-size:1.2rem;color:var(--g700)">${money(empValue(id))}</strong></div>`:''}
-    </div>`;
+    </div>`+timelineHTML(id);
   $('#drawerFoot').innerHTML=`<button class="btn" data-act="edit" data-type="empresa" data-id="${e.id}">${ic('cog',16)} Editar empresa</button>`;
   openDrawer();
 }
@@ -2566,6 +2566,73 @@ function metaCardHTML(){
         return `<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:3px">
           <span>${esc(nomeMembro(u))}</span><span class="muted">${money(v)} / ${money(mt)} · ${p}%</span></div>${metaBarra(v,mt)}</div>`;}).join("")}
     </div>`:""}
+  </div>`;
+}
+/* ================== LINHA DO TEMPO DA CONTA ==================
+   A ficha 360 mostrava secções separadas: contactos aqui, propostas ali,
+   consentimentos mais abaixo. Para preparar uma chamada é preciso a ordem
+   dos acontecimentos, não a arrumação por tipo. Isto junta tudo o que se
+   passou com a conta numa só coluna, do mais recente para o mais antigo. */
+function timelineEmpresa(empId){
+  const ev=[]; const emp=(state.empresas||[]).find(x=>x.id===empId); if(!emp) return ev;
+  const ids=empContacts(empId).map(c=>c.id);
+  const nomeC=id=>{ const c=getC(id); return c?((c.nome||"")+" "+(c.apelido||"")).trim():""; };
+  const add=(data,icone,cor,titulo,sub)=>{ if(!data) return; ev.push({data:String(data).slice(0,10),icone,cor,titulo,sub:sub||""}); };
+
+  add(emp.criado,"building","#64748b","Conta criada",emp.nome);
+  /* mudanças de fase que a app foi registando */
+  (emp.historicoFases||[]).forEach(h=>add(h.data,"trend","#7c3aed","Fase: "+(h.de||"-")+" → "+(h.para||"-"),""));
+
+  empContacts(empId).forEach(c=>add(c.criado,"users","#0891b2","Contacto adicionado",nomeC(c.id)+(c.cargo?" · "+c.cargo:"")));
+
+  (state.propostas||[]).filter(p=>p.empresaId===empId).forEach(p=>{
+    add(p.criada,"doc","#00A651","Proposta "+(p.numero||""),(p.titulo||"")+" · "+money(propTotal(p)));
+    if(p.estado==="Ganha")   add(p.alteradoEm||p.criada,"check","#00A651","Proposta ganha",(p.numero||"")+" · "+money(propTotal(p)));
+    if(p.estado==="Perdida") add(p.alteradoEm||p.criada,"alert","#dc2626","Proposta perdida",(p.numero||"")+(p.motivoPerda?" · "+p.motivoPerda:""));
+  });
+
+  (state.envios||[]).filter(x=>ids.includes(x.clienteId)).forEach(x=>{
+    add(x.data,"mail","#2563eb","Email enviado",(x.assunto||"")+" → "+nomeC(x.clienteId)+(x.aberto?" · aberto":"")+(x.clicado?" · clicado":""));
+  });
+
+  (state.casos||[]).filter(c=>c.empresaId===empId||ids.includes(c.clienteId)).forEach(c=>{
+    add(c.aberto||c.data,"support","#d97706","Caso "+(c.numero||""),(c.assunto||"")+" · "+(c.estado||""));
+    if(c.csat!=null&&c.csat!=="") add(c.fechado||c.aberto,"star","#00A651","Satisfação registada","CSAT "+c.csat+(c.nps!=null&&c.nps!==""?" · NPS "+c.nps:""));
+  });
+
+  (state.consentimentos||[]).filter(c=>ids.includes(c.clienteId)).forEach(c=>{
+    add(c.data,"shield",c.estado==="Ativo"?"#00A651":"#dc2626",
+      c.estado==="Ativo"?"Consentimento dado":"Consentimento retirado",
+      (c.finalidade||"")+" · "+(c.base||"")+" · "+nomeC(c.clienteId));
+  });
+  (state.pedidos||[]).filter(p=>ids.includes(p.clienteId)).forEach(p=>
+    add(p.data,"shield","#7c3aed","Pedido de titular: "+(p.tipo||""),nomeC(p.clienteId)+" · "+(p.estado||"")));
+
+  (state.retencoes||[]).filter(r=>r.empresaId===empId||ids.includes(r.clienteId)).forEach(r=>
+    add(r.aberto||r.data,"heart","#dc2626","Pedido de cancelamento",(r.artigo||"")+" · "+(r.estado||"")));
+
+  (state.tarefas||[]).filter(t=>ids.includes(t.clienteId)).forEach(t=>
+    add(t.data,"calendar",t.estado==="Concluída"?"#00A651":"#64748b",
+      (t.estado==="Concluída"?"Tarefa concluída":"Tarefa agendada"),(t.titulo||"")+(t.hora?" · "+t.hora:"")));
+
+  return ev.sort((a,b)=>b.data.localeCompare(a.data));
+}
+function timelineHTML(empId,limite){
+  const ev=timelineEmpresa(empId); const n=limite||14;
+  if(!ev.length) return "";
+  const mostra=ev.slice(0,n);
+  return `<div class="card card-pad">
+    <h4 style="font-weight:800;margin-bottom:10px;font-size:.95rem">${ic("rotate",15)} Linha do tempo <span class="muted" style="font-weight:500;font-size:.78rem">- tudo o que se passou com esta conta</span></h4>
+    <div style="border-left:2px solid var(--border);margin-left:7px;padding-left:14px">
+      ${mostra.map(x=>`<div style="position:relative;padding:5px 0 7px">
+        <span style="position:absolute;left:-21px;top:8px;width:11px;height:11px;border-radius:50%;background:${x.cor};box-shadow:0 0 0 3px var(--surface)"></span>
+        <div style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap">
+          <strong style="font-size:.85rem">${esc(x.titulo)}</strong>
+          <span class="muted" style="font-size:.72rem;margin-left:auto">${dPT(x.data)}</span></div>
+        ${x.sub?`<div class="muted" style="font-size:.78rem">${esc(x.sub)}</div>`:""}
+      </div>`).join("")}
+    </div>
+    ${ev.length>n?`<div class="muted" style="font-size:.76rem;margin-top:6px">… e mais ${ev.length-n} acontecimento(s)</div>`:""}
   </div>`;
 }
 function comDetalhe(valor,detalhe){ const v=String(valor||''); const d=String(detalhe||'').trim();
