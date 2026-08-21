@@ -246,6 +246,11 @@
 .drawer-body{padding:20px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:18px}
 .drawer-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
 /* accao destrutiva discreta: so ganha cor quando o rato la esta */
+/* KPI que filtra: so ganha aspeto de botao quando e clicavel */
+.kpi[data-act]{cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.kpi[data-act]:hover{border-color:var(--g300);box-shadow:var(--shadow)}
+.kpi.kpi-on{border-color:var(--g600);box-shadow:inset 0 0 0 1px var(--g600)}
+.kpi.kpi-on small{color:var(--g700);font-weight:800}
 .drawer-foot .btn-del{width:38px;height:38px;padding:0;justify-content:center;background:transparent;border-color:var(--border);color:var(--muted)}
 .drawer-foot .btn-del:hover{background:var(--danger-bg);border-color:transparent;color:var(--danger)}
 
@@ -1520,7 +1525,7 @@ function toast(title, msg='', type='ok'){
   d.innerHTML=`<span class="ti" style="color:${type==='err'?'var(--danger)':type==='warn'?'var(--warn)':type==='info'?'var(--info)':'var(--g600)'}">${ic(tic,18)}</span><div><strong>${esc(title)}</strong>${msg?`<span>${esc(msg)}</span>`:''}</div>`;
   w.appendChild(d); setTimeout(()=>{d.style.opacity='0';d.style.transform='translateX(30px)';d.style.transition='.3s';setTimeout(()=>d.remove(),300);},3200);
 }
-const kpi=(label,val,opts={})=>`<div class="kpi">${opts.icon?`<div class="kpi-ic">${ic(opts.icon,18)}</div>`:''}<small>${label}</small><strong>${val}</strong>${opts.delta!=null?`<span class="delta ${opts.dir||'flat'}">${opts.dir==='up'?'▲':opts.dir==='down'?'▼':'•'} ${opts.delta}</span>`:opts.sub?`<span class="muted" style="font-size:.78rem;font-weight:600">${opts.sub}</span>`:''}</div>`;
+const kpi=(label,val,opts={})=>`<div class="kpi${opts.on?' kpi-on':''}"${opts.act?` data-act="${opts.act}" data-f="${opts.f||''}" role="button" tabindex="0" title="${esc(opts.title||'Filtrar')}"`:''}>${opts.icon?`<div class="kpi-ic">${ic(opts.icon,18)}</div>`:''}<small>${label}</small><strong>${val}</strong>${opts.delta!=null?`<span class="delta ${opts.dir||'flat'}">${opts.dir==='up'?'▲':opts.dir==='down'?'▼':'•'} ${opts.delta}</span>`:opts.sub?`<span class="muted" style="font-size:.78rem;font-weight:600">${opts.sub}</span>`:''}</div>`;
 const empty=(msg,sub='')=>`<div class="empty">${ic('list',34)}<div><strong>${esc(msg)}</strong>${sub?`<div class="muted" style="font-size:.84rem;margin-top:3px">${esc(sub)}</div>`:''}</div></div>`;
 
 /* ---------- gráficos SVG ---------- */
@@ -2227,6 +2232,7 @@ function analyticsMetrics(from,to){
 
 /* ---------- AGENDA & TAREFAS ---------- */
 let agendaYM=null, agendaView='mes', agendaWeek=null;
+let agendaFiltro=null;   // qual dos 4 KPIs da Agenda esta ativo
 const MONTHS_PT=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const WK_START=8, WK_END=20, WK_HPX=48; // grelha semanal: 8h-20h, 48px/hora
 function curYM(){ return todayISO().slice(0,7); }
@@ -2266,16 +2272,23 @@ views.agenda = () => {
   const [y,m]=agendaYM.split('-').map(Number);
   const pend=tasks.filter(t=>t.estado!=='Concluída');
   const overdueList=pend.filter(t=>t.data<today).sort((a,b)=>a.data.localeCompare(b.data));
+  const hojeList=tasks.filter(t=>t.data===today&&t.estado!=='Concluída').sort((a,b)=>String(a.hora||'').localeCompare(String(b.hora||'')));
+  const feitasList=tasks.filter(t=>t.estado==='Concluída').sort((a,b)=>String(b.data).localeCompare(String(a.data)));
+  /* o KPI escolhido manda na lista da direita - clicar outra vez desliga */
+  const FILTROS={pendentes:['Tarefas pendentes',()=>pend.slice().sort((a,b)=>String(a.data).localeCompare(String(b.data)))],
+                 hoje:['Para hoje',()=>hojeList], atraso:['Em atraso',()=>overdueList], concluidas:['Concluídas',()=>feitasList]};
+  const filtroAtivo=FILTROS[agendaFiltro]||null;
+  const listaFiltrada=filtroAtivo?filtroAtivo[1]():null;
   const upcoming=pend.filter(t=>t.data>=today).sort((a,b)=>(a.data+(a.hora||'24')).localeCompare(b.data+(b.hora||'24')));
   const wd=weekDays(agendaWeek); const wTitle=`${+wd[0].slice(8)}-${+wd[6].slice(8)} ${MONTHS_PT[+wd[0].slice(5,7)-1]} ${wd[0].slice(0,4)}`;
   const title=agendaView==='semana'?wTitle:`${MONTHS_PT[m-1]} ${y}`;
   return `
   <div class="callout green">${ic('calendar',18)}<div style="flex:1"><strong>Agenda & Tarefas</strong><span class="ctxt">Vista mensal ou semanal. Na vista semanal, clique numa hora para marcar uma tarefa nesse horário (15 em 15 min).</span></div></div>
   <div class="grid cols-4">
-    ${kpi('Tarefas pendentes', fmtN(pend.length), {icon:'bell'})}
-    ${kpi('Para hoje', fmtN(tasks.filter(t=>t.data===today&&t.estado!=='Concluída').length), {icon:'calendar'})}
-    ${kpi('Em atraso', fmtN(overdueList.length), {icon:'alert', dir:overdueList.length?'down':'flat', delta:overdueList.length?'atenção':'em dia'})}
-    ${kpi('Concluídas', fmtN(tasks.filter(t=>t.estado==='Concluída').length), {icon:'check'})}
+    ${kpi('Tarefas pendentes', fmtN(pend.length), {icon:'bell', act:'ag-filtro', f:'pendentes', on:agendaFiltro==='pendentes', title:'Ver só as pendentes'})}
+    ${kpi('Para hoje', fmtN(hojeList.length), {icon:'calendar', act:'ag-filtro', f:'hoje', on:agendaFiltro==='hoje', title:'Ver só as de hoje'})}
+    ${kpi('Em atraso', fmtN(overdueList.length), {icon:'alert', dir:overdueList.length?'down':'flat', delta:overdueList.length?'atenção':'em dia', act:'ag-filtro', f:'atraso', on:agendaFiltro==='atraso', title:'Ver só as atrasadas'})}
+    ${kpi('Concluídas', fmtN(feitasList.length), {icon:'check', act:'ag-filtro', f:'concluidas', on:agendaFiltro==='concluidas', title:'Ver só as concluídas'})}
   </div>
   <div class="split" style="grid-template-columns:1.7fr 1fr">
     <div class="card card-pad">
@@ -2287,9 +2300,10 @@ views.agenda = () => {
       ${agendaView==='semana'?agendaWeekHTML(tasks,today):agendaMonthHTML(tasks,today)}
     </div>
     <div class="card card-pad">
-      <div class="section-head" style="margin-bottom:12px"><div><h3>Próximas tarefas</h3></div></div>
+      <div class="section-head" style="margin-bottom:12px"><div><h3>${filtroAtivo?esc(filtroAtivo[0]):'Próximas tarefas'}</h3>${filtroAtivo?`<div class="sub">${listaFiltrada.length} tarefa(s) · filtro do cartão</div>`:''}</div>${filtroAtivo?`<button class="btn-sec btn-xs" data-act="ag-filtro" data-f="">Limpar filtro</button>`:''}</div>
+      ${filtroAtivo?`<div class="mini-list">${listaFiltrada.length?listaFiltrada.map(taskRow).join(''):empty('Nenhuma tarefa',(agendaFiltro==='atraso'?'Nada em atraso - bom sinal.':'Sem tarefas neste filtro.'))}</div>`:`
       ${overdueList.length?`<div style="font-size:.76rem;font-weight:800;color:var(--danger);margin-bottom:6px">${ic('alert',13)} Em atraso (${overdueList.length})</div><div class="mini-list" style="margin-bottom:14px">${overdueList.slice(0,5).map(taskRow).join('')}</div>`:''}
-      <div class="mini-list">${upcoming.length?upcoming.slice(0,8).map(taskRow).join(''):(overdueList.length?'':empty('Sem tarefas','Crie a primeira tarefa no calendário.'))}</div>
+      <div class="mini-list">${upcoming.length?upcoming.slice(0,8).map(taskRow).join(''):(overdueList.length?'':empty('Sem tarefas','Crie a primeira tarefa no calendário.'))}</div>`}
     </div>
   </div>`;
 };
@@ -5471,6 +5485,12 @@ function uiConfirm(message,o){ o=o||{}; return uiDialog({title:o.title||'Confirm
 function uiAlert(message,o){ o=o||{}; return uiDialog({title:o.title||'Aviso',icon:o.icon||'info',message,okText:o.okText||'OK',cancelText:null}); }
 function uiPrompt(message,def,o){ o=o||{}; return uiDialog({title:o.title||'',icon:o.icon,message,okText:o.okText||'OK',cancelText:'Cancelar',input:def||'',placeholder:o.placeholder||''}); }
 
+/* elementos com role=button (ex.: os KPIs da Agenda) respondem ao teclado como ao rato */
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter'&&e.key!==' ') return;
+  const b=e.target&&e.target.closest&&e.target.closest('[data-act][role="button"]');
+  if(!b) return; e.preventDefault(); b.click();
+});
 document.addEventListener('click', async e=>{
   const el=e.target.closest('[data-act]'); if(!el) return;
   const act=el.dataset.act, type=el.dataset.type, id=el.dataset.id;
@@ -5606,6 +5626,10 @@ document.addEventListener('click', async e=>{
     case 'mail-clearclient': mailDraft.clienteId=''; render(); break;
     case 'mail-ai': { syncMailDraft(); const c=mailDraft.clienteId?getC(mailDraft.clienteId):null; mailDraft.message=aiSuggestEmail(c); if(!mailDraft.subject||!mailDraft.subject.trim()) mailDraft.subject='Uma ideia para '+(c?`${c.nome}`:'si'); render(); toast('Rascunho gerado','Sugestão de IA (simulada) - reveja antes de enviar'); } break;
     case 'apply-cac': { const v=+($('#cacInput')?.value||0); state.settings.cacBudget=v<0?0:v; save(); render(); toast('CAC atualizado','Investimento de marketing aplicado'); } break;
+    /* clicar no KPI filtra a lista ao lado; clicar no mesmo outra vez limpa */
+    case 'ag-filtro': { const f=el.dataset.f||'';
+      agendaFiltro = (!f || agendaFiltro===f) ? null : f;
+      render(); } break;
     case 'cal-view': agendaView=el.dataset.view; render(); break;
     case 'cal-prev': if(agendaView==='semana') agendaWeek=addDays(agendaWeek||mondayOf(todayISO()),-7); else agendaYM=shiftYM(agendaYM||curYM(),-1); render(); break;
     case 'cal-next': if(agendaView==='semana') agendaWeek=addDays(agendaWeek||mondayOf(todayISO()),7); else agendaYM=shiftYM(agendaYM||curYM(),1); render(); break;
