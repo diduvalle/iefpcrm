@@ -256,6 +256,8 @@
 .bar-tip strong{display:block;margin-bottom:4px;font-size:.78rem}
 .bar-tip .mais{opacity:.7;margin-top:2px}
 .barchart-col:hover .bar-tip{opacity:1}
+.gtip{position:fixed;opacity:0;transition:opacity .1s;white-space:nowrap}
+.gtip strong{margin-bottom:4px}
 .barchart-plot{overflow:visible}
 .kpi[data-act]{cursor:pointer;transition:border-color .15s,box-shadow .15s}
 .kpi[data-act]:hover{border-color:var(--g300);box-shadow:var(--shadow)}
@@ -1541,9 +1543,36 @@ const empty=(msg,sub='')=>`<div class="empty">${ic('list',34)}<div><strong>${esc
 /* ---------- gráficos SVG ---------- */
 /* Cada fatia leva um `tip` (o que representa) e, se quiseres, um `act` (para onde leva).
    Sem isso, o gráfico é bonito mas mudo: ve-se a fatia verde e nao se sabe o que e. */
+/* Tooltip flutuante para qualquer elemento com data-tip. Serve o SVG do donut,
+   onde o truque de CSS das barras não funciona. Linhas separadas por " | ";
+   a primeira fica em destaque. */
+let _gtipEl=null;
+function gtip(){ if(_gtipEl) return _gtipEl;
+  _gtipEl=document.createElement('div'); _gtipEl.className='bar-tip gtip'; _gtipEl.style.display='none';
+  document.body.appendChild(_gtipEl); return _gtipEl; }
+function gtipShow(el,x,y){
+  const txt=el.getAttribute('data-tip')||''; if(!txt) return;
+  const linhas=txt.split(' | ');
+  const t=gtip();
+  t.innerHTML='<strong>'+esc(linhas[0])+'</strong>'+linhas.slice(1).map(l=>'<div>'+esc(l)+'</div>').join('');
+  t.style.display='block'; t.style.opacity='1'; gtipMove(x,y);
+}
+function gtipMove(x,y){
+  const t=gtip(); if(t.style.display==='none') return;
+  const r=t.getBoundingClientRect();
+  let L=x+14, T=y-r.height-12;
+  if(L+r.width>innerWidth-8) L=x-r.width-14;
+  if(T<8) T=y+18;
+  t.style.left=Math.max(8,L)+'px'; t.style.top=T+'px';
+}
+function gtipHide(){ if(_gtipEl){ _gtipEl.style.display='none'; } }
+document.addEventListener('mouseover',e=>{ const el=e.target.closest&&e.target.closest('[data-tip]'); if(el) gtipShow(el,e.clientX,e.clientY); });
+document.addEventListener('mousemove',e=>{ if(_gtipEl&&_gtipEl.style.display!=='none'){ const el=e.target.closest&&e.target.closest('[data-tip]'); if(el) gtipMove(e.clientX,e.clientY); else gtipHide(); } });
+document.addEventListener('mouseout',e=>{ const el=e.target.closest&&e.target.closest('[data-tip]'); if(el) gtipHide(); });
+document.addEventListener('scroll',gtipHide,true);
 function donut(segs, size=148){
   const total=segs.reduce((s,x)=>s+x.v,0)||1; const r=size/2-14, cx=size/2, cy=size/2, C=2*Math.PI*r; let off=0;
-  const arcs=segs.filter(s=>s.v>0).map(s=>{ const len=s.v/total*C; const el=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.c}" stroke-width="20" stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}" transform="rotate(-90 ${cx} ${cy})"${s.tip?` style="cursor:${s.act?'pointer':'default'}"`:''}${s.act?` data-act="${s.act}"`:''} stroke-linecap="butt">${s.tip?`<title>${esc(s.tip)}</title>`:''}</circle>`; off+=len; return el; }).join('');
+  const arcs=segs.filter(s=>s.v>0).map(s=>{ const len=s.v/total*C; const el=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.c}" stroke-width="20" stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}" transform="rotate(-90 ${cx} ${cy})"${s.tip?` style="cursor:${s.act?'pointer':'default'}"`:''}${s.act?` data-act="${s.act}"`:''}${s.tip?` data-tip="${esc(s.tip)}"`:''} stroke-linecap="butt"/>`; off+=len; return el; }).join('');
   return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--surface3)" stroke-width="20"/>${arcs}<text x="${cx}" y="${cy-2}" text-anchor="middle" font-size="22" font-weight="800" fill="var(--text)">${fmtN(total)}</text><text x="${cx}" y="${cy+16}" text-anchor="middle" font-size="10" fill="var(--muted)">TOTAL</text></svg>`;
 }
 function barShort(v){ if(!v) return ''; return v>=1000?(v/1000).toFixed(v>=10000?0:1).replace('.',',')+'k€':Math.round(v)+'€'; }
@@ -1585,8 +1614,14 @@ views.dashboard = () => {
   const donutSegs=PROP_STATES.map(s=>{ const ps=props.filter(p=>p.estado===s);
     const val=ps.reduce((t,p)=>t+propTotal(p),0);
     const pct=props.length?Math.round(ps.length/props.length*100):0;
+    /* as maiores primeiro: e o que interessa ver ao passar o rato */
+    const top=ps.slice().sort((a,b)=>propTotal(b)-propTotal(a)).slice(0,5)
+      .map(p=>{ const e=(state.empresas||[]).find(x=>x.id===p.empresaId);   // a venda ancora na EMPRESA
+        return `${p.numero||''} · ${(e&&e.nome)||p.empresa||clientName(p.clienteId)||'-'} · ${money(propTotal(p))}`; });
+    const mais=ps.length-top.length;
     return {l:s, v:ps.length, c:stateDot(s), act:'ir-propostas',
-      tip:`${s}: ${ps.length} proposta(s) · ${pct}% do pipeline · ${money(val)}`}; });
+      tip:[`${s} · ${ps.length} proposta(s) · ${pct}% · ${money(val)}`].concat(top)
+        .concat(mais>0?[`… e mais ${mais}`]:[]).join(' | ')}; });
   return `
   <div class="hero">
     <div>
