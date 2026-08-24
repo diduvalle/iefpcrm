@@ -501,6 +501,22 @@ body.present #presentExit{display:inline-flex;align-items:center;gap:6px;positio
   <div class="drawer-foot" id="drawerFoot"></div>
 </aside>
 
+<!-- ASSISTENTE (consulta os dados da sandbox; nao e IA) -->
+<button class="cbot-fab" id="cbotFab" data-act="cbot-toggle" title="Assistente do CRM" aria-label="Assistente do CRM"></button>
+<div class="cbot-panel" id="cbotPanel" role="dialog" aria-label="Assistente do CRM">
+  <div class="cbot-head">
+    <span id="cbotIcon" style="color:var(--g700)"></span>
+    <div style="flex:1"><strong>Assistente</strong><div class="sub">Pergunte sobre os seus dados</div></div>
+    <button class="icon-btn" data-act="cbot-toggle" title="Fechar">✕</button>
+  </div>
+  <div class="cbot-log" id="cbotLog"></div>
+  <div class="cbot-chips" id="cbotChips"></div>
+  <div class="cbot-foot">
+    <input id="cbotIn" placeholder="ex.: quanto vendi este mês" autocomplete="off" maxlength="120">
+    <button data-act="cbot-send" title="Perguntar" aria-label="Perguntar"><span id="cbotSendIcon"></span></button>
+  </div>
+</div>
+
 <!-- MODAL -->
 <div class="modal-back" id="modalBack">
   <div class="modal" id="modal">
@@ -2573,6 +2589,243 @@ function metaCardHTML(){
     </div>`:""}
   </div>`;
 }
+/* ================== ASSISTENTE DO CRM ==================
+   NÃO é inteligência artificial e não finge ser - a primeira coisa que diz é
+   isso mesmo. É correspondência de palavras-chave para uma consulta fixa sobre
+   o `state`. Fica assim de propósito, por três razões:
+
+   1. É honesto. O artigo 50.º do AI Act obriga a dizer a quem interage que
+      está a falar com uma máquina. Um assistente que se declarasse IA sem o
+      ser ensinaria exatamente o contrário do que a formação diz.
+   2. Funciona na sandbox de cada formando, sem chave, sem custo e offline.
+   3. Quando não sabe, diz que não sabe - e é aí que se percebe que um
+      assistente só chega onde os dados chegam.
+
+   Ele NÃO altera nada: só responde e leva à vista certa. */
+let cbotMsgs=[];  /* vive só em memória: fechar o separador esquece */
+const cbotNorm = t => String(t||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+const cbotEu   = () => { const u=currentUser(); return u?u.id:null; };
+/* "as minhas propostas", "quanto vendi eu" - restringe ao utilizador atual */
+const cbotMeu  = q => /(^| )(minha|minhas|meu|meus|eu)( |$)/.test(q);
+const cbotMoney= v => money(v);
+
+/* Propostas em aberto = as que ainda podem virar dinheiro */
+const cbotAbertas = () => (state.propostas||[]).filter(p=>!["Ganha","Perdida"].includes(p.estado));
+function cbotFiltraResp(lista,q){ if(!cbotMeu(q)) return lista; const eu=cbotEu(); return eu?lista.filter(x=>x.responsavelId===eu):lista; }
+function cbotNomeEmp(id){ const e=(state.empresas||[]).find(x=>x.id===id); return e?e.nome:""; }
+
+/* ---- as perguntas que ele sabe responder ----
+   mod: módulo a que pertence (não responde sobre o que a pessoa não pode ver)
+   k:   palavras-chave (sem acentos)
+   f:   devolve {t:texto, lista:[...], ir:{h:hash, l:rótulo}} */
+const CBOT = [
+  {mod:"propostas", k:["pipeline","em aberto","abertas","por fechar","em curso","negocios abertos"], f:q=>{
+    const l=cbotFiltraResp(cbotAbertas(),q); const t=l.reduce((a,p)=>a+propTotal(p),0);
+    const meu=cbotMeu(q)?" à sua responsabilidade":"";
+    if(!l.length) return {t:"Não há propostas em aberto"+meu+"."};
+    return {t:"Tem <strong>"+l.length+" proposta(s)</strong> em aberto"+meu+", no valor de <strong>"+cbotMoney(t)+"</strong>.",
+      lista:l.slice().sort((a,b)=>propTotal(b)-propTotal(a)).slice(0,5).map(p=>(p.numero||"")+" · "+(cbotNomeEmp(p.empresaId)||"-")+" · "+cbotMoney(propTotal(p))+" · "+(p.estado||"")),
+      ir:{h:"propostas",l:"Ver propostas"}}; }},
+
+  {mod:"propostas", k:["quanto vendi","volume","receita","faturei","faturado","facturei","ganhei","vendas do mes","negocio este mes"], f:q=>{
+    const eu=cbotMeu(q)?cbotEu():null; const v=receitaMes(eu); const r=ritmoMes(v);
+    const cfg=metasCfg(); const meta=eu?(Number(cfg.pessoas[eu])||0):(cfg.mensal||0);
+    const quem=eu?"Você ganhou":"Ganhou-se";
+    let t=quem+" <strong>"+cbotMoney(v)+"</strong> em propostas fechadas este mês.";
+    if(meta) t+=" A meta é "+cbotMoney(meta)+" - está a <strong>"+Math.round(v/meta*100)+"%</strong>.";
+    t+=" Ao ritmo atual o mês fecha em "+cbotMoney(r.projecao)+".";
+    if(!meta) t+=" (Sem meta definida, este número não diz se é bom ou mau - defina uma em Definições.)";
+    return {t, ir:{h:"analytics",l:"Ver Analytics"}}; }},
+
+  {mod:"propostas", k:["taxa de conversao","conversao","win rate","quantas ganho","rácio"], f:()=>{
+    const g=(state.propostas||[]).filter(p=>p.estado==="Ganha").length;
+    const pd=(state.propostas||[]).filter(p=>p.estado==="Perdida").length;
+    if(!(g+pd)) return {t:"Ainda não há propostas fechadas - sem elas não há taxa de conversão."};
+    return {t:"Fecharam-se <strong>"+(g+pd)+"</strong> propostas: "+g+" ganhas e "+pd+" perdidas. Taxa de conversão de <strong>"+Math.round(g/(g+pd)*100)+"%</strong>.",
+      ir:{h:"analytics",l:"Ver Analytics"}}; }},
+
+  {mod:"propostas", k:["expirar","expiram","validade","caducar","a acabar o prazo"], f:()=>{
+    const hoje=todayISO();
+    const l=cbotAbertas().filter(p=>p.validade&&daysBetween(hoje,p.validade)>=0&&daysBetween(hoje,p.validade)<=15);
+    if(!l.length) return {t:"Nenhuma proposta em aberto expira nos próximos 15 dias."};
+    return {t:"<strong>"+l.length+" proposta(s)</strong> expiram nos próximos 15 dias.",
+      lista:l.sort((a,b)=>(a.validade||"").localeCompare(b.validade||"")).slice(0,6).map(p=>(p.numero||"")+" · "+(cbotNomeEmp(p.empresaId)||"-")+" · até "+dPT(p.validade)),
+      ir:{h:"propostas",l:"Ver propostas"}}; }},
+
+  {mod:"analytics", k:["porque perdemos","porque perdi","motivos de perda","motivo da perda","porque se perde"], f:()=>{
+    const pd=(state.propostas||[]).filter(p=>p.estado==="Perdida");
+    if(!pd.length) return {t:"Ainda não há propostas perdidas."};
+    const c={}; pd.forEach(p=>{ const m=motivoTxt(p.motivoPerda,p.motivoPerdaNota)||"(por classificar)"; c[m]=(c[m]||0)+1; });
+    const e=Object.entries(c).sort((a,b)=>b[1]-a[1]);
+    return {t:"Perderam-se <strong>"+pd.length+"</strong> propostas. Os motivos mais repetidos:",
+      lista:e.slice(0,5).map(x=>x[0]+" · "+x[1]+" ("+Math.round(x[1]/pd.length*100)+"%)"),
+      ir:{h:"analytics",l:"Ver análise de perdas"}}; }},
+
+  {mod:"analytics", k:["porque ganhamos","porque ganhei","motivos de ganho","motivo do ganho","porque se ganha"], f:()=>{
+    const g=(state.propostas||[]).filter(p=>p.estado==="Ganha");
+    if(!g.length) return {t:"Ainda não há propostas ganhas."};
+    const c={}; g.forEach(p=>{ const m=motivoTxt(p.motivoGanho,p.motivoGanhoNota)||"(por classificar)"; c[m]=(c[m]||0)+1; });
+    const e=Object.entries(c).sort((a,b)=>b[1]-a[1]);
+    return {t:"Ganharam-se <strong>"+g.length+"</strong> propostas. O que fez o cliente decidir:",
+      lista:e.slice(0,5).map(x=>x[0]+" · "+x[1]+" ("+Math.round(x[1]/g.length*100)+"%)"),
+      ir:{h:"analytics",l:"Ver análise de ganhos"}}; }},
+
+  {mod:"empresas", k:["quantas empresas","quantas contas","empresas tenho","carteira"], f:()=>{
+    const e=state.empresas||[]; const porFase={};
+    e.forEach(x=>{ const f=x.fase||"Lead"; porFase[f]=(porFase[f]||0)+1; });
+    return {t:"Tem <strong>"+e.length+" empresa(s)</strong> na carteira.",
+      lista:Object.entries(porFase).sort((a,b)=>b[1]-a[1]).map(x=>x[0]+" · "+x[1]),
+      ir:{h:"empresas",l:"Ver empresas"}}; }},
+
+  {mod:"empresas", k:["sem proposta","sem propostas","nao tem proposta","nao tem propostas","nao tiveram proposta","nunca compraram","sem negocio","sem oportunidade"], f:()=>{
+    const com=new Set((state.propostas||[]).map(p=>p.empresaId));
+    const l=(state.empresas||[]).filter(e=>!com.has(e.id));
+    if(!l.length) return {t:"Todas as empresas da carteira já têm pelo menos uma proposta."};
+    return {t:"<strong>"+l.length+" empresa(s)</strong> ainda não têm nenhuma proposta - é a lista de quem nunca foi abordado.",
+      lista:l.slice(0,8).map(e=>e.nome+(e.fase?" · "+e.fase:"")),
+      ir:{h:"empresas",l:"Ver empresas"}}; }},
+
+  {mod:"empresas", k:["melhores clientes","top empresas","maiores clientes","quem compra mais","top clientes"], f:()=>{
+    const v={}; (state.propostas||[]).filter(p=>p.estado==="Ganha").forEach(p=>{ v[p.empresaId]=(v[p.empresaId]||0)+propTotal(p); });
+    const e=Object.entries(v).sort((a,b)=>b[1]-a[1]);
+    if(!e.length) return {t:"Ainda não há propostas ganhas, por isso não há ranking de clientes."};
+    return {t:"As empresas que mais valor trouxeram:",
+      lista:e.slice(0,5).map((x,i)=>(i+1)+". "+(cbotNomeEmp(x[0])||"-")+" · "+cbotMoney(x[1])),
+      ir:{h:"empresas",l:"Ver empresas"}}; }},
+
+  {mod:"clientes", k:["quantos contactos","quantas pessoas","quantos clientes"], f:()=>{
+    const c=state.clientes||[]; const semEmp=c.filter(x=>!x.empresaId).length;
+    return {t:"Tem <strong>"+c.length+" contacto(s)</strong>."+(semEmp?" Destes, "+semEmp+" não estão ligados a nenhuma empresa - e a venda ancora na empresa.":""),
+      ir:{h:"clientes",l:"Ver contactos"}}; }},
+
+  {mod:"agenda", k:["hoje","o que tenho hoje","agenda de hoje","para hoje"], f:()=>{
+    const l=(state.tarefas||[]).filter(t=>t.data===todayISO()&&t.estado!=="Concluída");
+    if(!l.length) return {t:"Não tem nada agendado para hoje."};
+    return {t:"Tem <strong>"+l.length+"</strong> coisa(s) agendadas para hoje.",
+      lista:l.map(t=>(t.hora?t.hora+" · ":"")+t.titulo+(t.tipo?" ("+motivoTxt(t.tipo,t.tipoOutro)+")":"")),
+      ir:{h:"agenda",l:"Ver agenda"}}; }},
+
+  {mod:"agenda", k:["atrasadas","em atraso","atrasado","vencidas","fora de prazo"], f:()=>{
+    const l=(state.tarefas||[]).filter(t=>t.estado!=="Concluída"&&t.data&&t.data<todayISO());
+    if(!l.length) return {t:"Não tem tarefas em atraso."};
+    return {t:"<strong>"+l.length+" tarefa(s)</strong> passaram do prazo.",
+      lista:l.sort((a,b)=>(a.data||"").localeCompare(b.data||"")).slice(0,6).map(t=>dPT(t.data)+" · "+t.titulo),
+      ir:{h:"agenda",l:"Ver agenda"}}; }},
+
+  {mod:"casos", k:["casos abertos","helpdesk","sla","suporte","reclamacoes"], f:()=>{
+    const ab=(state.casos||[]).filter(casoAberto);
+    if(!ab.length) return {t:"Não há casos de suporte abertos."};
+    const violados=ab.filter(c=>casoSla(c).estado==="violado").length;
+    const risco=ab.filter(c=>casoSla(c).estado==="risco").length;
+    return {t:"<strong>"+ab.length+" caso(s)</strong> em aberto"+(violados?", <strong>"+violados+" com o prazo já ultrapassado</strong>":"")+(risco?" e "+risco+" em risco":"")+".",
+      lista:ab.slice(0,6).map(c=>(c.numero||"")+" · "+(c.assunto||"")+" · "+(c.estado||"")),
+      ir:{h:"casos",l:"Ver Helpdesk"}}; }},
+
+  {mod:"rgpd", k:["rgpd","titular","dsar","consentimentos","protecao de dados","direitos"], f:()=>{
+    const ped=(state.pedidos||[]).filter(p=>p.estado!=="Concluído");
+    const fora=ped.filter(p=>p.prazo&&p.prazo<todayISO()).length;
+    const ativos=(state.consentimentos||[]).filter(c=>c.estado==="Ativo").length;
+    const retirados=(state.consentimentos||[]).filter(c=>c.estado==="Retirado").length;
+    return {t:"<strong>"+ped.length+" pedido(s) de titular</strong> por responder"+(fora?", <strong>"+fora+" fora do prazo de um mês</strong>":"")+      ". Nos consentimentos: "+ativos+" ativos e "+retirados+" retirados.",
+      ir:{h:"rgpd",l:"Ver RGPD"}}; }},
+
+  {mod:"retencao", k:["cancelamento","cancelar","retencao","churn","em risco"], f:()=>{
+    const l=(state.retencoes||[]).filter(r=>!["Retido","Cancelado"].includes(r.estado));
+    if(!l.length) return {t:"Não há pedidos de cancelamento em curso."};
+    const mrr=l.reduce((a,r)=>a+(Number(r.mrr)||0),0);
+    return {t:"<strong>"+l.length+" contrato(s)</strong> em risco, "+cbotMoney(mrr)+"/mês em jogo.",
+      lista:l.slice(0,6).map(r=>(r.numero||"")+" · "+(r.artigo||"")+" · "+(r.motivo||"")+" · "+(r.estado||"")),
+      ir:{h:"retencao",l:"Ver Retenção"}}; }},
+];
+
+/* Perguntas sobre o próprio assistente - não dependem de módulo nenhum */
+const CBOT_META = [
+  {k:["es uma ia","es ia","es um robo","inteligencia artificial","chatgpt","quem es","es humano","es uma pessoa"], f:()=>({
+    t:"<strong>Não sou inteligência artificial.</strong> Sou um conjunto de regras fixas: reconheço algumas frases e vou buscar o número aos seus dados. Não aprendo, não invento e não escrevo nada que não esteja aqui.<br><br>Se fosse IA, o artigo 50.º do AI Act obrigaria à mesma declaração - a diferença é que aí eu poderia enganar-me com confiança."})},
+  {k:["ajuda","o que sabes","o que podes","exemplos","como funciona","comandos"], f:()=>({
+    t:"Respondo a perguntas de consulta sobre os seus dados. Não altero nada - no máximo levo-o à vista certa. Experimente uma das sugestões aqui em baixo."})},
+];
+
+/* Palavras compridas valem mais: "motivos de perda" ganha a "perda" */
+function cbotScore(ks,q){ let n=0;
+  ks.forEach(k=>{ const kk=cbotNorm(k);
+    const curto = kk.length<=4;
+    const bate = curto ? new RegExp("(^|[^a-z0-9])"+kk+"([^a-z0-9]|$)").test(q) : q.indexOf(kk)>=0;
+    if(bate) n+=kk.length; });
+  return n; }
+
+function cbotResponde(txt){
+  const q=cbotNorm(txt);
+  let melhor=null, pts=0;
+  CBOT_META.forEach(i=>{ const p=cbotScore(i.k,q); if(p>pts){pts=p;melhor=i;} });
+  CBOT.forEach(i=>{ if(!can(i.mod)) return; const p=cbotScore(i.k,q); if(p>pts){pts=p;melhor=i;} });
+  if(!melhor) return {t:"Não sei responder a isso.<br><br>Não é modéstia: só reconheço as frases para que fui programado. Escolha uma das sugestões em baixo, ou escreva-a com outras palavras.", naoSei:true};
+  try{ return melhor.f(q); }
+  catch(e){ return {t:"Encontrei a pergunta mas falhei a ir buscar os dados. Veja o módulo diretamente."}; }
+}
+
+/* Sugestões: só as dos módulos a que a pessoa tem acesso */
+function cbotSugestoes(){
+  const todas=[
+    {m:"propostas", t:"Quantas propostas tenho em aberto?"},
+    {m:"propostas", t:"Quanto vendi este mês?"},
+    {m:"propostas", t:"Que propostas estão a expirar?"},
+    {m:"analytics",  t:"Porque perdemos negócios?"},
+    {m:"empresas",  t:"Que empresas ainda não têm proposta?"},
+    {m:"empresas",  t:"Quais são os melhores clientes?"},
+    {m:"agenda",    t:"O que tenho para hoje?"},
+    {m:"agenda",    t:"Tenho tarefas atrasadas?"},
+    {m:"casos",     t:"Como estão os casos de suporte?"},
+    {m:"rgpd",      t:"Há pedidos RGPD por responder?"},
+    {m:null,        t:"És uma IA?"},
+  ];
+  return todas.filter(x=>!x.m||can(x.m)).slice(0,6);
+}
+
+function cbotMsgHTML(m){
+  if(m.de==="eu") return `<div class="cbot-msg eu">${esc(m.t)}</div>`;
+  if(m.de==="aviso") return `<div class="cbot-msg aviso">${m.t}</div>`;
+  return `<div class="cbot-msg ele">${m.t}`+
+    (m.lista&&m.lista.length?`<ul class="cbot-lista">${m.lista.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:"")+
+    (m.ir?`<button class="cbot-ir" data-act="cbot-ir" data-h="${esc(m.ir.h)}">${esc(m.ir.l)} ${ic("chevR",13)}</button>`:"")+
+    `</div>`;
+}
+function cbotPinta(){
+  const log=$("#cbotLog"); if(!log) return;
+  log.innerHTML=cbotMsgs.map(cbotMsgHTML).join("");
+  log.scrollTop=log.scrollHeight;
+  const ch=$("#cbotChips");
+  if(ch) ch.innerHTML=cbotSugestoes().map(x=>`<button class="cbot-chip" data-act="cbot-chip">${esc(x.t)}</button>`).join("");
+}
+function cbotDiz(txt){
+  const t=String(txt||"").trim(); if(!t) return;
+  cbotMsgs.push({de:"eu",t});
+  cbotMsgs.push(Object.assign({de:"ele"},cbotResponde(t)));
+  cbotPinta();
+}
+function cbotToggle(){
+  const p=$("#cbotPanel"), f=$("#cbotFab"); if(!p) return;
+  const abrir=!p.classList.contains("open");
+  p.classList.toggle("open",abrir); f.classList.toggle("on",abrir);
+  if(abrir){
+    if(!cbotMsgs.length){
+      /* a primeira coisa que se diz é o que se é (art. 50.º do AI Act) */
+      cbotMsgs.push({de:"aviso",t:"<strong>Não sou inteligência artificial.</strong> Respondo com regras fixas aos dados desta sandbox. Não altero nada."});
+      cbotMsgs.push({de:"ele",t:"Pergunte-me um número sobre o seu CRM. Se não perceber, digo-lhe."});
+    }
+    cbotPinta(); setTimeout(()=>{ const i=$("#cbotIn"); if(i) i.focus(); },120);
+  }
+}
+/* Enter envia. O input é fixo no shell, por isso um listener chega. */
+document.addEventListener("keydown",e=>{
+  if(e.key!=="Enter"||!e.target||e.target.id!=="cbotIn") return;
+  e.preventDefault(); cbotDiz(e.target.value); e.target.value="";
+});
+
+/* Ícones monocromáticos do conjunto I - o markup do shell fica vazio e é
+   preenchido aqui, para não haver SVG solto no HTML. */
+(function(){ const f=$("#cbotFab"), h=$("#cbotIcon"), v=$("#cbotSendIcon");
+  if(f) f.innerHTML=ic("chat",24); if(h) h.innerHTML=ic("chat",18); if(v) v.innerHTML=ic("send",16); })();
 /* ================== LINHA DO TEMPO DA CONTA ==================
    A ficha 360 mostrava secções separadas: contactos aqui, propostas ali,
    consentimentos mais abaixo. Para preparar uma chamada é preciso a ordem
@@ -6147,6 +6400,10 @@ document.addEventListener('click', async e=>{
       else { state._rgpdFiltro=f; state._rgpdTab=(f==='ativos')?'consent':'pedidos'; }
       rgpdRefresca(); } break;
     case 'duplicados': abrirDuplicados(); break;
+    case 'cbot-toggle': cbotToggle(); break;
+    case 'cbot-send': { const i=$('#cbotIn'); if(i){ cbotDiz(i.value); i.value=''; i.focus(); } } break;
+    case 'cbot-chip': cbotDiz(el.textContent.trim()); break;
+    case 'cbot-ir': location.hash='#'+el.dataset.h; break;
     case 'ir-metas': location.hash='#definicoes'; setTimeout(()=>{ const el=$('#metaMensal'); if(el){ el.closest('.card').scrollIntoView({block:'center',behavior:'smooth'}); el.focus(); } },400); break;
     case 'save-metas': { if(!canFeat('metas')){ toast('Sem permissão','','warn'); break; }
       const m={mensal:Number(($('#metaMensal')||{}).value||0)||0, pessoas:{}};

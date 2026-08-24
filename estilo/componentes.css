@@ -292,3 +292,45 @@ html.dp-on[data-theme="dark"] input[type="date"]{
 .dp-link:hover{background:var(--surface2);color:var(--text)}
 .dp-link.dp-go{color:var(--g700)}
 .dp-link.dp-go:hover{background:var(--g100)}
+
+/* ---------- Assistente do CRM (.cbot-*) ----------
+   Bolha no canto inferior direito. Os toasts vivem em cima à direita,
+   por isso não se atropelam. */
+.cbot-fab{position:fixed;right:20px;bottom:20px;z-index:58;width:54px;height:54px;border-radius:50%;
+  border:none;cursor:pointer;background:var(--g700);color:#fff;box-shadow:var(--shadow-md);
+  display:flex;align-items:center;justify-content:center;transition:transform .15s,background .15s}
+.cbot-fab:hover{background:var(--g800);transform:translateY(-2px)}
+.cbot-fab.on{background:var(--surface3);color:var(--text)}
+.cbot-panel{position:fixed;right:20px;bottom:86px;z-index:58;width:380px;max-width:calc(100vw - 40px);
+  height:min(560px,calc(100vh - 130px));background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--rl);box-shadow:var(--shadow-lg);display:flex;flex-direction:column;overflow:hidden;
+  opacity:0;transform:translateY(10px) scale(.98);pointer-events:none;transition:.16s}
+.cbot-panel.open{opacity:1;transform:none;pointer-events:auto}
+.cbot-head{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--surface2)}
+.cbot-head strong{font-size:.92rem;font-weight:800}
+.cbot-head .sub{font-size:.7rem;color:var(--muted)}
+.cbot-log{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.cbot-msg{max-width:88%;padding:9px 12px;border-radius:14px;font-size:.85rem;line-height:1.45}
+.cbot-msg.eu{align-self:flex-end;background:var(--g700);color:#fff;border-bottom-right-radius:5px}
+.cbot-msg.ele{align-self:flex-start;background:var(--surface3);color:var(--text);border-bottom-left-radius:5px}
+.cbot-msg.aviso{align-self:stretch;max-width:100%;background:var(--warn-bg);color:var(--text);
+  border:1px dashed var(--warn);font-size:.78rem;border-radius:var(--rs)}
+.cbot-msg strong{font-weight:800}
+.cbot-lista{margin:7px 0 0;padding:0;list-style:none;border-top:1px solid var(--border);padding-top:6px}
+.cbot-lista li{font-size:.79rem;padding:2px 0;color:var(--muted)}
+.cbot-ir{margin-top:8px;display:inline-flex;align-items:center;gap:5px;background:var(--surface);
+  border:1px solid var(--border);color:var(--g700);font-weight:700;font-size:.76rem;padding:5px 10px;
+  border-radius:99px;cursor:pointer}
+.cbot-ir:hover{background:var(--g50);border-color:var(--g300)}
+.cbot-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 10px}
+.cbot-chip{background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-size:.72rem;
+  padding:5px 10px;border-radius:99px;cursor:pointer;text-align:left}
+.cbot-chip:hover{background:var(--g50);color:var(--g700);border-color:var(--g300)}
+.cbot-foot{padding:10px 12px;border-top:1px solid var(--border);display:flex;gap:8px;background:var(--surface2)}
+.cbot-foot input{flex:1;min-width:0;height:38px;border:1px solid var(--border);border-radius:99px;
+  padding:0 14px;background:var(--surface);color:var(--text);font-family:var(--font);font-size:.85rem}
+.cbot-foot input:focus{outline:none;border-color:var(--g600)}
+.cbot-foot button{width:38px;height:38px;flex:0 0 auto;border:none;border-radius:50%;background:var(--g700);
+  color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
+@media(max-width:520px){.cbot-panel{right:10px;left:10px;width:auto;bottom:80px}}
+@media print{.cbot-fab,.cbot-panel{display:none!important}}
