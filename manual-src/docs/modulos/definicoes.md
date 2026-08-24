@@ -39,6 +39,17 @@ Matriz **papéis × módulos**: define o que cada grupo vê (Administrador/Forma
 ### Modelos de Proposta
 Atalho para o construtor de modelos. → [Modelos de Proposta](modelos.md).
 
+### Metas de vendas
+Objetivo de **receita ganha** no mês. Dois níveis:
+
+- **Meta da equipa** (€/mês) - o total a atingir. `0` = sem meta.
+- **Metas individuais (quotas)** - uma por pessoa, contadas sobre as propostas **ganhas** de que cada um é **[responsável](empresas-contactos.md#responsavel)**. Numa turma, a lista é a turma.
+
+O resultado aparece no cartão **Meta do mês** do **[Dashboard](dashboard-agenda.md)**, com barra, percentagem e a projeção ao ritmo atual.
+
+!!! tip "Porque é que uma meta muda tudo"
+    Sem meta, *"12 400 €"* é só um número - não diz se o mês está a correr bem ou mal. Com meta, o mesmo número passa a dizer **quanto falta** e **se dá tempo**. É o que os CRM chamam *goal tracking*, e é a diferença entre relatar e gerir.
+
 ### Segmentos
 Lista editável da **dimensão da empresa** (Micro / PME / Grande Empresa, de origem). Alimenta o campo **Segmento (dimensão)** da ficha da empresa, o **alvo das campanhas**, a **condição das automações** e o gráfico de **Segmentação**.
 
@@ -48,7 +59,7 @@ Escreve o nome e **+ Adicionar**; o **✕** remove. Remover **não altera** as e
     São **dois conceitos diferentes** e, até agosto de 2026, partilhavam o mesmo campo - por isso a lista de alvo das campanhas misturava *Micro/PME/Grande Empresa* com *Bronze/Prata/Ouro*. Agora estão separados: o **segmento** é a **dimensão** da empresa (não muda sozinho); o **nível** é calculado do **volume ganho**. Campanhas e automações têm os **dois filtros em separado** e podem cruzá-los ("PME **e** Bronze"), o que antes era impossível. A app recusa criar um segmento com o nome de um nível, para não voltar a baralhar.
 
 ### Outras referências
-**Níveis de loyalty**, **Taxas de IVA** (por região), **Origens de cliente** (lista editável) e **[Campos personalizados do contacto](empresas-contactos.md#campos-personalizados)** - campos que crias tu e que ficam disponíveis como tag nos modelos.
+**Níveis de loyalty**, **Taxas de IVA** (por região), **Origens de cliente** (lista editável - se lá deixares *Outro*, a app pede sempre para [dizer qual](empresas-contactos.md#outro-pede-sempre-o-que)) e **[Campos personalizados do contacto](empresas-contactos.md#campos-personalizados)** - campos que crias tu e que ficam disponíveis como tag nos modelos.
 
 ## Em modo turma (online)
 

@@ -22,6 +22,7 @@ The **KPIs & Dashboards** module - the focus of UFCD **10868**. Everything respe
 - **Revenue per month** - bars of the proposals won in the period.
 - **Sales by status** - distribution by pipeline status.
 - **Top companies** - by value won (sales aggregate by **company**, not by contact).
+- **Win analysis** - groups the **[win reasons](propostas/ganho.md)** of won proposals. It is the sibling of the card below: one teaches you to avoid mistakes, the other to repeat what worked.
 - **Loss analysis** - groups the **loss reasons** of lost proposals (bars + biggest cause).
 - **CAC** - Customer Acquisition Cost = **marketing budget ÷ new customers**. You set the budget in the dedicated field (**Apply**).
 - **LTV / CAC** - ratio between customer value and the cost of acquiring them; turns **green when ≥ 3:1** (healthy).

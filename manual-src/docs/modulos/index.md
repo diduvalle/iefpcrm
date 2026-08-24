@@ -74,6 +74,13 @@ O IEFP CRM cobre todo o ciclo de um CRM real. Acede a cada menu pelos cartões a
 
     [:octicons-arrow-right-24: Saber mais](definicoes.md)
 
+-   <svg class="icon" viewBox="0 0 24 24" width="24" height="24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> __Assistente__
+
+    ---
+    Pergunta os números por escrito. Não é IA - e diz que não é.
+
+    [:octicons-arrow-right-24: Saber mais](assistente.md)
+
 </div>
 
 !!! question "Precisas de ajuda?"

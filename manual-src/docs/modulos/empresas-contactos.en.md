@@ -24,12 +24,13 @@ The **company is the commercial account**: this is where the sale, the value, th
 ### Create / edit - field by field
 - **Name** (legal name) *required*.
 - **NIPC** - validated (check digit). As you type, it shows in real time whether it is valid and the **entity type** (company, individual, sole trader…). The **Look up** button auto-fills the company's data (name, address, CAE, contacts) from the NIPC. *Blocks saving if invalid.*
-- **CAE** and **Sector**.
+- **CAE** and **Sector** - picking **Other** opens the box to say **which** (see [the "Other" rule](#other-always-asks-which)).
 - **Size (segment)** - Micro / SME / Large Enterprise.
 - **Stage (lifecycle)** - **Lead** → **MQL** (*Marketing Qualified Lead*, one of its people has shown interest) → **SQL** (*Sales Qualified Lead*, a real opportunity with a proposal) → **Customer** / **Lost**. The app **infers** the stage and **advances it** on its own: email *engagement* → MQL, proposal → SQL, won → Customer.
 - **Source (acquisition)** - the channel the company came through (Website, Referral, Trade fair, Email Campaign…) - the basis of the **acquisition funnel** and **ROI by source** in Analytics. Picking **Other** opens a box to **say which** (see below).
 - **Tax address**, **Postal code**, **City**.
 - **Region** - Mainland / Madeira / Azores (affects the VAT on proposals).
+- **Owner** - who runs this account. See [Owner](#owner).
 - **Website**, **Phone**, **Email**, **Notes**.
 
 ### 360° profile
@@ -53,7 +54,9 @@ The people - a **directory**, like the **Yellow Pages**. A contact **has no** sa
 - **First name** and **Last name** *(name required)*.
 - **Company** - pick from the Companies list (can be left **without a company** - it stays in the directory only; to sell to them, create the company from the profile); **Job title** and **Role** (who to turn to: owner, finance…).
 - **Email**, **Phone** (primary - used for sending), **NIF (personal)** - validated.
-- **Additional contacts** - a list with as many emails/phones as you need, each with a **type** (Email/Phone) and a **label** (Personal / Work / Other). Useful when a person has personal and professional contacts.
+- **Additional contacts** - a list with as many emails/phones as you need, each with a **type** (Email/Phone) and a **label** (Work / Personal). Useful when a person has personal and professional contacts.
+
+    *Here the **Other** label was removed rather than given a box: the row already has three fields and there is no space for a fourth - and an "Other" label does not tell one phone from another. Anyone who had it now has **Work**.*
 - **City** and **Region**.
 - **Notes**.
 
@@ -64,9 +67,26 @@ Shows the **Account · Company** card (the **company's** stage, loyalty and valu
     Click the **email** on the profile to open the CRM composer with the contact already set as recipient; click the **phone** to call (`tel:`). On a company, the **Look up** button (on the NIPC) fills the profile from the official records.
 
 ### "Other" always asks which
-In **Role at the company** (contact) and **Source (acquisition)** (company), picking **Other** opens a **box to specify**. What you type shows next to the value - *"Other: External trainer"* - on the record, in the drawer and in the tables.
+The rule holds across the **whole app**: wherever there is an **Other**, either there is a box to write in, or the option does not exist.
+
+Fields with a **Which?** box:
+
+| Field | Where |
+|---|---|
+| **Role at the company** | contact record |
+| **Source (acquisition)** | company record |
+| **Sector** | company record |
+| **Type** | appointment, in the [Calendar](dashboard-agenda.md) |
+| **Loss reason** and **[win reason](propostas/ganho.md)** | proposal |
+
+What you type shows next to the value - *"Other: External trainer"* - on the record, in the drawer and in the tables. Where only one word fits (the calendar badge, a chart, the timeline) you see **only what you wrote**, without the prefix.
 
 Picking a different value **closes the box and clears** the text, so no information stays hidden behind an option that is no longer selected.
+
+!!! warning "Saving with Other blank is refused"
+    The app **will not save** with *Other* picked and the box empty - it warns and moves the cursor there. A record that says only *Other* cannot be read, filtered or counted: it fills the form without saying anything.
+
+    The check reads the **field itself**, not a fixed list - so it holds for these and for any field that later uses the same mechanism.
 
 !!! tip "Why not just type into the field"
     The value stays **Other**, and that is what keeps grouping working: in the acquisition funnel and in ROI by source, those cases still add up under *Other* instead of scattering into dozens of one-off labels. The free text is the **explanation**, not the category.
@@ -86,6 +106,56 @@ Each field automatically gets a `{{cliente.<key>}}` tag - for example `{{cliente
 
 !!! warning "A custom field is personal data"
     Anything you store in these fields goes into the data subject's **Access report (Art. 15)** and **JSON export**, exactly like the built-in fields. Worth discussing with the class: *creating a field is easy, but every new field is one more piece of personal data you must justify, retain and disclose on request* (minimisation - Art. 5(1)(c)).
+
+---
+
+## Owner
+
+Every **company** and every **proposal** can have an **owner** - the person running that account or that deal. It shows as a **badge** on the table row and, if it is you, it says *"(me)"*.
+
+At the top of the lists there is a filter:
+
+- **All** · **Mine** · **Unassigned** · or one specific person.
+
+In a class, the list of people is the **class** (it comes from the online roster), not the demo users.
+
+!!! tip "What it is really for"
+    With no owner, an account belongs to everyone and therefore to nobody - that is how follow-ups get lost. It is also what makes **[individual quotas](definicoes.md#sales-targets)** and the *"mine"* questions in the **[Assistant](assistente.md)** possible.
+
+---
+
+## Duplicates
+
+The app already **prevents** duplicates on creation (unique NIPC, NIF and email). What was missing was cleaning up the ones already there - and they get in through three doors: **CSV import**, the **data generator**, and records with a **blank** email/NIF, where the check never fires.
+
+In **Companies** or **Contacts**, the **Duplicates** button looks for:
+
+- identical **NIPC / NIF** (digits only - it ignores dots and spaces);
+- identical **email**;
+- practically identical **name** (ignoring accents, case and legal forms: *Lda.*, *S.A.*, *Unipessoal*).
+
+### Merging
+You pick which record **stays** and the app handles the rest:
+
+1. Fills the **empty fields** of the survivor with what the others had.
+2. **Repoints everything** that pointed at the others - proposals, contacts, cases, tasks, consents, data subject requests, sent emails, retention records.
+3. Deletes the duplicates.
+
+!!! warning "Merging has no undo"
+    The app suggests keeping the **most complete** record (and, on a tie, the oldest one), but it confirms first: the operation touches every table at once.
+
+    Note that merging does **not lose** the others' history - it moves it. What is lost are fields filled in twice with **different** values, where the survivor wins.
+
+---
+
+## Account timeline
+
+At the bottom of the company **360° record** there is the **timeline**: everything that happened with that account in a single column, newest first.
+
+It brings together what used to be filed by type - account created, stage changes, contacts added, proposals created/won/lost (with the reason), emails sent (and whether they were opened), cases and satisfaction, consents given and withdrawn, data subject requests, cancellation requests and tasks.
+
+!!! tip "What it is for"
+    To prepare a call, what matters is not the **filing by type** but the **order of events**: we won in April, they opened a case in June, they asked to cancel in July. Read in sections, that is invisible; read in order, it tells itself.
 
 ---
 

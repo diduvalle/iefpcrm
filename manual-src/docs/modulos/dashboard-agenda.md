@@ -16,6 +16,7 @@ A primeira página depois de entrares - a **visão geral** do negócio. Tudo res
 - **Pipeline por estado** - distribuição das propostas (donut/barras).
 - **Propostas recentes** - últimos movimentos; clica para abrir.
 - **Atalhos pedagógicos** - acesso rápido a Empresas, Agenda, Email, etc.
+- **Meta do mês** - a receita ganha do mês contra o **objetivo**, com barra e projeção *"ao ritmo atual fecha em X"*. Se houver **quotas individuais**, mostra a tua e a de cada pessoa. Define-se em **[Definições → Metas de vendas](definicoes.md#metas-de-vendas)**; sem meta, o cartão explica-o em vez de mostrar um número solto.
 
 !!! tip "Notificações"
     O **sino** no topo junta avisos: propostas a expirar (≤15 dias), pedidos RGPD fora de prazo, tarefas em atraso. Clicar leva ao item.
@@ -39,7 +40,7 @@ Calendário e **tarefas** associadas a clientes.
 Clica num **dia** (vista mês) ou numa **hora** (vista semana) - a data/hora entram preenchidas. Campos:
 
 - **Título** *obrigatório*.
-- **Tipo** - Chamada / Reunião / Follow-up / Email / Outro (cada tipo tem cor).
+- **Tipo** - Chamada / Reunião / Follow-up / Email / Outro (cada tipo tem cor). Ao escolher **Outro**, abre a caixa para dizer **qual** - e é isso que passa a aparecer no selo da lista (*"Visita técnica"*, não *"Outro"*). Ver [a regra do "Outro"](empresas-contactos.md#outro-pede-sempre-o-que).
 - **Data** e **Hora**.
 - **Duração** - 15 / 30 / 45 / 60 / 90 / 120 min.
 - **Cliente** associado.
@@ -51,6 +52,9 @@ Na lista lateral (**Próximas tarefas**), as tarefas que **têm notas** mostram 
 ### Gerir
 - **Concluir/reabrir** uma tarefa pelo *checkbox* (fica riscada).
 - Tarefas de **hoje** ou em **atraso** entram nos **Alertas** (sino).
+
+!!! tip "Perguntar em vez de procurar"
+    O **[Assistente](assistente.md)** responde a *"o que tenho para hoje"* e *"tenho tarefas atrasadas"* de qualquer módulo, sem teres de vir à Agenda.
 
 !!! note "Produtos & Catálogo"
     O menu **[Produtos](produtos.md)** organiza o catálogo (Família → Subfamília → Artigo) que alimenta as linhas das propostas.

@@ -19,7 +19,12 @@ Clica **+ Proposta** (ou num cartão existente para editar). O modal abre com o 
 | **Meses de fidelização** | Duração do compromisso **SaaS recorrente**; entra no cálculo do valor total do contrato (TCV). |
 | **Título** | Nome da proposta (ex.: *Licenciamento CRM*). |
 | **Validade** | Data até à qual a proposta é válida. |
-| **Estado** | **Criada / Enviada / Negociação / Ganha / Perdida.** Ao passar a *Perdida* regista-se o **motivo da perda**. |
+| **Estado** | **Criada / Enviada / Negociação / Ganha / Perdida.** Fica no **fim** do formulário e **nasce vazio** - ao Guardar, a app avisa se ficou por escolher. Ao passar a *Perdida* regista-se o **[motivo da perda](perda.md)**; a *Ganha*, o **[motivo do ganho](ganho.md)**. |
+
+!!! note "Porque é que o Estado está no fim, e vazio"
+    Estava em cima e com *Criada* por omissão. Duas consequências: quem sabia que a venda já estava fechada não conseguia pôr *Ganha* logo (ao escolher um estado terminal, o formulário **bloqueia** - título, empresa, contacto e linhas ficam só de leitura), e quem não sabia deixava ficar o valor por omissão sem pensar nele.
+
+    Agora o estado é a **última decisão**, depois de a proposta estar escrita, e é **uma decisão** - não um valor que já lá estava. A sugestão veio de um formando.
 
 O **IVA** usa a **região da empresa** e o **desconto** vem do **nível de loyalty da empresa** (ou do contacto, se for particular) - ver [Empresas & Contactos](../empresas-contactos.md).
 

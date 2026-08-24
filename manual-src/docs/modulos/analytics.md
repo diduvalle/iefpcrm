@@ -22,7 +22,8 @@ O módulo de **KPIs & Dashboards** - o foco da UFCD **10868**. Tudo respeita o *
 - **Receita por mês** - barras das propostas ganhas no período.
 - **Vendas por estado** - distribuição por estado do pipeline.
 - **Top empresas** - por valor ganho (as vendas agregam-se por **empresa**, não por contacto).
-- **Análise de perdas** - agrupa os **motivos de perda** das propostas perdidas (barras + maior causa).
+- **Análise de ganhos** - agrupa os **[motivos do ganho](propostas/ganho.md)** das propostas ganhas. É o cartão irmão do de baixo: um ensina a evitar erros, o outro a repetir acertos.
+- **Análise de perdas** - agrupa os **[motivos de perda](propostas/perda.md)** das propostas perdidas (barras + maior causa).
 - **CAC** - Custo de Aquisição de Cliente = **orçamento de marketing ÷ novos clientes**. Defines o orçamento no campo próprio (**Aplicar**).
 - **LTV / CAC** - rácio entre o valor do cliente e o custo de o adquirir; fica **verde quando ≥ 3:1** (saudável).
 - **Lead scoring** - pontuação **0-100** de cada contacto (compras, *engagement*, loyalty, segmento) → **Quente / Morno / Frio**, com barras.

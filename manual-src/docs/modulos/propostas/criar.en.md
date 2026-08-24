@@ -19,7 +19,12 @@ Click **+ Proposal** (or an existing card to edit). The modal opens with the pro
 | **Loyalty months** | Duration of the **recurring SaaS** commitment; it feeds the total contract value (TCV). |
 | **Title** | Name of the proposal (e.g. *CRM Licensing*). |
 | **Validity** | Date up to which the proposal is valid. |
-| **Status** | **Created / Sent / Negotiation / Won / Lost.** Moving to *Lost* records the **loss reason**. |
+| **Status** | **Created / Sent / Negotiation / Won / Lost.** It sits at the **end** of the form and **starts empty** - on Save, the app warns if it was left unset. Moving to *Lost* records the **[loss reason](perda.md)**; to *Won*, the **[win reason](ganho.md)**. |
+
+!!! note "Why Status sits at the end, and empty"
+    It used to be at the top with *Created* as the default. Two consequences: whoever knew the deal was already closed could not set *Won* right away (choosing a terminal status **locks** the form - title, company, contact and lines become read-only), and whoever did not know left the default in place without thinking about it.
+
+    Status is now the **last decision**, taken once the proposal is written, and it is **a decision** - not a value that was already sitting there. The suggestion came from a learner.
 
 **VAT** uses the **company's region** and the **discount** comes from the **company's loyalty tier** (or the contact's, for an individual) - see [Companies & Contacts](../empresas-contactos.md).
 

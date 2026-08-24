@@ -103,7 +103,8 @@ plugins:
             "5.4.4 Exportar PDF": "5.4.4 Export PDF"
             "5.4.5 Enviar por email": "5.4.5 Send by email"
             "5.4.6 Motivo de perda": "5.4.6 Loss reason"
-            "5.4.7 Aprovação de propostas": "5.4.7 Proposal approval"
+            "5.4.7 Motivo do ganho": "5.4.7 Win reason"
+            "5.4.8 Aprovação de propostas": "5.4.8 Proposal approval"
             "5.5 Serviço ao cliente": "5.5 Customer service"
             "5.6 Retenção & churn": "5.6 Retention & churn"
             "5.7 Modelos de Proposta": "5.7 Proposal Templates"
@@ -112,6 +113,7 @@ plugins:
             "5.10 Modelos de decisão": "5.10 Decision models"
             "5.11 Alertas": "5.11 Alerts"
             "5.12 Definições": "5.12 Settings"
+            "5.13 Assistente": "5.13 Assistant"
             "6. RGPD & Pedagogia": "6. GDPR & Pedagogy"
             "6.1 Consentimentos": "6.1 Consents"
             "6.2 Pedidos (DSAR)": "6.2 Requests (DSAR)"
@@ -187,7 +189,8 @@ nav:
           - 5.4.4 Exportar PDF: modulos/propostas/pdf.md
           - 5.4.5 Enviar por email: modulos/propostas/email.md
           - 5.4.6 Motivo de perda: modulos/propostas/perda.md
-          - 5.4.7 Aprovação de propostas: modulos/propostas/aprovacao.md
+          - 5.4.7 Motivo do ganho: modulos/propostas/ganho.md
+          - 5.4.8 Aprovação de propostas: modulos/propostas/aprovacao.md
       - 5.5 Serviço ao cliente: modulos/casos.md
       - 5.6 Retenção & churn: modulos/retencao.md
       - 5.7 Modelos de Proposta: modulos/modelos.md
@@ -196,6 +199,7 @@ nav:
       - 5.10 Modelos de decisão: modulos/decisao.md
       - 5.11 Alertas: modulos/alertas.md
       - 5.12 Definições: modulos/definicoes.md
+      - 5.13 Assistente: modulos/assistente.md
   - 6. RGPD & Pedagogia:
       - rgpd/index.md
       - 6.1 Consentimentos: rgpd/consentimentos.md
