@@ -1247,7 +1247,8 @@ function load(){
   try{ const sid=localStorage.getItem(SESSION_KEY); if(sid&&state.utilizadores.some(u=>u.id===sid)) sessionUserId=sid; }catch(e){}
   try{ processAgendamentos(); }catch(e){}
 }
-function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){ toast('Erro ao gravar','Sem espaço no localStorage','err'); } }
+function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){ toast('Erro ao gravar','Sem espaço no localStorage','err'); }
+  try{ rascunhoAgenda(); }catch(e){} }
 function resetDemo(){ state = demoData(); save(); render(); toast('Dados repostos','Carregados os dados de demonstração.'); }
 
 /* ---------- helpers de domínio ---------- */
@@ -3670,6 +3671,126 @@ function timelineHTML(empId,limite){
 /* Onde só cabe uma palavra (selo, gráfico, linha do tempo), "Outro" é ruído:
    mostra-se o que a pessoa escreveu. comDetalhe() é para onde cabe tudo. */
 function motivoTxt(m,nota){ const v=String(m||'').trim(), d=String(nota||'').trim(); return (v==='Outro'&&d)?d:v; }
+/* ================== CÓPIA DE SEGURANÇA DO TRABALHO ==================
+   O trabalho de cada formando vivia num único sítio: o localStorage daquele
+   navegador, naquele computador. Isso desaparece com outro computador, outro
+   navegador, uma janela anónima ou um "limpar dados de navegação" - e nenhuma
+   dessas coisas é erro de quem trabalha. Não havia aviso, cópia nem forma de
+   voltar atrás: semanas de trabalho, sem rede por baixo.
+
+   A peça difícil já estava provada - a submissão manda o estado inteiro para o
+   Supabase. Isto é o mesmo, sem email e sem gastar nenhuma das entregas.
+
+   Guarda-se com atraso de propósito: ninguém precisa de uma cópia por cada
+   tecla. Um minuto depois da última alteração, e sempre que se fecha o
+   separador (que é justamente quando as pessoas perdem coisas). ================== */
+let rascunhoUltimo=0, rascunhoTimer=null, rascunhoAssinatura="", rascunhoEm=null, rascunhoAviso=false;
+const RASCUNHO_ATRASO=60000;   /* 1 min depois de parar de mexer */
+
+async function supaGuardarRascunho(){ return await supaRpc("guardar_rascunho",{p_token:supaToken(),p_payload:state}); }
+async function supaTenhoRascunho(){  return await supaRpc("tenho_rascunho",{p_token:supaToken()}); }
+async function supaObterRascunho(){  return await supaRpc("obter_rascunho",{p_token:supaToken()}); }
+
+function rascunhoLigado(){ return !!(TURMA && supaToken()); }
+/* assinatura barata do estado, para não enviar cópias iguais */
+function rascunhoSig(){ try{ const s=JSON.stringify(state); return s.length+":"+s.charCodeAt(Math.floor(s.length/2))+":"+s.charCodeAt(s.length-1); }catch(e){ return String(Date.now()); } }
+
+function rascunhoGuardar(motivo){
+  if(!rascunhoLigado()) return Promise.resolve(false);
+  const sig=rascunhoSig();
+  if(sig===rascunhoAssinatura) return Promise.resolve(false);   /* nada mudou */
+  return supaGuardarRascunho().then(r=>{
+    rascunhoAssinatura=sig; rascunhoUltimo=Date.now(); rascunhoEm=(r&&r.em)||new Date().toISOString();
+    const el=$("#rascEstado"); if(el) el.innerHTML=rascunhoEstadoHTML();
+    return true;
+  }).catch(e=>{
+    /* falhar em silêncio seria repetir o erro que isto veio corrigir */
+    if(!rascunhoAviso){ rascunhoAviso=true;
+      toast("Cópia de segurança falhou", supaMsg(e)+" - o trabalho continua neste navegador, mas exporte-o por precaução","warn"); }
+    return false; });
+}
+/* chamado a cada save(): reagenda, não envia */
+function rascunhoAgenda(){
+  if(!rascunhoLigado()) return;
+  if(rascunhoTimer) clearTimeout(rascunhoTimer);
+  rascunhoTimer=setTimeout(()=>rascunhoGuardar("periodico"), RASCUNHO_ATRASO);
+}
+/* fechar o separador é quando as pessoas perdem coisas: envia já */
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="hidden") rascunhoGuardar("saida"); });
+window.addEventListener("pagehide",()=>{ rascunhoGuardar("saida"); });
+
+function rascunhoEstadoHTML(){
+  if(!rascunhoLigado()) return `<span class="muted">Sem ligação à turma - a cópia no servidor não se aplica.</span>`;
+  if(!rascunhoEm) return `<span class="muted">Ainda sem cópia nesta sessão.</span>`;
+  const d=new Date(rascunhoEm);
+  return `${ic("check",14)} Última cópia: <strong>${dPT(rascunhoEm.slice(0,10))} às ${pad(d.getHours(),2)}:${pad(d.getMinutes(),2)}</strong>`;
+}
+
+/* ---------- Recuperar ----------
+   Só se oferece quando FAZ SENTIDO: sandbox praticamente por estrear e cópia no
+   servidor. Perguntar a quem está a trabalhar bem seria assustar sem motivo. */
+function sandboxPorEstrear(){
+  const n=(state.empresas||[]).filter(ehProprio).length
+         +(state.clientes||[]).filter(ehProprio).length
+         +(state.propostas||[]).filter(ehProprio).length
+         +(state.produtos||[]).filter(ehProprio).length;
+  return n===0;
+}
+async function rascunhoOferecer(){
+  if(!rascunhoLigado()) return;
+  try{
+    const r=await supaTenhoRascunho();
+    if(!r||!r.existe) return;
+    rascunhoEm=r.em;
+    if(!sandboxPorEstrear()) return;   /* já há trabalho aqui: não mexer */
+    const d=new Date(r.em);
+    const quando=dPT(String(r.em).slice(0,10))+" às "+pad(d.getHours(),2)+":"+pad(d.getMinutes(),2);
+    const sim=await uiConfirm(
+      "Este navegador está sem trabalho seu, mas há uma cópia guardada no servidor de <strong>"+esc(quando)+"</strong>.<br><br>Isto acontece quando se muda de computador ou de navegador, ou quando se limpam os dados de navegação. <strong>Recuperar?</strong>",
+      {title:"Encontrámos o seu trabalho", okText:"Recuperar", icon:"rotate", html:true});
+    if(!sim) return;
+    await rascunhoRepor();
+  }catch(e){ /* sem cópia, ou sem ligação: segue-se em silêncio */ }
+}
+async function rascunhoRepor(){
+  try{
+    const r=await supaObterRascunho();
+    if(!r||!r.payload) { toast("Sem cópia","Não há nenhuma cópia guardada para si","warn"); return; }
+    const u=currentUser();
+    /* escreve-se e volta a carregar: load() é que corre as migrações todas,
+       e não existe um normalize() separado para chamar */
+    localStorage.setItem(STORE_KEY, JSON.stringify(r.payload));
+    load();
+    if(u) ingestSupaUser({id:u.id,nome:u.nome,apelido:u.apelido,email:u.email,username:u.username,papel:u.papel});
+    save(); render();
+    rascunhoAssinatura=rascunhoSig();
+    toast("Trabalho recuperado","Cópia de "+dPT(String(r.em).slice(0,10))+" reposta neste navegador");
+  }catch(e){ toast("Não foi possível recuperar",supaMsg(e),"err"); }
+}
+
+/* ---------- A confirmação da entrega fica no ecrã ----------
+   Era um toast que desaparecia em segundos, e a pergunta que fica a seguir a
+   uma entrega é sempre a mesma: "terá ido?". */
+let submitFeito=null;
+function renderSubmitFeito(){
+  const f=$("#modalForm"); if(!f||!submitFeito) return;
+  const d=submitFeito.em, u=currentUser()||{};
+  const meu=((u.email2||"").trim()||(u.email||"").trim());
+  const t=$("#modalTitle"); if(t) t.textContent="Entrega registada";
+  f.innerHTML=[
+    `<div class="callout green" style="margin:0 0 14px">${ic("check",18)}<div class="ctxt">`,
+    `<strong>O seu trabalho ficou registado no servidor.</strong> `,
+    `Entrega <strong>${submitFeito.n} de ${submitFeito.de}</strong> · ${dPT(todayISO())} às `,
+    `${pad(d.getHours(),2)}:${pad(d.getMinutes(),2)}${TURMA?" · Turma "+esc(TURMA):""}</div></div>`,
+    `<div class="card card-pad" style="padding:14px">`,
+    `<strong style="font-size:.9rem;display:block;margin-bottom:8px">O que foi entregue</strong>`,
+    `<div class="muted" style="font-size:.84rem;line-height:1.6;white-space:pre-line">${esc(resumoTrabalho())}</div></div>`,
+    meu?`<div class="callout info" style="margin-top:14px">${ic("mail",16)}<div class="ctxt">Vai uma cópia para <strong>${esc(meu)}</strong>. Se não chegar, <strong>a entrega continua válida</strong> - o email é só aviso; o registo está no servidor.</div></div>`:"",
+    `<p class="muted" style="font-size:.8rem;margin-top:12px">Pode fechar esta janela.</p>`
+  ].join("");
+  const sv=$("[data-act=\"modal-save\"]"); if(sv) sv.style.display="none";
+  const dl=$("#modalDelete"); if(dl) dl.style.display="none";
+}
 function comDetalhe(valor,detalhe){ const v=String(valor||''); const d=String(detalhe||'').trim();
   return (v && d) ? (v+': '+d) : v; }
 function taskRow(t){ const c=t.clienteId?getC(t.clienteId):null; const over=t.estado!=='Concluída'&&t.data<todayISO(); const done=t.estado==='Concluída'; return `<div class="mini-item" style="${done?'opacity:.55':''}"><button class="task-check ${done?'on':''}" data-act="task-done" data-id="${t.id}" data-stop title="${done?'Reabrir':'Concluir'}">${done?ic('check',13):''}</button><span class="grow" data-act="edit" data-type="tarefa" data-id="${t.id}" style="cursor:pointer"><strong style="${done?'text-decoration:line-through':''}">${esc(t.titulo)}</strong><div class="muted" style="font-size:.74rem">${ic('calendar',12)} ${dPT(t.data)}${t.hora?' · '+esc(t.hora):''}${c?' · '+esc(c.nome)+' '+esc(c.apelido||''):''}</div></span>${String(t.notas||'').trim()?`<button class="icon-btn" data-act="task-nota" data-id="${t.id}" data-stop title="Tem notas - clique para ler" style="width:30px;height:30px;flex:0 0 auto">${ic('doc',15)}</button>`:''}<span class="pill ${over?'red':taskColor(t)}" title="${esc(comDetalhe(t.tipo,t.tipoOutro))}">${esc(motivoTxt(t.tipo,t.tipoOutro)||'-')}</span></div>`; }
@@ -5594,6 +5715,35 @@ function secDepartamentos(){
     <span class="hint" style="display:block;margin-top:8px">Remover um departamento <strong>não mexe</strong> em quem já o tinha - deixa só de estar disponível para escolher.</span>
   </div>`;
 }
+/* O cartao vivia dentro de "Dados & backup", que SO o administrador ve. Quem
+   mais precisa de uma copia de seguranca e o formando - e era justamente esse
+   que nao a via. Passa a funcao, e entra nas duas vistas. */
+function secRascunhoCorpo(){
+  if(!TURMA) return "";
+  return `<div class="divider" style="margin:16px 0"></div>
+    <div class="section-head" style="margin-bottom:10px"><div><h4 style="font-weight:800;font-size:.92rem">Cópia de segurança no servidor</h4>
+      <div class="sub">Guardada sozinha um minuto depois de parar de mexer, e sempre que fecha o separador. Serve para mudar de computador - ou para quando este navegador perde os dados.</div></div></div>
+    <div id="rascEstado" class="callout info" style="margin-bottom:12px">${rascunhoEstadoHTML()}</div>
+    <div class="toolbar">
+      <button class="btn-sec" data-act="rasc-guardar">${ic("upload",16)} Guardar cópia agora</button>
+      <button class="btn-sec" data-act="rasc-repor">${ic("rotate",16)} Recuperar do servidor</button>
+    </div>
+    <span class="hint" style="display:block;margin-top:8px">A cópia é <strong>sua</strong> e substitui a anterior - não guarda histórico. O formador vê que ela existe e de quando, <strong>não o que lá está</strong>.</span>`;
+}
+function secRascunho(){
+  if(!TURMA) return "";
+  return `<div class="card card-pad">
+    <div class="section-head" style="margin-bottom:4px"><div><h3>O meu trabalho</h3>
+      <div class="sub">O que faz fica <strong>neste navegador</strong>. A cópia no servidor é a rede por baixo.</div></div></div>
+    ${secRascunhoCorpo()}
+    <div class="divider" style="margin:16px 0"></div>
+    <div class="toolbar">
+      <button class="btn-sec" data-act="export">${ic("download",16)} Exportar para ficheiro</button>
+      <button class="btn-sec" data-act="import">${ic("upload",16)} Importar de ficheiro</button>
+    </div>
+    <span class="hint" style="display:block;margin-top:8px">A exportação é a terceira cópia: fica <strong>consigo</strong>, fora do navegador e fora do servidor.</span>
+  </div>`;
+}
 function secPulso(){
   const l=state.pulsoLog||[];
   return `<div class="card card-pad">
@@ -5692,6 +5842,8 @@ function secBrand(s){ return `<div class="card card-pad">
     <div class="toolbar" style="margin-top:10px"><button class="btn" data-act="save-brand">Aplicar marca</button><button class="btn-sec" data-act="brand-reset">Repor IEFP</button></div>
   </div>`; }
 function defSandboxView(){ const s=state.settings; const secs=[];
+  /* antes de tudo: e o trabalho dele que esta em causa */
+  if(TURMA) secs.push(secRascunho());
   if(canFeat('entidade')) secs.push(secEntidade(s));
   if(canFeat('gerador')) secs.push(secGerador());
   if(canFeat('loyalty')) secs.push(secLoyalty());
@@ -5745,6 +5897,7 @@ views.definicoes = () => {
         <button class="btn-sec" data-act="import">${ic('upload',16)} Importar JSON</button>
         <button class="btn-danger" data-act="reset">Repor dados demo</button>
       </div>
+      ${secRascunhoCorpo()}
       <div class="divider" style="margin:16px 0"></div>
       <h4 style="font-weight:800;font-size:.92rem;margin-bottom:8px">${ic('users',15)} Importar clientes (CSV)</h4>
       <p class="muted" style="font-size:.82rem;margin-bottom:12px">Importação em massa a partir de folha de cálculo (separador <code>;</code> ou <code>,</code>). Duplicados por email são ignorados.</p>
@@ -6815,13 +6968,28 @@ function sendSubmitWork(){
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)){ toast('Email do formador inválido','Confirme o endereço','warn'); return; }
   const sv=$('[data-act="modal-save"]'); if(sv){ sv.disabled=true; sv.textContent='A submeter…'; }
   supaSubmeter(msg, state).then(res=>{
-    closeModal();
+    /* O aviso era um toast que desaparecia em segundos - e a pergunta que
+       fica a seguir a uma entrega é sempre a mesma: "terá ido?". Passa a
+       ficar no ecrã, com data e número, até se fechar. */
+    submitFeito={n:res.enviados, de:res.limite, em:new Date()};
+    renderSubmitFeito();
     toast('Trabalho submetido',`Entrega ${res.enviados}/${res.limite} registada`);
+    try{ rascunhoAssinatura=''; rascunhoGuardar('submissao'); }catch(e){}
     if(emailjsActive()){
       const sigT=sigHtmlToText(u.assinatura);
       const body=`${msg||'(sem mensagem)'}\n\n---\nRESUMO DO TRABALHO\n${resumoTrabalho()}\n\nEntrega ${res.enviados}/${res.limite} · ${(u.nome||'')} ${(u.apelido||'')}${TURMA?' · Turma '+TURMA:''} · ${todayISO()}\n\n${sigT}`;
       const fromName=(`${(u.nome||'').trim()} ${(u.apelido||'').trim()}`.trim()||u.username||'Formando')+' (IEFP CRM)';
       sendViaEmailJS({toEmail:to,toName:'Formador',subject,message:body,fromName,replyTo:u.email||''}).catch(()=>{});
+      /* cópia para o próprio: o comprovativo é dele, não do formador.
+         email2 é o pessoal; se não houver, vai para o do IEFP. */
+      const meu=(u.email2||'').trim()||(u.email||'').trim();
+      if(/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(meu)){
+        const corpo=`Confirmação da sua entrega ${res.enviados}/${res.limite}.\n\n`+
+          `Submetido em ${dPT(todayISO())} às ${pad(new Date().getHours(),2)}:${pad(new Date().getMinutes(),2)}`+
+          (TURMA?` · Turma ${TURMA}`:'')+`\n\n---\nO QUE FOI ENTREGUE\n${resumoTrabalho()}\n\n`+
+          `Esta é a sua cópia. O trabalho ficou registado no servidor - se este email não chegasse, a entrega continuaria válida.`;
+        sendViaEmailJS({toEmail:meu,toName:(u.nome||'')+' '+(u.apelido||''),subject:'A sua entrega ficou registada',message:corpo,fromName:'IEFP CRM',replyTo:to}).catch(()=>{});
+      }
     }
   }).catch(e=>{ const sv2=$('[data-act="modal-save"]'); if(sv2){ sv2.disabled=false; sv2.textContent='Submeter trabalho'; } toast('Não foi possível submeter',supaMsg(e),'err'); });
 }
@@ -7337,6 +7505,12 @@ document.addEventListener('click', async e=>{
       const aviso=quantos?`${quantos} pessoa(s) estão nesse departamento. Removê-lo não lhes mexe - deixa só de estar disponível para escolher.`:'';
       if(!await uiConfirm(aviso||`Remover o departamento \"${d}\"?`,{title:'Remover departamento',okText:'Remover',danger:true})) break;
       state.settings.departamentos=departamentos().filter(x=>x!==d); save(); render(); } break;
+    case 'rasc-guardar': { const b=el; b.disabled=true; b.textContent='A guardar…';
+      rascunhoAssinatura='';   /* forçar, mesmo que nada tenha mudado */
+      rascunhoGuardar('manual').then(fez=>{ b.disabled=false; b.innerHTML=ic('upload',16)+' Guardar cópia agora';
+        if(fez) toast('Cópia guardada','O seu trabalho está no servidor'); }); } break;
+    case 'rasc-repor': { if(!await uiConfirm('Isto substitui o trabalho que está NESTE navegador pela cópia do servidor. Se o que tem aqui é mais recente, exporte-o primeiro.',{title:'Recuperar do servidor',okText:'Recuperar',danger:true})) break;
+      await rascunhoRepor(); } break;
     case 'pulso-limpar': { if(await uiConfirm('Apagar as perguntas registadas? O formador deixa de as ver na sua entrega.',{title:'Limpar o registo do Pulso',okText:'Apagar'})){ state.pulsoLog=[]; save(); render(); toast('Registo limpo',''); } } break;
     case 'save-metas': { if(!canFeat('metas')){ toast('Sem permissão','','warn'); break; }
       const m={mensal:Number(($('#metaMensal')||{}).value||0)||0, pessoas:{}};
@@ -8647,6 +8821,9 @@ applyTheme(localStorage.getItem('iefp-theme')||'light');
 applyBrand();
 if(localStorage.getItem('iefp-nav')==='1') $('#app').classList.add('nav-collapsed');
 restoreSupaSession();
+/* depois de a sessão estar de pé: se este navegador estiver vazio e houver
+   cópia no servidor, propõe recuperá-la */
+setTimeout(()=>{ try{ rascunhoOferecer(); }catch(e){} }, 1200);
 render();
 tryLoadBase();
 
