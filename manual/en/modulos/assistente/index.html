@@ -1953,10 +1953,32 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#asking-about-a-customer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Asking about a customer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the-three-rules" class="md-nav__link">
     <span class="md-ellipsis">
       
         The three rules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-it-could-not-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What it could not answer
       
     </span>
   </a>
@@ -2413,10 +2435,32 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#asking-about-a-customer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Asking about a customer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the-three-rules" class="md-nav__link">
     <span class="md-ellipsis">
       
         The three rules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-it-could-not-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What it could not answer
       
     </span>
   </a>
@@ -2568,7 +2612,11 @@
 </tr>
 </tbody>
 </table>
-<p>Below the conversation there are <strong>clickable suggestions</strong> - the questions it is guaranteed to recognise. If you are starting out, start there.</p>
+<p>Below the conversation there are <strong>clickable suggestions</strong> - the questions it is guaranteed to recognise, with the ones for the <strong>module you are in</strong> first. If you are starting out, start there.</p>
+<div class="admonition tip">
+<p class="admonition-title">Ctrl+K</p>
+<p>Opens and closes Pulso from anywhere. <code>Escape</code> closes it too.</p>
+</div>
 <h3 id="yours-not-everyones">Yours, not everyone's<a class="headerlink" href="#yours-not-everyones" title="Permanent link">¶</a></h3>
 <p>Writing <strong>"my"</strong> or <strong>"I"</strong> narrows the answer to your user:</p>
 <ul>
@@ -2576,6 +2624,25 @@
 <li><em>"my open proposals"</em> → only the ones you <strong><a href="../empresas-contactos/#owner">own</a></strong>.</li>
 </ul>
 <p>The same applies to <em>"how much did I sell this month"</em>, which compares against your <strong><a href="../definicoes/#sales-targets">individual quota</a></strong> instead of the team target.</p>
+<h2 id="asking-about-a-customer">Asking about a customer<a class="headerlink" href="#asking-about-a-customer" title="Permanent link">¶</a></h2>
+<p>Type a company name and you get the thirty-second summary - what you want to know <strong>before you call</strong>:</p>
+<blockquote>
+<p><strong>Silva &amp; Filhos, Lda. · E001.</strong>
+⚠ Before you call: <strong>1 support case still open</strong>.
+Stage Customer · Gold · lead score 87
+1 won proposal · 8236,08 €
+1 contact: João Silva
+Last activity: Email sent · 24/08/2026</p>
+</blockquote>
+<p>The <strong>warning</strong> line only shows when something would spoil the call: open support cases, a cancellation request in progress, or contacts with no active consent.</p>
+<p>It works with the full name (<em>"how is Silva &amp; Filhos doing?"</em>) and with the first word (<em>"has Silva paid?"</em>).</p>
+<div class="admonition note">
+<p class="admonition-title">Two safeguards worth discussing</p>
+<p>The short form is only accepted if the sentence is <strong>short</strong> and <strong>no other company</strong> starts with the same word. With two <em>Silvas</em>, it would rather not answer than answer about the wrong one.</p>
+<p>And <em>"how do I create a proposal for Silva"</em> returns the <strong>how-to</strong>, not the record: when an instruction question matches exactly, it beats the name.</p>
+<p>Same principle as always: between staying quiet and being right by luck, it stays quiet.</p>
+</div>
+<hr>
 <h2 id="the-three-rules">The three rules<a class="headerlink" href="#the-three-rules" title="Permanent link">¶</a></h2>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><input id="__tabbed_1_3" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">It never invents</label><label for="__tabbed_1_2">It only reads</label><label for="__tabbed_1_3">It respects permissions</label></div>
 <div class="tabbed-content">
@@ -2586,12 +2653,30 @@
 <div class="tabbed-block">
 <p>It <strong>changes no record whatsoever</strong>. It does not create, delete or move statuses. At most it opens the right view - every answer ends in a button (<em>See proposals</em>, <em>See calendar</em>) that takes you to the module with the filter already applied.</p>
 <p>That makes it a <strong>navigation shortcut</strong>, not a parallel truth: the number it states and the number on screen come from the same place - and the text it gives is the text in the manual.</p>
+<p><strong>The only thing it writes</strong> is the log of questions it could not answer (see above) - and it says that it does.</p>
 </div>
 <div class="tabbed-block">
 <p>It only answers about modules you <strong>can access</strong>. If your user group cannot see the Helpdesk, asking about cases returns <em>"I don't know how to answer that"</em> - and the suggestion does not even appear in the list.</p>
 </div>
 </div>
 </div>
+<h2 id="what-it-could-not-answer">What it could not answer<a class="headerlink" href="#what-it-could-not-answer" title="Permanent link">¶</a></h2>
+<p>Whenever Pulso does not recognise a question, it keeps it. You see it in two places:</p>
+<ul>
+<li><strong>Settings → Unanswered questions to Pulso</strong> - your own log, with a <strong>clear</strong> button.</li>
+<li><strong>In the submission</strong>, for the trainer: the assessment sheet shows what each learner tried to ask without success.</li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">For the trainer: the cheapest signal the app gives</p>
+<p>What people <strong>try</strong> to ask is what they did not understand. If half the class writes <em>"how do I make a quote"</em>, the problem is not Pulso - it is that nobody connected <strong>quote</strong> to <strong>proposal</strong>. That is vocabulary to fix in the next session, and there is no other way to find it.</p>
+<p>It is also the list of what Pulso is missing, written by the people using it rather than guessed by whoever programmed it.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Logging without saying so would be the opposite of what this app teaches</p>
+<p>So Pulso <strong>declares the log</strong> in its opening message, before the first question - including that it is visible in the submission.</p>
+<p>It is worth pausing here with the class: it is free text written by an identified person, stored and shown to a third party. This is not a hard GDPR case - it is a <strong>mundane</strong> one, the kind that slips through every day in real products. The difference between getting it right and getting it wrong was one sentence.</p>
+</div>
+<hr>
 <h2 id="what-sets-it-apart-from-the-dashboard">What sets it apart from the Dashboard<a class="headerlink" href="#what-sets-it-apart-from-the-dashboard" title="Permanent link">¶</a></h2>
 <p>At first glance it is redundant: <em>"how many open proposals"</em> is already on the Dashboard. The difference lies in the questions that have <strong>no screen</strong>:</p>
 <ul>
