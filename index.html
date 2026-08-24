@@ -6640,7 +6640,15 @@ function applyBrand(){
   r.style.setProperty('--login-bg', `url('${loginBgURL()}')`);
 }
 function brandImgUpload(input){
-  if(!isAdmin()) return; const k=input.dataset.brandimg; const f=input.files&&input.files[0]; if(!f) return;
+  /* Isto tinha um if(!isAdmin()) return: a seccao Marca aparecia ao formando
+     (a feat brand esta no papel dele), o botao Carregar abria o seletor de
+     ficheiros, escolhia-se a imagem... e nao acontecia NADA. Sem erro, sem
+     aviso. Um ecra que oferece uma coisa e a recusa em silencio e pior do que
+     um ecra que nao a oferece.
+     A marca vive em state.settings.brand, que e LOCAL a sandbox de cada um -
+     nao ha nada a proteger. A imagem e redimensionada (240px o logotipo,
+     1280px o fundo) e guardada como data URI. */
+  const k=input.dataset.brandimg; const f=input.files&&input.files[0]; if(!f) return;
   const rd=new FileReader(); rd.onload=ev=>{ const im=new Image(); im.onload=()=>{ const max=k==='loginBg'?1280:240; let w=im.width,h=im.height; if(w>max){ h=Math.round(h*max/w); w=max; } const cv=document.createElement('canvas'); cv.width=w; cv.height=h; cv.getContext('2d').drawImage(im,0,0,w,h); const url=cv.toDataURL(k==='loginBg'?'image/jpeg':'image/png', .82); state.settings.brand[k]=url; save(); applyBrand(); render(); toast('Imagem aplicada', k==='loginBg'?'Fundo do login':'Logótipo'); }; im.src=ev.target.result; }; rd.readAsDataURL(f); input.value='';
 }
 
