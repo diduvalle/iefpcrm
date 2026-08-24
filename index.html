@@ -1214,6 +1214,7 @@ function load(){
     if(a.condSegmento && nv.includes(a.condSegmento)){ a.condNivel=a.condSegmento; a.condSegmento='Todos'; } });
   if(!Array.isArray(state.autoLog)) state.autoLog=[];
   if(!Array.isArray(state.pulsoLog)) state.pulsoLog=[];
+  if(!Array.isArray(state.settings.departamentos)) state.settings.departamentos=[];
   /* state.roles fica gravado na sandbox, por isso mudar o valor por omissao
      so servia a quem comecasse de novo. Isto destranca as que ja existem -
      uma unica vez, para que voltar a ligar o cadeado de proposito continue
@@ -1376,7 +1377,7 @@ function isAdmin(){ if(!state.settings.requireLogin) return true; const u=curren
 function can(mod){ if(!state.settings.requireLogin) return true; const r=currentRole(); return r?r.modules.includes(mod):false; }
 function isGestor(){ const r=currentRole(); return !!(r&&r.gestor); }
 /* Sub-permissões (sandbox): acesso a secções específicas das Definições sem dar o módulo completo. */
-const FEATS=[{k:'entidade',l:'Entidade'},{k:'gerador',l:'Gerador de dados'},{k:'loyalty',l:'Níveis de fidelização'},{k:'origens',l:'Origens de cliente'},{k:'segmentos',l:'Segmentos'},{k:'metas',l:'Metas de vendas'},{k:'campos',l:'Campos personalizados'},{k:'funcoes',l:'Função do contacto'},{k:'brand',l:'Marca & Aparência'}];
+const FEATS=[{k:'entidade',l:'Entidade'},{k:'gerador',l:'Gerador de dados'},{k:'loyalty',l:'Níveis de fidelização'},{k:'origens',l:'Origens de cliente'},{k:'segmentos',l:'Segmentos'},{k:'metas',l:'Metas de vendas'},{k:'campos',l:'Campos personalizados'},{k:'funcoes',l:'Função do contacto'},{k:'equipa',l:'Equipa & permissões'},{k:'brand',l:'Marca & Aparência'}];
 function canFeat(key){ if(!state.settings.requireLogin) return true; if(isAdmin()||can('definicoes')) return true; const r=currentRole(); return !!(r&&r.feats&&r.feats.includes(key)); }
 function hasAnyFeat(){ if(isAdmin()||can('definicoes')) return true; const r=currentRole(); return !!(r&&r.feats&&r.feats.length); }
 function doLogin(username,password){
@@ -2631,6 +2632,7 @@ function respFiltroHTML(valor){
     <option value="">Todos os responsáveis</option>
     ${eu?`<option value="eu" ${valor==='eu'?'selected':''}>As minhas</option>`:''}
     <option value="sem" ${valor==='sem'?'selected':''}>Por atribuir</option>
+    ${departamentos().length?`<optgroup label="Departamento">${departamentos().map(d=>`<option value="dep:${esc(d)}" ${valor==='dep:'+d?'selected':''}>Toda a equipa ${esc(d)}</option>`).join('')}</optgroup>`:''}
     ${equipaOpts().map(o=>`<option value="${o.v}" ${valor===o.v?'selected':''}>${esc(o.t)}</option>`).join('')}
   </select>`;
 }
@@ -2639,6 +2641,10 @@ function respMatch(x,filtro){
   const eu=currentUser();
   if(filtro==='eu') return !!eu && x.responsavelId===eu.id;
   if(filtro==='sem') return !x.responsavelId;
+  /* "dep:Comercial" = qualquer pessoa desse departamento. E o que um chefe de
+     equipa quer ver: o pipeline da EQUIPA dele, nao o de cada um a seu tempo. */
+  if(filtro.indexOf("dep:")===0){ const d=filtro.slice(4);
+    return !!x.responsavelId && membrosDoDep(d).some(u=>u.id===x.responsavelId); }
   return x.responsavelId===filtro;
 }
 /* ================== METAS DE VENDAS ==================
@@ -5302,6 +5308,64 @@ function secCampos(){
     </div>
     <span class="hint" style="display:block;margin-top:8px">Desativar esconde o campo mas <strong>não apaga</strong> o que já foi preenchido. Apagar remove só a definição.</span>
   </div>`; }
+/* ================== EQUIPA (utilizadores, grupos, departamentos) ==================
+   Um formando perguntou: "se eu for o gestor do CRM, posso ter uma equipa?".
+   O modelo ja fazia o essencial - o Papel e um select sobre os grupos, por isso
+   um utilizador JA pertence sempre a um grupo, e o grupo ja define modulos e
+   permissoes. O que faltava era ACESSO: o formando nao ve Definicoes.
+
+   Os dois cartoes viviam soltos dentro de views.definicoes. Passam a funcoes,
+   para a vista do formando poder usar exatamente os mesmos - em vez de eu
+   escrever uma segunda versao que envelhecia sozinha.
+
+   O DEPARTAMENTO e o nivel que faltava: um grupo diz o que se PODE fazer, o
+   departamento diz onde se TRABALHA. Duas pessoas podem ser "Comercial" (mesmas
+   permissoes) e estar em departamentos diferentes (Norte e Sul). ================== */
+function departamentos(){ const d=state.settings&&state.settings.departamentos; return Array.isArray(d)?d:[]; }
+function depDe(u){ return (u&&String(u.departamento||"").trim())||""; }
+function depSelo(u){ const d=depDe(u); return d?`<span class="pill grey" style="font-size:.62rem">${esc(d)}</span>`:""; }
+/* quem trabalha num departamento - usado nos filtros de responsavel */
+function membrosDoDep(dep){ return (equipaMembros()||[]).filter(u=>depDe(u)===dep); }
+
+function secEquipaUsers(){
+  const pgu=paginate(state.utilizadores,"utilizadores");
+  return `  <div class="card card-pad">
+    <div class="section-head" style="margin-bottom:16px">
+      <div><h3>Utilizadores</h3><div class="sub">Acessos com utilizador e palavra-passe. Importe os formandos em massa (Excel/CSV) - ficam ativos como Formando - ou crie um a um.</div></div>
+      <div class="toolbar"><button class="btn-sec" data-act="users-template">${ic('download',16)} Modelo</button><button class="btn-sec" data-act="import-users">${ic('upload',16)} Importar</button><button class="btn" data-act="new" data-type="utilizador">+ Utilizador</button></div>
+    </div>
+    <input type="file" id="importUsersFile" accept=".csv,text/csv" style="display:none">
+    <div class="table-wrap"><table><thead><tr><th>Nome</th><th>Utilizador</th><th>Email</th><th>Grupo</th><th>Departamento</th><th>Estado</th><th></th></tr></thead><tbody>
+      ${pgu.slice.map(u=>`<tr><td><div style="display:flex;align-items:center;gap:10px">${avatarHTML(u,30)}<span class="cell-main">${esc(u.nome)} ${esc(u.apelido||'')}${currentUser()&&currentUser().id===u.id?' <span class="tag">eu</span>':''}</span></div></td><td><span class="chip">${ic('key',13)} ${esc(u.username||'-')}</span></td><td>${esc(u.email)}</td><td><span class="chip">${esc(u.papel)}</span></td><td>${depSelo(u)||'<span class=\"muted\" style=\"font-size:.74rem\">-</span>'}</td><td><span class="pill ${u.estado==='Ativo'?'green':'grey'}">${esc(u.estado)}</span></td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="utilizador" data-id="${u.id}">Editar</button>${(u.id==='u1'||u.protegido)?`<span class="btn-xs" style="color:var(--muted2)" title="Protegido">${ic('lock',13)}</span>`:`<button class="btn-danger btn-xs" data-act="delete" data-type="utilizador" data-id="${u.id}">✕</button>`}</div></td></tr>`).join('')}
+    </tbody></table></div>
+    ${pager('utilizadores',pgu)}
+  </div>`;
+}
+function secEquipaGrupos(){
+  return `  <div class="card card-pad">
+    <div class="section-head" style="margin-bottom:6px"><div><h3>Grupos de Utilizadores</h3><div class="sub">Crie grupos e marque os módulos a que cada um tem acesso. Aplica-se a todos os utilizadores do grupo.</div></div><button class="btn" data-act="new-group">${ic('users',16)} Novo grupo</button></div>
+    <div class="table-wrap"><table><thead><tr><th>Grupo</th>${NAV_FLAT.map(m=>`<th class="t-center" style="font-size:.68rem">${esc(m.label)}</th>`).join('')}<th></th></tr></thead><tbody>
+      ${Object.keys(state.roles).map(rn=>{const r=state.roles[rn];return `<tr><td class="cell-main">${esc(rn)}${r.gestor?' <span class="tag">gestor</span>':''}${(r.feats&&r.feats.length)?` <span class="pill green" style="font-size:.62rem" title="${esc(r.feats.map(k=>(FEATS.find(f=>f.k===k)||{}).l||k).join(', '))}">+${r.feats.length} sandbox</span>`:''}</td>${NAV_FLAT.map(m=>`<td class="t-center"><input type="checkbox" data-perm="${esc(rn)}" data-mod="${m.id}" ${r.modules.includes(m.id)?'checked':''} style="width:17px;height:17px;accent-color:var(--g600);cursor:pointer"></td>`).join('')}<td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit-group" data-group="${esc(rn)}">Editar</button>${rn==='Administrador'?'':`<button class="btn-danger btn-xs" data-act="del-group" data-group="${esc(rn)}">✕</button>`}</div></td></tr>`;}).join('')}
+    </tbody></table></div>
+    <p class="muted" style="font-size:.78rem;margin-top:10px">${ic('lock',14)} Nota pedagógica: autenticação simulada para fins de formação - não constitui segurança real (palavras-passe ficam no navegador).</p>
+  </div>`;
+}
+function secDepartamentos(){
+  const l=departamentos();
+  return `<div class="card card-pad">
+    <div class="section-head" style="margin-bottom:12px"><div><h3>Departamentos</h3>
+      <div class="sub">Onde cada pessoa trabalha. O <strong>grupo</strong> diz o que se pode fazer; o <strong>departamento</strong> diz em que equipa se está - e são coisas diferentes.</div></div></div>
+    ${l.length?`<div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px">${l.map(d=>`<span class="chip">${esc(d)}
+      <button class="icon-btn" data-act="dep-del" data-d="${esc(d)}" title="Remover" style="width:18px;height:18px;margin-left:5px;vertical-align:-3px">✕</button></span>`).join("")}</div>`
+      :`<p class="muted" style="font-size:.84rem;margin:0 0 12px">Ainda não há departamentos. Numa empresa pequena um chega; a partir de certa altura, Comercial e Suporte deixam de querer ver a mesma lista.</p>`}
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <input id="depNovo" placeholder="ex.: Comercial" style="flex:1;min-width:180px" maxlength="40">
+      <button class="btn-sec" data-act="dep-add">+ Adicionar</button>
+      ${l.length?"":`<button class="btn-ghost" data-act="dep-sugerir">Sugerir os habituais</button>`}
+    </div>
+    <span class="hint" style="display:block;margin-top:8px">Remover um departamento <strong>não mexe</strong> em quem já o tinha - deixa só de estar disponível para escolher.</span>
+  </div>`;
+}
 function secPulso(){
   const l=state.pulsoLog||[];
   return `<div class="card card-pad">
@@ -5408,6 +5472,9 @@ function defSandboxView(){ const s=state.settings; const secs=[];
   if(canFeat('origens')) secs.push(secOrigens(s));
   if(canFeat('funcoes')) secs.push(secFuncoes(s));
   if(canFeat('campos')) secs.push(secCampos());
+  /* a equipa vem primeiro: quem gere utilizadores esta a montar a empresa,
+     nao a decorá-la */
+  if(canFeat('equipa')){ secs.unshift(secEquipaGrupos()); secs.unshift(secEquipaUsers()); secs.push(secDepartamentos()); }
   if(canFeat('brand')) secs.push(secBrand(s));
   return `<div class="card card-pad"><div class="section-head" style="margin-bottom:6px"><div><h3>${ic('settings',18)} Personalizar o meu ambiente</h3><div class="sub">Modo sandbox - todas as alterações ficam <strong>só neste navegador</strong>. Personalize a sua empresa fictícia e os exemplos para os exercícios.</div></div></div></div>`+(secs.join('')||`<div class="card card-pad"><div class="empty">Sem secções disponíveis.</div></div>`); }
 
@@ -5483,24 +5550,9 @@ views.definicoes = () => {
     </div>
     <div class="callout info" style="margin-top:14px">${ic('alert',16)}<div class="ctxt">Fluxo para crescer a base: atualiza os exemplos → <strong>Exportar base</strong> → substitui o <strong>base.json</strong> no repositório (GitHub). Quem abrir a app pela 1.ª vez recebe a base; quem já a tem clica em <strong>Recarregar base online</strong>.</div></div>
   </div>
-  ${TURMA?(turmaUsersCardHTML()+entregasCardHTML()):`<div class="card card-pad">
-    <div class="section-head" style="margin-bottom:16px">
-      <div><h3>Utilizadores</h3><div class="sub">Acessos com utilizador e palavra-passe. Importe os formandos em massa (Excel/CSV) - ficam ativos como Formando - ou crie um a um.</div></div>
-      <div class="toolbar"><button class="btn-sec" data-act="users-template">${ic('download',16)} Modelo</button><button class="btn-sec" data-act="import-users">${ic('upload',16)} Importar</button><button class="btn" data-act="new" data-type="utilizador">+ Utilizador</button></div>
-    </div>
-    <input type="file" id="importUsersFile" accept=".csv,text/csv" style="display:none">
-    <div class="table-wrap"><table><thead><tr><th>Nome</th><th>Utilizador</th><th>Email</th><th>Papel</th><th>Estado</th><th></th></tr></thead><tbody>
-      ${pgu.slice.map(u=>`<tr><td><div style="display:flex;align-items:center;gap:10px">${avatarHTML(u,30)}<span class="cell-main">${esc(u.nome)} ${esc(u.apelido||'')}${currentUser()&&currentUser().id===u.id?' <span class="tag">eu</span>':''}</span></div></td><td><span class="chip">${ic('key',13)} ${esc(u.username||'-')}</span></td><td>${esc(u.email)}</td><td><span class="chip">${esc(u.papel)}</span></td><td><span class="pill ${u.estado==='Ativo'?'green':'grey'}">${esc(u.estado)}</span></td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit" data-type="utilizador" data-id="${u.id}">Editar</button>${(u.id==='u1'||u.protegido)?`<span class="btn-xs" style="color:var(--muted2)" title="Protegido">${ic('lock',13)}</span>`:`<button class="btn-danger btn-xs" data-act="delete" data-type="utilizador" data-id="${u.id}">✕</button>`}</div></td></tr>`).join('')}
-    </tbody></table></div>
-    ${pager('utilizadores',pgu)}
-  </div>`}
-  <div class="card card-pad">
-    <div class="section-head" style="margin-bottom:6px"><div><h3>Grupos de Utilizadores</h3><div class="sub">Crie grupos e marque os módulos a que cada um tem acesso. Aplica-se a todos os utilizadores do grupo.</div></div><button class="btn" data-act="new-group">${ic('users',16)} Novo grupo</button></div>
-    <div class="table-wrap"><table><thead><tr><th>Grupo</th>${NAV_FLAT.map(m=>`<th class="t-center" style="font-size:.68rem">${esc(m.label)}</th>`).join('')}<th></th></tr></thead><tbody>
-      ${Object.keys(state.roles).map(rn=>{const r=state.roles[rn];return `<tr><td class="cell-main">${esc(rn)}${r.gestor?' <span class="tag">gestor</span>':''}${(r.feats&&r.feats.length)?` <span class="pill green" style="font-size:.62rem" title="${esc(r.feats.map(k=>(FEATS.find(f=>f.k===k)||{}).l||k).join(', '))}">+${r.feats.length} sandbox</span>`:''}</td>${NAV_FLAT.map(m=>`<td class="t-center"><input type="checkbox" data-perm="${esc(rn)}" data-mod="${m.id}" ${r.modules.includes(m.id)?'checked':''} style="width:17px;height:17px;accent-color:var(--g600);cursor:pointer"></td>`).join('')}<td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit-group" data-group="${esc(rn)}">Editar</button>${rn==='Administrador'?'':`<button class="btn-danger btn-xs" data-act="del-group" data-group="${esc(rn)}">✕</button>`}</div></td></tr>`;}).join('')}
-    </tbody></table></div>
-    <p class="muted" style="font-size:.78rem;margin-top:10px">${ic('lock',14)} Nota pedagógica: autenticação simulada para fins de formação - não constitui segurança real (palavras-passe ficam no navegador).</p>
-  </div>
+  ${TURMA?(turmaUsersCardHTML()+entregasCardHTML()):secEquipaUsers()}
+  ${secEquipaGrupos()}
+  ${secDepartamentos()}
   <div class="card card-pad">
     <div class="section-head"><div><h3>Modelos de Proposta</h3><div class="sub">A gestão de modelos passou para o módulo "Modelos" no menu lateral, com permissão própria.</div></div><a class="btn-sec" href="#modelos">${ic('layout',16)} Abrir Modelos</a></div>
   </div>
@@ -5696,6 +5748,7 @@ const SCHEMAS = {
     {n:'email',l:'Email',type:'email',full:1},
     {n:'username',l:'Nome de utilizador (login)',req:1,hint:'Código único de acesso - o sistema avisa se já existir.'},
     {n:'password',l:'Palavra-passe',type:'password',hint:'Deixe em branco para manter a atual'},
+    {n:'departamento',l:'Departamento',type:'select',opts:()=>[{v:'',t:'- sem departamento -'}].concat(departamentos().map(d=>({v:d,t:d}))),hint:'Onde trabalha. O grupo diz o que pode fazer; isto diz com quem.'},
     {n:'papel',l:'Papel',type:'select',opts:()=>Object.keys(state.roles).map(r=>({v:r,t:r}))},
     {n:'estado',l:'Estado',type:'select',opts:['Ativo','Inativo'].map(x=>({v:x,t:x}))},
   ]},
@@ -7045,6 +7098,16 @@ document.addEventListener('click', async e=>{
     case 'cbot-chip': cbotDiz(el.textContent.trim()); break;
     case 'cbot-ir': location.hash='#'+el.dataset.h; break;
     case 'ir-metas': location.hash='#definicoes'; setTimeout(()=>{ const el=$('#metaMensal'); if(el){ el.closest('.card').scrollIntoView({block:'center',behavior:'smooth'}); el.focus(); } },400); break;
+    case 'dep-add': { const el2=$('#depNovo'); const v=el2?String(el2.value||'').trim():'';
+      if(!v) break;
+      if(departamentos().some(d=>d.toLowerCase()===v.toLowerCase())){ toast('Já existe','',''); break; }
+      state.settings.departamentos=departamentos().concat([v]); save(); render(); toast('Departamento criado',v); } break;
+    case 'dep-sugerir': { state.settings.departamentos=['Comercial','Marketing','Suporte']; save(); render(); toast('Departamentos criados','Comercial · Marketing · Suporte'); } break;
+    case 'dep-del': { const d=el.dataset.d;
+      const quantos=(state.utilizadores||[]).filter(u=>depDe(u)===d).length;
+      const aviso=quantos?`${quantos} pessoa(s) estão nesse departamento. Removê-lo não lhes mexe - deixa só de estar disponível para escolher.`:'';
+      if(!await uiConfirm(aviso||`Remover o departamento \"${d}\"?`,{title:'Remover departamento',okText:'Remover',danger:true})) break;
+      state.settings.departamentos=departamentos().filter(x=>x!==d); save(); render(); } break;
     case 'pulso-limpar': { if(await uiConfirm('Apagar as perguntas registadas? O formador deixa de as ver na sua entrega.',{title:'Limpar o registo do Pulso',okText:'Apagar'})){ state.pulsoLog=[]; save(); render(); toast('Registo limpo',''); } } break;
     case 'save-metas': { if(!canFeat('metas')){ toast('Sem permissão','','warn'); break; }
       const m={mensal:Number(($('#metaMensal')||{}).value||0)||0, pessoas:{}};
