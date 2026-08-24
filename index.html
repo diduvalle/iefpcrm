@@ -3007,7 +3007,7 @@ const CBOT_AJUDA2 = [
    t:"<strong>Definições → Dados & backup → repor.</strong> Volta ao estado inicial. <strong>Faça a exportação primeiro</strong> - não há desfazer.",
    ir:"definicoes", doc:"modulos/definicoes/"},
 
-  {mod:"agenda", k:["criar uma tarefa","agendar","marcar uma reuniao","novo agendamento","por no calendario"],
+  {mod:"agenda", k:["criar uma tarefa","agendar","marcar uma tarefa","marco uma tarefa","marcar uma reuniao","novo agendamento","por no calendario"],
    t:"Na <strong>Agenda</strong>, clique num <strong>dia</strong> (vista mês) ou numa <strong>hora</strong> (vista semana) - a data entra preenchida. Tipo, duração, cliente e notas.",
    ir:"agenda", doc:"modulos/dashboard-agenda/"},
 
@@ -3063,6 +3063,88 @@ const CBOT_AJUDA2 = [
    t:"O manual tem tudo, em <strong>português e inglês</strong>, com vídeos e dois tutoriais guiados. O <strong>?</strong> no cabeçalho abre já a página do ecrã onde está.",
    doc:""},
 ];
+
+/* ---- terceira leva ----
+   As duas primeiras levas foram escritas a partir do que EU achava que se
+   perguntava, e foram testadas contra a minha propria lista - o que nao prova
+   nada. Uma sonda a serio (todos os verbos comuns x todos os substantivos da
+   app) deu 64% de perguntas sem resposta.
+
+   O que faltava nao eram funcionalidades exoticas: era "como envio um email",
+   "como apago", "como edito". Os verbos mais banais de todos.
+
+   Daqui saiu tambem uma mudanca de forma: em vez de uma entrada por
+   funcionalidade, ha entradas por VERBO - apagar e editar valem para tudo, e
+   uma so resposta serve. */
+const CBOT_AJUDA3 = [
+  {mod:"email", k:["enviar um email","envio um email","escrever um email","mandar um email","criar um email","email a um cliente","compositor de email","email avulso"],
+   t:"<strong>Email → Novo email.</strong> Procure o contacto pelo nome, escreva a mensagem (ou escolha um <strong>template</strong>, que traz as tags já preenchidas) e envie.",
+   ir:"email", doc:"modulos/campanhas-email/"},
+
+  {mod:"comunicacao", k:["emails enviados","historico de envios","ver o que foi enviado","quem abriu o email","registo de emails"],
+   t:"<strong>Comunicação → Histórico de envios.</strong> Tem também <strong>Agendados</strong>, <strong>Templates</strong>, <strong>Automações</strong> e <strong>Jornadas</strong>. É onde se vê quem abriu e quem clicou.",
+   ir:"comunicacao", doc:"modulos/campanhas-email/"},
+
+  {k:["apagar","apago","eliminar","remover um registo","como apago","apagar uma empresa","apagar um contacto","apagar uma proposta","apagar um produto","apagar um utilizador"],
+   t:"Abra o registo (clique na linha) e use <strong>Apagar</strong> no rodapé da janela. Vale para empresas, contactos, produtos, propostas, casos e utilizadores.",
+   doc:"modulos/empresas-contactos/"},
+
+  {k:["editar","edito","alterar um registo","como edito","mudar os dados","corrigir um registo"],
+   t:"Clique na <strong>linha</strong> do registo - abre a ficha em edição. Guarde no fim. As propostas <em>Ganha</em> e <em>Perdida</em> ficam bloqueadas até serem <strong>Reabertas</strong>.",
+   doc:"modulos/empresas-contactos/"},
+
+  {mod:"propostas", k:["duplicar uma proposta","copiar uma proposta","proposta igual a outra"],
+   t:"Não há botão de duplicar - é uma limitação conhecida. O caminho é <strong>+ Proposta</strong> e voltar a escolher as linhas do catálogo; se for uma venda repetida, vale a pena guardar um <strong>modelo de proposta</strong>.",
+   ir:"propostas", doc:"modulos/modelos/"},
+
+  {mod:"agenda", k:["concluir uma tarefa","marcar como feita","riscar a tarefa","dar a tarefa por terminada","reabrir uma tarefa"],
+   t:"Na lista <strong>Próximas tarefas</strong>, clique no <strong>quadrado</strong> à esquerda - fica riscada. Clicar outra vez reabre-a.",
+   ir:"agenda", doc:"modulos/dashboard-agenda/"},
+
+  {mod:"casos", k:["criar um caso","fechar um caso","resolver um caso","dar o caso por fechado","csat"],
+   t:"<strong>Helpdesk → + Caso</strong> para abrir. Para fechar, mude o <strong>estado</strong> do caso - e aproveite para registar o <strong>CSAT/NPS</strong>, que alimenta o Analytics.",
+   ir:"casos", doc:"modulos/casos/"},
+
+  {mod:"campanhas", k:["enviar uma campanha","disparar a campanha","lancar a campanha"],
+   t:"Abra a campanha e use <strong>Enviar</strong>. Confirme antes o <strong>alvo</strong> (segmento, nível, fase) - a campanha vai para toda a gente que lá caiba.",
+   ir:"campanhas", doc:"modulos/campanhas-email/"},
+
+  {mod:"definicoes", k:["criar um utilizador","apagar um utilizador","grupos de utilizadores","permissoes","quem ve o que"],
+   t:"<strong>Definições → Grupos de Utilizadores.</strong> Cada grupo escolhe os <strong>módulos</strong> que vê e as <strong>permissões</strong> dentro deles.",
+   ir:"definicoes", doc:"modulos/definicoes/"},
+
+  {mod:"definicoes", k:["adicionar um formando","adicionar formandos","importar a turma","criar acessos","inscrever alunos"],
+   t:"<strong>Definições → Formandos da turma.</strong> Dá para <strong>importar de Excel</strong> (mais rápido para uma turma inteira) ou adicionar um a um.",
+   ir:"definicoes", doc:"formador/gerir-turma/importar/"},
+
+  {mod:"definicoes", k:["remover um formando","tirar um formando","apagar um aluno"],
+   t:"<strong>Definições → Formandos da turma</strong>, e remover na linha. O trabalho que já tiver submetido <strong>não desaparece</strong>.",
+   ir:"definicoes", doc:"formador/gerir-turma/remover/"},
+
+  {mod:"definicoes", k:["convidar um formando","convidar","convidar a turma","enviar convites","mandar os acessos","email de boas-vindas a turma"],
+   t:"<strong>Definições → Formandos da turma → Enviar convite.</strong> Vai o utilizador e a palavra-passe por email. A moldura do email vem do template do EmailJS.",
+   ir:"definicoes", doc:"formador/email-marca/"},
+
+  {mod:"definicoes", k:["repor a password de um formando","reponho a password","repor a password","password de um formando","reset da palavra-passe","o formando perdeu o acesso"],
+   t:"<strong>Definições → Formandos da turma</strong>, e <strong>repor palavra-passe</strong> na linha da pessoa. Gera uma nova e mostra-a uma vez.",
+   ir:"definicoes", doc:"formador/gerir-turma/repor-password/"},
+
+  {mod:"definicoes", k:["ver as entregas","vejo as entregas","entregas","avaliar os trabalhos","corrigir as entregas","trabalhos submetidos","comparar a turma"],
+   t:"<strong>Definições → Entrega & validação.</strong> Cada entrega abre numa ficha com <strong>30 práticas</strong> e as gavetas do que a pessoa criou à mão. <strong>Comparar a turma</strong> põe todos lado a lado, com CSV.",
+   ir:"definicoes", doc:"formador/entregas/"},
+
+  {k:["repositorio de sessoes","materiais das sessoes","slides das aulas","onde estao os manuais das aulas","documentos da formacao"],
+   t:"Fica fora do CRM, em <strong>iefpcrm.cr0x.org/repo</strong>. O formador publica lá os materiais e cada formando recebe o <strong>seu</strong> link por email - é assim que se sabe quem abriu o quê.",
+   doc:""},
+
+  {mod:"analytics", k:["imprimir o relatorio","exportar o relatorio","exporto um relatorio","imprimo um relatorio","exportar o analytics","relatorio de analytics","pdf do analytics","levar os numeros"],
+   t:"Em <strong>Analytics</strong>, o botão <strong>Imprimir relatório</strong> - sai um PDF com os KPIs, o funil e o top de empresas, respeitando o período escolhido.",
+   ir:"analytics", doc:"modulos/analytics/"},
+
+  {mod:"propostas", k:["exportar propostas","exportar empresas","exportar contactos","csv de saida","tirar os dados para excel"],
+   t:"Não há exportação por módulo. O que há é <strong>Definições → Dados & backup</strong>, que exporta <strong>tudo</strong> de uma vez - e, no Analytics, o <strong>Comparar a turma</strong> dá CSV.",
+   ir:"definicoes", doc:"modulos/definicoes/"},
+];
 /* Perguntas sobre o próprio assistente - não dependem de módulo nenhum */
 const CBOT_META = [
   {k:["es uma ia","es ia","es um robo","inteligencia artificial","chatgpt","quem es","es humano","es uma pessoa","como te chamas","porque te chamas","pulso"], f:()=>({
@@ -3104,7 +3186,7 @@ function cbotResponde(txt){
   let melhor=null, pts=0;
   CBOT_META.forEach(i=>{ const p=cbotScore(i.k,q); if(p>pts){pts=p;melhor=i;} });
   CBOT.forEach(i=>{ if(!can(i.mod)) return; const p=cbotScore(i.k,q); if(p>pts){pts=p;melhor=i;} });
-  CBOT_AJUDA.concat(CBOT_AJUDA2).forEach(i=>{ if(i.mod&&!can(i.mod)) return; const p=cbotScore(i.k,q); if(p>pts){pts=p;melhor=Object.assign({ajuda:1},i);} });
+  CBOT_AJUDA.concat(CBOT_AJUDA2,CBOT_AJUDA3).forEach(i=>{ if(i.mod&&!can(i.mod)) return; const p=cbotScore(i.k,q); if(p>pts){pts=p;melhor=Object.assign({ajuda:1},i);} });
   /* nome de empresa na frase: ganha a tudo o resto, porque é sempre mais
      específico do que uma pergunta genérica */
   if(can("empresas") && !(melhor&&melhor.ajuda&&pts>=12)){ const e=pulsoEmpresa(q); if(e) return pulsoResumoEmpresa(e); }
