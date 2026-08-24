@@ -1021,7 +1021,15 @@ function demoData(){
   const roles = {
     'Administrador':{modules:ALL_MOD.slice(),gestor:true},
     'Formador':{modules:ALL_MOD.slice(),gestor:true},
-    'Formando':{modules:ALL_MOD.filter(m=>m!=='definicoes'),gestor:false,ocultarFinanceiro:true,feats:['entidade','gerador','loyalty','origens','funcoes','brand']},
+    /* Sem ocultarFinanceiro: a sandbox e a empresa ficticia do proprio
+       formando - esconder-lhe os numeros do negocio que ele esta a construir
+       tirava-lhe a possibilidade de ver o efeito do IVA regional, do desconto
+       de loyalty e do TCV, que sao os calculos que a formacao quer ensinar.
+       Analytics ficava com 17 cadeados: um modulo inteiro ilegivel.
+       A funcionalidade mantem-se em Definicoes -> Grupos de Utilizadores,
+       para o formador a LIGAR quando quiser demonstrar o que e um papel com
+       acesso restrito - que num CRM a serio existe mesmo. */
+    'Formando':{modules:ALL_MOD.filter(m=>m!=='definicoes'),gestor:false,feats:['entidade','gerador','loyalty','origens','funcoes','brand']},
   };
   const propostaTemplates = [
     {id:'pt1',nome:'Clássico IEFP',cor:'#006B3C',criadoPor:'u1',criadoEm:'2026-01-05',blocks:[
@@ -1206,6 +1214,14 @@ function load(){
     if(a.condSegmento && nv.includes(a.condSegmento)){ a.condNivel=a.condSegmento; a.condSegmento='Todos'; } });
   if(!Array.isArray(state.autoLog)) state.autoLog=[];
   if(!Array.isArray(state.pulsoLog)) state.pulsoLog=[];
+  /* state.roles fica gravado na sandbox, por isso mudar o valor por omissao
+     so servia a quem comecasse de novo. Isto destranca as que ja existem -
+     uma unica vez, para que voltar a ligar o cadeado de proposito continue
+     a valer. */
+  if(!state.settings._finLivre){
+    if(state.roles && state.roles['Formando']) delete state.roles['Formando'].ocultarFinanceiro;
+    state.settings._finLivre=1;
+  }
   if(!state.settings.metas||typeof state.settings.metas!=='object') state.settings.metas={mensal:0,pessoas:{}};
   if(!state.settings.metas.pessoas) state.settings.metas.pessoas={};
   (state.automacoes||[]).forEach(a=>{ (a.passos||[]).forEach(p=>{ if(!p.tipo) p.tipo='email'; }); if(a.saida==null) a.saida=''; });
@@ -3108,6 +3124,10 @@ const CBOT_AJUDA3 = [
   {mod:"campanhas", k:["enviar uma campanha","disparar a campanha","lancar a campanha"],
    t:"Abra a campanha e use <strong>Enviar</strong>. Confirme antes o <strong>alvo</strong> (segmento, nível, fase) - a campanha vai para toda a gente que lá caiba.",
    ir:"campanhas", doc:"modulos/campanhas-email/"},
+
+  {k:["porque e que vejo um cadeado","cadeado","valores escondidos","nao vejo os valores","ocultar o financeiro","porque nao vejo os precos"],
+   t:"O <strong>🔒</strong> aparece quando o seu grupo tem o <strong>financeiro oculto</strong> - num CRM real, nem toda a gente vê a receita da empresa. Numa turma vem <strong>desligado</strong>; o formador pode ligá-lo em <strong>Definições → Grupos de Utilizadores</strong> para mostrar como é um papel com acesso restrito.",
+   doc:"modulos/definicoes/"},
 
   {mod:"definicoes", k:["criar um utilizador","apagar um utilizador","grupos de utilizadores","permissoes","quem ve o que"],
    t:"<strong>Definições → Grupos de Utilizadores.</strong> Cada grupo escolhe os <strong>módulos</strong> que vê e as <strong>permissões</strong> dentro deles.",
@@ -6042,13 +6062,16 @@ function propTotalsHTML(p){
   const mm=(p.linhas||[]).filter(l=>l.produtoId && okT.length && !okT.includes(Number(l.iva)));
   return `${mm.length?`<div class="callout warn" style="margin-top:12px;align-items:center">${ic('alert',16)}<div class="ctxt" style="flex:1"><strong>IVA fora da região do cliente (${esc(reg)}).</strong> ${mm.length} linha(s) usam uma taxa que não pertence a ${esc(reg)}. Taxas de ${esc(reg)}: ${okT.sort((a,b)=>b-a).map(x=>x+'%').join(', ')}.</div><button class="btn-sec btn-sm" type="button" data-act="fix-iva" style="flex:0 0 auto;white-space:nowrap">Corrigir para ${esc(reg)}</button></div>`:''}
   <div class="totbox">
-    <div class="row"><span class="muted">Serviços / pontual</span><span>${fmt(t.pontual)}</span></div>
-    ${t.mrr>0?`<div class="row"><span class="muted">SaaS recorrente</span><span>${fmt(t.mrr)}/mês × ${t.meses} = ${fmt(t.recorrente)}</span></div>`:''}
-    <div class="row"><span class="muted">Subtotal (TCV)</span><span>${fmt(t.sub)}</span></div>
-    ${t.desconto>0?`<div class="row" style="color:var(--g700)"><span>Desconto loyalty (${t.descontoPct}%)</span><span>− ${fmt(t.desconto)}</span></div>`:''}
-    <div class="row"><span class="muted">IVA</span><span>${fmt(t.iva)}</span></div>
-    <div class="row grand"><span>Total do contrato</span><span>${fmt(t.total)}</span></div>
-    ${t.mrr>0?`<div class="row" style="font-size:.76rem;color:var(--muted)"><span>Receita recorrente</span><span>MRR ${fmt(t.mrr)} · ARR ${fmt(t.mrr*12)}</span></div>`:''}
+    <!-- money() e nao fmt(): estes totais fugiam ao cadeado, por isso um papel
+         com o financeiro oculto via 🔒 no cartao do Kanban e o valor inteiro
+         aqui dentro. A ocultacao so vale alguma coisa se for coerente. -->
+    <div class="row"><span class="muted">Serviços / pontual</span><span>${money(t.pontual)}</span></div>
+    ${t.mrr>0?`<div class="row"><span class="muted">SaaS recorrente</span><span>${money(t.mrr)}/mês × ${t.meses} = ${money(t.recorrente)}</span></div>`:''}
+    <div class="row"><span class="muted">Subtotal (TCV)</span><span>${money(t.sub)}</span></div>
+    ${t.desconto>0?`<div class="row" style="color:var(--g700)"><span>Desconto loyalty (${t.descontoPct}%)</span><span>− ${money(t.desconto)}</span></div>`:''}
+    <div class="row"><span class="muted">IVA</span><span>${money(t.iva)}</span></div>
+    <div class="row grand"><span>Total do contrato</span><span>${money(t.total)}</span></div>
+    ${t.mrr>0?`<div class="row" style="font-size:.76rem;color:var(--muted)"><span>Receita recorrente</span><span>MRR ${money(t.mrr)} · ARR ${money(t.mrr*12)}</span></div>`:''}
   </div>`;
 }
 function syncDraftFromForm(){
