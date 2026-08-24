@@ -2306,7 +2306,7 @@ views.campanhas = () => {
     <div class="card card-pad">
       <div class="section-head" style="margin-bottom:14px"><div><h3>Campanhas ${infoTip('segmento')}</h3><div class="sub">Marketing direcionado por segmento</div></div><div class="toolbar"><button class="btn-sec" data-act="wizard">✨ Gerar de persona</button><button class="btn" data-act="new" data-type="campanha">+ Campanha</button></div></div>
       <div class="table-wrap"><table><thead><tr><th>Campanha</th><th>Segmento</th><th>Período</th><th>Abertura</th><th>CTR</th><th>Estado</th><th></th></tr></thead><tbody>
-        ${camps.map(c=>{const ab=c.enviados?c.abertos/c.enviados*100:0;const ct=c.enviados?c.cliques/c.enviados*100:0;return `<tr><td><div class="cell-main">${esc(c.nome)}</div><div class="cell-sub">${esc(c.canal)} · ${fmtN(c.enviados)} envios</div></td><td><span class="chip">${esc(c.segmento||'Todos')}</span>${c.nivel?` <span class="chip">${esc(c.nivel)}</span>`:''}</td><td class="muted">${dPT(c.inicio)} - ${dPT(c.fim)}</td><td>${pct(ab)}</td><td>${pct(ct)}</td><td><span class="pill ${c.estado==='Ativa'?'green':c.estado==='Concluída'?'grey':'blue'}">${esc(c.estado)}</span></td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="campaign-send" data-id="${c.id}">${ic('send',13)} Enviar</button><button class="btn-sec btn-xs" data-act="edit" data-type="campanha" data-id="${c.id}">Editar</button><button class="btn-danger btn-xs" data-act="delete" data-type="campanha" data-id="${c.id}">✕</button></div></td></tr>`;}).join('')||`<tr><td colspan="7">${empty(act?'Sem campanhas no período':'Sem campanhas')}</td></tr>`}
+        ${camps.map(c=>{const ab=c.enviados?c.abertos/c.enviados*100:0;const ct=c.enviados?c.cliques/c.enviados*100:0;return `<tr><td><div class="cell-main">${esc(c.nome)}</div><div class="cell-sub">${esc(c.canal)} · ${fmtN(c.enviados)} envios · ${audienciaLinha(c)}</div></td><td><span class="chip">${esc(c.segmento||'Todos')}</span>${c.nivel?` <span class="chip">${esc(c.nivel)}</span>`:''}</td><td class="muted">${dPT(c.inicio)} - ${dPT(c.fim)}</td><td>${pct(ab)}</td><td>${pct(ct)}</td><td><span class="pill ${c.estado==='Ativa'?'green':c.estado==='Concluída'?'grey':'blue'}">${esc(c.estado)}</span></td><td><div class="row-actions"><button class="btn-sec btn-xs" data-act="campaign-send" data-id="${c.id}">${ic('send',13)} Enviar</button><button class="btn-sec btn-xs" data-act="edit" data-type="campanha" data-id="${c.id}">Editar</button><button class="btn-danger btn-xs" data-act="delete" data-type="campanha" data-id="${c.id}">✕</button></div></td></tr>`;}).join('')||`<tr><td colspan="7">${empty(act?'Sem campanhas no período':'Sem campanhas')}</td></tr>`}
       </tbody></table></div>
     </div>
     <div class="card card-pad">
@@ -2328,9 +2328,77 @@ views.campanhas = () => {
       <div class="field full"><label>Mensagem</label><input id="wl-msg" placeholder="O que o lead pretende (opcional)"></div>
     </div>
     <div class="toolbar" style="margin-top:12px"><button class="btn" data-act="form-submit-lead">${ic('send',16)} Submeter (simular)</button></div>
+    ${(state._w2lCode?`<div class="card card-pad" style="margin-top:14px;padding:14px">
+      <div class="section-head" style="margin-bottom:8px"><div><h4 style="font-weight:800;font-size:.9rem">Colar no seu site</h4>
+        <div class="sub">Substitua <code>O_SEU_ENDPOINT</code> pelo endereço que recebe os dados. É esse endereço que fala com o CRM - <strong>um formulário nunca fala diretamente com a base de dados</strong>.</div></div>
+        <div style="display:flex;gap:6px"><button class="btn-sec btn-xs" data-act="w2l-copiar">${ic('doc',13)} Copiar</button>
+        <button class="btn-ghost btn-xs" data-act="w2l-codigo">Fechar</button></div></div>
+      <pre class="w2l-code">${esc(w2lSnippet())}</pre>
+      <div class="callout info" style="margin-top:10px">${ic('shield',16)}<div class="ctxt">O consentimento vem <strong>por marcar</strong> e é obrigatório - o RGPD (art. 7.º) não aceita caixas pré-marcadas. O código guarda também <strong>quando</strong> a pessoa aceitou: sem data, o consentimento não se prova.</div></div>
+    </div>`:`<div class="toolbar" style="margin-top:10px"><button class="btn-sec btn-sm" data-act="w2l-codigo">${ic('doc',15)} Ver o código para o meu site</button></div>`)}
     <div class="callout info" style="margin-top:14px">${ic('alert',16)}<div class="ctxt">Num site real, este formulário estaria numa landing page e enviaria os dados para o CRM. Aqui a submissão cria o <strong>lead</strong> e dispara as automações de "novo cliente".</div></div>
   </div>`;
 };
+/* ---------- O codigo para colar no site ----------
+   O formulario aqui ao lado SIMULA a captacao. Faltava a ponte para o mundo:
+   o HTML que se cola numa landing page e que faz o lead entrar mesmo.
+
+   E ILUSTRATIVO de proposito - o endpoint fica por preencher. Ligar isto a
+   serio exige um servidor (CORS, validacao, protecao contra spam) e isso e a
+   licao: um formulario de site nao fala diretamente com a base de dados. */
+function w2lSnippet(){
+  const ent=(state.settings&&state.settings.entidade)||{};
+  const nome=(ent.nome||brandName()||"A sua empresa");
+  return [
+"<!-- Formulário de captação · gerado pelo "+nome+" -->",
+"<!-- 1. Cole isto na página do seu site.                                  -->",
+"<!-- 2. Substitua O_SEU_ENDPOINT pelo endereço que recebe os dados.       -->",
+"<!-- 3. O endpoint tem de validar tudo outra vez: nunca confie no browser.-->",
+"",
+"<form id=\"lead\" novalidate>",
+"  <label>Nome *<br><input name=\"nome\" required></label><br>",
+"  <label>Email *<br><input name=\"email\" type=\"email\" required></label><br>",
+"  <label>Empresa<br><input name=\"empresa\"></label><br>",
+"  <label>Telefone<br><input name=\"telefone\"></label><br>",
+"  <label>Mensagem<br><textarea name=\"mensagem\"></textarea></label><br>",
+"",
+"  <!-- Consentimento: obrigatorio e NAO pode vir pre-marcado (RGPD art. 7.º).",
+"       Guarde tambem a data e o texto exato que a pessoa aceitou. -->",
+"  <label><input type=\"checkbox\" name=\"consentimento\" required value=\"1\">",
+"    Aceito receber comunicações de "+nome+" e li a política de privacidade.</label><br>",
+"",
+"  <!-- Armadilha anti-spam: invisivel para pessoas, os robots preenchem-na. -->",
+"  <input name=\"website\" tabindex=\"-1\" autocomplete=\"off\" style=\"position:absolute;left:-9999px\">",
+"",
+"  <button type=\"submit\">Subscrever</button>",
+"  <p id=\"lead-msg\" role=\"status\"></p>",
+"</form>",
+"",
+"<script>",
+"document.getElementById('lead').addEventListener('submit', async function (e) {",
+"  e.preventDefault();",
+"  var f = e.target, d = Object.fromEntries(new FormData(f));",
+"  if (d.website) return;                    // robot: finge que correu bem",
+"  if (!d.consentimento) { document.getElementById('lead-msg').textContent =",
+"    'Precisamos do seu consentimento para lhe escrever.'; return; }",
+"  d.origem = 'Formulário';                  // e assim que o CRM sabe de onde veio",
+"  d.consentidoEm = new Date().toISOString(); // prova de QUANDO consentiu",
+"  try {",
+"    var r = await fetch('O_SEU_ENDPOINT', {",
+"      method: 'POST',",
+"      headers: { 'Content-Type': 'application/json' },",
+"      body: JSON.stringify(d)",
+"    });",
+"    if (!r.ok) throw new Error(r.status);",
+"    f.reset();",
+"    document.getElementById('lead-msg').textContent = 'Obrigado! Entraremos em contacto.';",
+"  } catch (err) {",
+"    document.getElementById('lead-msg').textContent = 'Não foi possível enviar. Tente mais tarde.';",
+"  }",
+"});",
+"<\/script>"
+  ].join("\n");
+}
 function segmentBreakdown(){
   const paleta=['#00A651','#006B3C','#3cba6f','#7AC143','#0891b2','#7c3aed','#d97706'];
   const colors={}; segmentosList().forEach((sg,i)=>{ colors[sg]=paleta[i%paleta.length]; }); colors['Particular']='#94a3b8';
@@ -4135,17 +4203,56 @@ function sendAgendamentoNow(id){
   state.agendamentos=state.agendamentos.filter(x=>x.id!==id); save(); render(); toast('Passo executado',r||'Agendamento processado');
 }
 function cancelAgendamento(id){ state.agendamentos=state.agendamentos.filter(x=>x.id!==id); save(); render(); toast('Agendamento cancelado'); }
-function sendCampaign(id){
+/* ---------- Quem vai receber esta campanha ----------
+   Antes disto, enviar uma campanha era um botao e um toast no fim. Nao se via
+   a quem ia, e - o que e pior numa app que ensina RGPD - enviava a quem nunca
+   deu consentimento.
+
+   Marketing direto por email precisa de base legal (art. 6.º/1 a) do RGPD e
+   art. 13.º-A da Lei 41/2004). Quem nao a deu fica de fora, e diz-se porque.
+   E melhor licao um envio que se recusa do que um slide sobre consentimento. */
+function temConsentimento(c){
+  return (state.consentimentos||[]).some(x=>x.clienteId===c.id && x.estado==="Ativo");
+}
+function campAudiencia(cp){
+  const alvo=(state.clientes||[]).filter(c=>accMatchSeg(c,cp.segmento)&&accMatchNivel(c,cp.nivel));
+  const semEmail=alvo.filter(c=>!String(c.email||"").trim());
+  const comEmail=alvo.filter(c=>String(c.email||"").trim());
+  const semCons=comEmail.filter(c=>!temConsentimento(c));
+  const enviaveis=comEmail.filter(temConsentimento);
+  return {alvo, semEmail, semCons, enviaveis};
+}
+function audienciaLinha(cp){
+  const a=campAudiencia(cp); const fora=a.semEmail.length+a.semCons.length;
+  if(!a.alvo.length) return `<span class="muted" style="font-size:.72rem">sem destinatários no alvo</span>`;
+  return `<span class="muted" style="font-size:.72rem" title="${esc(a.enviaveis.map(c=>((c.nome||"")+" "+(c.apelido||"")).trim()+" · "+(c.email||"")+(c.telefone?" · "+c.telefone:"")).join(" | ")||"ninguém")}">
+    ${a.enviaveis.length} destinatário(s)${fora?` · <strong style="color:var(--warn)">${fora} de fora</strong>`:""}</span>`;
+}
+/* a lista, para o dialogo de confirmacao */
+function audienciaHTML(a){
+  const linha=c=>((c.nome||"")+" "+(c.apelido||"")).trim()+(c.email?" · "+c.email:"")+(c.telefone?" · "+c.telefone:"");
+  const bloco=(t,l,cor)=>l.length?`<div style="margin-top:8px"><div style="font-size:.74rem;font-weight:800;letter-spacing:.03em;color:${cor}">${t} (${l.length})</div>
+    <div style="font-size:.8rem;color:var(--muted);line-height:1.5">${l.slice(0,8).map(c=>esc(linha(c))).join("<br>")}${l.length>8?"<br>… e mais "+(l.length-8):""}</div></div>`:"";
+  return bloco("VAI RECEBER",a.enviaveis,"var(--g700)")+
+         bloco("SEM CONSENTIMENTO ATIVO - EXCLUÍDO",a.semCons,"var(--danger)")+
+         bloco("SEM EMAIL - EXCLUÍDO",a.semEmail,"var(--warn)");
+}
+async function sendCampaign(id){
   const cp=state.campanhas.find(c=>c.id===id); if(!cp) return;
   /* o alvo e o cruzamento dos dois filtros: segmento (dimensao) E nivel de fidelizacao */
-  const alvo=state.clientes.filter(c=>accMatchSeg(c,cp.segmento)&&accMatchNivel(c,cp.nivel));
-  if(!alvo.length){ const q=[cp.segmento&&cp.segmento!=='Todos'?('segmento '+cp.segmento):'',cp.nivel?('nível '+cp.nivel):''].filter(Boolean).join(' + ')||'todos';
+  const aud=campAudiencia(cp); const alvo=aud.enviaveis;
+  if(!aud.alvo.length){ const q=[cp.segmento&&cp.segmento!=='Todos'?('segmento '+cp.segmento):'',cp.nivel?('nível '+cp.nivel):''].filter(Boolean).join(' + ')||'todos';
     toast('Sem destinatários','Nenhum cliente em: '+q,'warn'); return; }
+  if(!alvo.length){ toast('Ninguém pode receber','Dos '+aud.alvo.length+' do alvo, nenhum tem email E consentimento ativo. Registe os consentimentos em RGPD.','warn'); return; }
+  /* nada sai sem se ver primeiro a quem vai - e porque e que alguem ficou de fora */
+  const fora=aud.semEmail.length+aud.semCons.length;
+  if(!await uiConfirm(audienciaHTML(aud),{title:'Enviar para '+alvo.length+' contacto(s)?',okText:'Enviar',icon:'send',html:true})) return;
   const tplId=cp.templateId||(state.templates[0]&&state.templates[0].id);
   let ab=0,cl=0;
   alvo.forEach(c=>{ const ev=sendEmail({clienteId:c.id, templateId:tplId, assunto:cp.nome, origem:'Campanha', campanhaId:cp.id}); if(ev.aberto)ab++; if(ev.clicado)cl++; });
   cp.enviados=(cp.enviados||0)+alvo.length; cp.abertos=(cp.abertos||0)+ab; cp.cliques=(cp.cliques||0)+cl; if(cp.estado==='Planeada') cp.estado='Ativa';
-  save(); render(); toast('Campanha enviada',`${alvo.length} enviados · ${ab} abertos · ${cl} cliques`);
+  save(); render();
+  toast('Campanha enviada',`${alvo.length} enviados · ${ab} abertos · ${cl} cliques`+(fora?` · ${fora} excluído(s)`:''));
 }
 
 views.comunicacao = () => {
@@ -6659,7 +6766,7 @@ function uiDialog(o){ o=o||{}; return new Promise(res=>{
   const back=document.createElement('div'); back.className='dlg-back';
   back.innerHTML=`<div class="dlg" role="dialog" aria-modal="true">
     ${o.title?`<div class="dlg-title">${o.icon?ic(o.icon,18):''}${esc(o.title)}</div>`:''}
-    ${o.message?`<div class="dlg-msg">${esc(o.message).replace(/\n/g,'<br>')}</div>`:''}
+    ${o.message?`<div class="dlg-msg">${o.html?o.message:esc(o.message).replace(/\n/g,'<br>')}</div>`:''}
     ${isInput?`<input class="dlg-input" value="${esc(o.input)}" placeholder="${esc(o.placeholder||'')}">`:''}
     <div class="dlg-foot">${o.cancelText===null?'':`<button class="btn-sec" data-dlg="cancel">${esc(o.cancelText||'Cancelar')}</button>`}<button class="btn${o.danger?'-danger':''}" data-dlg="ok">${esc(o.okText||'OK')}</button></div>
   </div>`;
@@ -6743,7 +6850,7 @@ document.addEventListener('mousedown',e=>{ if(!dpOpenNow()) return; if(e.target.
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&dpOpenNow()) dpClose(); });
 window.addEventListener('resize',()=>{ if(dpOpenNow()) dpPlace(); });
 document.documentElement.classList.add('dp-on');   // liga o CSS: esconde o calendário nativo
-function uiConfirm(message,o){ o=o||{}; return uiDialog({title:o.title||'Confirmar',icon:o.icon||(o.danger?'alert':'help'),message,okText:o.okText||'Confirmar',cancelText:o.cancelText||'Cancelar',danger:o.danger}); }
+function uiConfirm(message,o){ o=o||{}; return uiDialog({title:o.title||'Confirmar',icon:o.icon||(o.danger?'alert':'help'),message,okText:o.okText||'Confirmar',cancelText:o.cancelText||'Cancelar',danger:o.danger,html:o.html}); }
 function uiAlert(message,o){ o=o||{}; return uiDialog({title:o.title||'Aviso',icon:o.icon||'info',message,okText:o.okText||'OK',cancelText:null}); }
 function uiPrompt(message,def,o){ o=o||{}; return uiDialog({title:o.title||'',icon:o.icon,message,okText:o.okText||'OK',cancelText:'Cancelar',input:def||'',placeholder:o.placeholder||''}); }
 
@@ -6902,6 +7009,9 @@ document.addEventListener('click', async e=>{
       else { state._rgpdFiltro=f; state._rgpdTab=(f==='ativos')?'consent':'pedidos'; }
       rgpdRefresca(); } break;
     case 'duplicados': abrirDuplicados(); break;
+    case 'w2l-codigo': { state._w2lCode=!state._w2lCode; render(); } break;
+    case 'w2l-copiar': { try{ await navigator.clipboard.writeText(w2lSnippet()); toast('Copiado','Cole na página do seu site'); }
+      catch(err){ const p=$('.w2l-code'); if(p){ const r=document.createRange(); r.selectNodeContents(p); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); toast('Selecionado','Copie com Ctrl+C','info'); } } } break;
     case 'cbot-toggle': cbotToggle(); break;
     case 'cbot-send': { const i=$('#cbotIn'); if(i){ cbotDiz(i.value); i.value=''; i.focus(); } } break;
     case 'cbot-chip': cbotDiz(el.textContent.trim()); break;
