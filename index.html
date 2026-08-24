@@ -2791,6 +2791,13 @@ const CBOT = [
       lista:Object.entries(porFase).sort((a,b)=>b[1]-a[1]).map(x=>x[0]+" · "+x[1]),
       ir:{h:"empresas",l:"Ver empresas"}}; }},
 
+  {mod:"clientes", k:["leads novos","subscricoes","quem subscreveu","leads por atender","novos leads","quem se inscreveu"], f:()=>{
+    const l=leadsPorAtender();
+    if(!l.length) return {t:"Não há subscrições por atender - ou não entrou nenhuma, ou já foram todas seguidas."};
+    return {t:"<strong>"+l.length+" subscrição(ões)</strong> pelo formulário ainda sem seguimento nenhum.",
+      lista:l.slice(0,8).map(c=>((c.nome||"")+" "+(c.apelido||"")).trim()+(c.email?" · "+c.email:"")+" · "+dPT(c.criado)),
+      ir:{h:"clientes",l:"Ver contactos"}}; }},
+
   {mod:"empresas", k:["sem proposta","sem propostas","nao tem proposta","nao tem propostas","nao tiveram proposta","nunca compraram","sem negocio","sem oportunidade"], f:()=>{
     const com=new Set((state.propostas||[]).map(p=>p.empresaId));
     const l=(state.empresas||[]).filter(e=>!com.has(e.id));
@@ -6568,11 +6575,32 @@ function buildNav(){
   }
 }
 function currentView(){ return (location.hash||'#dashboard').slice(1).split('?')[0]||'dashboard'; }
+/* Um lead que entra pelo formulario e uma pessoa que levantou a mao. O toast do
+   momento desaparece em segundos e, se ninguem estivesse a olhar, ninguem soube.
+   Este alerta fica no sino ATE HAVER SEGUIMENTO - nao ate ser lido.
+
+   "Seguimento" e uma acao a serio: um email enviado, uma tarefa marcada, ou a
+   conta ter avancado de Lead. Marcar como visto nao conta: ver nao e atender. */
+function leadPorAtender(c){
+  if((c.fonte!=="form") && (c.origem!=="Formulário")) return false;
+  /* o email de boas-vindas que a AUTOMACAO dispara nao e seguimento: e a
+     maquina a responder a maquina. Se contasse, o alerta apagava-se sozinho um
+     segundo depois de nascer - que era exatamente o que acontecia. */
+  if((state.envios||[]).some(e=>e.clienteId===c.id && e.origem!=="Automação")) return false;
+  if((state.tarefas||[]).some(t=>t.clienteId===c.id)) return false;
+  const emp=c.empresaId?(state.empresas||[]).find(e=>e.id===c.empresaId):null;
+  if(emp && !["Lead","MQL"].includes(emp.fase||"Lead")) return false;
+  return true;
+}
+function leadsPorAtender(){ return (state.clientes||[]).filter(leadPorAtender); }
 function computeAlerts(){
   const a=[]; const t=todayISO();
   state.propostas.filter(p=>p.validade&&!['Ganha','Perdida'].includes(p.estado)&&daysBetween(t,p.validade)>=0&&daysBetween(t,p.validade)<=15).forEach(p=>a.push({i:'doc',c:'amber',t:`Proposta ${p.numero} a expirar`,s:`Validade ${dPT(p.validade)} · ${clientName(p.clienteId)}`,k:'prop',id:p.id}));
   state.pedidos.filter(p=>p.estado!=='Concluído'&&daysBetween(t,p.prazo)<0).forEach(p=>a.push({i:'shield',c:'red',t:'Pedido RGPD fora de prazo',s:`${p.tipo} · ${clientName(p.clienteId)} · prazo ${dPT(p.prazo)}`,k:'rgpd'}));
   state.pedidos.filter(p=>p.estado!=='Concluído'&&daysBetween(t,p.prazo)>=0&&daysBetween(t,p.prazo)<=7).forEach(p=>a.push({i:'shield',c:'amber',t:'Pedido RGPD a vencer',s:`${p.tipo} · ${clientName(p.clienteId)} · prazo ${dPT(p.prazo)}`,k:'rgpd'}));
+  leadsPorAtender().forEach(c=>{ const n=((c.nome||'')+' '+(c.apelido||'')).trim();
+    a.push({i:'target',c:'green',t:'Nova subscrição por atender',
+      s:n+(c.email?' · '+c.email:'')+' · '+dPT(c.criado),k:'lead',id:c.id}); });
   const venc=(state.agendamentos||[]).filter(x=>x.dataAgendada<=t).length; if(venc) a.push({i:'bell',c:'blue',t:`${venc} email(s) agendado(s) vencido(s)`,s:'Abrir Comunicação → Agendados',k:'agend'});
   (state.tarefas||[]).filter(x=>x.estado!=='Concluída'&&x.data<t).forEach(x=>a.push({i:'calendar',c:'amber',t:'Tarefa em atraso',s:`${x.titulo} · ${dPT(x.data)}`,k:'tarefa'}));
   (state.tarefas||[]).filter(x=>x.estado!=='Concluída'&&x.data===t).forEach(x=>a.push({i:'calendar',c:'blue',t:'Tarefa para hoje',s:x.titulo,k:'tarefa'}));
@@ -6902,9 +6930,9 @@ document.addEventListener('click', async e=>{
       let empId='';
       if(empNome){ const e={id:uid('emp'),nome:empNome,fase:'Lead',origem:'Formulário',dimensao:'Micro',criado:todayISO(),fonte:'form'}; if(SCHEMAS.empresa.code) SCHEMAS.empresa.code(e); state.empresas.push(e); empId=e.id; }
       const partes=nome.split(/\s+/); const prim=partes.shift(); const apel=partes.join(' ');
-      const c={id:uid('cli'),numero:pad(++state.settings.numeroSeq,4),nome:prim,apelido:apel,email:email,empresaId:empId,empresa:empNome,origem:'Formulário',criado:todayISO(),notas:msg?('Mensagem do formulário: '+msg):'',fonte:'form'};
+      const c={id:uid('cli'),numero:pad(++state.settings.numeroSeq,4),nome:prim,apelido:apel,email:email,empresaId:empId,empresa:empNome,origem:'Formulário',fonte:'form',criado:todayISO(),notas:msg?('Mensagem do formulário: '+msg):'',fonte:'form'};
       state.clientes.push(c); recalcLoyalty(); save(); render();
-      toast('Lead captado',nome+' entrou via formulário');
+      toast('Nova subscrição',nome+' entrou pelo formulário - fica no sino até haver seguimento');
       fireAutomations('novo-cliente',{clienteId:c.id});
       openClient360(c.id);
     } break;
@@ -7065,7 +7093,9 @@ document.addEventListener('click', async e=>{
     case 'theme': applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'); break;
     case 'present': document.body.classList.toggle('present'); break;
     case 'notif': { const p=$('#notifPanel'); if(!p)break; const open=p.classList.toggle('open'); if(open) renderNotifPanel(); } break;
-    case 'notif-go': { const k=el.dataset.k, gid=el.dataset.id; $('#notifPanel')?.classList.remove('open'); if(k==='prop'){ location.hash='#propostas'; setTimeout(()=>openModal('proposta',gid),90); } else if(k==='rgpd'){ state._rgpdTab='pedidos'; location.hash='#rgpd'; render(); } else if(k==='agend'){ state._comTab='agendados'; location.hash='#comunicacao'; render(); } else if(k==='tarefa'){ location.hash='#agenda'; render(); } else if(k==='produto'){ location.hash='#produtos'; setTimeout(()=>openModal('produto',gid),90); } } break;
+    case 'notif-go': { const k=el.dataset.k, gid=el.dataset.id; $('#notifPanel')?.classList.remove('open'); if(k==='prop'){ location.hash='#propostas'; setTimeout(()=>openModal('proposta',gid),90); } else if(k==='rgpd'){ state._rgpdTab='pedidos'; location.hash='#rgpd'; render(); } else if(k==='agend'){ state._comTab='agendados'; location.hash='#comunicacao'; render(); } else if(k==='tarefa'){ location.hash='#agenda'; render(); } else if(k==='produto'){ location.hash='#produtos'; setTimeout(()=>openModal('produto',gid),90); }
+      /* uma subscricao abre a ficha da pessoa - e o passo seguinte */
+      else if(k==='lead'){ location.hash='#clientes'; setTimeout(()=>openClient360(gid),90); } } break;
     case 'search-go': { const k=el.dataset.kind, gid=el.dataset.id; const box=$('#searchResults'); if(box){box.innerHTML='';box.style.display='none';} const gs=$('#globalSearch'); if(gs)gs.value=''; $('#app').classList.remove('nav-open'); if(k==='cliente'){ location.hash='#clientes'; setTimeout(()=>openClient360(gid),90); } else if(k==='proposta'){ location.hash='#propostas'; setTimeout(()=>openModal('proposta',gid),90); } else if(k==='produto'){ location.hash='#produtos'; setTimeout(()=>openModal('produto',gid),90); } } break;
     case 'toggle-nav': $('#app').classList.toggle('nav-collapsed'); localStorage.setItem('iefp-nav',$('#app').classList.contains('nav-collapsed')?'1':'0'); break;
     case 'open-nav': $('#app').classList.add('nav-open'); break;
