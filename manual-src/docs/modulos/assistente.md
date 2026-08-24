@@ -71,7 +71,10 @@ Se escrever *"como…"* e ele não reconhecer, manda-o na mesma ao **manual** em
 | **RGPD** | *"há pedidos RGPD por responder"* |
 | **Retenção** | *"há contratos em risco"* |
 
-Debaixo da conversa há **sugestões clicáveis** - as perguntas que ele garantidamente reconhece. Se estás a começar, é por aí.
+Debaixo da conversa há **sugestões clicáveis** - as perguntas que ele garantidamente reconhece, e as do **módulo onde estás** aparecem primeiro. Se estás a começar, é por aí.
+
+!!! tip "Ctrl+K"
+    Abre e fecha o Pulso de qualquer sítio. `Escape` também fecha.
 
 ### As tuas, não as de todos
 Escrever **"as minhas"**, **"eu"** ou **"meu"** restringe a resposta ao teu utilizador:
@@ -80,6 +83,30 @@ Escrever **"as minhas"**, **"eu"** ou **"meu"** restringe a resposta ao teu util
 - *"as minhas propostas em aberto"* → só aquelas de que és **[responsável](empresas-contactos.md#responsavel)**.
 
 O mesmo vale para *"quanto vendi eu este mês"*, que compara com a tua **[quota individual](definicoes.md#metas-de-vendas)** em vez da meta da equipa.
+
+## Perguntar por um cliente
+
+Escreva o nome de uma empresa e ele devolve o resumo de trinta segundos - o que se quer saber **antes de ligar**:
+
+> **Silva & Filhos, Lda. · E001.**
+> ⚠ Antes de ligar: **1 caso(s) de suporte por fechar**.
+> Fase Cliente · Ouro · lead score 87
+> 1 proposta(s) ganha(s) · 8236,08 €
+> 1 contacto(s): João Silva
+> Último movimento: Email enviado · 24/08/2026
+
+A linha de **aviso** só aparece quando há alguma coisa que estrague a chamada: casos de suporte por fechar, um pedido de cancelamento em curso, ou contactos sem consentimento ativo.
+
+Funciona com o nome completo (*"como está a Silva & Filhos?"*) e com a primeira palavra (*"a Silva já pagou?"*).
+
+!!! note "Duas salvaguardas que valem a discussão"
+    A abreviatura só é aceite se a frase for **curta** e se **nenhuma outra empresa** começar pela mesma palavra. Havendo duas *Silva*, ele prefere não responder a responder sobre a errada.
+
+    E *"como crio uma proposta para a Silva"* devolve o **como se faz**, não a ficha: quando há uma pergunta de instruções que bate exatamente, ela ganha ao nome.
+
+    É o mesmo princípio de sempre: entre calar-se e acertar por sorte, cala-se.
+
+---
 
 ## As três regras
 
@@ -95,9 +122,30 @@ O mesmo vale para *"quanto vendi eu este mês"*, que compara com a tua **[quota 
 
     Por isso é um **atalho de navegação**, não uma verdade paralela: o número que ele diz e o número do ecrã vêm do mesmo sítio - e o texto que ele dá é o mesmo que está no manual.
 
+    **A única coisa que escreve** é o registo das perguntas que não soube responder (ver acima) - e diz que o faz.
+
 === "Respeita as permissões"
 
     Só responde sobre módulos a que **tens acesso**. Se o teu grupo de utilizadores não vê o Helpdesk, perguntar pelos casos dá *"não sei responder"* - e a sugestão nem sequer aparece na lista.
+
+## O que ele não soube responder
+
+Sempre que o Pulso não reconhece uma pergunta, guarda-a. Vê-se em dois sítios:
+
+- **Definições → Perguntas ao Pulso sem resposta** - o seu registo, com botão para **limpar**.
+- **Na entrega**, para o formador: a ficha de avaliação mostra o que cada formando tentou perguntar sem sucesso.
+
+!!! tip "Para o formador: é o sinal mais barato que a app dá"
+    O que se **tenta** perguntar é o que não se percebeu. Se metade da turma escreve *"como faço um orçamento"*, o problema não está no Pulso - está em ninguém ter ligado **orçamento** a **proposta**. Isso é vocabulário a corrigir na aula seguinte, e não se descobre de outra maneira.
+
+    É também a lista do que falta ao Pulso, escrita por quem o usa em vez de adivinhada por quem o programou.
+
+!!! warning "Registar sem dizer seria o contrário do que esta app ensina"
+    Por isso o Pulso **declara o registo** na mensagem de abertura, antes da primeira pergunta - incluindo que fica visível na entrega.
+
+    Vale a pena parar aqui com a turma: é texto livre escrito por uma pessoa identificada, guardado e mostrado a terceiro. Não é um caso difícil de RGPD - é um caso **banal**, do género que passa despercebido todos os dias em produtos reais. A diferença entre estar certo e estar errado foi uma frase.
+
+---
 
 ## O que o distingue do Dashboard
 

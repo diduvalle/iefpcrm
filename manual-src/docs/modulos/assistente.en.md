@@ -71,7 +71,10 @@ If you write *"how…"* and it does not recognise the phrase, it still sends you
 | **GDPR** | *"any data subject requests pending"* |
 | **Retention** | *"any contracts at risk"* |
 
-Below the conversation there are **clickable suggestions** - the questions it is guaranteed to recognise. If you are starting out, start there.
+Below the conversation there are **clickable suggestions** - the questions it is guaranteed to recognise, with the ones for the **module you are in** first. If you are starting out, start there.
+
+!!! tip "Ctrl+K"
+    Opens and closes Pulso from anywhere. `Escape` closes it too.
 
 ### Yours, not everyone's
 Writing **"my"** or **"I"** narrows the answer to your user:
@@ -80,6 +83,30 @@ Writing **"my"** or **"I"** narrows the answer to your user:
 - *"my open proposals"* → only the ones you **[own](empresas-contactos.md#owner)**.
 
 The same applies to *"how much did I sell this month"*, which compares against your **[individual quota](definicoes.md#sales-targets)** instead of the team target.
+
+## Asking about a customer
+
+Type a company name and you get the thirty-second summary - what you want to know **before you call**:
+
+> **Silva & Filhos, Lda. · E001.**
+> ⚠ Before you call: **1 support case still open**.
+> Stage Customer · Gold · lead score 87
+> 1 won proposal · 8236,08 €
+> 1 contact: João Silva
+> Last activity: Email sent · 24/08/2026
+
+The **warning** line only shows when something would spoil the call: open support cases, a cancellation request in progress, or contacts with no active consent.
+
+It works with the full name (*"how is Silva & Filhos doing?"*) and with the first word (*"has Silva paid?"*).
+
+!!! note "Two safeguards worth discussing"
+    The short form is only accepted if the sentence is **short** and **no other company** starts with the same word. With two *Silvas*, it would rather not answer than answer about the wrong one.
+
+    And *"how do I create a proposal for Silva"* returns the **how-to**, not the record: when an instruction question matches exactly, it beats the name.
+
+    Same principle as always: between staying quiet and being right by luck, it stays quiet.
+
+---
 
 ## The three rules
 
@@ -95,9 +122,30 @@ The same applies to *"how much did I sell this month"*, which compares against y
 
     That makes it a **navigation shortcut**, not a parallel truth: the number it states and the number on screen come from the same place - and the text it gives is the text in the manual.
 
+    **The only thing it writes** is the log of questions it could not answer (see above) - and it says that it does.
+
 === "It respects permissions"
 
     It only answers about modules you **can access**. If your user group cannot see the Helpdesk, asking about cases returns *"I don't know how to answer that"* - and the suggestion does not even appear in the list.
+
+## What it could not answer
+
+Whenever Pulso does not recognise a question, it keeps it. You see it in two places:
+
+- **Settings → Unanswered questions to Pulso** - your own log, with a **clear** button.
+- **In the submission**, for the trainer: the assessment sheet shows what each learner tried to ask without success.
+
+!!! tip "For the trainer: the cheapest signal the app gives"
+    What people **try** to ask is what they did not understand. If half the class writes *"how do I make a quote"*, the problem is not Pulso - it is that nobody connected **quote** to **proposal**. That is vocabulary to fix in the next session, and there is no other way to find it.
+
+    It is also the list of what Pulso is missing, written by the people using it rather than guessed by whoever programmed it.
+
+!!! warning "Logging without saying so would be the opposite of what this app teaches"
+    So Pulso **declares the log** in its opening message, before the first question - including that it is visible in the submission.
+
+    It is worth pausing here with the class: it is free text written by an identified person, stored and shown to a third party. This is not a hard GDPR case - it is a **mundane** one, the kind that slips through every day in real products. The difference between getting it right and getting it wrong was one sentence.
+
+---
 
 ## What sets it apart from the Dashboard
 
