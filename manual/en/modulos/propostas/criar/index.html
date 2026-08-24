@@ -1130,6 +1130,8 @@
       
         
       
+        
+      
     
     
     
@@ -1281,6 +1283,8 @@
       
         
           
+        
+      
         
       
         
@@ -1603,6 +1607,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../ganho/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.4.7 Win reason
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../aprovacao/" class="md-nav__link">
         
   
@@ -1610,7 +1642,7 @@
   <span class="md-ellipsis">
     
   
-    5.4.7 Proposal approval
+    5.4.8 Proposal approval
   
 
     
@@ -1843,6 +1875,34 @@
     
   
     5.12 Settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../assistente/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.13 Assistant
   
 
     
@@ -2291,10 +2351,15 @@
 </tr>
 <tr>
 <td><strong>Status</strong></td>
-<td><strong>Created / Sent / Negotiation / Won / Lost.</strong> Moving to <em>Lost</em> records the <strong>loss reason</strong>.</td>
+<td><strong>Created / Sent / Negotiation / Won / Lost.</strong> It sits at the <strong>end</strong> of the form and <strong>starts empty</strong> - on Save, the app warns if it was left unset. Moving to <em>Lost</em> records the <strong><a href="../perda/">loss reason</a></strong>; to <em>Won</em>, the <strong><a href="../ganho/">win reason</a></strong>.</td>
 </tr>
 </tbody>
 </table>
+<div class="admonition note">
+<p class="admonition-title">Why Status sits at the end, and empty</p>
+<p>It used to be at the top with <em>Created</em> as the default. Two consequences: whoever knew the deal was already closed could not set <em>Won</em> right away (choosing a terminal status <strong>locks</strong> the form - title, company, contact and lines become read-only), and whoever did not know left the default in place without thinking about it.</p>
+<p>Status is now the <strong>last decision</strong>, taken once the proposal is written, and it is <strong>a decision</strong> - not a value that was already sitting there. The suggestion came from a learner.</p>
+</div>
 <p><strong>VAT</strong> uses the <strong>company's region</strong> and the <strong>discount</strong> comes from the <strong>company's loyalty tier</strong> (or the contact's, for an individual) - see <a href="../../empresas-contactos/">Companies &amp; Contacts</a>.</p>
 <h2 id="step-by-step">Step by step<a class="headerlink" href="#step-by-step" title="Permanent link">¶</a></h2>
 <ol>

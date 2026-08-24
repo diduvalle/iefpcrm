@@ -15,7 +15,7 @@
         <link rel="prev" href="../alertas/">
       
       
-        <link rel="next" href="../../rgpd/">
+        <link rel="next" href="../assistente/">
       
       
         
@@ -1130,6 +1130,8 @@
       
         
       
+        
+      
     
     
     
@@ -1279,6 +1281,8 @@
       
         
           
+        
+      
         
       
         
@@ -1523,6 +1527,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../propostas/ganho/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.4.7 Win reason
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../propostas/aprovacao/" class="md-nav__link">
         
   
@@ -1530,7 +1562,7 @@
   <span class="md-ellipsis">
     
   
-    5.4.7 Proposal approval
+    5.4.8 Proposal approval
   
 
     
@@ -1904,6 +1936,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#sales-targets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sales targets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#segments" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1945,6 +1988,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../assistente/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.13 Assistant
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2380,6 +2451,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#sales-targets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sales targets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#segments" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2465,6 +2547,17 @@
 <p><strong>Roles × modules</strong> matrix: defines what each group sees (Administrator/Trainer = everything; Trainee limited). Includes the option to <strong>hide financial values</strong> by group.</p>
 <h3 id="proposal-templates">Proposal Templates<a class="headerlink" href="#proposal-templates" title="Permanent link">¶</a></h3>
 <p>Shortcut to the template builder. → <a href="../modelos/">Proposal Templates</a>.</p>
+<h3 id="sales-targets">Sales targets<a class="headerlink" href="#sales-targets" title="Permanent link">¶</a></h3>
+<p>A goal for <strong>won revenue</strong> in the month. Two levels:</p>
+<ul>
+<li><strong>Team target</strong> (€/month) - the total to reach. <code>0</code> = no target.</li>
+<li><strong>Individual targets (quotas)</strong> - one per person, counted over the <strong>won</strong> proposals each one <strong><a href="../empresas-contactos/#owner">owns</a></strong>. In a class, the list is the class.</li>
+</ul>
+<p>The result shows on the <strong>Target for the month</strong> card on the <strong><a href="../dashboard-agenda/">Dashboard</a></strong>, with a bar, a percentage and the projection at the current pace.</p>
+<div class="admonition tip">
+<p class="admonition-title">Why a target changes everything</p>
+<p>With no target, <em>"€12,400"</em> is just a number - it does not say whether the month is going well or badly. With a target, the same number tells you <strong>how much is left</strong> and <strong>whether there is time</strong>. It is what CRMs call <em>goal tracking</em>, and it is the difference between reporting and managing.</p>
+</div>
 <h3 id="segments">Segments<a class="headerlink" href="#segments" title="Permanent link">¶</a></h3>
 <p>Editable list of the <strong>company size</strong> (Micro / SME / Large Company, out of the box). It feeds the <strong>Segment (size)</strong> field on the company record, the <strong>campaign target</strong>, the <strong>automation condition</strong> and the <strong>Segmentation</strong> chart.</p>
 <p>Type the name and <strong>+ Add</strong>; <strong>✕</strong> removes it. Removing does <strong>not</strong> change companies that already use it - it just stops being offered.</p>
@@ -2473,7 +2566,7 @@
 <p>These are <strong>two different things</strong> and, until August 2026, they shared the same field - which is why the campaign target list mixed <em>Micro/SME/Large</em> with <em>Bronze/Silver/Gold</em>. They are now separate: the <strong>segment</strong> is the company's <strong>size</strong> (it never changes on its own); the <strong>level</strong> is computed from <strong>won volume</strong>. Campaigns and automations have <strong>both filters separately</strong> and can combine them ("SME <strong>and</strong> Bronze"), which was impossible before. The app refuses to create a segment named after a loyalty level, so the two can't get mixed up again.</p>
 </div>
 <h3 id="other-references">Other references<a class="headerlink" href="#other-references" title="Permanent link">¶</a></h3>
-<p><strong>Loyalty levels</strong>, <strong>VAT rates</strong> (by region), <strong>Customer sources</strong> (editable list) and <strong><a href="../empresas-contactos/#custom-fields">Custom contact fields</a></strong> - fields you create yourself, available as tags in templates.</p>
+<p><strong>Loyalty levels</strong>, <strong>VAT rates</strong> (by region), <strong>Customer sources</strong> (editable list - if you leave <em>Other</em> in it, the app will always ask you to <a href="../empresas-contactos/#other-always-asks-which">say which</a>) and <strong><a href="../empresas-contactos/#custom-fields">Custom contact fields</a></strong> - fields you create yourself, available as tags in templates.</p>
 <h2 id="in-class-mode-online">In class mode (online)<a class="headerlink" href="#in-class-mode-online" title="Permanent link">¶</a></h2>
 <p>In a class, Settings gain two central cards:</p>
 <ul>
@@ -2562,13 +2655,13 @@
         
         
           
-          <a href="../../rgpd/" class="md-footer__link md-footer__link--next" aria-label="Next: GDPR &amp;amp; Pedagogy">
+          <a href="../assistente/" class="md-footer__link md-footer__link--next" aria-label="Next: 5.13 Assistant">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                GDPR &amp; Pedagogy
+                5.13 Assistant
               </div>
             </div>
             <div class="md-footer__button md-icon">

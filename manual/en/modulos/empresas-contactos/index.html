@@ -1130,6 +1130,8 @@
       
         
       
+        
+      
     
     
     
@@ -1418,6 +1420,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#owner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Owner
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#duplicates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Duplicates
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Duplicates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#merging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Merging
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#account-timeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Account timeline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#bulk-import-csv" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1487,6 +1539,8 @@
       
         
           
+        
+      
         
       
         
@@ -1731,6 +1785,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../propostas/ganho/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.4.7 Win reason
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../propostas/aprovacao/" class="md-nav__link">
         
   
@@ -1738,7 +1820,7 @@
   <span class="md-ellipsis">
     
   
-    5.4.7 Proposal approval
+    5.4.8 Proposal approval
   
 
     
@@ -1971,6 +2053,34 @@
     
   
     5.12 Settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../assistente/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.13 Assistant
   
 
     
@@ -2464,6 +2574,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#owner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Owner
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#duplicates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Duplicates
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Duplicates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#merging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Merging
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#account-timeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Account timeline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#bulk-import-csv" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2524,12 +2684,13 @@
 <ul>
 <li><strong>Name</strong> (legal name) <em>required</em>.</li>
 <li><strong>NIPC</strong> - validated (check digit). As you type, it shows in real time whether it is valid and the <strong>entity type</strong> (company, individual, sole trader…). The <strong>Look up</strong> button auto-fills the company's data (name, address, CAE, contacts) from the NIPC. <em>Blocks saving if invalid.</em></li>
-<li><strong>CAE</strong> and <strong>Sector</strong>.</li>
+<li><strong>CAE</strong> and <strong>Sector</strong> - picking <strong>Other</strong> opens the box to say <strong>which</strong> (see <a href="#other-always-asks-which">the "Other" rule</a>).</li>
 <li><strong>Size (segment)</strong> - Micro / SME / Large Enterprise.</li>
 <li><strong>Stage (lifecycle)</strong> - <strong>Lead</strong> → <strong>MQL</strong> (<em>Marketing Qualified Lead</em>, one of its people has shown interest) → <strong>SQL</strong> (<em>Sales Qualified Lead</em>, a real opportunity with a proposal) → <strong>Customer</strong> / <strong>Lost</strong>. The app <strong>infers</strong> the stage and <strong>advances it</strong> on its own: email <em>engagement</em> → MQL, proposal → SQL, won → Customer.</li>
 <li><strong>Source (acquisition)</strong> - the channel the company came through (Website, Referral, Trade fair, Email Campaign…) - the basis of the <strong>acquisition funnel</strong> and <strong>ROI by source</strong> in Analytics. Picking <strong>Other</strong> opens a box to <strong>say which</strong> (see below).</li>
 <li><strong>Tax address</strong>, <strong>Postal code</strong>, <strong>City</strong>.</li>
 <li><strong>Region</strong> - Mainland / Madeira / Azores (affects the VAT on proposals).</li>
+<li><strong>Owner</strong> - who runs this account. See <a href="#owner">Owner</a>.</li>
 <li><strong>Website</strong>, <strong>Phone</strong>, <strong>Email</strong>, <strong>Notes</strong>.</li>
 </ul>
 <h3 id="360-profile">360° profile<a class="headerlink" href="#360-profile" title="Permanent link">¶</a></h3>
@@ -2552,9 +2713,12 @@
 <li><strong>First name</strong> and <strong>Last name</strong> <em>(name required)</em>.</li>
 <li><strong>Company</strong> - pick from the Companies list (can be left <strong>without a company</strong> - it stays in the directory only; to sell to them, create the company from the profile); <strong>Job title</strong> and <strong>Role</strong> (who to turn to: owner, finance…).</li>
 <li><strong>Email</strong>, <strong>Phone</strong> (primary - used for sending), <strong>NIF (personal)</strong> - validated.</li>
-<li><strong>Additional contacts</strong> - a list with as many emails/phones as you need, each with a <strong>type</strong> (Email/Phone) and a <strong>label</strong> (Personal / Work / Other). Useful when a person has personal and professional contacts.</li>
-<li><strong>City</strong> and <strong>Region</strong>.</li>
-<li><strong>Notes</strong>.</li>
+<li>
+<p><strong>Additional contacts</strong> - a list with as many emails/phones as you need, each with a <strong>type</strong> (Email/Phone) and a <strong>label</strong> (Work / Personal). Useful when a person has personal and professional contacts.</p>
+<p><em>Here the </em><em>Other</em><em> label was removed rather than given a box: the row already has three fields and there is no space for a fourth - and an "Other" label does not tell one phone from another. Anyone who had it now has </em><em>Work</em><em>.</em>
+- <strong>City</strong> and <strong>Region</strong>.
+- <strong>Notes</strong>.</p>
+</li>
 </ul>
 <h3 id="360-profile_1">360° profile<a class="headerlink" href="#360-profile_1" title="Permanent link">¶</a></h3>
 <p>Shows the <strong>Account · Company</strong> card (the <strong>company's</strong> stage, loyalty and value, with a shortcut to its profile), the <strong>person's details</strong> (contacts, job title, role), the <strong>additional contacts</strong>, the <strong>company history</strong> (moved from A → B) and the <strong>proposals negotiated with this person</strong>.</p>
@@ -2563,8 +2727,45 @@
 <p>Click the <strong>email</strong> on the profile to open the CRM composer with the contact already set as recipient; click the <strong>phone</strong> to call (<code>tel:</code>). On a company, the <strong>Look up</strong> button (on the NIPC) fills the profile from the official records.</p>
 </div>
 <h3 id="other-always-asks-which">"Other" always asks which<a class="headerlink" href="#other-always-asks-which" title="Permanent link">¶</a></h3>
-<p>In <strong>Role at the company</strong> (contact) and <strong>Source (acquisition)</strong> (company), picking <strong>Other</strong> opens a <strong>box to specify</strong>. What you type shows next to the value - <em>"Other: External trainer"</em> - on the record, in the drawer and in the tables.</p>
+<p>The rule holds across the <strong>whole app</strong>: wherever there is an <strong>Other</strong>, either there is a box to write in, or the option does not exist.</p>
+<p>Fields with a <strong>Which?</strong> box:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Where</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Role at the company</strong></td>
+<td>contact record</td>
+</tr>
+<tr>
+<td><strong>Source (acquisition)</strong></td>
+<td>company record</td>
+</tr>
+<tr>
+<td><strong>Sector</strong></td>
+<td>company record</td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td>appointment, in the <a href="../dashboard-agenda/">Calendar</a></td>
+</tr>
+<tr>
+<td><strong>Loss reason</strong> and <strong><a href="../propostas/ganho/">win reason</a></strong></td>
+<td>proposal</td>
+</tr>
+</tbody>
+</table>
+<p>What you type shows next to the value - <em>"Other: External trainer"</em> - on the record, in the drawer and in the tables. Where only one word fits (the calendar badge, a chart, the timeline) you see <strong>only what you wrote</strong>, without the prefix.</p>
 <p>Picking a different value <strong>closes the box and clears</strong> the text, so no information stays hidden behind an option that is no longer selected.</p>
+<div class="admonition warning">
+<p class="admonition-title">Saving with Other blank is refused</p>
+<p>The app <strong>will not save</strong> with <em>Other</em> picked and the box empty - it warns and moves the cursor there. A record that says only <em>Other</em> cannot be read, filtered or counted: it fills the form without saying anything.</p>
+<p>The check reads the <strong>field itself</strong>, not a fixed list - so it holds for these and for any field that later uses the same mechanism.</p>
+</div>
 <div class="admonition tip">
 <p class="admonition-title">Why not just type into the field</p>
 <p>The value stays <strong>Other</strong>, and that is what keeps grouping working: in the acquisition funnel and in ROI by source, those cases still add up under <em>Other</em> instead of scattering into dozens of one-off labels. The free text is the <strong>explanation</strong>, not the category.</p>
@@ -2585,6 +2786,47 @@
 <div class="admonition warning">
 <p class="admonition-title">A custom field is personal data</p>
 <p>Anything you store in these fields goes into the data subject's <strong>Access report (Art. 15)</strong> and <strong>JSON export</strong>, exactly like the built-in fields. Worth discussing with the class: <em>creating a field is easy, but every new field is one more piece of personal data you must justify, retain and disclose on request</em> (minimisation - Art. 5(1)(c)).</p>
+</div>
+<hr>
+<h2 id="owner">Owner<a class="headerlink" href="#owner" title="Permanent link">¶</a></h2>
+<p>Every <strong>company</strong> and every <strong>proposal</strong> can have an <strong>owner</strong> - the person running that account or that deal. It shows as a <strong>badge</strong> on the table row and, if it is you, it says <em>"(me)"</em>.</p>
+<p>At the top of the lists there is a filter:</p>
+<ul>
+<li><strong>All</strong> · <strong>Mine</strong> · <strong>Unassigned</strong> · or one specific person.</li>
+</ul>
+<p>In a class, the list of people is the <strong>class</strong> (it comes from the online roster), not the demo users.</p>
+<div class="admonition tip">
+<p class="admonition-title">What it is really for</p>
+<p>With no owner, an account belongs to everyone and therefore to nobody - that is how follow-ups get lost. It is also what makes <strong><a href="../definicoes/#sales-targets">individual quotas</a></strong> and the <em>"mine"</em> questions in the <strong><a href="../assistente/">Assistant</a></strong> possible.</p>
+</div>
+<hr>
+<h2 id="duplicates">Duplicates<a class="headerlink" href="#duplicates" title="Permanent link">¶</a></h2>
+<p>The app already <strong>prevents</strong> duplicates on creation (unique NIPC, NIF and email). What was missing was cleaning up the ones already there - and they get in through three doors: <strong>CSV import</strong>, the <strong>data generator</strong>, and records with a <strong>blank</strong> email/NIF, where the check never fires.</p>
+<p>In <strong>Companies</strong> or <strong>Contacts</strong>, the <strong>Duplicates</strong> button looks for:</p>
+<ul>
+<li>identical <strong>NIPC / NIF</strong> (digits only - it ignores dots and spaces);</li>
+<li>identical <strong>email</strong>;</li>
+<li>practically identical <strong>name</strong> (ignoring accents, case and legal forms: <em>Lda.</em>, <em>S.A.</em>, <em>Unipessoal</em>).</li>
+</ul>
+<h3 id="merging">Merging<a class="headerlink" href="#merging" title="Permanent link">¶</a></h3>
+<p>You pick which record <strong>stays</strong> and the app handles the rest:</p>
+<ol>
+<li>Fills the <strong>empty fields</strong> of the survivor with what the others had.</li>
+<li><strong>Repoints everything</strong> that pointed at the others - proposals, contacts, cases, tasks, consents, data subject requests, sent emails, retention records.</li>
+<li>Deletes the duplicates.</li>
+</ol>
+<div class="admonition warning">
+<p class="admonition-title">Merging has no undo</p>
+<p>The app suggests keeping the <strong>most complete</strong> record (and, on a tie, the oldest one), but it confirms first: the operation touches every table at once.</p>
+<p>Note that merging does <strong>not lose</strong> the others' history - it moves it. What is lost are fields filled in twice with <strong>different</strong> values, where the survivor wins.</p>
+</div>
+<hr>
+<h2 id="account-timeline">Account timeline<a class="headerlink" href="#account-timeline" title="Permanent link">¶</a></h2>
+<p>At the bottom of the company <strong>360° record</strong> there is the <strong>timeline</strong>: everything that happened with that account in a single column, newest first.</p>
+<p>It brings together what used to be filed by type - account created, stage changes, contacts added, proposals created/won/lost (with the reason), emails sent (and whether they were opened), cases and satisfaction, consents given and withdrawn, data subject requests, cancellation requests and tasks.</p>
+<div class="admonition tip">
+<p class="admonition-title">What it is for</p>
+<p>To prepare a call, what matters is not the <strong>filing by type</strong> but the <strong>order of events</strong>: we won in April, they opened a case in June, they asked to cancel in July. Read in sections, that is invisible; read in order, it tells itself.</p>
 </div>
 <hr>
 <h2 id="bulk-import-csv">Bulk import (CSV)<a class="headerlink" href="#bulk-import-csv" title="Permanent link">¶</a></h2>

@@ -1130,6 +1130,8 @@
       
         
       
+        
+      
     
     
     
@@ -1418,6 +1420,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#responsavel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Responsável
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#duplicados" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Duplicados
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Duplicados">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fundir" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fundir
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#linha-do-tempo-da-conta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Linha do tempo da conta
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#importar-em-massa-csv" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1487,6 +1539,8 @@
       
         
           
+        
+      
         
       
         
@@ -1731,6 +1785,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../propostas/ganho/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.4.7 Motivo do ganho
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../propostas/aprovacao/" class="md-nav__link">
         
   
@@ -1738,7 +1820,7 @@
   <span class="md-ellipsis">
     
   
-    5.4.7 Aprovação de propostas
+    5.4.8 Aprovação de propostas
   
 
     
@@ -1971,6 +2053,34 @@
     
   
     5.12 Definições
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../assistente/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.13 Assistente
   
 
     
@@ -2464,6 +2574,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#responsavel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Responsável
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#duplicados" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Duplicados
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Duplicados">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fundir" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fundir
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#linha-do-tempo-da-conta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Linha do tempo da conta
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#importar-em-massa-csv" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2524,12 +2684,13 @@
 <ul>
 <li><strong>Nome</strong> (razão social) <em>obrigatório</em>.</li>
 <li><strong>NIPC</strong> - validado (dígito de controlo). Ao escrever, mostra em tempo real se é válido e o <strong>tipo de entidade</strong> (empresa, pessoa singular, ENI…). O botão <strong>Procurar</strong> preenche automaticamente os dados da empresa (nome, morada, CAE, contactos) pelo NIPC. <em>Bloqueia gravar se inválido.</em></li>
-<li><strong>CAE</strong> e <strong>Setor</strong>.</li>
+<li><strong>CAE</strong> e <strong>Setor</strong> - ao escolher <strong>Outro</strong>, abre a caixa para dizer <strong>qual</strong> (ver <a href="#outro-pede-sempre-o-que">a regra do "Outro"</a>).</li>
 <li><strong>Dimensão (segmento)</strong> - Micro / PME / Grande Empresa.</li>
 <li><strong>Fase (ciclo de vida)</strong> - <strong>Lead</strong> → <strong>MQL</strong> (<em>Marketing Qualified Lead</em>, uma das suas pessoas demonstrou interesse) → <strong>SQL</strong> (<em>Sales Qualified Lead</em>, oportunidade real com proposta) → <strong>Cliente</strong> / <strong>Perdido</strong>. A app <strong>infere</strong> a fase e <strong>avança-a</strong> sozinha: <em>engagement</em> de email → MQL, proposta → SQL, ganha → Cliente.</li>
 <li><strong>Origem (aquisição)</strong> - canal por onde a empresa chegou (Website, Recomendação, Feira, Campanha Email…) - base do <strong>funil de aquisição</strong> e do <strong>ROI por origem</strong> no Analytics. Ao escolher <strong>Outro</strong>, abre uma caixa para <strong>especificar qual</strong> (ver abaixo).</li>
 <li><strong>Morada fiscal</strong>, <strong>Código postal</strong>, <strong>Cidade</strong>.</li>
 <li><strong>Região</strong> - Continente / Madeira / Açores (influencia o IVA das propostas).</li>
+<li><strong>Responsável</strong> - quem conduz esta conta. Ver <a href="#responsavel">Responsável</a>.</li>
 <li><strong>Website</strong>, <strong>Telefone</strong>, <strong>Email</strong>, <strong>Notas</strong>.</li>
 </ul>
 <h3 id="ficha-360">Ficha 360°<a class="headerlink" href="#ficha-360" title="Permanent link">¶</a></h3>
@@ -2552,9 +2713,12 @@
 <li><strong>Nome</strong> e <strong>Apelido</strong> <em>(nome obrigatório)</em>.</li>
 <li><strong>Empresa</strong> - escolhe da lista de Empresas (pode ficar <strong>sem empresa</strong> - fica só no diretório; para lhe vender, cria a empresa a partir da ficha); <strong>Cargo</strong> e <strong>Função</strong> (a quem recorrer: dono, financeiro…).</li>
 <li><strong>Email</strong>, <strong>Telefone</strong> (principais - usados nos envios), <strong>NIF (pessoal)</strong> - validado.</li>
-<li><strong>Contactos adicionais</strong> - lista com quantos emails/telefones quiseres, cada um com <strong>tipo</strong> (Email/Telefone) e <strong>rótulo</strong> (Pessoal / Profissional / Outro). Útil quando a pessoa tem contactos pessoais e profissionais.</li>
-<li><strong>Cidade</strong> e <strong>Região</strong>.</li>
-<li><strong>Notas</strong>.</li>
+<li>
+<p><strong>Contactos adicionais</strong> - lista com quantos emails/telefones quiseres, cada um com <strong>tipo</strong> (Email/Telefone) e <strong>rótulo</strong> (Profissional / Pessoal). Útil quando a pessoa tem contactos pessoais e profissionais.</p>
+<p><em>Aqui o rótulo </em><em>Outro</em><em> foi retirado, em vez de ganhar caixa: a linha já tem três campos e não cabe mais um - e um rótulo "Outro" não distingue um telefone de outro telefone. Quem já o tinha passou a </em><em>Profissional</em><em>.</em>
+- <strong>Cidade</strong> e <strong>Região</strong>.
+- <strong>Notas</strong>.</p>
+</li>
 </ul>
 <h3 id="ficha-360_1">Ficha 360°<a class="headerlink" href="#ficha-360_1" title="Permanent link">¶</a></h3>
 <p>Mostra o cartão <strong>Conta · Empresa</strong> (a fase, o loyalty e o valor <strong>da empresa</strong>, com atalho para a ficha dela), a <strong>ficha da pessoa</strong> (contactos, cargo, função), os <strong>contactos adicionais</strong>, o <strong>histórico de empresa</strong> (moveu-se de A → B) e as <strong>propostas negociadas com esta pessoa</strong>.</p>
@@ -2563,8 +2727,45 @@
 <p>Clica no <strong>email</strong> da ficha para abrir o compositor do CRM já com o contacto como destinatário; clica no <strong>telefone</strong> para ligar (<code>tel:</code>). Na empresa, o botão <strong>Procurar</strong> (no NIPC) preenche a ficha a partir dos registos oficiais.</p>
 </div>
 <h3 id="outro-pede-sempre-o-que">"Outro" pede sempre o quê<a class="headerlink" href="#outro-pede-sempre-o-que" title="Permanent link">¶</a></h3>
-<p>Nos campos <strong>Função na empresa</strong> (contacto) e <strong>Origem (aquisição)</strong> (empresa), escolher <strong>Outro</strong> abre uma <strong>caixa para especificar</strong>. O que escreveres aparece a seguir ao valor - <em>"Outro: Formador externo"</em> - na ficha, na gaveta e nas tabelas.</p>
+<p>A regra vale para a <strong>app inteira</strong>: onde houver <strong>Outro</strong>, ou há caixa para escrever, ou a opção não existe.</p>
+<p>Campos com caixa <strong>Qual?</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Onde</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Função na empresa</strong></td>
+<td>ficha do contacto</td>
+</tr>
+<tr>
+<td><strong>Origem (aquisição)</strong></td>
+<td>ficha da empresa</td>
+</tr>
+<tr>
+<td><strong>Setor</strong></td>
+<td>ficha da empresa</td>
+</tr>
+<tr>
+<td><strong>Tipo</strong></td>
+<td>agendamento, na <a href="../dashboard-agenda/">Agenda</a></td>
+</tr>
+<tr>
+<td><strong>Motivo da perda</strong> e <strong><a href="../propostas/ganho/">do ganho</a></strong></td>
+<td>proposta</td>
+</tr>
+</tbody>
+</table>
+<p>O que escreveres aparece a seguir ao valor - <em>"Outro: Formador externo"</em> - na ficha, na gaveta e nas tabelas. Onde só cabe uma palavra (o selo da agenda, um gráfico, a linha do tempo) aparece <strong>só o que escreveste</strong>, sem o prefixo.</p>
 <p>Escolher outro valor <strong>fecha a caixa e apaga</strong> o texto, para não ficar informação escondida por trás de uma opção que já não está selecionada.</p>
+<div class="admonition warning">
+<p class="admonition-title">Guardar com Outro em branco é recusado</p>
+<p>A app <strong>não deixa gravar</strong> com <em>Outro</em> escolhido e a caixa vazia - avisa e leva o cursor até lá. Um registo que diz apenas <em>Outro</em> não se lê, não se filtra e não se conta: ocupa a ficha sem dizer nada.</p>
+<p>A verificação lê o <strong>próprio campo</strong>, não uma lista fixa - por isso vale para estes e para qualquer campo que venha a usar o mesmo mecanismo.</p>
+</div>
 <div class="admonition tip">
 <p class="admonition-title">Porque não escrever direto no campo</p>
 <p>O valor continua a ser <strong>Outro</strong>, e é isso que faz os agrupamentos funcionarem: no funil de aquisição e no ROI por origem, esses casos continuam a somar todos em <em>Outro</em>, em vez de se dispersarem em dezenas de rótulos únicos. O texto livre é a <strong>explicação</strong>, não a categoria.</p>
@@ -2585,6 +2786,47 @@
 <div class="admonition warning">
 <p class="admonition-title">Um campo personalizado é dado pessoal</p>
 <p>Tudo o que guardares nestes campos entra no <strong>Relatório de acesso (art. 15.º)</strong> e na <strong>exportação JSON</strong> do titular, tal como os campos de origem. Vale a pena discutir com a turma: <em>criar um campo é fácil, mas cada campo novo é mais um dado pessoal que passas a ter de justificar, conservar e mostrar a quem o pedir</em> (minimização - art. 5.º/1 c)).</p>
+</div>
+<hr>
+<h2 id="responsavel">Responsável<a class="headerlink" href="#responsavel" title="Permanent link">¶</a></h2>
+<p>Cada <strong>empresa</strong> e cada <strong>proposta</strong> podem ter um <strong>responsável</strong> - a pessoa que conduz aquela conta ou aquele negócio. Aparece como <strong>selo</strong> na linha da tabela e, se fores tu, diz <em>"(eu)"</em>.</p>
+<p>No topo das listas há um filtro:</p>
+<ul>
+<li><strong>Todos</strong> · <strong>As minhas</strong> · <strong>Por atribuir</strong> · ou uma pessoa em concreto.</li>
+</ul>
+<p>Numa turma, a lista de pessoas é a <strong>turma</strong> (vem do registo online), não os utilizadores de demonstração.</p>
+<div class="admonition tip">
+<p class="admonition-title">Para que serve mesmo</p>
+<p>Sem dono, uma conta é de toda a gente e portanto de ninguém - é assim que os <em>follow-ups</em> se perdem. É também o que torna possíveis as <strong><a href="../definicoes/#metas-de-vendas">quotas individuais</a></strong> e as perguntas <em>"as minhas"</em> no <strong><a href="../assistente/">Assistente</a></strong>.</p>
+</div>
+<hr>
+<h2 id="duplicados">Duplicados<a class="headerlink" href="#duplicados" title="Permanent link">¶</a></h2>
+<p>A app já <strong>impede</strong> duplicados na criação (NIPC, NIF e email únicos). O que faltava era limpar os que já lá estão - e entram por três portas: a <strong>importação CSV</strong>, o <strong>gerador de dados</strong> e os registos com email/NIF <strong>em branco</strong>, onde a verificação não dispara.</p>
+<p>Em <strong>Empresas</strong> ou <strong>Contactos</strong>, o botão <strong>Duplicados</strong> procura por:</p>
+<ul>
+<li><strong>NIPC / NIF</strong> iguais (só os dígitos - ignora pontos e espaços);</li>
+<li><strong>email</strong> igual;</li>
+<li><strong>nome</strong> praticamente igual (ignora acentos, maiúsculas e as formas jurídicas: <em>Lda.</em>, <em>S.A.</em>, <em>Unipessoal</em>).</li>
+</ul>
+<h3 id="fundir">Fundir<a class="headerlink" href="#fundir" title="Permanent link">¶</a></h3>
+<p>Escolhes qual dos registos <strong>fica</strong> e a app trata do resto:</p>
+<ol>
+<li>Preenche os <strong>campos vazios</strong> do que fica com o que os outros tinham.</li>
+<li><strong>Reaponta tudo</strong> o que apontava para os outros - propostas, contactos, casos, tarefas, consentimentos, pedidos de titular, envios, retenções.</li>
+<li>Apaga os repetidos.</li>
+</ol>
+<div class="admonition warning">
+<p class="admonition-title">Fundir não tem desfazer</p>
+<p>A app sugere ficar com o registo <strong>mais completo</strong> (e, em empate, o mais antigo), mas confirma antes: a operação toca em todas as tabelas de uma vez.</p>
+<p>Repara que fundir <strong>não perde</strong> o histórico dos outros - move-o. O que se perde são os campos preenchidos em duplicado com valores <strong>diferentes</strong>, onde o que fica ganha.</p>
+</div>
+<hr>
+<h2 id="linha-do-tempo-da-conta">Linha do tempo da conta<a class="headerlink" href="#linha-do-tempo-da-conta" title="Permanent link">¶</a></h2>
+<p>No fim da <strong>ficha 360°</strong> da empresa há a <strong>linha do tempo</strong>: tudo o que se passou com aquela conta numa só coluna, do mais recente para o mais antigo.</p>
+<p>Junta o que antes estava arrumado por tipo - conta criada, mudanças de fase, contactos adicionados, propostas criadas/ganhas/perdidas (com o motivo), emails enviados (e se foram abertos), casos e satisfação, consentimentos dados e retirados, pedidos de titular, pedidos de cancelamento e tarefas.</p>
+<div class="admonition tip">
+<p class="admonition-title">Para que serve</p>
+<p>Para preparar uma chamada não interessa a <strong>arrumação por tipo</strong>, interessa a <strong>ordem dos acontecimentos</strong>: ganhámos em abril, abriram um caso em junho, pediram para cancelar em julho. Lido por secções, isto não se vê; lido por ordem, conta-se sozinho.</p>
 </div>
 <hr>
 <h2 id="importar-em-massa-csv">Importar em massa (CSV)<a class="headerlink" href="#importar-em-massa-csv" title="Permanent link">¶</a></h2>

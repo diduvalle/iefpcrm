@@ -15,7 +15,7 @@
         <link rel="prev" href="../alertas/">
       
       
-        <link rel="next" href="../../rgpd/">
+        <link rel="next" href="../assistente/">
       
       
         
@@ -1130,6 +1130,8 @@
       
         
       
+        
+      
     
     
     
@@ -1279,6 +1281,8 @@
       
         
           
+        
+      
         
       
         
@@ -1523,6 +1527,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../propostas/ganho/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.4.7 Motivo do ganho
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../propostas/aprovacao/" class="md-nav__link">
         
   
@@ -1530,7 +1562,7 @@
   <span class="md-ellipsis">
     
   
-    5.4.7 Aprovação de propostas
+    5.4.8 Aprovação de propostas
   
 
     
@@ -1904,6 +1936,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#metas-de-vendas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metas de vendas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#segmentos" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1945,6 +1988,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../assistente/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.13 Assistente
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2380,6 +2451,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#metas-de-vendas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metas de vendas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#segmentos" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2465,6 +2547,17 @@
 <p>Matriz <strong>papéis × módulos</strong>: define o que cada grupo vê (Administrador/Formador = tudo; Formando limitado). Inclui a opção <strong>ocultar valores financeiros</strong> por grupo.</p>
 <h3 id="modelos-de-proposta">Modelos de Proposta<a class="headerlink" href="#modelos-de-proposta" title="Permanent link">¶</a></h3>
 <p>Atalho para o construtor de modelos. → <a href="../modelos/">Modelos de Proposta</a>.</p>
+<h3 id="metas-de-vendas">Metas de vendas<a class="headerlink" href="#metas-de-vendas" title="Permanent link">¶</a></h3>
+<p>Objetivo de <strong>receita ganha</strong> no mês. Dois níveis:</p>
+<ul>
+<li><strong>Meta da equipa</strong> (€/mês) - o total a atingir. <code>0</code> = sem meta.</li>
+<li><strong>Metas individuais (quotas)</strong> - uma por pessoa, contadas sobre as propostas <strong>ganhas</strong> de que cada um é <strong><a href="../empresas-contactos/#responsavel">responsável</a></strong>. Numa turma, a lista é a turma.</li>
+</ul>
+<p>O resultado aparece no cartão <strong>Meta do mês</strong> do <strong><a href="../dashboard-agenda/">Dashboard</a></strong>, com barra, percentagem e a projeção ao ritmo atual.</p>
+<div class="admonition tip">
+<p class="admonition-title">Porque é que uma meta muda tudo</p>
+<p>Sem meta, <em>"12 400 €"</em> é só um número - não diz se o mês está a correr bem ou mal. Com meta, o mesmo número passa a dizer <strong>quanto falta</strong> e <strong>se dá tempo</strong>. É o que os CRM chamam <em>goal tracking</em>, e é a diferença entre relatar e gerir.</p>
+</div>
 <h3 id="segmentos">Segmentos<a class="headerlink" href="#segmentos" title="Permanent link">¶</a></h3>
 <p>Lista editável da <strong>dimensão da empresa</strong> (Micro / PME / Grande Empresa, de origem). Alimenta o campo <strong>Segmento (dimensão)</strong> da ficha da empresa, o <strong>alvo das campanhas</strong>, a <strong>condição das automações</strong> e o gráfico de <strong>Segmentação</strong>.</p>
 <p>Escreve o nome e <strong>+ Adicionar</strong>; o <strong>✕</strong> remove. Remover <strong>não altera</strong> as empresas que já o têm - deixa apenas de estar disponível para escolher.</p>
@@ -2473,7 +2566,7 @@
 <p>São <strong>dois conceitos diferentes</strong> e, até agosto de 2026, partilhavam o mesmo campo - por isso a lista de alvo das campanhas misturava <em>Micro/PME/Grande Empresa</em> com <em>Bronze/Prata/Ouro</em>. Agora estão separados: o <strong>segmento</strong> é a <strong>dimensão</strong> da empresa (não muda sozinho); o <strong>nível</strong> é calculado do <strong>volume ganho</strong>. Campanhas e automações têm os <strong>dois filtros em separado</strong> e podem cruzá-los ("PME <strong>e</strong> Bronze"), o que antes era impossível. A app recusa criar um segmento com o nome de um nível, para não voltar a baralhar.</p>
 </div>
 <h3 id="outras-referencias">Outras referências<a class="headerlink" href="#outras-referencias" title="Permanent link">¶</a></h3>
-<p><strong>Níveis de loyalty</strong>, <strong>Taxas de IVA</strong> (por região), <strong>Origens de cliente</strong> (lista editável) e <strong><a href="../empresas-contactos/#campos-personalizados">Campos personalizados do contacto</a></strong> - campos que crias tu e que ficam disponíveis como tag nos modelos.</p>
+<p><strong>Níveis de loyalty</strong>, <strong>Taxas de IVA</strong> (por região), <strong>Origens de cliente</strong> (lista editável - se lá deixares <em>Outro</em>, a app pede sempre para <a href="../empresas-contactos/#outro-pede-sempre-o-que">dizer qual</a>) e <strong><a href="../empresas-contactos/#campos-personalizados">Campos personalizados do contacto</a></strong> - campos que crias tu e que ficam disponíveis como tag nos modelos.</p>
 <h2 id="em-modo-turma-online">Em modo turma (online)<a class="headerlink" href="#em-modo-turma-online" title="Permanent link">¶</a></h2>
 <p>Numa turma, as Definições ganham dois cartões centrais:</p>
 <ul>
@@ -2562,13 +2655,13 @@
         
         
           
-          <a href="../../rgpd/" class="md-footer__link md-footer__link--next" aria-label="Próximo: RGPD &amp;amp; Pedagogia">
+          <a href="../assistente/" class="md-footer__link md-footer__link--next" aria-label="Próximo: 5.13 Assistente">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Próximo
               </span>
               <div class="md-ellipsis">
-                RGPD &amp; Pedagogia
+                5.13 Assistente
               </div>
             </div>
             <div class="md-footer__button md-icon">
