@@ -2731,6 +2731,11 @@ function metaCardHTML(){
 
    Ele NÃO altera nada: só responde e leva à vista certa. */
 let cbotMsgs=[];  /* vive só em memória: fechar o separador esquece */
+/* As sugestoes ocupavam cinco linhas e metade do painel. Ficam ABERTAS no
+   inicio - que e quando ninguem sabe o que pode perguntar - e arrumam-se
+   sozinhas assim que a pessoa faz a primeira pergunta, porque a partir dai
+   o que interessa e ler a conversa. Voltam com um clique. */
+let cbotSugAberto=true;
 const cbotNorm = t => String(t||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
 const cbotEu   = () => { const u=currentUser(); return u?u.id:null; };
 /* "as minhas propostas", "quanto vendi eu" - restringe ao utilizador atual */
@@ -3552,10 +3557,15 @@ function cbotPinta(){
   log.innerHTML=cbotMsgs.map(cbotMsgHTML).join("");
   log.scrollTop=log.scrollHeight;
   const ch=$("#cbotChips");
-  if(ch) ch.innerHTML=cbotSugestoes().map(x=>`<button class="cbot-chip" data-act="cbot-chip">${esc(x.t)}</button>`).join("");
+  if(ch){ const l=cbotSugestoes();
+    ch.classList.toggle("aberto",cbotSugAberto);
+    ch.innerHTML=`<button class="cbot-sug-h" data-act="cbot-sug" aria-expanded="${cbotSugAberto}">
+        ${ic("bulb",13)}<span>Sugestões</span><em>${l.length}</em>${ic(cbotSugAberto?"chevD":"chevR",14)}</button>`+
+      (cbotSugAberto?`<div class="cbot-sug-l">${l.map(x=>`<button class="cbot-chip" data-act="cbot-chip">${esc(x.t)}</button>`).join("")}</div>`:""); }
 }
 function cbotDiz(txt){
   const t=String(txt||"").trim(); if(!t) return;
+  cbotSugAberto=false;   /* já sabe perguntar: o espaço passa a ser da conversa */
   cbotMsgs.push({de:"eu",t});
   cbotMsgs.push(Object.assign({de:"ele"},cbotResponde(t)));
   cbotPinta();
@@ -3569,6 +3579,7 @@ function cbotToggle(){
       /* a primeira coisa que se diz é o que se é (art. 50.º do AI Act) */
       cbotMsgs.push({de:"aviso",t:"<strong>Não sou inteligência artificial.</strong> O Pulso responde com regras fixas aos dados desta sandbox. Não altera nada.<br><br>As perguntas a que <strong>não</strong> souber responder ficam registadas, para o formador perceber o que falta - e ficam visíveis na sua entrega."});
       cbotMsgs.push({de:"ele",t:"Pergunte-me um número sobre o seu CRM. Se não perceber, digo-lhe."});
+      cbotSugAberto=true;
     }
     cbotPinta(); setTimeout(()=>{ const i=$("#cbotIn"); if(i) i.focus(); },120);
   }
@@ -7313,6 +7324,7 @@ document.addEventListener('click', async e=>{
     case 'cbot-toggle': cbotToggle(); break;
     case 'cbot-send': { const i=$('#cbotIn'); if(i){ cbotDiz(i.value); i.value=''; i.focus(); } } break;
     case 'cbot-chip': cbotDiz(el.textContent.trim()); break;
+    case 'cbot-sug': { cbotSugAberto=!cbotSugAberto; cbotPinta(); } break;
     case 'cbot-ir': location.hash='#'+el.dataset.h; break;
     case 'ir-metas': location.hash='#definicoes'; setTimeout(()=>{ const el=$('#metaMensal'); if(el){ el.closest('.card').scrollIntoView({block:'center',behavior:'smooth'}); el.focus(); } },400); break;
     case 'dep-add': { const el2=$('#depNovo'); const v=el2?String(el2.value||'').trim():'';
