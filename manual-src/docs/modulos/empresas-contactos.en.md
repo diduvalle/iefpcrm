@@ -120,7 +120,7 @@ At the top of the lists there is a filter:
 In a class, the list of people is the **class** (it comes from the online roster), not the demo users.
 
 !!! tip "What it is really for"
-    With no owner, an account belongs to everyone and therefore to nobody - that is how follow-ups get lost. It is also what makes **[individual quotas](definicoes.md#sales-targets)** and the *"mine"* questions in the **[Assistant](assistente.md)** possible.
+    With no owner, an account belongs to everyone and therefore to nobody - that is how follow-ups get lost. It is also what makes **[individual quotas](definicoes.md#sales-targets)** and the *"mine"* questions in **[Pulso](assistente.md)** possible.
 
 ---
 

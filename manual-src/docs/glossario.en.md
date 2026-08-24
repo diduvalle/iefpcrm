@@ -25,4 +25,4 @@
 | **AI Act** | Regulation (EU) 2024/1689. Classifies AI systems by risk: **unacceptable** (banned), **high** (conformity assessment), **limited** (transparency) and **minimal**. |
 | **Limited risk** | The AI Act tier for systems that interact with people - a chatbot, for instance. It is enough to **say it is AI** (Art. 50), applicable from August 2026. |
 | **AI literacy** | Art. 4 of the AI Act, in force since February 2025: whoever operates an AI system must understand what it does and where it fails. |
-| **Assistant** | The CRM bubble that answers questions about your data. It **is not AI** - and it says so. See [Assistant](modulos/assistente.md). |
+| **Pulso** | The CRM bubble that answers questions about your data - from the Portuguese *"take the business's pulse"*. It **is not AI** - and it says so. See [Pulso](modulos/assistente.md). |

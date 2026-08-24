@@ -26,7 +26,7 @@ There is also a free **detail** field - *"only solution with GDPR included"*.
 
 - **Analytics → Win analysis** - the sibling card to *Loss analysis*, with the same percentage reading. Side by side, they answer the same question from both ends.
 - **Account timeline** - the *Proposal won* entry now shows the reason next to the value.
-- **Assistant** - *"why do we win"* returns the top reasons.
+- **[Pulso](../assistente.md)** - *"why do we win"* returns the top reasons.
 
 In charts and in the timeline you see the **text you wrote**, not the word *Other*: a hand-written reason stands on its own instead of going into a common bucket.
 

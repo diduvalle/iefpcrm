@@ -54,7 +54,7 @@ In the side list (**Upcoming tasks**), tasks that **have notes** show a **docume
 - **Today's** or **overdue** tasks enter the **Alerts** (bell).
 
 !!! tip "Asking instead of looking"
-    The **[Assistant](assistente.md)** answers *"what do I have today"* and *"do I have overdue tasks"* from any module, without coming to the Calendar.
+    **[Pulso](assistente.md)** answers *"what do I have today"* and *"do I have overdue tasks"* from any module, without coming to the Calendar.
 
 !!! note "Products & Catalog"
     The **[Products](produtos.md)** menu organizes the catalog (Family → Subfamily → Item) that feeds the proposal lines.

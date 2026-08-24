@@ -25,4 +25,4 @@
 | **AI Act** | Regulamento (UE) 2024/1689. Classifica os sistemas de IA por risco: **inaceitável** (proibido), **alto** (avaliação de conformidade), **limitado** (transparência) e **mínimo**. |
 | **Risco limitado** | Nível do AI Act de quem interage com pessoas - um chatbot, por exemplo. Basta **dizer que é IA** (art. 50.º), aplicável a partir de agosto de 2026. |
 | **Literacia em IA** | Art. 4.º do AI Act, em vigor desde fevereiro de 2025: quem opera um sistema de IA tem de perceber o que ele faz e onde falha. |
-| **Assistente** | A bolha do CRM que responde a perguntas sobre os dados. **Não é IA** - e declara-o. Ver [Assistente](modulos/assistente.md). |
+| **Pulso** | A bolha do CRM que responde a perguntas sobre os dados - de *"tomar o pulso ao negócio"*. **Não é IA** - e declara-o. Ver [Pulso](modulos/assistente.md). |

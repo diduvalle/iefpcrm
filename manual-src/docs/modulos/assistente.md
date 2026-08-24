@@ -1,12 +1,18 @@
-# Assistente
+# Pulso
 
 A bolha verde no canto inferior direito, presente em **todos os módulos**. Escreve uma pergunta sobre os teus dados e ele responde com o número - e com o botão que abre a vista real.
 
+## Porque é que se chama Pulso
+
+De **"tomar o pulso ao negócio"** - um número rápido sobre como as coisas estão, sem opinião nenhuma pelo meio.
+
+É um nome de **ferramenta**, não de pessoa, e isso é de propósito. Quase todos os chatbots se chamam Íris, Sofia ou Nova: querem que se fale com eles como se fosse alguém. Aqui o objetivo é o contrário - um nome humano desfazia em três letras o que a mensagem de abertura constrói.
+
 ## A primeira coisa que ele diz
 
-> **Não sou inteligência artificial.** Respondo com regras fixas aos dados desta sandbox. Não altero nada.
+> **Não sou inteligência artificial.** O Pulso responde com regras fixas aos dados desta sandbox. Não altera nada.
 
-Isto não é modéstia nem um aviso legal escondido no rodapé: é a **primeira mensagem** que aparece, antes de qualquer pergunta. E se lhe perguntares diretamente *"és uma IA?"*, ele tem resposta própria:
+Isto não é modéstia nem um aviso legal escondido no rodapé: é a **primeira mensagem** que aparece, antes de qualquer pergunta. E se lhe perguntares diretamente *"és uma IA?"* - ou *"chamas-te Pulso porquê?"* - ele tem resposta própria:
 
 > Sou um conjunto de regras fixas: reconheço algumas frases e vou buscar o número aos teus dados. Não aprendo, não invento e não escrevo nada que não esteja aqui.
 >
@@ -15,7 +21,7 @@ Isto não é modéstia nem um aviso legal escondido no rodapé: é a **primeira 
 !!! info "Porque é que isto está aqui"
     O **artigo 50.º** do Regulamento (UE) 2024/1689 (*AI Act*) obriga a que quem interage com um sistema de IA **saiba que está a falar com uma máquina**. Um chatbot de reservas num site é o exemplo clássico de **risco limitado**: não está proibido nem exige avaliação de conformidade - basta a **transparência**.
 
-    Este assistente **não é** um sistema de IA, e por isso o artigo 50.º nem se lhe aplica. Declara-o na mesma, por duas razões: porque um assistente que se deixasse confundir com IA ensinaria exatamente o contrário do que a UFCD diz, e porque é mais fácil perceber a obrigação a vê-la cumprida do que a lê-la num diploma.
+    O Pulso **não é** um sistema de IA, e por isso o artigo 50.º nem se lhe aplica. Declara-o na mesma, por duas razões: porque um assistente que se deixasse confundir com IA ensinaria exatamente o contrário do que a UFCD diz, e porque é mais fácil perceber a obrigação a vê-la cumprida do que a lê-la num diploma.
 
 ## O que sabe responder
 

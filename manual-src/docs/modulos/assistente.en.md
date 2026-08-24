@@ -1,12 +1,18 @@
-# Assistant
+# Pulso
 
 The green bubble in the bottom-right corner, present in **every module**. Type a question about your data and it answers with the number - and with the button that opens the real view.
 
+## Why it is called Pulso
+
+From the Portuguese **"tomar o pulso ao negócio"** - to take the business's pulse: a quick number on how things stand, with no opinion in between.
+
+It is a **tool**'s name, not a person's, and that is deliberate. Almost every chatbot is called Iris, Sophia or Nova: they want you to talk to them as if they were someone. Here the aim is the opposite - a human name would undo in three letters what the opening message builds.
+
 ## The first thing it says
 
-> **I am not artificial intelligence.** I answer with fixed rules over this sandbox's data. I change nothing.
+> **I am not artificial intelligence.** Pulso answers with fixed rules over this sandbox's data. It changes nothing.
 
-This is not modesty, nor a legal notice buried in a footer: it is the **first message** shown, before any question. And if you ask it directly *"are you an AI?"*, it has its own answer:
+This is not modesty, nor a legal notice buried in a footer: it is the **first message** shown, before any question. And if you ask it directly *"are you an AI?"* - or *"why are you called Pulso?"* - it has its own answer:
 
 > I am a set of fixed rules: I recognise a few phrases and fetch the number from your data. I do not learn, I do not invent and I write nothing that is not already here.
 >
@@ -15,7 +21,7 @@ This is not modesty, nor a legal notice buried in a footer: it is the **first me
 !!! info "Why this is here"
     **Article 50** of Regulation (EU) 2024/1689 (*AI Act*) requires that anyone interacting with an AI system **knows they are talking to a machine**. A booking chatbot on a website is the textbook case of **limited risk**: it is neither prohibited nor subject to a conformity assessment - **transparency** is enough.
 
-    This assistant **is not** an AI system, so Article 50 does not even apply to it. It declares itself anyway, for two reasons: because an assistant that let itself be mistaken for AI would teach the exact opposite of what the course says, and because the obligation is easier to grasp when you see it met than when you read it in a statute.
+    Pulso **is not** an AI system, so Article 50 does not even apply to it. It declares itself anyway, for two reasons: because an assistant that let itself be mistaken for AI would teach the exact opposite of what the course says, and because the obligation is easier to grasp when you see it met than when you read it in a statute.
 
 ## What it can answer
 

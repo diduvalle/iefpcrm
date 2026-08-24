@@ -26,7 +26,7 @@ Há ainda um campo de **detalhe** livre - *"única solução com RGPD incluído"
 
 - **Analytics → Análise de ganhos** - o cartão irmão da *Análise de perdas*, com a mesma leitura em percentagem. Lado a lado, respondem à mesma pergunta pelos dois lados.
 - **Linha do tempo da conta** - a entrada *Proposta ganha* passa a mostrar o motivo, ao lado do valor.
-- **Assistente** - *"porque ganhamos"* devolve o top de motivos.
+- **[Pulso](../assistente.md)** - *"porque ganhamos"* devolve o top de motivos.
 
 Nos gráficos e na linha do tempo aparece o **texto que escreveste**, não a palavra *Outro*: um motivo escrito à mão vale por si e não vai para um balde comum.
 

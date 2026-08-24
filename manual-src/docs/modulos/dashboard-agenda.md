@@ -54,7 +54,7 @@ Na lista lateral (**Próximas tarefas**), as tarefas que **têm notas** mostram 
 - Tarefas de **hoje** ou em **atraso** entram nos **Alertas** (sino).
 
 !!! tip "Perguntar em vez de procurar"
-    O **[Assistente](assistente.md)** responde a *"o que tenho para hoje"* e *"tenho tarefas atrasadas"* de qualquer módulo, sem teres de vir à Agenda.
+    O **[Pulso](assistente.md)** responde a *"o que tenho para hoje"* e *"tenho tarefas atrasadas"* de qualquer módulo, sem teres de vir à Agenda.
 
 !!! note "Produtos & Catálogo"
     O menu **[Produtos](produtos.md)** organiza o catálogo (Família → Subfamília → Artigo) que alimenta as linhas das propostas.

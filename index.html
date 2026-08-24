@@ -502,11 +502,11 @@ body.present #presentExit{display:inline-flex;align-items:center;gap:6px;positio
 </aside>
 
 <!-- ASSISTENTE (consulta os dados da sandbox; nao e IA) -->
-<button class="cbot-fab" id="cbotFab" data-act="cbot-toggle" title="Assistente do CRM" aria-label="Assistente do CRM"></button>
-<div class="cbot-panel" id="cbotPanel" role="dialog" aria-label="Assistente do CRM">
+<button class="cbot-fab" id="cbotFab" data-act="cbot-toggle" title="Pulso - o assistente do CRM" aria-label="Pulso - o assistente do CRM"></button>
+<div class="cbot-panel" id="cbotPanel" role="dialog" aria-label="Pulso - o assistente do CRM">
   <div class="cbot-head">
     <span id="cbotIcon" style="color:var(--g700)"></span>
-    <div style="flex:1"><strong>Assistente</strong><div class="sub">Pergunte sobre os seus dados</div></div>
+    <div style="flex:1"><strong>Pulso</strong><div class="sub">Tome o pulso ao seu negócio</div></div>
     <button class="icon-btn" data-act="cbot-toggle" title="Fechar">✕</button>
   </div>
   <div class="cbot-log" id="cbotLog"></div>
@@ -824,6 +824,25 @@ const I18N_EN = {
   'Principal':'Main','Marketing & Análise':'Marketing & Analytics','Conformidade':'Compliance','Sistema':'System',
   'Dashboard':'Dashboard','Clientes':'Customers','Contactos':'Contacts','Empresas':'Companies','Agenda':'Calendar','Produtos':'Products','Propostas':'Proposals','Modelos':'Templates',
   'Campanhas':'Campaigns','Analytics':'Analytics','RGPD':'GDPR','Comunicação':'Communication','Alertas':'Alerts','Definições':'Settings',
+  // Pulso (assistente). Só as frases fixas - as respostas trazem números e são compostas.
+  'Tome o pulso ao seu negócio':'Take your business\u2019s pulse',
+  'Pulso - o assistente do CRM':'Pulso \u2013 the CRM assistant',
+  'ex.: quanto vendi este mês':'e.g. how much did I sell this month',
+  'Perguntar':'Ask',
+  'Não sou inteligência artificial.':'I am not artificial intelligence.',
+  'O Pulso responde com regras fixas aos dados desta sandbox. Não altera nada.':'Pulso answers with fixed rules over this sandbox\u2019s data. It changes nothing.',
+  'Pergunte-me um número sobre o seu CRM. Se não perceber, digo-lhe.':'Ask me a number about your CRM. If I don\u2019t understand, I\u2019ll say so.',
+  'Quantas propostas tenho em aberto?':'How many proposals are open?',
+  'Quanto vendi este mês?':'How much did I sell this month?',
+  'Que propostas estão a expirar?':'Which proposals are expiring?',
+  'Porque perdemos negócios?':'Why do we lose deals?',
+  'Que empresas ainda não têm proposta?':'Which companies have no proposal yet?',
+  'Quais são os melhores clientes?':'Who are the best customers?',
+  'O que tenho para hoje?':'What do I have today?',
+  'Tenho tarefas atrasadas?':'Do I have overdue tasks?',
+  'Como estão os casos de suporte?':'How are the support cases?',
+  'Há pedidos RGPD por responder?':'Any GDPR requests pending?',
+  'Chamas-te Pulso porquê?':'Why are you called Pulso?',
   // Cabeçalho / breadcrumbs
   'Plataforma de Formação':'Training Platform','IEFP CRM · Visão geral':'IEFP CRM · Overview',
   'IEFP CRM · Gestão de clientes':'IEFP CRM · Customer management','IEFP CRM · Catálogo':'IEFP CRM · Catalogue',
@@ -2589,7 +2608,13 @@ function metaCardHTML(){
     </div>`:""}
   </div>`;
 }
-/* ================== ASSISTENTE DO CRM ==================
+/* ================== PULSO · O ASSISTENTE DO CRM ==================
+   O nome é de propósito o de uma ferramenta, e não o de uma pessoa: quase
+   todos os chatbots se chamam Íris ou Sofia porque querem que se fale com
+   eles como se fosse alguém - e aqui o objetivo é o contrário. "Tomar o
+   pulso ao negócio" é o que ele faz: um número rápido sobre como as coisas
+   estão, sem opinião nenhuma pelo meio.
+
    NÃO é inteligência artificial e não finge ser - a primeira coisa que diz é
    isso mesmo. É correspondência de palavras-chave para uma consulta fixa sobre
    o `state`. Fica assim de propósito, por três razões:
@@ -2740,8 +2765,8 @@ const CBOT = [
 
 /* Perguntas sobre o próprio assistente - não dependem de módulo nenhum */
 const CBOT_META = [
-  {k:["es uma ia","es ia","es um robo","inteligencia artificial","chatgpt","quem es","es humano","es uma pessoa"], f:()=>({
-    t:"<strong>Não sou inteligência artificial.</strong> Sou um conjunto de regras fixas: reconheço algumas frases e vou buscar o número aos seus dados. Não aprendo, não invento e não escrevo nada que não esteja aqui.<br><br>Se fosse IA, o artigo 50.º do AI Act obrigaria à mesma declaração - a diferença é que aí eu poderia enganar-me com confiança."})},
+  {k:["es uma ia","es ia","es um robo","inteligencia artificial","chatgpt","quem es","es humano","es uma pessoa","como te chamas","porque te chamas","pulso"], f:()=>({
+    t:"Chamo-me <strong>Pulso</strong> - de \"tomar o pulso ao negócio\". É nome de ferramenta, não de pessoa, e é de propósito.<br><br><strong>Não sou inteligência artificial.</strong> Sou um conjunto de regras fixas: reconheço algumas frases e vou buscar o número aos seus dados. Não aprendo, não invento e não escrevo nada que não esteja aqui.<br><br>Se fosse IA, o artigo 50.º do AI Act obrigaria à mesma declaração - a diferença é que aí eu poderia enganar-me com confiança."})},
   {k:["ajuda","o que sabes","o que podes","exemplos","como funciona","comandos"], f:()=>({
     t:"Respondo a perguntas de consulta sobre os seus dados. Não altero nada - no máximo levo-o à vista certa. Experimente uma das sugestões aqui em baixo."})},
 ];
@@ -2777,7 +2802,7 @@ function cbotSugestoes(){
     {m:"agenda",    t:"Tenho tarefas atrasadas?"},
     {m:"casos",     t:"Como estão os casos de suporte?"},
     {m:"rgpd",      t:"Há pedidos RGPD por responder?"},
-    {m:null,        t:"És uma IA?"},
+    {m:null,        t:"Chamas-te Pulso porquê?"},
   ];
   return todas.filter(x=>!x.m||can(x.m)).slice(0,6);
 }
@@ -2810,7 +2835,7 @@ function cbotToggle(){
   if(abrir){
     if(!cbotMsgs.length){
       /* a primeira coisa que se diz é o que se é (art. 50.º do AI Act) */
-      cbotMsgs.push({de:"aviso",t:"<strong>Não sou inteligência artificial.</strong> Respondo com regras fixas aos dados desta sandbox. Não altero nada."});
+      cbotMsgs.push({de:"aviso",t:"<strong>Não sou inteligência artificial.</strong> O Pulso responde com regras fixas aos dados desta sandbox. Não altera nada."});
       cbotMsgs.push({de:"ele",t:"Pergunte-me um número sobre o seu CRM. Se não perceber, digo-lhe."});
     }
     cbotPinta(); setTimeout(()=>{ const i=$("#cbotIn"); if(i) i.focus(); },120);

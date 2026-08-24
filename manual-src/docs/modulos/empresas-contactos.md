@@ -120,7 +120,7 @@ No topo das listas há um filtro:
 Numa turma, a lista de pessoas é a **turma** (vem do registo online), não os utilizadores de demonstração.
 
 !!! tip "Para que serve mesmo"
-    Sem dono, uma conta é de toda a gente e portanto de ninguém - é assim que os *follow-ups* se perdem. É também o que torna possíveis as **[quotas individuais](definicoes.md#metas-de-vendas)** e as perguntas *"as minhas"* no **[Assistente](assistente.md)**.
+    Sem dono, uma conta é de toda a gente e portanto de ninguém - é assim que os *follow-ups* se perdem. É também o que torna possíveis as **[quotas individuais](definicoes.md#metas-de-vendas)** e as perguntas *"as minhas"* no **[Pulso](assistente.md)**.
 
 ---
 

@@ -113,7 +113,7 @@ plugins:
             "5.10 Modelos de decisão": "5.10 Decision models"
             "5.11 Alertas": "5.11 Alerts"
             "5.12 Definições": "5.12 Settings"
-            "5.13 Assistente": "5.13 Assistant"
+            "5.13 Pulso (assistente)": "5.13 Pulso (assistant)"
             "6. RGPD & Pedagogia": "6. GDPR & Pedagogy"
             "6.1 Consentimentos": "6.1 Consents"
             "6.2 Pedidos (DSAR)": "6.2 Requests (DSAR)"
@@ -199,7 +199,7 @@ nav:
       - 5.10 Modelos de decisão: modulos/decisao.md
       - 5.11 Alertas: modulos/alertas.md
       - 5.12 Definições: modulos/definicoes.md
-      - 5.13 Assistente: modulos/assistente.md
+      - 5.13 Pulso (assistente): modulos/assistente.md
   - 6. RGPD & Pedagogia:
       - rgpd/index.md
       - 6.1 Consentimentos: rgpd/consentimentos.md
