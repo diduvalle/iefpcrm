@@ -569,7 +569,15 @@ const dPT = iso => iso ? new Date(iso+'T00:00:00').toLocaleDateString('pt-PT',{d
 // timestamps completos (ex.: criado_em do Supabase) -> data + hora, sem "Invalid Date"
 const dtPT = ts => { if(!ts) return '-'; const d=new Date(ts); return isNaN(d.getTime()) ? '-' : d.toLocaleString('pt-PT',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); };
 const daysBetween = (a,b)=>Math.round((new Date(b)-new Date(a))/864e5);
-const addDays = (iso,d)=>{const x=new Date(iso+'T00:00:00');x.setDate(x.getDate()+d);return x.toISOString().slice(0,10);};
+/* Isto misturava LOCAL com UTC e perdia um dia em todo o fuso a leste de
+   Greenwich - Portugal no verao (WEST, UTC+1) incluido. new Date("2026-08-24T00:00:00")
+   e meia-noite LOCAL; toISOString() converte para UTC e da 23:00 do dia
+   ANTERIOR, pelo que slice(0,10) devolvia 2026-08-23. Resultado: addDays(x,1)
+   devolvia o proprio dia, as semanas do calendario andavam 6 dias, e o prazo de
+   um mes de um pedido RGPD ficava com 29.
+   Agora a conta e feita so com os componentes da data - o relogio nao entra. */
+const addDays = (iso,d)=>{ const [y,m,dd]=String(iso).slice(0,10).split('-').map(Number);
+  return isoOf(new Date(y, m-1, dd+d)); };
 const clone = o => JSON.parse(JSON.stringify(o));
 
 /* ---------- ÍCONES (line, 24x24) ---------- */
@@ -3690,7 +3698,17 @@ views.agenda = () => {
   const filtroAtivo=FILTROS[agendaFiltro]||null;
   const listaFiltrada=filtroAtivo?filtroAtivo[1]():null;
   const upcoming=pend.filter(t=>t.data>=today).sort((a,b)=>(a.data+(a.hora||'24')).localeCompare(b.data+(b.hora||'24')));
-  const wd=weekDays(agendaWeek); const wTitle=`${+wd[0].slice(8)}-${+wd[6].slice(8)} ${MONTHS_PT[+wd[0].slice(5,7)-1]} ${wd[0].slice(0,4)}`;
+  const wd=weekDays(agendaWeek);
+  /* "26-1 Outubro" era o que se lia numa semana de 26/out a 1/nov, porque o mes
+     vinha sempre do PRIMEIRO dia. Quando a semana atravessa dois meses, dizem-se
+     os dois. */
+  const wTitle=(()=>{
+    const m0=wd[0].slice(5,7), m6=wd[6].slice(5,7);
+    const d0=+wd[0].slice(8), d6=+wd[6].slice(8);
+    const mes=i=>MONTHS_PT[+i-1], ano=wd[6].slice(0,4);
+    if(m0===m6) return d0+"-"+d6+" "+mes(m0)+" "+ano;
+    return d0+" "+mes(m0).slice(0,3).toLowerCase()+" - "+d6+" "+mes(m6).slice(0,3).toLowerCase()+" "+ano;
+  })();
   const title=agendaView==='semana'?wTitle:`${MONTHS_PT[m-1]} ${y}`;
   return `
   <div class="callout green">${ic('calendar',18)}<div style="flex:1"><strong>Agenda & Tarefas</strong><span class="ctxt">Vista mensal ou semanal. Na vista semanal, clique numa hora para marcar uma tarefa nesse horário (15 em 15 min).</span></div></div>
@@ -7336,7 +7354,38 @@ document.addEventListener('click', async e=>{
       const p=$('#agPainel'); if(p) p.innerHTML=agendaPainelHTML(); else { render(); break; }
       $$('.kpi[data-f]').forEach(k=>k.classList.toggle('kpi-on', !!agendaFiltro && k.dataset.f===agendaFiltro));
     } break;
-    case 'cal-view': agendaView=el.dataset.view; render(); break;
+    /* Mudar de vista mantinha DOIS cursores independentes - agendaYM para o mes
+       e agendaWeek para a semana - e nunca os reconciliava. Quem andasse tres
+       meses para a frente e carregasse em "Semana" caia outra vez na semana de
+       hoje, porque agendaWeek continuava onde estava. E ao contrario tambem.
+       As duas vistas passam a ser a mesma viagem, vista de duas alturas. */
+    case 'cal-view': { const novo=el.dataset.view;
+      if(novo!==agendaView){
+        if(novo==='semana'){
+          /* Mes -> Semana: fica no mes que se esta a ver. Se for o mes corrente
+             abre na semana de HOJE (que e o que se quer ver); noutro mes
+             qualquer, abre na semana do dia 1. */
+          const ym=agendaYM||curYM();
+          if(ym===curYM()){ agendaWeek=mondayOf(todayISO()); }
+          else {
+            /* A primeira semana QUE PERTENCE a esse mes, pela mesma regra da
+               quinta-feira. Sem isto, pedir Novembro de 2026 (em que o dia 1 e
+               domingo) abria a semana 26/out-01/nov: a pessoa pedia um mes e
+               via o titulo de outro. */
+            let w=mondayOf(ym+'-01');
+            if(addDays(w,3).slice(0,7)!==ym) w=addDays(w,7);
+            agendaWeek=w;
+          }
+        } else {
+          /* Semana -> Mes: o mes a que a semana pertence. Uma semana pode cair
+             em dois meses (28/09 a 04/10), por isso usa-se a QUINTA-FEIRA, que
+             e a regra da ISO 8601 para decidir a que mes uma semana pertence -
+             a maioria dos seus dias esta sempre do lado dela. */
+          const wk=agendaWeek||mondayOf(todayISO());
+          agendaYM=addDays(wk,3).slice(0,7);
+        }
+      }
+      agendaView=novo; render(); } break;
     case 'cal-prev': if(agendaView==='semana') agendaWeek=addDays(agendaWeek||mondayOf(todayISO()),-7); else agendaYM=shiftYM(agendaYM||curYM(),-1); render(); break;
     case 'cal-next': if(agendaView==='semana') agendaWeek=addDays(agendaWeek||mondayOf(todayISO()),7); else agendaYM=shiftYM(agendaYM||curYM(),1); render(); break;
     case 'cal-today': agendaYM=curYM(); agendaWeek=mondayOf(todayISO()); render(); break;
