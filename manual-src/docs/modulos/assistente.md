@@ -23,9 +23,17 @@ Isto não é modéstia nem um aviso legal escondido no rodapé: é a **primeira 
 
     O Pulso **não é** um sistema de IA, e por isso o artigo 50.º nem se lhe aplica. Declara-o na mesma, por duas razões: porque um assistente que se deixasse confundir com IA ensinaria exatamente o contrário do que a UFCD diz, e porque é mais fácil perceber a obrigação a vê-la cumprida do que a lê-la num diploma.
 
-## Duas coisas, não uma
+## Três coisas, não duas
 
-O Pulso responde a **números** e a **como se faz**.
+| | Exemplo | O que devolve |
+|---|---|---|
+| **Números** | *"quantas propostas tenho em aberto"* | o valor, a lista, e o botão que abre a vista |
+| **Como se faz** | *"como crio uma proposta"* | os passos, o botão do módulo e o botão que abre **a página certa do manual** |
+| **O que é** | *"o que é o MRR"* | a definição, em duas linhas |
+
+Cada tipo traz o seu selo, para não haver dúvida sobre o que se está a ler.
+
+### Números e como se faz
 
 | | Exemplo | O que devolve |
 |---|---|---|
@@ -56,6 +64,53 @@ Se escrever *"como…"* e ele não reconhecer, manda-o na mesma ao **manual** em
 
 !!! note "Escreva à vontade"
     Não é preciso acertar no verbo. *"como crio"*, *"como se cria"*, *"como faço"* e *"criar"* dão todos a mesma resposta - a correspondência corta a terminação dos verbos dos dois lados.
+
+---
+
+### O glossário
+
+São **32 termos** - MRR, ARR, TCV, churn, CAC, LTV, RFM, SLA, NPS, CSAT, MQL, SQL, RoPA, DSAR, base legal, minimização, lead score, loyalty, persona, nurturing... - mais três comparações que se confundem sempre:
+
+- **segmento vs nível de loyalty**
+- **empresa vs contacto**
+- **NPS vs CSAT**
+
+Escreva o termo com *"o que é"*, *"o que significa"* ou *"explica"*.
+
+!!! tip "Porque é que isto vale mais do que o glossário do manual"
+    Não substitui o [Glossário](../glossario.md) - responde **sem interromper**. Estas perguntas fazem-se a meio de uma tarefa, e sair para procurar é o que faz desistir.
+
+    As definições são escritas para **ficar**, não para estar corretas: o MRR de um contrato de 40 €/mês vale *40 €, não 480*; um churn de 5%/mês *perde metade da base num ano*; violar um SLA *não é um atraso, é uma promessa quebrada*.
+
+!!! note "O termo sozinho dá o número, não a definição"
+    Escrever **`pipeline`** dá-lhe o **valor** do seu pipeline. Escrever **`o que é o pipeline`** dá-lhe a definição.
+
+    É deliberado: no meio do trabalho, quem escreve o nome de uma coisa quer o número dela. Os termos que não competem com nenhuma pergunta de dados - *MRR*, *CAC*, *SLA* - respondem à mesma escritos sozinhos.
+
+---
+
+## Quando não sabe: sugerir, não recuar
+
+Se a pergunta não for reconhecida, o Pulso mostra as **perguntas mais próximas** do que escreveu, clicáveis:
+
+> Não sei responder a isso - só reconheço as frases para que fui programado.
+> **Quis dizer alguma destas?**
+> `O que é o MRR?`
+
+Chama-se ***fall-forward***, e é a recomendação unânime da literatura de design de assistentes: um *"não sei"* seco deixa a pessoa no mesmo sítio onde estava; mostrar o mais próximo dá-lhe um caminho.
+
+Depois de uma **definição**, aparece também *"A seguir:"* com os termos vizinhos.
+
+### O limiar de confiança
+
+O Pulso só responde quando a correspondência **explica a pergunta**, não quando apenas coincide com uma palavra dela.
+
+!!! warning "O defeito que isto corrigiu"
+    Antes não havia limiar nenhum: qualquer coincidência ganhava. A pergunta *"quero ver as propostas do mês passado da equipa comercial"* recebia uma resposta sobre **grupos de utilizadores** - porque a palavra *equipa* lá estava.
+
+    Responder com confiança a partir de uma coincidência é o **único defeito que este assistente não pode ter**, porque é exatamente o que se lhe critica quando é IA a sério. Hoje mede-se a **cobertura**: quanto da pergunta é que a correspondência explica. *"Equipa"* numa frase de 57 caracteres explica 10% dela - não é uma resposta, é uma coincidência.
+
+    Vale a pena mostrar isto à turma ao lado de um LLM: um responde *"não sei, quis dizer isto?"*; o outro inventa uma resposta plausível para a mesma pergunta.
 
 ---
 

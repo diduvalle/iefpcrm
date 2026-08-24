@@ -23,9 +23,17 @@ This is not modesty, nor a legal notice buried in a footer: it is the **first me
 
     Pulso **is not** an AI system, so Article 50 does not even apply to it. It declares itself anyway, for two reasons: because an assistant that let itself be mistaken for AI would teach the exact opposite of what the course says, and because the obligation is easier to grasp when you see it met than when you read it in a statute.
 
-## Two things, not one
+## Three things, not two
 
-Pulso answers **numbers** and **how-to**.
+| | Example | What you get |
+|---|---|---|
+| **Numbers** | *"how many proposals are open"* | the value, the list, and the button that opens the view |
+| **How-to** | *"how do I create a proposal"* | the steps, the module button and the button that opens **the right manual page** |
+| **What is** | *"what is MRR"* | the definition, in two lines |
+
+Each kind carries its own badge, so there is no doubt about what you are reading.
+
+### Numbers and how-to
 
 | | Example | What you get |
 |---|---|---|
@@ -56,6 +64,53 @@ If you write *"how…"* and it does not recognise the phrase, it still sends you
 
 !!! note "Write freely"
     You do not have to get the verb right. The matching trims verb endings on both sides, so different conjugations land on the same answer.
+
+---
+
+### The glossary
+
+**32 terms** - MRR, ARR, TCV, churn, CAC, LTV, RFM, SLA, NPS, CSAT, MQL, SQL, RoPA, DSAR, legal basis, minimisation, lead score, loyalty, persona, nurturing... - plus three comparisons people always confuse:
+
+- **segment vs loyalty tier**
+- **company vs contact**
+- **NPS vs CSAT**
+
+Type the term with *"what is"*, *"what does X mean"* or *"explain"*.
+
+!!! tip "Why this beats the manual glossary"
+    It does not replace the [Glossary](../glossario.md) - it answers **without interrupting**. These questions come up mid-task, and leaving to go looking is what makes people give up.
+
+    The definitions are written to **stick**, not merely to be correct: MRR on a €40/month contract is *€40, not €480*; a 5%/month churn *loses half the base in a year*; breaching an SLA *is not a delay, it is a broken promise*.
+
+!!! note "The bare term gives the number, not the definition"
+    Typing **`pipeline`** gives you the **value** of your pipeline. Typing **`what is the pipeline`** gives you the definition.
+
+    That is deliberate: mid-work, someone typing the name of a thing wants its number. Terms that compete with no data question - *MRR*, *CAC*, *SLA* - answer anyway when typed on their own.
+
+---
+
+## When it does not know: suggest, do not retreat
+
+If the question is not recognised, Pulso shows the **closest questions** to what you typed, clickable:
+
+> I don't know how to answer that - I only recognise the phrases I was programmed for.
+> **Did you mean one of these?**
+> `What is MRR?`
+
+It is called ***fall-forward***, and it is the unanimous recommendation in assistant-design literature: a bare *"I don't know"* leaves the person exactly where they were; showing the nearest match gives them a way on.
+
+After a **definition**, it also shows *"Next:"* with neighbouring terms.
+
+### The confidence threshold
+
+Pulso only answers when the match **explains the question**, not when it merely coincides with one word of it.
+
+!!! warning "The defect this fixed"
+    There used to be no threshold at all: any coincidence won. The question *"show me last month's proposals from the sales team"* got an answer about **user groups** - because the word *team* was in it.
+
+    Answering confidently from a coincidence is the **one defect this assistant cannot have**, because it is exactly what people criticise in real AI. It now measures **coverage**: how much of the question the match explains. *"Team"* in a 57-character sentence explains 10% of it - that is not an answer, it is a coincidence.
+
+    Worth showing the class next to an LLM: one says *"I don't know, did you mean this?"*; the other invents a plausible answer to the same question.
 
 ---
 

@@ -17,7 +17,7 @@ Data used in proposals and communications: **entity name**, **NIF/NIPC**, **phon
 ### Sample data generator
 Quickly creates realistic **companies, contacts and proposals** (PT) - adds to the existing data.
 
-### Brand & Appearance *(Admin)*
+### Brand & Appearance
 *White-label*: **name**, **primary color** (derives the palette), **logo**, **login background**. **Apply** / **Reset IEFP**. → [Email & Brand](../formador/email-marca.md).
 
 ### Real email sending (EmailJS) *(Admin)*
@@ -38,6 +38,43 @@ The **keys** are **fixed** (🔒); you only manage the **mode** (real/simulated)
 
 ### Proposal Templates
 Shortcut to the template builder. → [Proposal Templates](modelos.md).
+
+### Team & permissions
+Two cards answering *"what if I have a team?"*:
+
+- **Users** - who they are, with what access and in which **department**.
+- **User Groups** - what each group sees and can do.
+
+A user **always belongs to a group** (the *Role* field has no empty option), and everyone in a group has the same permissions. Each group picks the **modules** it sees, whether it is a **manager**, and whether **finance is hidden**.
+
+!!! tip "The exercise worth doing"
+    Create a *Junior Sales* group with two or three modules, create a person in it, and **log in as them**. You watch the menu shrink. It is the fastest way to understand an access profile - and what it feels like from the other side.
+
+    In a class, the trainer can grant the **Team & permissions** capability to learners, so each one builds the team of their own fictional company.
+
+### Departments
+The level that was missing between "the company" and "the person".
+
+| | Answers |
+|---|---|
+| **Group** | what you **can do** |
+| **Department** | **where you work** |
+
+They are different things: two people can have exactly the same permissions and sit in different teams.
+
+Type a name and **+ Add**, or use **Suggest the usual ones** (Sales, Marketing, Support). Removing a department **does not touch** anyone who already had it - the app says how many they are first.
+
+After that, the owner filter in **Companies** and **Proposals** gains **"The whole X team"** - what a team lead actually wants: the team pipeline, not one person at a time.
+
+### Hidden values (the 🔒)
+A group can have **finance hidden**: instead of the figures you see 🔒 (and in Companies the value column disappears). Real CRMs do this - a junior rep does not see company-wide revenue.
+
+!!! warning "It ships off, and that was deliberate"
+    Until August 2026 the **Learner** role was born with the lock on. Counting padlocks per module: Analytics **17**, Proposals 13, Dashboard 12, Decision 12, Retention 12.
+
+    The worst part was not the Kanban - it was **Analytics**, which became unreadable: average deal size, revenue per month, top companies, LTV/CAC, all covered. And the sandbox is the learner's **own fictional company**: hiding the figures of the business they are building took away precisely the calculations the course wants to teach - regional VAT, loyalty discount, TCV.
+
+    The feature **stays**: switch it on for a group when you want to demonstrate it. It makes good classroom material - ask someone to work for ten minutes with the lock on.
 
 ### Sales targets
 A goal for **won revenue** in the month. Two levels:

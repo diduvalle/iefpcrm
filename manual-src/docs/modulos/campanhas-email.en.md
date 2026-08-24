@@ -28,6 +28,23 @@ Date filter + list of campaigns (name, channel, segment, status, metrics) + **+ 
 ### Send
 **Send** dispatches to the contacts in the segment and records the sends in the **History** (with source "Campaign").
 
+#### Who receives it, and who is left out
+
+Before anything goes out, the app shows the **audience**.
+
+| Left out | Why |
+|---|---|
+| **No active consent** | direct email marketing needs a **legal basis** - Art. 6(1)(a) GDPR and Art. 13-A of Portuguese Law 41/2004 |
+| **No email** | there is nowhere to send it |
+
+The campaign row states how many it reaches and how many are excluded; the **Send** button opens the list **with the names**, email and phone, before confirming.
+
+!!! tip "This is where the lesson lands"
+    The app **refuses** to send to people who never consented. It does not warn and send anyway - it does not send.
+
+    That beats a slide about Article 6: anyone who wants the campaign to reach everybody has to go to **GDPR → Consents** and record the legal basis, which is exactly what they would have to do in real life.
+
+
 ---
 
 ## Email / Communication
@@ -110,6 +127,30 @@ At the bottom of the **Campaigns** screen there is a **lead capture form**. It s
 - firing the **new customer** automations.
 
 This demonstrates **web-to-lead**: how a lead filling in an online form reaches the funnel automatically. The "Form" origin then shows up in the **acquisition funnel** and the **ROI by origin** (Analytics).
+
+### The code for your website
+
+The form next to it **simulates** capture. To put it on a real site, the **See the code for my site** button generates ready-to-paste HTML.
+
+What the code contains, and why:
+
+- the **fields** the CRM expects, with the source `Formulário` already set;
+- a **required, unticked** consent box - Art. 7 GDPR does not accept pre-ticked boxes;
+- the **date** it was accepted: without it, consent cannot be proven;
+- an **anti-spam trap** (*honeypot*): a field invisible to people that bots fill in.
+
+!!! warning "The endpoint is left blank, on purpose"
+    `O_SEU_ENDPOINT` is the address that receives the data, and whoever builds the site has to write it.
+
+    This is **not** a missing piece - it is the lesson. A website form **never talks directly to the database**: if it did, anyone could write into your database from a browser. There is always a server in between that validates everything again.
+
+### When somebody subscribes
+
+An alert appears in the **bell**: *"New subscription unattended"*. It stays **until there is follow-up** - not until it is read.
+
+- Opening the record does **not** clear it: seeing is not attending.
+- It goes when there is an **email sent by a person**, a **task** created, or the account moves past Lead.
+- The welcome email fired by the **automation** does not count - that would be the machine answering the machine.
 
 ### Metrics
 **Open** and **click** rate per send and aggregated.

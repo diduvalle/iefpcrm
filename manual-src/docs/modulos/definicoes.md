@@ -17,7 +17,7 @@ Dados usados em propostas e comunicações: **nome da entidade**, **NIF/NIPC**, 
 ### Gerador de dados de exemplo
 Cria rapidamente **empresas, contactos e propostas** realistas (PT) - acrescenta aos dados existentes.
 
-### Marca & Aparência *(Admin)*
+### Marca & Aparência
 *White-label*: **nome**, **cor principal** (deriva a paleta), **logótipo**, **fundo do login**. **Aplicar** / **Repor IEFP**. → [Email & Marca](../formador/email-marca.md).
 
 ### Envio de email real (EmailJS) *(Admin)*
@@ -38,6 +38,43 @@ Matriz **papéis × módulos**: define o que cada grupo vê (Administrador/Forma
 
 ### Modelos de Proposta
 Atalho para o construtor de modelos. → [Modelos de Proposta](modelos.md).
+
+### Equipa & permissões
+Dois cartões que respondem à pergunta *"e se eu tiver uma equipa?"*:
+
+- **Utilizadores** - quem são, com que acesso e em que **departamento**.
+- **Grupos de Utilizadores** - o que cada grupo vê e pode fazer.
+
+Um utilizador **pertence sempre a um grupo** (o campo *Papel* não tem opção vazia), e dentro do grupo têm todos as mesmas permissões. Cada grupo escolhe os **módulos** que vê, se é **gestor**, e se tem o **financeiro oculto**.
+
+!!! tip "O exercício que vale a pena"
+    Criar um grupo *Comercial Júnior* com dois ou três módulos, criar uma pessoa nesse grupo, e **entrar como ela**. Vê-se o menu encolher. É a forma mais rápida de perceber o que é um perfil de acesso - e o que se sente do outro lado.
+
+    Numa turma, o formador pode dar a permissão **Equipa & permissões** aos formandos, para cada um montar a equipa da sua empresa fictícia.
+
+### Departamentos
+O nível que faltava entre "a empresa" e "a pessoa".
+
+| | Responde a |
+|---|---|
+| **Grupo** | o que se **pode fazer** |
+| **Departamento** | **onde se trabalha** |
+
+São coisas diferentes: duas pessoas podem ter exatamente as mesmas permissões e estar em equipas diferentes.
+
+Escreve o nome e **+ Adicionar**, ou usa **Sugerir os habituais** (Comercial, Marketing, Suporte). Remover um departamento **não mexe** em quem já o tinha - a app diz quantos são antes de remover.
+
+Depois disso, o filtro de responsável em **Empresas** e **Propostas** ganha **"Toda a equipa X"** - é o que um chefe de equipa quer ver: o pipeline da equipa, e não o de cada um a seu tempo.
+
+### Valores ocultos (o 🔒)
+Um grupo pode ter o **financeiro oculto**: em vez dos valores aparece 🔒 (e nas Empresas a coluna do valor desaparece). Num CRM a sério isto existe mesmo - um comercial júnior não vê a receita da empresa toda.
+
+!!! warning "Vem desligado, e foi de propósito"
+    Até agosto de 2026 o papel **Formando** nascia com o cadeado. Contando os cadeados por módulo: Analytics **17**, Propostas 13, Dashboard 12, Decisão 12, Retenção 12.
+
+    O mais grave não era o Kanban - era o **Analytics**, que ficava ilegível: ticket médio, receita por mês, top de empresas, LTV/CAC, tudo tapado. E a sandbox é a **empresa fictícia do próprio formando**: esconder-lhe os números do negócio que ele está a construir tirava-lhe justamente os cálculos que a formação quer ensinar - IVA regional, desconto de loyalty, TCV.
+
+    A funcionalidade **fica**: ligue-a num grupo quando quiser demonstrá-la. Dá bom material de aula - peça a alguém para trabalhar dez minutos com o cadeado ligado.
 
 ### Metas de vendas
 Objetivo de **receita ganha** no mês. Dois níveis:

@@ -28,6 +28,23 @@ Filtro temporal + lista de campanhas (nome, canal, segmento, estado, métricas) 
 ### Enviar
 **Enviar** dispara para os contactos do segmento e regista os envios no **Histórico** (com origem "Campanha").
 
+#### Quem recebe, e quem fica de fora
+
+Antes de sair alguma coisa, a app mostra a **audiência**.
+
+| Fica de fora | Porquê |
+|---|---|
+| **Sem consentimento ativo** | marketing direto por email precisa de **base legal** - art. 6.º/1 a) do RGPD e art. 13.º-A da Lei 41/2004 |
+| **Sem email** | não há por onde |
+
+A linha da campanha diz para quantos vai e quantos ficam de fora; o botão **Enviar** abre a lista **com os nomes**, email e telefone, antes de confirmar.
+
+!!! tip "É aqui que a lição entra"
+    A app **recusa-se** a enviar a quem não deu consentimento. Não avisa e envia à mesma - não envia.
+
+    Vale mais do que um slide sobre o artigo 6.º: quem quiser que a campanha chegue a toda a gente tem de ir a **RGPD → Consentimentos** registar a base legal, que é exatamente o que teria de fazer na vida real.
+
+
 ---
 
 ## Email / Comunicação
@@ -110,6 +127,30 @@ No fundo do ecrã **Campanhas** há um **formulário de captação**. Simula um 
 - disparo das automações de **novo cliente**.
 
 Assim demonstra-se o **web-to-lead**: como um lead que preenche um formulário online chega automaticamente ao funil. A origem "Formulário" aparece depois no **funil de aquisição** e no **ROI por origem** (Analytics).
+
+### O código para o seu site
+
+O formulário aqui ao lado **simula** a captação. Para o pôr num site a sério, o botão **Ver o código para o meu site** gera o HTML pronto a colar.
+
+O que vem no código, e porquê:
+
+- os **campos** que o CRM espera, com a origem `Formulário` já preenchida;
+- a caixa de **consentimento obrigatória e por marcar** - o art. 7.º do RGPD não aceita caixas pré-marcadas;
+- a **data** em que foi aceite: sem ela, o consentimento não se prova;
+- uma **armadilha anti-spam** (*honeypot*): um campo invisível para pessoas, que os robots preenchem.
+
+!!! warning "O endpoint fica por preencher, de propósito"
+    `O_SEU_ENDPOINT` é o endereço que recebe os dados, e tem de ser escrito por quem monta o site.
+
+    Isto **não** é uma peça em falta - é a lição. Um formulário de site **nunca fala diretamente com a base de dados**: se falasse, qualquer pessoa podia escrever na sua base a partir do browser. Entre os dois há sempre um servidor que valida tudo outra vez.
+
+### Quando alguém subscreve
+
+Aparece um alerta no **sino**: *"Nova subscrição por atender"*. Fica lá **até haver seguimento** - não até ser lido.
+
+- Abrir a ficha **não** o apaga: ver não é atender.
+- Sai quando houver um **email enviado por uma pessoa**, uma **tarefa** marcada, ou a conta avançar de Lead.
+- O email de boas-vindas que a **automação** dispara não conta - seria a máquina a responder à máquina.
 
 ### Métricas
 Taxa de **abertura** e **cliques** por envio e agregadas.
