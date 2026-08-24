@@ -353,3 +353,10 @@ a.cbot-ir{text-decoration:none}
   border-radius:var(--rs);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   font-size:.72rem;line-height:1.55;color:var(--text);overflow-x:auto;max-height:340px;overflow-y:auto;
   white-space:pre;-webkit-user-select:all;user-select:all}
+
+/* fall-forward: as perguntas mais proximas, dentro da propria resposta */
+.cbot-perto{display:flex;flex-direction:column;gap:5px;margin-top:9px;padding-top:8px;
+  border-top:1px solid var(--border)}
+.cbot-perto-t{font-size:.68rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:1px}
+.cbot-perto .cbot-chip{background:var(--surface);width:100%}

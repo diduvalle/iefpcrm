@@ -2848,7 +2848,7 @@ const CBOT = [
       lista:ab.slice(0,6).map(c=>(c.numero||"")+" · "+(c.assunto||"")+" · "+(c.estado||"")),
       ir:{h:"casos",l:"Ver Helpdesk"}}; }},
 
-  {mod:"rgpd", k:["rgpd","titular","dsar","consentimentos","protecao de dados","direitos"], f:()=>{
+  {mod:"rgpd", k:["rgpd","pedidos rgpd","pedidos por responder","pedidos de titular","titular","dsar","consentimentos","protecao de dados","direitos"], f:()=>{
     const ped=(state.pedidos||[]).filter(p=>p.estado!=="Concluído");
     const fora=ped.filter(p=>p.prazo&&p.prazo<todayISO()).length;
     const ativos=(state.consentimentos||[]).filter(c=>c.estado==="Ativo").length;
@@ -2948,7 +2948,7 @@ const CBOT_AJUDA = [
    t:"<strong>Campanhas → + Campanha.</strong> Escolhe-se o alvo (segmento, nível, fase), o modelo, e envia-se. Os resultados - aberturas e cliques - alimentam o lead score.",
    ir:"campanhas", doc:"modulos/campanhas-email/"},
 
-  {mod:"campanhas", k:["automacao","automatizar envios","gatilho","marketing automation","automacoes"],
+  {mod:"campanhas", k:["automacao","automatizar envios","emails automaticos","email automatico","envio automatico","gatilho","marketing automation","automacoes"],
    t:"<strong>Campanhas → Automações.</strong> Escolhe-se o gatilho (subiu de nível, ficou quente, sem contacto há X dias), a condição e os passos. Cria o <strong>modelo de email</strong> primeiro.",
    ir:"campanhas", doc:"modulos/campanhas-email/"},
 
@@ -3246,6 +3246,129 @@ const CBOT_AJUDA3 = [
    t:"Não há exportação por módulo. O que há é <strong>Definições → Dados & backup</strong>, que exporta <strong>tudo</strong> de uma vez - e, no Analytics, o <strong>Comparar a turma</strong> dá CSV.",
    ir:"definicoes", doc:"modulos/definicoes/"},
 ];
+
+/* ================== GLOSSARIO VIVO ==================
+   Uma sonda por familias de pergunta mostrou 45% sem resposta, e a lacuna
+   maior era esta: "o que e o MRR", "o que e o churn", "qual a diferenca entre
+   segmento e nivel". Sao as perguntas que se fazem A MEIO de uma tarefa, e
+   interromper para procurar no manual e o que faz desistir.
+
+   Cada termo gera sozinho as formas "o que e X", "o que significa X" e
+   "explica X". As chaves EXTRA (o termo nu) so entram onde nao ha conflito:
+   escrever "pipeline" deve dar o NUMERO do pipeline, nao a definicao - por
+   isso "pipeline" e "loyalty" nao entram como chave nua, mas "mrr" e "cac"
+   entram, porque nao competem com nenhuma pergunta de dados. ================== */
+const GLOSSARIO = [
+  {t:"lead", x:[], d:"Uma pessoa ou empresa que mostrou interesse mas ainda não comprou. No CRM é a <strong>primeira fase</strong> da empresa: Lead → MQL → SQL → Cliente."},
+  {t:"MQL", x:["mql"], d:"<strong>Marketing Qualified Lead</strong> - alguém dessa empresa já reagiu (abriu ou clicou emails). Há interesse demonstrado, mas ainda não há negócio em cima da mesa."},
+  {t:"SQL", x:["sql"], d:"<strong>Sales Qualified Lead</strong> - já existe oportunidade real, com proposta feita. É a fase em que Marketing entrega a Vendas."},
+  {t:"pipeline", x:[], d:"O conjunto das propostas <strong>em aberto</strong>, por estado. É o dinheiro que ainda pode entrar - não o que já entrou."},
+  {t:"funil de vendas", x:[], d:"A conversão entre etapas do pipeline. Perde-se gente em cada passo; o funil mostra <strong>em qual</strong>."},
+  {t:"funil de aquisição", x:[], d:"O mesmo, mas para <strong>empresas</strong> ao longo do ciclo de vida (Lead → Cliente). Mede a qualificação das contas, não as propostas."},
+  {t:"MRR", x:["mrr","receita recorrente"], d:"<strong>Monthly Recurring Revenue</strong> - a receita que se repete todos os meses. Um contrato de 40 €/mês vale <strong>40 € de MRR</strong>, não 480 €: confundir os dois é a forma mais rápida de inflacionar um relatório."},
+  {t:"ARR", x:["arr"], d:"MRR × 12. A mesma receita vista a um ano."},
+  {t:"TCV", x:["tcv","valor total do contrato"], d:"<strong>Total Contract Value</strong> - tudo o que o contrato vale: a parte pontual <strong>mais</strong> a recorrente vezes os meses de fidelização. É o número da proposta."},
+  {t:"churn", x:["churn"], d:"Clientes (ou receita) que se perdem num período. Menor é melhor. Um churn de 5%/mês parece pouco e faz perder <strong>metade da base num ano</strong>."},
+  {t:"CAC", x:["cac"], d:"<strong>Custo de Aquisição de Cliente</strong> - orçamento de marketing ÷ novos clientes. Diz quanto custa cada cliente novo."},
+  {t:"LTV", x:["ltv"], d:"Quanto um cliente vale ao longo da relação toda. O que interessa é o rácio: <strong>LTV/CAC ≥ 3</strong> é considerado saudável."},
+  {t:"RFM", x:["rfm"], d:"<strong>Recência, Frequência, Monetário</strong> - três eixos para separar clientes por comportamento de compra, em vez de por dimensão."},
+  {t:"SLA", x:["sla"], d:"O prazo a que a empresa se compromete para responder ou resolver. Violar um SLA não é um atraso: é uma <strong>promessa quebrada</strong> - e é isso que o cliente sente."},
+  {t:"NPS", x:["nps"], d:"0 a 10: <em>recomendaria?</em>. Promotores 9-10, passivos 7-8, <strong>detratores 0-6</strong>. Mede a relação, não o atendimento."},
+  {t:"CSAT", x:["csat"], d:"Satisfação com <strong>um atendimento concreto</strong>. Ao contrário do NPS, pergunta-se logo a seguir e sobre aquele caso."},
+  {t:"ticket médio", x:[], d:"O valor médio das propostas ganhas. Sobe de duas maneiras: vender mais caro, ou vender mais coisas ao mesmo cliente."},
+  {t:"taxa de conversão", x:[], d:"A percentagem de propostas <strong>fechadas</strong> que acabam em Ganha. Só conta as fechadas - as que estão em aberto ainda não decidiram nada."},
+  {t:"lead score", x:[], d:"Pontuação 0-100 da <strong>empresa</strong> (compras, <em>engagement</em> de email, loyalty, dimensão), que agrega todas as suas pessoas. É <strong>calculado</strong> - não se edita à mão."},
+  {t:"loyalty", x:["nivel de fidelizacao"], d:"O nível de fidelização (Bronze, Prata, Ouro), <strong>calculado do volume ganho</strong> da empresa. Dá desconto automático nas propostas. Não se escolhe."},
+  {t:"segmento", x:[], d:"A <strong>dimensão</strong> da empresa: Micro, PME, Grande. Não confundir com o loyalty - o segmento não muda sozinho, o nível sim."},
+  {t:"RoPA", x:["ropa"], d:"<strong>Registo das Atividades de Tratamento</strong> (art. 30.º do RGPD): que dados se tratam, para quê, com que base legal e por quanto tempo. É o primeiro documento que uma autoridade pede."},
+  {t:"DSAR", x:["dsar"], d:"Pedido de um <strong>titular</strong> para exercer os seus direitos (acesso, retificação, apagamento, portabilidade). O prazo de resposta é de <strong>um mês</strong>."},
+  {t:"base legal", x:[], d:"A razão que autoriza tratar dados pessoais (art. 6.º): consentimento, contrato, obrigação legal, interesse legítimo... Sem uma delas o tratamento é <strong>ilegal</strong> - mesmo com boas intenções."},
+  {t:"minimização", x:[], d:"Só se recolhe o que é <strong>preciso</strong> para a finalidade declarada (art. 5.º/1 c)). Cada campo a mais é mais um dado que se passa a ter de justificar, guardar e mostrar a quem o pedir."},
+  {t:"direito ao esquecimento", x:["apagamento"], d:"O direito a que os dados sejam apagados (art. 17.º). <strong>Não é absoluto</strong>: cede a obrigações legais de conservação, como as faturas."},
+  {t:"web-to-lead", x:["web to lead"], d:"Um formulário no site que cria o lead <strong>direto no CRM</strong>, com a origem já marcada. Em Campanhas há o código pronto a colar."},
+  {t:"persona", x:["persona"], d:"O retrato do cliente-tipo - idade, função, problema, canal. Serve para escrever <strong>para alguém</strong> em vez de para toda a gente."},
+  {t:"automação", x:[], d:"Uma regra que corre sozinha: <strong>gatilho → condição → passos</strong>. Ex.: subiu a Ouro → envia email de agradecimento e cria tarefa."},
+  {t:"gatilho", x:[], d:"O acontecimento que dispara uma automação: um cliente novo, uma subida de nível, um lead que ficou quente, silêncio há X dias."},
+  {t:"lead nurturing", x:["nurturing"], d:"Alimentar com conteúdo um lead que ainda <strong>não está pronto</strong> para comprar, para que se lembre de nós quando estiver."},
+  {t:"CRM", x:[], d:"<strong>Customer Relationship Management</strong> - o sítio onde vive a relação com o cliente: quem é, o que comprou, o que pediu, o que lhe prometemos. Não é uma lista de contactos."},
+];
+/* uma pergunta = um termo. As formas geram-se sozinhas. */
+const CBOT_GLOS = GLOSSARIO.map(g=>({
+  k:["o que e "+g.t,"o que e o "+g.t,"o que e a "+g.t,"o que e um "+g.t,"o que e uma "+g.t,
+     "o que significa "+g.t,"explica o "+g.t,"explica "+g.t,"define "+g.t].concat(g.x||[]),
+  glos:1, rot:"O que é "+(/^[aeiou]/i.test(g.t)?"o ":"o ")+g.t+"?", termo:g.t,
+  t:"<strong>"+g.t.charAt(0).toUpperCase()+g.t.slice(1)+"</strong> - "+g.d, doc:"glossario/"
+}));
+/* comparacoes: as duas confusoes que a turma faz sempre */
+CBOT_GLOS.push(
+  {k:["diferenca entre segmento e nivel","segmento ou nivel","segmento vs loyalty","confundo segmento e nivel"], glos:1, doc:"modulos/definicoes/",
+   t:"<strong>Segmento</strong> é a <em>dimensão</em> da empresa (Micro/PME/Grande) e <strong>não muda sozinho</strong>.<br><strong>Nível de loyalty</strong> é <em>calculado</em> do volume ganho e muda quando a empresa compra mais.<br><br>Até agosto de 2026 partilhavam o mesmo campo nesta app, e por isso a lista de alvo das campanhas misturava <em>PME</em> com <em>Ouro</em>. Hoje são filtros separados e podem cruzar-se: \"PME <strong>e</strong> Bronze\"."},
+  {k:["diferenca entre empresa e contacto","empresa ou contacto","conta ou pessoa","onde vive a venda"], glos:1, doc:"modulos/empresas-contactos/",
+   t:"A <strong>empresa</strong> é a conta: é lá que vivem a venda, o valor, o loyalty e a fase do lead.<br>O <strong>contacto</strong> é a pessoa: identidade, cargo, email.<br><br>A consequência prática: se a pessoa <strong>mudar de empresa</strong>, o histórico <strong>não vai com ela</strong> - fica na conta onde o negócio aconteceu."},
+  {k:["diferenca entre nps e csat","nps ou csat"], glos:1, doc:"modulos/casos/",
+   t:"<strong>CSAT</strong> pergunta sobre <em>um atendimento</em>, logo a seguir. <strong>NPS</strong> pergunta sobre <em>a relação</em>, de vez em quando. Um caso pode ter CSAT 5/5 e o cliente na mesma ser detrator - resolveram-lhe bem um problema que nunca devia ter existido."},
+);
+
+/* ---- funcionalidades que nasceram hoje ---- */
+const CBOT_AJUDA4 = [
+  {mod:"campanhas", k:["audiencia da campanha","quem recebe a campanha","porque nao envia a toda a gente","porque e que ficam de fora","destinatarios da campanha"],
+   t:"Antes de enviar, a app mostra <strong>quem recebe</strong> e quem fica de fora. Só sai para quem tem <strong>email</strong> e <strong>consentimento ativo</strong> - marketing direto precisa de base legal (art. 6.º/1 a) do RGPD e art. 13.º-A da Lei 41/2004). A linha da campanha já diz quantos são.",
+   ir:"campanhas", doc:"modulos/campanhas-email/"},
+
+  {mod:"campanhas", k:["formulario no meu site","codigo para o site","html do formulario","por o formulario no site","newsletter no site","subscricao no site"],
+   t:"<strong>Campanhas → Ver o código para o meu site.</strong> Sai o HTML pronto a colar, com consentimento obrigatório (e <strong>por marcar</strong> - o art. 7.º não aceita caixas pré-marcadas), a data em que foi aceite, e uma armadilha anti-spam. O <code>O_SEU_ENDPOINT</code> fica por preencher de propósito: um formulário de site <strong>nunca</strong> fala diretamente com a base de dados.",
+   ir:"campanhas", doc:"modulos/campanhas-email/"},
+
+  {mod:"definicoes", k:["departamento","criar um departamento","o que e um departamento","equipas da empresa","comercial e suporte"],
+   t:"<strong>Definições → Departamentos.</strong> O <strong>grupo</strong> diz o que se <em>pode fazer</em>; o <strong>departamento</strong> diz <em>onde se trabalha</em>. Duas pessoas podem ter as mesmas permissões e estar em equipas diferentes. Depois, o filtro de responsável ganha <strong>\"Toda a equipa X\"</strong>.",
+   ir:"definicoes", doc:"modulos/definicoes/"},
+
+  {mod:"definicoes", k:["ver a equipa","vejo a equipa","gerir a equipa","a minha equipa","equipa","quem trabalha comigo","utilizadores da empresa"],
+   t:"<strong>Definições → Utilizadores</strong> (quem são) e <strong>Grupos de Utilizadores</strong> (o que cada um pode). Um utilizador pertence <strong>sempre</strong> a um grupo, e dentro do grupo todos têm as mesmas permissões.",
+   ir:"definicoes", doc:"modulos/definicoes/"},
+];
+
+/* ---- numeros que faltavam ---- */
+const CBOT_NUM2 = [
+  {mod:"analytics", k:["ticket medio","valor medio das propostas","media por venda"], f:()=>{
+    const g=(state.propostas||[]).filter(p=>p.estado==="Ganha");
+    if(!g.length) return {t:"Ainda não há propostas ganhas - sem elas não há ticket médio."};
+    const tot=g.reduce((a,p)=>a+propTotal(p),0);
+    return {t:"Ticket médio de <strong>"+money(tot/g.length)+"</strong>, sobre "+g.length+" proposta(s) ganha(s) e "+money(tot)+" no total.", ir:{h:"analytics",l:"Ver Analytics"}}; }},
+
+  {mod:"agenda", k:["quantas tarefas","tarefas tenho","tarefas pendentes","quantos agendamentos"], f:q=>{
+    const t=(state.tarefas||[]); const ab=t.filter(x=>x.estado!=="Concluída");
+    const hoje=ab.filter(x=>x.data===todayISO()).length, atras=ab.filter(x=>x.data&&x.data<todayISO()).length;
+    return {t:"<strong>"+ab.length+"</strong> tarefa(s) por fazer, de "+t.length+" no total"+(hoje?" · "+hoje+" para hoje":"")+(atras?" · <strong>"+atras+" em atraso</strong>":"")+".",
+      ir:{h:"agenda",l:"Ver agenda"}}; }},
+
+  {mod:"comunicacao", k:["taxa de abertura","quantos abriram","quantos emails enviei","taxa de cliques","engagement"], f:()=>{
+    const e=(state.envios||[]); if(!e.length) return {t:"Ainda não foi enviado nenhum email."};
+    const ab=e.filter(x=>x.aberto).length, cl=e.filter(x=>x.clicado).length;
+    const auto=e.filter(x=>x.origem==="Automação").length;
+    return {t:"<strong>"+e.length+" email(s)</strong> enviados"+(auto?" ("+auto+" por automação)":"")+".<br>Abertura <strong>"+Math.round(ab/e.length*100)+"%</strong> · cliques <strong>"+Math.round(cl/e.length*100)+"%</strong>.",
+      ir:{h:"comunicacao",l:"Ver histórico"}}; }},
+
+  {mod:"produtos", k:["quantos produtos","quantos artigos","o meu catalogo","tamanho do catalogo"], f:()=>{
+    const p=(state.produtos||[]); if(!p.length) return {t:"O catálogo está vazio - e sem catálogo não há linhas de proposta."};
+    const baixo=p.filter(stockLow).length;
+    return {t:"<strong>"+p.length+" artigo(s)</strong> no catálogo"+(baixo?" · <strong>"+baixo+" com stock baixo</strong>":"")+".",
+      ir:{h:"produtos",l:"Ver produtos"}}; }},
+
+  {mod:"clientes", k:["contactos sem email","quantos sem email","quem nao tem email"], f:()=>{
+    const c=(state.clientes||[]).filter(x=>!String(x.email||"").trim());
+    if(!c.length) return {t:"Todos os contactos têm email - é o que permite fazer campanhas."};
+    return {t:"<strong>"+c.length+" contacto(s)</strong> sem email. Nenhum deles pode receber campanhas.",
+      lista:c.slice(0,8).map(x=>((x.nome||"")+" "+(x.apelido||"")).trim()+(x.telefone?" · "+x.telefone:"")),
+      ir:{h:"clientes",l:"Ver contactos"}}; }},
+
+  {mod:"rgpd", k:["violacoes de dados","houve alguma violacao","data breach","fuga de dados"], f:()=>{
+    const v=(state.violacoes||[]);
+    if(!v.length) return {t:"Não há violações de dados registadas. Se houvesse, o prazo de notificação à CNPD seria de <strong>72 horas</strong>."};
+    return {t:"<strong>"+v.length+" violação(ões)</strong> registada(s). O prazo de notificação à CNPD é de <strong>72 horas</strong> a contar do conhecimento.",
+      lista:v.slice(0,6).map(x=>(x.descricao||x.tipo||"-")+" · "+dPT(x.data||x.detetada)),
+      ir:{h:"rgpd",l:"Ver RGPD"}}; }},
+];
 /* Perguntas sobre o próprio assistente - não dependem de módulo nenhum */
 const CBOT_META = [
   {k:["es uma ia","es ia","es um robo","inteligencia artificial","chatgpt","quem es","es humano","es uma pessoa","como te chamas","porque te chamas","pulso"], f:()=>({
@@ -3267,39 +3390,112 @@ function cbotRaiz(p){ if(p.length<4) return p;
 const cbotRaizes = t => cbotNorm(t).split(/[^a-z0-9]+/).filter(Boolean).map(cbotRaiz);
 
 /* Palavras compridas valem mais: "motivos de perda" ganha a "perda" */
+/* A MELHOR chave, nao a soma delas. Somar premiava as entradas com muitas
+   chaves parecidas: "ver a equipa" (10) + "equipa" (6) davam 16 pontos a uma
+   pergunta sobre PROPOSTAS que so por acaso dizia "equipa". Uma entrada vale o
+   que vale a sua melhor correspondencia - nao o numero de sinonimos que eu me
+   lembrei de escrever. */
 function cbotScore(ks,q){ let n=0; const qr=cbotRaizes(q); const qs=" "+qr.join(" ")+" ";
   ks.forEach(k=>{ const kk=cbotNorm(k);
     /* 1. a frase tal e qual - o sinal mais forte */
     const curto = kk.length<=4;
-    if(curto ? new RegExp("(^|[^a-z0-9])"+kk+"([^a-z0-9]|$)").test(q) : q.indexOf(kk)>=0){ n+=kk.length; return; }
+    if(curto ? new RegExp("(^|[^a-z0-9])"+kk+"([^a-z0-9]|$)").test(q) : q.indexOf(kk)>=0){ n=Math.max(n,kk.length); return; }
     /* 2. as raizes todas presentes, por qualquer ordem - vale um pouco menos,
           para nunca ganhar a uma frase que bata exatamente */
     const kr=cbotRaizes(k).filter(w=>w.length>=3);
     /* uma chave de uma so palavra tambem conta pela raiz, desde que seja
        comprida - assim "agendar" apanha "agendo", sem que "sla" ou "ia"
        apanhem meia app */
-    if(kr.length===1 && kr[0].length>=5 && qs.indexOf(" "+kr[0]+" ")>=0){ n+=Math.round(kk.length*0.8); return; }
-    if(kr.length>=2 && kr.every(w=>qs.indexOf(" "+w+" ")>=0)) n+=Math.round(kk.length*0.8); });
+    if(kr.length===1 && kr[0].length>=5 && qs.indexOf(" "+kr[0]+" ")>=0){ n=Math.max(n,Math.round(kk.length*0.8)); return; }
+    if(kr.length>=2 && kr.every(w=>qs.indexOf(" "+w+" ")>=0)) n=Math.max(n,Math.round(kk.length*0.8)); });
   return n; }
 
+/* Todas as entradas num sítio só - para pontuar, e para saber o que existe */
+function cbotTodas(){
+  return CBOT_META.map(x=>Object.assign({},x))
+    .concat(CBOT.filter(i=>can(i.mod)))
+    .concat(CBOT_NUM2.filter(i=>!i.mod||can(i.mod)))
+    .concat(CBOT_AJUDA.concat(CBOT_AJUDA2,CBOT_AJUDA3,CBOT_AJUDA4).filter(i=>!i.mod||can(i.mod)).map(i=>Object.assign({ajuda:1},i)))
+    .concat(CBOT_GLOS);
+}
+/* Rótulo legível de uma entrada, para a mostrar como sugestão.
+   As chaves foram escritas como as pessoas escrevem, por isso a mais comprida
+   costuma ser a frase mais natural. */
+function cbotRotulo(i){
+  if(i.rot) return i.rot;
+  const k=(i.k||[]).slice().sort((a,b)=>b.length-a.length)[0]||"";
+  const f=k.charAt(0).toUpperCase()+k.slice(1);
+  return f+(/^(como|onde|quem|quanto|quantas|quantos|porque|o que|qual)/i.test(k)?"?":"");
+}
+
+/* ---------- Fall-forward ----------
+   A pesquisa de design de chatbots e unanime nisto: um "nao sei" seco deixa a
+   pessoa no mesmo sitio onde estava. O que funciona chama-se fall-forward -
+   em vez de recuar, mostrar as opcoes MAIS PROXIMAS do que se escreveu.
+
+   Aqui isso da-se de graca: o motor ja pontua todas as entradas, so nao estava
+   a aproveitar as que ficaram por baixo do limiar. */
+function cbotProximas(q, excluir, n){
+  return cbotTodas()
+    .map(i=>({i, p:cbotScore(i.k,q)}))
+    .filter(x=>x.p>0 && x.i!==excluir)
+    .sort((a,b)=>b.p-a.p)
+    .slice(0, n||3)
+    .map(x=>cbotRotulo(x.i));
+}
+function cbotChipsHTML(l, titulo){
+  if(!l||!l.length) return "";
+  return `<div class="cbot-perto"><span class="cbot-perto-t">${esc(titulo)}</span>`+
+    l.map(x=>`<button class="cbot-chip" data-act="cbot-chip">${esc(x)}</button>`).join("")+`</div>`;
+}
 function cbotResponde(txt){
   const q=cbotNorm(txt);
   let melhor=null, pts=0;
   CBOT_META.forEach(i=>{ const p=cbotScore(i.k,q); if(p>pts){pts=p;melhor=i;} });
   CBOT.forEach(i=>{ if(!can(i.mod)) return; const p=cbotScore(i.k,q); if(p>pts){pts=p;melhor=i;} });
-  CBOT_AJUDA.concat(CBOT_AJUDA2,CBOT_AJUDA3).forEach(i=>{ if(i.mod&&!can(i.mod)) return; const p=cbotScore(i.k,q); if(p>pts){pts=p;melhor=Object.assign({ajuda:1},i);} });
+  /* CBOT ja foi percorrido acima - aqui so a segunda leva de numeros */
+  CBOT_NUM2.forEach(i=>{ if(i.mod&&!can(i.mod)) return; const p=cbotScore(i.k,q); if(p>pts){pts=p;melhor=i;} });
+  CBOT_AJUDA.concat(CBOT_AJUDA2,CBOT_AJUDA3,CBOT_AJUDA4).forEach(i=>{ if(i.mod&&!can(i.mod)) return; const p=cbotScore(i.k,q); if(p>pts){pts=p;melhor=Object.assign({ajuda:1},i);} });
+  /* o glossario nao depende de modulo nenhum: um termo explica-se sempre */
+  CBOT_GLOS.forEach(i=>{ const p=cbotScore(i.k,q); if(p>pts){pts=p;melhor=i;} });
   /* nome de empresa na frase: ganha a tudo o resto, porque é sempre mais
      específico do que uma pergunta genérica */
   if(can("empresas") && !(melhor&&melhor.ajuda&&pts>=12)){ const e=pulsoEmpresa(q); if(e) return pulsoResumoEmpresa(e); }
+  /* LIMIAR DE CONFIANCA
+     Antes, qualquer pontuacao acima de zero ganhava. Resultado: "quero ver as
+     propostas do mes passado da equipa comercial" respondia sobre GRUPOS DE
+     UTILIZADORES - porque a palavra "equipa" batia. Responder com confianca a
+     partir de uma coincidencia fraca e exatamente o defeito que este
+     assistente existe para nao ter.
+
+     Um limiar absoluto nao chega, porque a pontuacao cresce com o tamanho da
+     chave. O que separa mesmo e a COBERTURA: quanto da pergunta e que a chave
+     explica. "equipa" dentro de uma frase de 57 caracteres explica 10% dela -
+     nao e uma resposta, e uma coincidencia. */
+  const qLen=Math.max(1,q.trim().length);
+  const cobertura=pts/qLen;
+  const convence = cobertura>=0.9        /* a chave e praticamente a pergunta */
+                || pts>=18               /* frase longa a bater exatamente */
+                || (pts>=5 && cobertura>=0.22);
+  if(melhor && !convence){ melhor=null; }
   if(!melhor){
     pulsoRegista(txt);
+    const perto=cbotProximas(q,null,3);
     /* Antes, o manual só era oferecido a quem escrevesse "como/onde/posso".
        Era uma subtileza minha que não servia a ninguém: quem pergunta uma
        coisa e leva um "não sei" seco fecha a janela. Agora o manual vai
        SEMPRE - dizer "não sei, mas está aqui" nunca está errado. */
-    return {t:"Não sei responder a isso - só reconheço as frases para que fui programado.<br><br>Mas o <strong>manual</strong> tem tudo, em português e inglês, com vídeos. E a sua pergunta ficou registada, para o formador saber o que falta.", doc:"", naoSei:true};
+    return {t:"Não sei responder a isso - só reconheço as frases para que fui programado."+
+        (perto.length?"<br><br>Quis dizer alguma destas?":"<br><br>Mas o <strong>manual</strong> tem tudo, em português e inglês, com vídeos.")+
+        "<br><br><span class=\"muted\" style=\"font-size:.76rem\">A sua pergunta ficou registada, para o formador saber o que falta.</span>",
+      perto, doc:"", naoSei:true};
   }
-  if(!melhor.f) return melhor;   /* as de ajuda são texto fixo */
+  if(!melhor.f){
+    /* depois de explicar um termo, o passo seguinte costuma ser ver o número.
+       "O que é o MRR" → "qual o valor do meu pipeline". */
+    if(melhor.glos) return Object.assign({},melhor,{perto:cbotProximas(melhor.termo||q,melhor,2)});
+    return melhor;   /* as de ajuda são texto fixo */
+  }
   try{ return Object.assign({ajuda:melhor.ajuda},melhor.f(q)); }
   catch(e){ return {t:"Encontrei a pergunta mas falhei a ir buscar os dados. Veja o módulo diretamente."}; }
 }
@@ -3320,6 +3516,7 @@ function cbotSugestoes(){
     {m:"casos",     t:"Como estão os casos de suporte?"},
     {m:"rgpd",      t:"Há pedidos RGPD por responder?"},
     {m:"rgpd",      t:"Como respondo a um pedido de titular?"},
+    {m:null,        t:"O que é o MRR?"},
     {m:null,        t:"Chamas-te Pulso porquê?"},
   ];
   const podeVer=todas.filter(x=>!x.m||can(x.m));
@@ -3334,8 +3531,10 @@ function cbotMsgHTML(m){
   if(m.de==="aviso") return `<div class="cbot-msg aviso">${m.t}</div>`;
   const irH = m.ir ? (typeof m.ir==="string" ? {h:m.ir, l:"Ir para "+(NAV_FLAT.find(x=>x.id===m.ir)||{label:m.ir}).label} : m.ir) : null;
   return `<div class="cbot-msg ele">`+
-    (m.ajuda?`<span class="cbot-tag">${ic("book",11)} Como se faz</span>`:"")+m.t+
+    (m.ajuda?`<span class="cbot-tag">${ic("book",11)} Como se faz</span>`:"")+
+    (m.glos?`<span class="cbot-tag">${ic("bulb",11)} O que é</span>`:"")+m.t+
     (m.lista&&m.lista.length?`<ul class="cbot-lista">${m.lista.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:"")+
+    (m.perto&&m.perto.length?cbotChipsHTML(m.perto, m.naoSei?"Talvez seja isto:":"A seguir:"):"")+
     (irH?`<button class="cbot-ir" data-act="cbot-ir" data-h="${esc(irH.h)}">${esc(irH.l)} ${ic("chevR",13)}</button>`:"")+
     (m.doc!=null?`<a class="cbot-ir" href="${esc(helpURL(m.doc))}" target="_blank" rel="noopener">${ic("book",13)} Abrir no manual</a>`:"")+
     `</div>`;
