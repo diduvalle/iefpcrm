@@ -1892,10 +1892,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#marca-aparencia-admin" class="md-nav__link">
+  <a href="#marca-aparencia" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Marca &amp; Aparência (Admin)
+        Marca &amp; Aparência
       
     </span>
   </a>
@@ -1929,6 +1929,39 @@
     <span class="md-ellipsis">
       
         Modelos de Proposta
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#equipa-permissoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Equipa &amp; permissões
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#departamentos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Departamentos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#valores-ocultos-o" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Valores ocultos (o 🔒)
       
     </span>
   </a>
@@ -2407,10 +2440,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#marca-aparencia-admin" class="md-nav__link">
+  <a href="#marca-aparencia" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Marca &amp; Aparência (Admin)
+        Marca &amp; Aparência
       
     </span>
   </a>
@@ -2444,6 +2477,39 @@
     <span class="md-ellipsis">
       
         Modelos de Proposta
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#equipa-permissoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Equipa &amp; permissões
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#departamentos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Departamentos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#valores-ocultos-o" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Valores ocultos (o 🔒)
       
     </span>
   </a>
@@ -2529,7 +2595,7 @@
 <p><strong>Exportar</strong> / <strong>Importar</strong> o JSON completo do CRM (backup ou migração). É também aqui que <strong>repões os dados de exemplo</strong>.</p>
 <h3 id="gerador-de-dados-de-exemplo">Gerador de dados de exemplo<a class="headerlink" href="#gerador-de-dados-de-exemplo" title="Permanent link">¶</a></h3>
 <p>Cria rapidamente <strong>empresas, contactos e propostas</strong> realistas (PT) - acrescenta aos dados existentes.</p>
-<h3 id="marca-aparencia-admin">Marca &amp; Aparência <em>(Admin)</em><a class="headerlink" href="#marca-aparencia-admin" title="Permanent link">¶</a></h3>
+<h3 id="marca-aparencia">Marca &amp; Aparência<a class="headerlink" href="#marca-aparencia" title="Permanent link">¶</a></h3>
 <p><em>White-label</em>: <strong>nome</strong>, <strong>cor principal</strong> (deriva a paleta), <strong>logótipo</strong>, <strong>fundo do login</strong>. <strong>Aplicar</strong> / <strong>Repor IEFP</strong>. → <a href="../../formador/email-marca/">Email &amp; Marca</a>.</p>
 <h3 id="envio-de-email-real-emailjs-admin">Envio de email real (EmailJS) <em>(Admin)</em><a class="headerlink" href="#envio-de-email-real-emailjs-admin" title="Permanent link">¶</a></h3>
 <p>As <strong>chaves</strong> estão <strong>fixas</strong> (🔒); geres só o <strong>modo</strong> (real/simulado) + <strong>Enviar teste</strong>. → <a href="../../formador/email-marca/">Email &amp; Marca</a>.</p>
@@ -2547,6 +2613,49 @@
 <p>Matriz <strong>papéis × módulos</strong>: define o que cada grupo vê (Administrador/Formador = tudo; Formando limitado). Inclui a opção <strong>ocultar valores financeiros</strong> por grupo.</p>
 <h3 id="modelos-de-proposta">Modelos de Proposta<a class="headerlink" href="#modelos-de-proposta" title="Permanent link">¶</a></h3>
 <p>Atalho para o construtor de modelos. → <a href="../modelos/">Modelos de Proposta</a>.</p>
+<h3 id="equipa-permissoes">Equipa &amp; permissões<a class="headerlink" href="#equipa-permissoes" title="Permanent link">¶</a></h3>
+<p>Dois cartões que respondem à pergunta <em>"e se eu tiver uma equipa?"</em>:</p>
+<ul>
+<li><strong>Utilizadores</strong> - quem são, com que acesso e em que <strong>departamento</strong>.</li>
+<li><strong>Grupos de Utilizadores</strong> - o que cada grupo vê e pode fazer.</li>
+</ul>
+<p>Um utilizador <strong>pertence sempre a um grupo</strong> (o campo <em>Papel</em> não tem opção vazia), e dentro do grupo têm todos as mesmas permissões. Cada grupo escolhe os <strong>módulos</strong> que vê, se é <strong>gestor</strong>, e se tem o <strong>financeiro oculto</strong>.</p>
+<div class="admonition tip">
+<p class="admonition-title">O exercício que vale a pena</p>
+<p>Criar um grupo <em>Comercial Júnior</em> com dois ou três módulos, criar uma pessoa nesse grupo, e <strong>entrar como ela</strong>. Vê-se o menu encolher. É a forma mais rápida de perceber o que é um perfil de acesso - e o que se sente do outro lado.</p>
+<p>Numa turma, o formador pode dar a permissão <strong>Equipa &amp; permissões</strong> aos formandos, para cada um montar a equipa da sua empresa fictícia.</p>
+</div>
+<h3 id="departamentos">Departamentos<a class="headerlink" href="#departamentos" title="Permanent link">¶</a></h3>
+<p>O nível que faltava entre "a empresa" e "a pessoa".</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Responde a</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Grupo</strong></td>
+<td>o que se <strong>pode fazer</strong></td>
+</tr>
+<tr>
+<td><strong>Departamento</strong></td>
+<td><strong>onde se trabalha</strong></td>
+</tr>
+</tbody>
+</table>
+<p>São coisas diferentes: duas pessoas podem ter exatamente as mesmas permissões e estar em equipas diferentes.</p>
+<p>Escreve o nome e <strong>+ Adicionar</strong>, ou usa <strong>Sugerir os habituais</strong> (Comercial, Marketing, Suporte). Remover um departamento <strong>não mexe</strong> em quem já o tinha - a app diz quantos são antes de remover.</p>
+<p>Depois disso, o filtro de responsável em <strong>Empresas</strong> e <strong>Propostas</strong> ganha <strong>"Toda a equipa X"</strong> - é o que um chefe de equipa quer ver: o pipeline da equipa, e não o de cada um a seu tempo.</p>
+<h3 id="valores-ocultos-o">Valores ocultos (o 🔒)<a class="headerlink" href="#valores-ocultos-o" title="Permanent link">¶</a></h3>
+<p>Um grupo pode ter o <strong>financeiro oculto</strong>: em vez dos valores aparece 🔒 (e nas Empresas a coluna do valor desaparece). Num CRM a sério isto existe mesmo - um comercial júnior não vê a receita da empresa toda.</p>
+<div class="admonition warning">
+<p class="admonition-title">Vem desligado, e foi de propósito</p>
+<p>Até agosto de 2026 o papel <strong>Formando</strong> nascia com o cadeado. Contando os cadeados por módulo: Analytics <strong>17</strong>, Propostas 13, Dashboard 12, Decisão 12, Retenção 12.</p>
+<p>O mais grave não era o Kanban - era o <strong>Analytics</strong>, que ficava ilegível: ticket médio, receita por mês, top de empresas, LTV/CAC, tudo tapado. E a sandbox é a <strong>empresa fictícia do próprio formando</strong>: esconder-lhe os números do negócio que ele está a construir tirava-lhe justamente os cálculos que a formação quer ensinar - IVA regional, desconto de loyalty, TCV.</p>
+<p>A funcionalidade <strong>fica</strong>: ligue-a num grupo quando quiser demonstrá-la. Dá bom material de aula - peça a alguém para trabalhar dez minutos com o cadeado ligado.</p>
+</div>
 <h3 id="metas-de-vendas">Metas de vendas<a class="headerlink" href="#metas-de-vendas" title="Permanent link">¶</a></h3>
 <p>Objetivo de <strong>receita ganha</strong> no mês. Dois níveis:</p>
 <ul>
