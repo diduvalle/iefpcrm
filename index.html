@@ -502,7 +502,7 @@ body.present #presentExit{display:inline-flex;align-items:center;gap:6px;positio
 </aside>
 
 <!-- ASSISTENTE (consulta os dados da sandbox; nao e IA) -->
-<button class="cbot-fab" id="cbotFab" data-act="cbot-toggle" title="Pulso - o assistente do CRM" aria-label="Pulso - o assistente do CRM"></button>
+<button class="cbot-fab" id="cbotFab" data-act="cbot-toggle" title="Pulso - o assistente do CRM (Ctrl+K)" aria-label="Pulso - o assistente do CRM"></button>
 <div class="cbot-panel" id="cbotPanel" role="dialog" aria-label="Pulso - o assistente do CRM">
   <div class="cbot-head">
     <span id="cbotIcon" style="color:var(--g700)"></span>
@@ -512,7 +512,7 @@ body.present #presentExit{display:inline-flex;align-items:center;gap:6px;positio
   <div class="cbot-log" id="cbotLog"></div>
   <div class="cbot-chips" id="cbotChips"></div>
   <div class="cbot-foot">
-    <input id="cbotIn" placeholder="ex.: quanto vendi este mês" autocomplete="off" maxlength="120">
+    <input id="cbotIn" placeholder="ex.: como está a Silva &amp; Filhos" autocomplete="off" maxlength="120">
     <button data-act="cbot-send" title="Perguntar" aria-label="Perguntar"><span id="cbotSendIcon"></span></button>
   </div>
 </div>
@@ -1205,6 +1205,7 @@ function load(){
     const nv=(state.loyalty||[]).map(l=>l.nome);
     if(a.condSegmento && nv.includes(a.condSegmento)){ a.condNivel=a.condSegmento; a.condSegmento='Todos'; } });
   if(!Array.isArray(state.autoLog)) state.autoLog=[];
+  if(!Array.isArray(state.pulsoLog)) state.pulsoLog=[];
   if(!state.settings.metas||typeof state.settings.metas!=='object') state.settings.metas={mensal:0,pessoas:{}};
   if(!state.settings.metas.pessoas) state.settings.metas.pessoas={};
   (state.automacoes||[]).forEach(a=>{ (a.passos||[]).forEach(p=>{ if(!p.tipo) p.tipo='email'; }); if(a.saida==null) a.saida=''; });
@@ -2768,6 +2769,36 @@ const CBOT = [
 ];
 
 
+/* ---- o que ele NAO soube responder ----
+   Cada pergunta que cai no "nao sei" e a lista do que falta, escrita por quem
+   usa em vez de adivinhada por quem programa. E, numa turma, e um sinal raro:
+   o que se tenta perguntar e o que nao se percebeu. Se dez pessoas escreverem
+   "como faco um orcamento", o problema nao esta no Pulso - esta em ninguem ter
+   ligado "orcamento" a "proposta".
+
+   Fica SO na sandbox (localStorage), como tudo o resto, e vai no retrato da
+   entrega. Por isso e declarado a quem escreve - registar o que a pessoa
+   escreve sem o dizer seria exatamente o contrario do que esta app ensina. */
+const PULSO_LOG_MAX=120;
+function pulsoRegista(q){
+  const t=String(q||"").trim(); if(t.length<3) return;
+  const chave=cbotNorm(t);
+  const j=state.pulsoLog.findIndex(x=>cbotNorm(x.q)===chave);
+  if(j>=0){ state.pulsoLog[j].n=(state.pulsoLog[j].n||1)+1; state.pulsoLog[j].data=todayISO(); }
+  else { state.pulsoLog.unshift({q:t, n:1, data:todayISO(), onde:currentView()});
+         if(state.pulsoLog.length>PULSO_LOG_MAX) state.pulsoLog.length=PULSO_LOG_MAX; }
+  save();
+}
+/* usado na ficha de avaliação e no cartão das Definições */
+function pulsoLogHTML(log,vazio){
+  const l=(Array.isArray(log)?log:[]).slice().sort((a,b)=>(b.n||1)-(a.n||1));
+  if(!l.length) return `<p class="muted" style="font-size:.84rem;margin:0">${esc(vazio)}</p>`;
+  return `<div class="mini-list">${l.slice(0,25).map(x=>`<div class="mini-item">
+    <span class="grow"><strong style="font-weight:600">${esc(x.q)}</strong>
+      <span class="muted" style="font-size:.74rem">${dPT(x.data)}${x.onde?" · em "+esc(x.onde):""}</span></span>
+    ${(x.n||1)>1?`<span class="pill amber">${x.n}×</span>`:""}</div>`).join("")}</div>`+
+    (l.length>25?`<div class="muted" style="font-size:.76rem;margin-top:6px">… e mais ${l.length-25}</div>`:"");
+}
 /* ---- "como se faz" ----
    Os formandos perguntam ao formador o que está escrito no manual. Isto põe a
    resposta curta onde eles já estão, e o botão que abre a página certa - em vez
@@ -2864,6 +2895,68 @@ const CBOT_AJUDA = [
    t:"No ecrã de entrada, <strong>Esqueci-me da palavra-passe</strong> - chega um email. Se não resultar, é o formador que a repõe.",
    doc:"formando/recuperar/"},
 ];
+/* ---- "como esta a X?" ----
+   O salto de "quantos?" para "e este cliente, como esta?" - a pergunta que se
+   faz mesmo, nos trinta segundos antes de uma chamada. Procura o nome da
+   empresa dentro da frase e devolve a linha do tempo em tres linhas. */
+/* "Silva & Filhos, Lda." escrito na conversa vem com &, virgulas e a forma
+   juridica. Compara-se so por letras e numeros, dos dois lados. */
+const pulsoChave = t => cbotNorm(t).replace(/[^a-z0-9]+/g," ").trim();
+function pulsoEmpresa(q){
+  const emps=state.empresas||[]; if(!emps.length) return null;
+  const qc=" "+pulsoChave(q)+" ";
+  const palavras=qc.trim().split(" ").filter(Boolean).length;
+  /* 1. o nome inteiro na frase. O mais comprido ganha - "Nunes Hotelaria"
+        antes de "Nunes", para nao responder sobre a empresa errada. */
+  let achada=null, melhor=0;
+  emps.forEach(e=>{ const nome=pulsoChave(dupEmpNome(e.nome));
+    if(nome.length>=4 && qc.indexOf(" "+nome+" ")>=0 && nome.length>melhor){ melhor=nome.length; achada=e; } });
+  if(achada) return achada;
+  /* 2. so a primeira palavra ("a Silva ja pagou?"), e apenas se:
+        - a frase for curta, senao um nome como "Email Lda" sequestrava
+          "como faco um modelo de email";
+        - nenhuma outra empresa comecar pela mesma palavra, senao respondia-se
+          com confianca sobre a errada - que e o defeito que esta app ensina
+          a nao ter. */
+  if(palavras>5) return null;
+  emps.forEach(e=>{ if(achada) return;
+    const p1=(pulsoChave(dupEmpNome(e.nome)).split(" ")[0]||"");
+    if(p1.length<4 || qc.indexOf(" "+p1+" ")<0) return;
+    const ambigua=emps.filter(o=>(pulsoChave(dupEmpNome(o.nome)).split(" ")[0]||"")===p1).length>1;
+    if(!ambigua) achada=e; });
+  return achada;
+}
+function pulsoResumoEmpresa(e){
+  const props=(state.propostas||[]).filter(p=>p.empresaId===e.id);
+  const ganhas=props.filter(p=>p.estado==="Ganha");
+  const abertas=props.filter(p=>!["Ganha","Perdida"].includes(p.estado));
+  const valor=ganhas.reduce((t,p)=>t+propTotal(p),0);
+  const pessoas=empContacts(e.id);
+  const casos=(state.casos||[]).filter(c=>c.empresaId===e.id||pessoas.some(x=>x.id===c.clienteId)).filter(casoAberto);
+  const ret=(state.retencoes||[]).filter(r=>r.empresaId===e.id&&!["Retido","Cancelado"].includes(r.estado));
+  const ids=pessoas.map(x=>x.id);
+  const semCons=pessoas.filter(c=>!(state.consentimentos||[]).some(x=>x.clienteId===c.id&&x.estado==="Ativo"));
+  const ev=(typeof timelineEmpresa==="function")?timelineEmpresa(e.id):[];
+  const ultimo=ev.find(x=>/Email|Caso|Proposta|Tarefa/.test(x.titulo));
+  const resp=e.responsavelId?nomeMembro((equipaMembros()||[]).find(u=>u.id===e.responsavelId)||{}):"";
+
+  const linhas=[];
+  linhas.push("Fase "+(e.fase||"Lead")+" · "+(e.loyalty||"Bronze")+" · lead score "+empLeadScore(e)+(resp?" · "+resp:""));
+  linhas.push(ganhas.length? ganhas.length+" proposta(s) ganha(s) · "+money(valor) : "Ainda sem propostas ganhas");
+  if(abertas.length) linhas.push("Em aberto: "+abertas.map(p=>(p.numero||"")+" ("+money(propTotal(p))+", "+(p.estado||"")+")").join(", "));
+  linhas.push(pessoas.length? pessoas.length+" contacto(s): "+pessoas.slice(0,3).map(c=>((c.nome||"")+" "+(c.apelido||"")).trim()).join(", ")+(pessoas.length>3?"…":"") : "Sem contactos registados");
+  if(ultimo) linhas.push("Último movimento: "+ultimo.titulo+" · "+dPT(ultimo.data));
+
+  /* o que interessa saber ANTES de ligar - e o que costuma correr mal */
+  const avisos=[];
+  if(casos.length) avisos.push(casos.length+" caso(s) de suporte por fechar");
+  if(ret.length)   avisos.push("pedido de cancelamento em curso");
+  if(semCons.length && ids.length) avisos.push(semCons.length+" contacto(s) sem consentimento ativo");
+
+  return {t:"<strong>"+esc(e.nome)+"</strong>"+(e.numero?" · "+esc(e.numero):"")+"."+
+      (avisos.length?"<br><br>⚠ Antes de ligar: <strong>"+esc(avisos.join(" · "))+"</strong>.":""),
+    lista:linhas, ir:{h:"empresas",l:"Abrir a ficha"}};
+}
 /* Perguntas sobre o próprio assistente - não dependem de módulo nenhum */
 const CBOT_META = [
   {k:["es uma ia","es ia","es um robo","inteligencia artificial","chatgpt","quem es","es humano","es uma pessoa","como te chamas","porque te chamas","pulso"], f:()=>({
@@ -2902,7 +2995,11 @@ function cbotResponde(txt){
   CBOT_META.forEach(i=>{ const p=cbotScore(i.k,q); if(p>pts){pts=p;melhor=i;} });
   CBOT.forEach(i=>{ if(!can(i.mod)) return; const p=cbotScore(i.k,q); if(p>pts){pts=p;melhor=i;} });
   CBOT_AJUDA.forEach(i=>{ if(i.mod&&!can(i.mod)) return; const p=cbotScore(i.k,q); if(p>pts){pts=p;melhor=Object.assign({ajuda:1},i);} });
+  /* nome de empresa na frase: ganha a tudo o resto, porque é sempre mais
+     específico do que uma pergunta genérica */
+  if(can("empresas") && !(melhor&&melhor.ajuda&&pts>=12)){ const e=pulsoEmpresa(q); if(e) return pulsoResumoEmpresa(e); }
   if(!melhor){
+    pulsoRegista(txt);
     /* quem escreve "como/onde" quer instruções: manda-se ao manual em vez de
        um encolher de ombros */
     const pedeAjuda=/(^| )(como|onde|posso|consigo|para que serve)( |$)/.test(q);
@@ -2917,6 +3014,7 @@ function cbotResponde(txt){
 
 /* Sugestões: só as dos módulos a que a pessoa tem acesso */
 function cbotSugestoes(){
+  const v=currentView();
   const todas=[
     {m:"propostas", t:"Como crio uma proposta?"},
     {m:"propostas", t:"Quantas propostas tenho em aberto?"},
@@ -2932,7 +3030,11 @@ function cbotSugestoes(){
     {m:"rgpd",      t:"Como respondo a um pedido de titular?"},
     {m:null,        t:"Chamas-te Pulso porquê?"},
   ];
-  return todas.filter(x=>!x.m||can(x.m)).slice(0,7);
+  const podeVer=todas.filter(x=>!x.m||can(x.m));
+  /* as do módulo onde a pessoa está primeiro: numa turma, a pergunta que
+     apetece fazer é quase sempre sobre o ecrã que se tem à frente */
+  const aqui=podeVer.filter(x=>x.m===v), resto=podeVer.filter(x=>x.m!==v);
+  return aqui.concat(resto).slice(0,7);
 }
 
 function cbotMsgHTML(m){
@@ -2966,7 +3068,7 @@ function cbotToggle(){
   if(abrir){
     if(!cbotMsgs.length){
       /* a primeira coisa que se diz é o que se é (art. 50.º do AI Act) */
-      cbotMsgs.push({de:"aviso",t:"<strong>Não sou inteligência artificial.</strong> O Pulso responde com regras fixas aos dados desta sandbox. Não altera nada."});
+      cbotMsgs.push({de:"aviso",t:"<strong>Não sou inteligência artificial.</strong> O Pulso responde com regras fixas aos dados desta sandbox. Não altera nada.<br><br>As perguntas a que <strong>não</strong> souber responder ficam registadas, para o formador perceber o que falta - e ficam visíveis na sua entrega."});
       cbotMsgs.push({de:"ele",t:"Pergunte-me um número sobre o seu CRM. Se não perceber, digo-lhe."});
     }
     cbotPinta(); setTimeout(()=>{ const i=$("#cbotIn"); if(i) i.focus(); },120);
@@ -2976,6 +3078,12 @@ function cbotToggle(){
 document.addEventListener("keydown",e=>{
   if(e.key!=="Enter"||!e.target||e.target.id!=="cbotIn") return;
   e.preventDefault(); cbotDiz(e.target.value); e.target.value="";
+});
+/* Ctrl+K abre e fecha. Uma ferramenta que obriga a procurar o botão com o
+   rato é uma ferramenta que se usa uma vez. Escape fecha. */
+document.addEventListener("keydown",e=>{
+  if((e.ctrlKey||e.metaKey) && (e.key==="k"||e.key==="K")){ e.preventDefault(); cbotToggle(); return; }
+  if(e.key==="Escape"){ const p=$("#cbotPanel"); if(p&&p.classList.contains("open")) cbotToggle(); }
 });
 
 /* Ícones monocromáticos do conjunto I - o markup do shell fica vazio e é
@@ -4595,6 +4703,11 @@ function fichaEntregaHTML(p){
       ${porMod[m].map(x=>praticaHTML(x)).join("")}
     </div>`).join("")}
   </div>
+  ${(Array.isArray(p.pulsoLog)&&p.pulsoLog.length)?`<div class="card card-pad" style="padding:14px;margin-top:14px">
+    <strong style="font-size:.9rem;display:block;margin-bottom:4px">Perguntou ao Pulso e não teve resposta <span class="pill grey">${p.pulsoLog.length}</span></strong>
+    <span class="hint" style="display:block;margin-bottom:8px">O que se tenta perguntar é o que não se percebeu - e o vocabulário usado diz muito. Serve para a aula seguinte e para saber o que falta ao Pulso.</span>
+    ${pulsoLogHTML(p.pulsoLog,"")}
+  </div>`:""}
   <div class="card card-pad" style="padding:14px;margin-top:14px">
     <strong style="font-size:.9rem;display:block;margin-bottom:8px">O que criou, por tipo</strong>
     <div class="grid cols-3" style="gap:2px 20px">
@@ -4864,6 +4977,14 @@ function secCampos(){
     </div>
     <span class="hint" style="display:block;margin-top:8px">Desativar esconde o campo mas <strong>não apaga</strong> o que já foi preenchido. Apagar remove só a definição.</span>
   </div>`; }
+function secPulso(){
+  const l=state.pulsoLog||[];
+  return `<div class="card card-pad">
+    <div class="section-head" style="margin-bottom:12px"><div><h3>Perguntas ao Pulso sem resposta</h3>
+      <div class="sub">O que perguntou e o Pulso não soube responder. Fica no seu navegador e vai na sua entrega.</div></div>
+      ${l.length?`<button class="btn-sec btn-xs" data-act="pulso-limpar">Limpar</button>`:""}</div>
+    ${pulsoLogHTML(l,"Ainda não há nenhuma - ou ele soube responder a tudo, ou ainda não lhe perguntou nada.")}
+  </div>`; }
 function secMetas(){
   const cfg=metasCfg(); const eq=equipaMembros();
   return `<div class="card card-pad">
@@ -5080,6 +5201,7 @@ views.definicoes = () => {
     <div class="toolbar"><div class="search-inp" style="flex:1;max-width:320px"><input id="newOrigem" placeholder="Nova origem (ex.: Evento)…"></div><button class="btn-sec" data-act="add-origem">+ Adicionar</button></div>
   </div>
   ${secMetas()}
+  ${secPulso()}
   ${secSegmentos()}
   ${secFuncoes(s)}
   ${secCampos()}
@@ -6563,6 +6685,7 @@ document.addEventListener('click', async e=>{
     case 'cbot-chip': cbotDiz(el.textContent.trim()); break;
     case 'cbot-ir': location.hash='#'+el.dataset.h; break;
     case 'ir-metas': location.hash='#definicoes'; setTimeout(()=>{ const el=$('#metaMensal'); if(el){ el.closest('.card').scrollIntoView({block:'center',behavior:'smooth'}); el.focus(); } },400); break;
+    case 'pulso-limpar': { if(await uiConfirm('Apagar as perguntas registadas? O formador deixa de as ver na sua entrega.',{title:'Limpar o registo do Pulso',okText:'Apagar'})){ state.pulsoLog=[]; save(); render(); toast('Registo limpo',''); } } break;
     case 'save-metas': { if(!canFeat('metas')){ toast('Sem permissão','','warn'); break; }
       const m={mensal:Number(($('#metaMensal')||{}).value||0)||0, pessoas:{}};
       $$('[data-meta]').forEach(el=>{ const v=Number(el.value||0)||0; if(v>0) m.pessoas[el.dataset.meta]=v; });
