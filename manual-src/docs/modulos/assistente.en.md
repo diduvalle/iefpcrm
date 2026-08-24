@@ -23,6 +23,42 @@ This is not modesty, nor a legal notice buried in a footer: it is the **first me
 
     Pulso **is not** an AI system, so Article 50 does not even apply to it. It declares itself anyway, for two reasons: because an assistant that let itself be mistaken for AI would teach the exact opposite of what the course says, and because the obligation is easier to grasp when you see it met than when you read it in a statute.
 
+## Two things, not one
+
+Pulso answers **numbers** and **how-to**.
+
+| | Example | What you get |
+|---|---|---|
+| **Numbers** | *"how many proposals are open"* | the value, the list, and the button that opens the view |
+| **How-to** | *"how do I create a proposal"* | the steps in two lines, the module button and the button that opens **the right manual page** |
+
+Instruction answers carry the **How to** badge, so there is no doubt about what you are reading.
+
+!!! tip "Why this exists"
+    The manual has 96 pages. Someone halfway through a proposal will not search an index - they will ask the trainer. Pulso answers right there, and the button opens the right page instead of the manual's front door.
+
+    The answers are **hand-written**, like everything else here: Pulso does not summarise the manual, nor read it. It **points** at it.
+
+### How-to - what is covered
+
+Twenty-two questions, across the whole journey:
+
+- **Records** - create a company, a contact, a product
+- **Proposals** - create, add catalogue lines, export PDF, send (online proposal), move status on the Kanban
+- **Templates** - the proposal builder, email templates and tags
+- **Marketing** - campaigns and automations
+- **GDPR** - record a consent, answer a data subject request
+- **Data** - CSV import, sample generator, merging duplicates, custom fields
+- **Settings** - brand and appearance, sales targets
+- **Learner** - submit your work, recover your password
+
+If you write *"how…"* and it does not recognise the phrase, it still sends you to the **manual** instead of shrugging. An out-of-scope question - *"what is the capital of Australia"* - still gets only *"I don't know"*: the manual is not an excuse.
+
+!!! note "Write freely"
+    You do not have to get the verb right. The matching trims verb endings on both sides, so different conjugations land on the same answer.
+
+---
+
 ## What it can answer
 
 | Area | Example questions |
@@ -57,7 +93,7 @@ The same applies to *"how much did I sell this month"*, which compares against y
 
     It **changes no record whatsoever**. It does not create, delete or move statuses. At most it opens the right view - every answer ends in a button (*See proposals*, *See calendar*) that takes you to the module with the filter already applied.
 
-    That makes it a **navigation shortcut**, not a parallel truth: the number it states and the number on screen come from the same place.
+    That makes it a **navigation shortcut**, not a parallel truth: the number it states and the number on screen come from the same place - and the text it gives is the text in the manual.
 
 === "It respects permissions"
 

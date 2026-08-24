@@ -23,6 +23,42 @@ Isto não é modéstia nem um aviso legal escondido no rodapé: é a **primeira 
 
     O Pulso **não é** um sistema de IA, e por isso o artigo 50.º nem se lhe aplica. Declara-o na mesma, por duas razões: porque um assistente que se deixasse confundir com IA ensinaria exatamente o contrário do que a UFCD diz, e porque é mais fácil perceber a obrigação a vê-la cumprida do que a lê-la num diploma.
 
+## Duas coisas, não uma
+
+O Pulso responde a **números** e a **como se faz**.
+
+| | Exemplo | O que devolve |
+|---|---|---|
+| **Números** | *"quantas propostas tenho em aberto"* | o valor, a lista, e o botão que abre a vista |
+| **Como se faz** | *"como crio uma proposta"* | os passos em duas linhas, o botão do módulo e o botão que abre **a página certa do manual** |
+
+As respostas de instruções trazem o selo **Como se faz**, para não haver dúvida sobre o que se está a ler.
+
+!!! tip "Porque é que isto existe"
+    O manual tem 96 páginas. Quem está a meio de uma proposta não vai procurar num índice - vai perguntar ao formador. O Pulso responde ali, e o botão leva à página certa em vez de à porta do manual.
+
+    As respostas são **escritas à mão**, como tudo o resto: o Pulso não resume o manual nem o lê. **Aponta** para ele.
+
+### Como se faz - o que está coberto
+
+Vinte e duas perguntas, ao longo do percurso todo:
+
+- **Registos** - criar empresa, contacto, produto
+- **Propostas** - criar, pôr linhas do catálogo, exportar PDF, enviar (proposta online), mudar o estado no Kanban
+- **Modelos** - construtor da proposta, modelos de email e as tags
+- **Marketing** - campanhas e automações
+- **RGPD** - registar consentimento, responder a um pedido de titular
+- **Dados** - importar CSV, gerador de exemplos, fundir duplicados, campos personalizados
+- **Definições** - marca e aparência, metas de vendas
+- **Formando** - submeter o trabalho, recuperar a palavra-passe
+
+Se escrever *"como…"* e ele não reconhecer, manda-o na mesma ao **manual** em vez de encolher os ombros. Já uma pergunta fora do âmbito - *"qual a capital da Austrália"* - continua a dar só *"não sei"*: o manual não serve de desculpa.
+
+!!! note "Escreva à vontade"
+    Não é preciso acertar no verbo. *"como crio"*, *"como se cria"*, *"como faço"* e *"criar"* dão todos a mesma resposta - a correspondência corta a terminação dos verbos dos dois lados.
+
+---
+
 ## O que sabe responder
 
 | Área | Exemplos de pergunta |
@@ -57,7 +93,7 @@ O mesmo vale para *"quanto vendi eu este mês"*, que compara com a tua **[quota 
 
     Ele **não altera um único registo**. Não cria, não apaga, não muda estados. No máximo abre a vista certa - cada resposta acaba num botão (*Ver propostas*, *Ver agenda*) que te leva ao módulo com o filtro já aplicado.
 
-    Por isso é um **atalho de navegação**, não uma verdade paralela: o número que ele diz e o número do ecrã vêm do mesmo sítio.
+    Por isso é um **atalho de navegação**, não uma verdade paralela: o número que ele diz e o número do ecrã vêm do mesmo sítio - e o texto que ele dá é o mesmo que está no manual.
 
 === "Respeita as permissões"
 
