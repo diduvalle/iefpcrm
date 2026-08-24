@@ -322,8 +322,12 @@ html.dp-on[data-theme="dark"] input[type="date"]{
   border:1px solid var(--border);color:var(--g700);font-weight:700;font-size:.76rem;padding:5px 10px;
   border-radius:99px;cursor:pointer}
 .cbot-ir:hover{background:var(--g50);border-color:var(--g300)}
-.cbot-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 10px}
-.cbot-chip{background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-size:.72rem;
+/* Uma por linha e a largura toda: em flex-wrap ficavam 2 numa linha e 1 na
+   seguinte, ao sabor do comprimento do texto - lia-se como uma nuvem em vez
+   de uma lista. Alinhadas, leem-se como um menu. */
+.cbot-chips{display:grid;grid-template-columns:1fr;gap:5px;padding:0 14px 10px;
+  max-height:170px;overflow-y:auto}
+.cbot-chip{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-size:.73rem;
   padding:5px 10px;border-radius:99px;cursor:pointer;text-align:left}
 .cbot-chip:hover{background:var(--g50);color:var(--g700);border-color:var(--g300)}
 .cbot-foot{padding:10px 12px;border-top:1px solid var(--border);display:flex;gap:8px;background:var(--surface2)}

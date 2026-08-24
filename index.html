@@ -2957,6 +2957,112 @@ function pulsoResumoEmpresa(e){
       (avisos.length?"<br><br>⚠ Antes de ligar: <strong>"+esc(avisos.join(" · "))+"</strong>.":""),
     lista:linhas, ir:{h:"empresas",l:"Abrir a ficha"}};
 }
+
+/* ---- segunda leva ----
+   A primeira leva cobria os módulos. Faltava o mais básico de todos: as coisas
+   da PRÓPRIA pessoa - assinatura, foto, palavra-passe, tema, idioma. Foram as
+   primeiras que a turma tentou, e as primeiras a falhar. */
+const CBOT_AJUDA2 = [
+  {k:["assinatura","configurar a assinatura","assinatura de email","assinar os emails","rodape do email"],
+   t:"No seu <strong>nome, canto superior direito → O meu perfil</strong>. A <strong>Assinatura de email</strong> está lá em baixo, com tipo de letra, cor, negrito e link. É <strong>obrigatória para submeter o trabalho</strong>.",
+   doc:"formando/trabalhar/"},
+
+  {k:["o meu perfil","mudar a minha foto","avatar","mudar o meu nome","o meu cargo","dados pessoais"],
+   t:"<strong>O seu nome, canto superior direito → O meu perfil.</strong> Foto, telefone, cargo e assinatura. Numa turma, o nome e o email vêm do registo e não se editam aqui.",
+   doc:"formando/trabalhar/"},
+
+  {k:["mudar a minha password","alterar a palavra-passe","trocar a password","nova palavra-passe"],
+   t:"<strong>O meu perfil</strong> → campo da palavra-passe. Se não se lembra da atual, use <strong>Esqueci-me da palavra-passe</strong> no ecrã de entrada.",
+   doc:"formando/recuperar/"},
+
+  {k:["modo escuro","tema escuro","mudar o tema","claro ou escuro","dark mode"],
+   t:"O ícone de <strong>lua/sol</strong> no cabeçalho. Fica guardado no seu navegador.",
+   doc:"modulos/definicoes/"},
+
+  {k:["mudar o idioma","por em ingles","ingles","language","trocar de lingua"],
+   t:"O botão <strong>PT/EN</strong> no cabeçalho. O <strong>manual</strong> também é bilingue - e o Pulso passa a abri-lo na versão inglesa.",
+   doc:"modulos/definicoes/"},
+
+  {mod:"definicoes", k:["taxas de iva","mudar o iva","iva","taxa reduzida","iva da madeira"],
+   t:"<strong>Definições → Taxas de IVA.</strong> Cada taxa tem <strong>região</strong> (Continente / Madeira / Açores) e tipo. A proposta usa a taxa da <strong>região da empresa</strong>.",
+   ir:"definicoes", doc:"modulos/definicoes/"},
+
+  {mod:"definicoes", k:["niveis de loyalty","fidelizacao","desconto por nivel","bronze prata ouro"],
+   t:"<strong>Definições → Níveis de loyalty.</strong> Cada nível tem um volume mínimo e um desconto. O nível <strong>não se escolhe</strong> - é calculado do valor ganho da empresa.",
+   ir:"definicoes", doc:"modulos/definicoes/"},
+
+  {mod:"definicoes", k:["origens de cliente","origem de cliente","adicionar origem","nova origem","canais de origem","de onde vem os clientes","lista de origens"],
+   t:"<strong>Definições → Origens de cliente.</strong> Alimenta o campo <strong>Origem</strong> da empresa, o funil de aquisição e o ROI por canal no Analytics.",
+   ir:"definicoes", doc:"modulos/definicoes/"},
+
+  {mod:"definicoes", k:["segmentos","dimensao da empresa","micro pme grande"],
+   t:"<strong>Definições → Segmentos.</strong> É a <strong>dimensão</strong> da empresa (Micro / PME / Grande) - não confundir com o nível de loyalty, que é calculado.",
+   ir:"definicoes", doc:"modulos/definicoes/"},
+
+  {mod:"definicoes", k:["dados e backup","fazer backup","backup","copia de seguranca","exportar os dados","guardar copia","restaurar"],
+   t:"<strong>Definições → Dados & backup.</strong> Exporta tudo para um ficheiro e volta a importá-lo. Vale a pena antes de experiências grandes.",
+   ir:"definicoes", doc:"modulos/definicoes/"},
+
+  {mod:"definicoes", k:["apagar tudo","comecar do zero","limpar a base","recomecar","repor"],
+   t:"<strong>Definições → Dados & backup → repor.</strong> Volta ao estado inicial. <strong>Faça a exportação primeiro</strong> - não há desfazer.",
+   ir:"definicoes", doc:"modulos/definicoes/"},
+
+  {mod:"agenda", k:["criar uma tarefa","agendar","marcar uma reuniao","novo agendamento","por no calendario"],
+   t:"Na <strong>Agenda</strong>, clique num <strong>dia</strong> (vista mês) ou numa <strong>hora</strong> (vista semana) - a data entra preenchida. Tipo, duração, cliente e notas.",
+   ir:"agenda", doc:"modulos/dashboard-agenda/"},
+
+  {mod:"casos", k:["abrir um caso","registar uma reclamacao","novo caso","pedido de suporte","helpdesk como"],
+   t:"<strong>Helpdesk → + Caso.</strong> Assunto, prioridade e cliente. O <strong>SLA</strong> conta a partir da abertura; ao fechar pode registar <strong>CSAT/NPS</strong>.",
+   ir:"casos", doc:"modulos/casos/"},
+
+  {mod:"retencao", k:["registar um cancelamento","cliente quer cancelar","churn como","save desk"],
+   t:"<strong>Retenção → + Pedido.</strong> Motivo e MRR em risco. A app sugere uma <strong>oferta de retenção</strong> conforme o motivo, e o resultado entra no churn do Analytics.",
+   ir:"retencao", doc:"modulos/retencao/"},
+
+  {mod:"rgpd", k:["violacao de dados","data breach","fuga de dados","notificar a cnpd"],
+   t:"<strong>RGPD → Violações.</strong> O prazo de notificação à CNPD é de <strong>72 horas</strong>. Registe o que aconteceu, quantos titulares e as medidas tomadas.",
+   ir:"rgpd", doc:"rgpd/violacoes/"},
+
+  {mod:"rgpd", k:["ropa","registo de atividades","artigo 30"],
+   t:"<strong>RGPD → RoPA.</strong> O Registo das Atividades de Tratamento (art. 30.º): que dados, para quê, com que base legal e por quanto tempo.",
+   ir:"rgpd", doc:"rgpd/ropa/"},
+
+  {mod:"rgpd", k:["portal do titular","o cliente exercer direitos","formulario rgpd"],
+   t:"<strong>RGPD → Portal do Titular.</strong> A página pública onde a própria pessoa exerce os seus direitos - e o pedido entra direito na sua lista.",
+   ir:"rgpd", doc:"rgpd/portal/"},
+
+  {mod:"propostas", k:["aprovar uma proposta","aprovacao","pedir aprovacao","desconto grande"],
+   t:"Propostas acima do limite ficam <strong>À espera de aprovação</strong>. Quem tem permissão aprova ou rejeita na própria linha.",
+   ir:"propostas", doc:"modulos/propostas/aprovacao/"},
+
+  {mod:"propostas", k:["reabrir uma proposta","voltar atras na proposta","desfazer o ganha"],
+   t:"Numa proposta <em>Ganha</em> ou <em>Perdida</em>, o botão <strong>Reabrir</strong> volta a pô-la em Negociação.",
+   ir:"propostas", doc:"modulos/propostas/perda/"},
+
+  {mod:"alertas", k:["alertas","o sino","notificacoes","o que esta a chiar"],
+   t:"O <strong>sino</strong> no cabeçalho junta propostas a expirar, prazos RGPD em risco e tarefas atrasadas. O módulo <strong>Alertas</strong> mostra o histórico.",
+   ir:"alertas", doc:"modulos/alertas/"},
+
+  {mod:"empresas", k:["lead score","pontuacao do lead","quente morno frio","como se calcula o score"],
+   t:"É calculado (0-100) a partir de compras, <em>engagement</em> de email, loyalty e segmento, e agrega <strong>todas as pessoas</strong> da empresa. Não se edita à mão.",
+   ir:"empresas", doc:"modulos/empresas-contactos/"},
+
+  {mod:"empresas", k:["fase do lead","mql","sql","ciclo de vida","qualificacao"],
+   t:"<strong>Lead → MQL → SQL → Cliente.</strong> A app <strong>avança sozinha</strong>: abriu emails passa a MQL, tem proposta passa a SQL, ganhou passa a Cliente.",
+   ir:"empresas", doc:"modulos/empresas-contactos/"},
+
+  {mod:"decisao", k:["modelos de decisao","decisao","modulo de decisao","what if","proxima melhor acao","rfm","simulacao"],
+   t:"<strong>Decisão</strong> - próxima melhor ação por cliente, simulador <em>what-if</em>, RFM e previsão. Lê os dados que já lá estão; não inventa nenhum.",
+   ir:"decisao", doc:"modulos/decisao/"},
+
+  {k:["quem me ve os dados","os meus dados sao privados","sandbox","onde ficam os dados","os meus dados","ver os meus dados"],
+   t:"O seu trabalho fica <strong>no seu navegador</strong> (a sandbox). Só o formador o vê quando <strong>submete</strong> - e nessa altura vai o estado inteiro.",
+   doc:"formando/trabalhar/"},
+
+  {k:["ver o manual","abrir o manual","manual","documentacao","onde aprendo","tutoriais","videos"],
+   t:"O manual tem tudo, em <strong>português e inglês</strong>, com vídeos e dois tutoriais guiados. O <strong>?</strong> no cabeçalho abre já a página do ecrã onde está.",
+   doc:""},
+];
 /* Perguntas sobre o próprio assistente - não dependem de módulo nenhum */
 const CBOT_META = [
   {k:["es uma ia","es ia","es um robo","inteligencia artificial","chatgpt","quem es","es humano","es uma pessoa","como te chamas","porque te chamas","pulso"], f:()=>({
@@ -2986,6 +3092,10 @@ function cbotScore(ks,q){ let n=0; const qr=cbotRaizes(q); const qs=" "+qr.join(
     /* 2. as raizes todas presentes, por qualquer ordem - vale um pouco menos,
           para nunca ganhar a uma frase que bata exatamente */
     const kr=cbotRaizes(k).filter(w=>w.length>=3);
+    /* uma chave de uma so palavra tambem conta pela raiz, desde que seja
+       comprida - assim "agendar" apanha "agendo", sem que "sla" ou "ia"
+       apanhem meia app */
+    if(kr.length===1 && kr[0].length>=5 && qs.indexOf(" "+kr[0]+" ")>=0){ n+=Math.round(kk.length*0.8); return; }
     if(kr.length>=2 && kr.every(w=>qs.indexOf(" "+w+" ")>=0)) n+=Math.round(kk.length*0.8); });
   return n; }
 
@@ -2994,18 +3104,17 @@ function cbotResponde(txt){
   let melhor=null, pts=0;
   CBOT_META.forEach(i=>{ const p=cbotScore(i.k,q); if(p>pts){pts=p;melhor=i;} });
   CBOT.forEach(i=>{ if(!can(i.mod)) return; const p=cbotScore(i.k,q); if(p>pts){pts=p;melhor=i;} });
-  CBOT_AJUDA.forEach(i=>{ if(i.mod&&!can(i.mod)) return; const p=cbotScore(i.k,q); if(p>pts){pts=p;melhor=Object.assign({ajuda:1},i);} });
+  CBOT_AJUDA.concat(CBOT_AJUDA2).forEach(i=>{ if(i.mod&&!can(i.mod)) return; const p=cbotScore(i.k,q); if(p>pts){pts=p;melhor=Object.assign({ajuda:1},i);} });
   /* nome de empresa na frase: ganha a tudo o resto, porque é sempre mais
      específico do que uma pergunta genérica */
   if(can("empresas") && !(melhor&&melhor.ajuda&&pts>=12)){ const e=pulsoEmpresa(q); if(e) return pulsoResumoEmpresa(e); }
   if(!melhor){
     pulsoRegista(txt);
-    /* quem escreve "como/onde" quer instruções: manda-se ao manual em vez de
-       um encolher de ombros */
-    const pedeAjuda=/(^| )(como|onde|posso|consigo|para que serve)( |$)/.test(q);
-    return pedeAjuda
-      ? {t:"Essa não sei responder - mas o <strong>manual</strong> tem tudo, em português e inglês, com vídeos.", doc:"", naoSei:true}
-      : {t:"Não sei responder a isso.<br><br>Não é modéstia: só reconheço as frases para que fui programado. Escolha uma das sugestões em baixo, ou escreva-a com outras palavras.", naoSei:true};
+    /* Antes, o manual só era oferecido a quem escrevesse "como/onde/posso".
+       Era uma subtileza minha que não servia a ninguém: quem pergunta uma
+       coisa e leva um "não sei" seco fecha a janela. Agora o manual vai
+       SEMPRE - dizer "não sei, mas está aqui" nunca está errado. */
+    return {t:"Não sei responder a isso - só reconheço as frases para que fui programado.<br><br>Mas o <strong>manual</strong> tem tudo, em português e inglês, com vídeos. E a sua pergunta ficou registada, para o formador saber o que falta.", doc:"", naoSei:true};
   }
   if(!melhor.f) return melhor;   /* as de ajuda são texto fixo */
   try{ return Object.assign({ajuda:melhor.ajuda},melhor.f(q)); }
