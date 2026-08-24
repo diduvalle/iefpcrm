@@ -334,3 +334,12 @@ html.dp-on[data-theme="dark"] input[type="date"]{
   color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
 @media(max-width:520px){.cbot-panel{right:10px;left:10px;width:auto;bottom:80px}}
 @media print{.cbot-fab,.cbot-panel{display:none!important}}
+
+/* selo das respostas de ajuda + o segundo botao (manual) */
+.cbot-tag{display:inline-flex;align-items:center;gap:4px;margin:0 0 6px;padding:2px 7px;border-radius:99px;
+  background:var(--surface);border:1px solid var(--border);color:var(--muted);font-size:.64rem;
+  font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+a.cbot-ir{text-decoration:none}
+.cbot-ir + .cbot-ir{margin-left:6px}
+.cbot-msg.ele code{background:var(--surface);border:1px solid var(--border);border-radius:4px;
+  padding:0 4px;font-size:.8em}

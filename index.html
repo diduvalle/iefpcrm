@@ -843,6 +843,10 @@ const I18N_EN = {
   'Como estão os casos de suporte?':'How are the support cases?',
   'Há pedidos RGPD por responder?':'Any GDPR requests pending?',
   'Chamas-te Pulso porquê?':'Why are you called Pulso?',
+  'Como crio uma proposta?':'How do I create a proposal?',
+  'Como respondo a um pedido de titular?':'How do I answer a data subject request?',
+  'Como se faz':'How to',
+  'Abrir no manual':'Open in the manual',
   // Cabeçalho / breadcrumbs
   'Plataforma de Formação':'Training Platform','IEFP CRM · Visão geral':'IEFP CRM · Overview',
   'IEFP CRM · Gestão de clientes':'IEFP CRM · Customer management','IEFP CRM · Catálogo':'IEFP CRM · Catalogue',
@@ -2763,20 +2767,133 @@ const CBOT = [
       ir:{h:"retencao",l:"Ver Retenção"}}; }},
 ];
 
+
+/* ---- "como se faz" ----
+   Os formandos perguntam ao formador o que está escrito no manual. Isto põe a
+   resposta curta onde eles já estão, e o botão que abre a página certa - em vez
+   de os mandar procurar num índice de 96 páginas.
+
+   As respostas são ESCRITAS À MÃO, como tudo o resto aqui. O Pulso não resume
+   o manual nem o lê: aponta para ele. */
+const CBOT_AJUDA = [
+  {mod:"empresas", k:["como crio uma empresa","criar empresa","adicionar empresa","registar empresa","nova conta"],
+   t:"<strong>Empresas → + Empresa.</strong> O NIPC é validado à medida que escreve e o botão <strong>Procurar</strong> preenche nome, morada e CAE a partir dos registos oficiais.",
+   ir:"empresas", doc:"modulos/empresas-contactos/"},
+
+  {mod:"clientes", k:["como crio um contacto","criar contacto","adicionar contacto","registar pessoa","nova pessoa","criar pessoa","pessoa nova"],
+   t:"<strong>Contactos → + Contacto.</strong> Ligue-o a uma empresa: sem empresa fica só no diretório, sem venda nem valor.",
+   ir:"clientes", doc:"modulos/empresas-contactos/"},
+
+  {mod:"propostas", k:["como crio uma proposta","como faco uma proposta","criar proposta","fazer uma proposta","nova proposta"],
+   t:"<strong>Propostas → + Proposta.</strong> Escolha a empresa e o contacto, ponha título e validade, junte as linhas do catálogo e guarde. O <strong>Estado</strong> fica no fim e é a última decisão.",
+   ir:"propostas", doc:"modulos/propostas/criar/"},
+
+  {mod:"propostas", k:["adicionar artigos","adiciono artigos","meter artigos","juntar artigos","artigos","linhas da proposta","linhas","por artigos","artigos na proposta","catalogo na proposta"],
+   t:"Dentro da proposta, <strong>+ Linha</strong> e escolha do catálogo. Cada linha é <strong>Único</strong> (pontual) ou <strong>Mensal/Anual</strong> (recorrente) - é isso que separa o valor pontual do SaaS.",
+   ir:"propostas", doc:"modulos/propostas/linhas/"},
+
+  {mod:"produtos", k:["como crio um produto","criar artigo","criar produto","familia subfamilia","montar o catalogo"],
+   t:"<strong>Produtos → + Artigo.</strong> O catálogo organiza-se em Família → Subfamília → Artigo, e é daí que saem as linhas das propostas.",
+   ir:"produtos", doc:"modulos/produtos/"},
+
+  {mod:"propostas", k:["exportar pdf","imprimir a proposta","pdf da proposta","gerar o pdf"],
+   t:"Na linha da proposta, o botão de <strong>imprimir</strong>. O aspeto do PDF vem do <strong>modelo</strong> escolhido na proposta.",
+   ir:"propostas", doc:"modulos/propostas/pdf/"},
+
+  {mod:"propostas", k:["enviar a proposta","mandar a proposta","proposta por email","proposta online","link da proposta"],
+   t:"Na linha da proposta, o botão de <strong>email</strong>. Em vez de anexar um PDF, vai um <strong>link rastreável</strong>: o cliente vê a proposta online e adjudica num clique, e a app conta as aberturas.",
+   ir:"propostas", doc:"modulos/propostas/email/"},
+
+  {mod:"propostas", k:["como mudo o estado","arrastar a proposta","mudar de coluna","como uso o kanban"],
+   t:"Em <strong>Propostas</strong>, arraste o cartão entre colunas - ou mude o <strong>Estado</strong> dentro da proposta. Passar a Ganha ou Perdida pede o <strong>motivo</strong>.",
+   ir:"propostas", doc:"modulos/propostas/pipeline/"},
+
+  {mod:"modelos", k:["modelo de proposta","construtor de modelos","desenhar a proposta","mudar o aspeto do pdf"],
+   t:"<strong>Modelos</strong> - monta-se por blocos (capa, texto, tabela de preços, condições). Depois escolhe-se o modelo na proposta.",
+   ir:"modelos", doc:"modulos/modelos/"},
+
+  {mod:"email", k:["modelo de email","como uso as tags","tags no email","personalizar o email"],
+   t:"<strong>Email → Modelos.</strong> As <strong>tags</strong> (<code>{{cliente.nome}}</code>, <code>{{proposta.total}}</code>) são substituídas no envio. Os campos que criar na ficha aparecem sozinhos na lista.",
+   ir:"email", doc:"modulos/campanhas-email/"},
+
+  {mod:"campanhas", k:["como faco uma campanha","criar campanha","enviar em massa","email para varios"],
+   t:"<strong>Campanhas → + Campanha.</strong> Escolhe-se o alvo (segmento, nível, fase), o modelo, e envia-se. Os resultados - aberturas e cliques - alimentam o lead score.",
+   ir:"campanhas", doc:"modulos/campanhas-email/"},
+
+  {mod:"campanhas", k:["automacao","automatizar envios","gatilho","marketing automation","automacoes"],
+   t:"<strong>Campanhas → Automações.</strong> Escolhe-se o gatilho (subiu de nível, ficou quente, sem contacto há X dias), a condição e os passos. Cria o <strong>modelo de email</strong> primeiro.",
+   ir:"campanhas", doc:"modulos/campanhas-email/"},
+
+  {mod:"rgpd", k:["como registo um consentimento","registar consentimento","novo consentimento"],
+   t:"<strong>RGPD → Consentimentos → + Consentimento.</strong> Indique o titular, a <strong>finalidade</strong> e a <strong>base legal</strong> - sem finalidade, um consentimento não vale nada.",
+   ir:"rgpd", doc:"rgpd/consentimentos/"},
+
+  {mod:"rgpd", k:["pedido de titular","como respondo a um pedido","direito de acesso","dsar como","relatorio rgpd"],
+   t:"<strong>RGPD → Pedidos.</strong> O prazo é de <strong>um mês</strong>. Para o direito de acesso (art. 15.º) gera-se o <strong>Relatório RGPD</strong> em PDF; para a portabilidade (art. 20.º), a <strong>exportação JSON</strong>.",
+   ir:"rgpd", doc:"rgpd/pedidos/"},
+
+  {mod:"clientes", k:["como importo","importar csv","importar excel","importacao de dados","carregar ficheiro"],
+   t:"Em <strong>Contactos</strong> ou <strong>Produtos</strong>: <strong>Modelo</strong> para descarregar o CSV, preencher, e <strong>Importar</strong>. Os duplicados são ignorados.",
+   ir:"clientes", doc:"modulos/empresas-contactos/"},
+
+  {mod:"definicoes", k:["gerar dados","dados de exemplo","gerador de dados","encher a base"],
+   t:"<strong>Definições → Gerador de dados de exemplo.</strong> Cria empresas, contactos e propostas realistas para praticar. Atenção: o que é gerado <strong>não conta</strong> como trabalho seu na avaliação.",
+   ir:"definicoes", doc:"modulos/definicoes/"},
+
+  {mod:"definicoes", k:["mudar o logotipo","cor da app","mudar a marca","white label","personalizar a app"],
+   t:"<strong>Definições → Marca & Aparência.</strong> Nome, cor, logótipo e fundo do login. Fica só no seu navegador.",
+   ir:"definicoes", doc:"modulos/definicoes/"},
+
+  {mod:"empresas", k:["como fundo duplicados","juntar registos","registos repetidos","limpar duplicados"],
+   t:"Em <strong>Empresas</strong> ou <strong>Contactos</strong>, o botão <strong>Duplicados</strong>. Escolhe-se qual fica e a app reaponta tudo o resto. <strong>Não tem desfazer.</strong>",
+   ir:"empresas", doc:"modulos/empresas-contactos/"},
+
+  {mod:"definicoes", k:["como defino a meta","definir meta","criar quota","meta de vendas"],
+   t:"<strong>Definições → Metas de vendas.</strong> Meta da equipa e, se houver responsáveis, quotas por pessoa. O resultado aparece no cartão <strong>Meta do mês</strong> do Dashboard.",
+   ir:"definicoes", doc:"modulos/definicoes/"},
+
+  {mod:"clientes", k:["criar um campo","crio um campo","criar campo","campo novo","novo campo","campo personalizado","campo que nao existe","falta um campo"],
+   t:"Abra um contacto e, no fim do formulário, <strong>+ Campo personalizado</strong>. O campo passa a existir em <strong>todos</strong> os contactos e ganha sozinho uma tag para os modelos.",
+   ir:"clientes", doc:"modulos/empresas-contactos/"},
+
+  {k:["como submeto","submeter o trabalho","entregar o trabalho","fazer a entrega","enviar ao formador"],
+   t:"No seu <strong>perfil</strong> (canto superior direito), <strong>Submeter trabalho</strong>. Vai um retrato completo da sua sandbox para o formador. O número de entregas é <strong>limitado</strong> - reveja antes de enviar.",
+   doc:"formando/submeter/"},
+
+  {k:["esqueci a password","recuperar a palavra-passe","mudar a password","perdi o acesso"],
+   t:"No ecrã de entrada, <strong>Esqueci-me da palavra-passe</strong> - chega um email. Se não resultar, é o formador que a repõe.",
+   doc:"formando/recuperar/"},
+];
 /* Perguntas sobre o próprio assistente - não dependem de módulo nenhum */
 const CBOT_META = [
   {k:["es uma ia","es ia","es um robo","inteligencia artificial","chatgpt","quem es","es humano","es uma pessoa","como te chamas","porque te chamas","pulso"], f:()=>({
     t:"Chamo-me <strong>Pulso</strong> - de \"tomar o pulso ao negócio\". É nome de ferramenta, não de pessoa, e é de propósito.<br><br><strong>Não sou inteligência artificial.</strong> Sou um conjunto de regras fixas: reconheço algumas frases e vou buscar o número aos seus dados. Não aprendo, não invento e não escrevo nada que não esteja aqui.<br><br>Se fosse IA, o artigo 50.º do AI Act obrigaria à mesma declaração - a diferença é que aí eu poderia enganar-me com confiança."})},
   {k:["ajuda","o que sabes","o que podes","exemplos","como funciona","comandos"], f:()=>({
-    t:"Respondo a perguntas de consulta sobre os seus dados. Não altero nada - no máximo levo-o à vista certa. Experimente uma das sugestões aqui em baixo."})},
+    t:"Respondo a duas coisas: <strong>números</strong> sobre os seus dados (\"quantas propostas em aberto\") e <strong>como se faz</strong> (\"como crio uma proposta\"). Não altero nada - no máximo levo-o à vista certa, ou à página do manual.<br><br>Experimente uma das sugestões aqui em baixo.", doc:"" })},
 ];
 
+/* Um formando escreve "como se CRIA", "como ADICIONO", "como EXPORTO" - e a
+   lista de palavras-chave diz "criar", "adicionar", "exportar". Guardar as seis
+   conjugacoes de cada verbo era interminavel, por isso corta-se a terminacao dos
+   DOIS lados: sendo simetrico, nao inventa correspondencias, so tolera o verbo.
+   E propositadamente grosseiro - "empresa" fica "empres" - mas como a chave
+   sofre o mesmo corte, o resultado bate certo. */
+const CBOT_FIM=["ando","endo","indo","aram","amos","ar","er","ir","ou","ei","am","em","es","as","os","a","e","o","s"];
+function cbotRaiz(p){ if(p.length<4) return p;
+  for(const f of CBOT_FIM){ if(p.length-f.length>=3 && p.endsWith(f)) return p.slice(0,-f.length); }
+  return p; }
+const cbotRaizes = t => cbotNorm(t).split(/[^a-z0-9]+/).filter(Boolean).map(cbotRaiz);
+
 /* Palavras compridas valem mais: "motivos de perda" ganha a "perda" */
-function cbotScore(ks,q){ let n=0;
+function cbotScore(ks,q){ let n=0; const qr=cbotRaizes(q); const qs=" "+qr.join(" ")+" ";
   ks.forEach(k=>{ const kk=cbotNorm(k);
+    /* 1. a frase tal e qual - o sinal mais forte */
     const curto = kk.length<=4;
-    const bate = curto ? new RegExp("(^|[^a-z0-9])"+kk+"([^a-z0-9]|$)").test(q) : q.indexOf(kk)>=0;
-    if(bate) n+=kk.length; });
+    if(curto ? new RegExp("(^|[^a-z0-9])"+kk+"([^a-z0-9]|$)").test(q) : q.indexOf(kk)>=0){ n+=kk.length; return; }
+    /* 2. as raizes todas presentes, por qualquer ordem - vale um pouco menos,
+          para nunca ganhar a uma frase que bata exatamente */
+    const kr=cbotRaizes(k).filter(w=>w.length>=3);
+    if(kr.length>=2 && kr.every(w=>qs.indexOf(" "+w+" ")>=0)) n+=Math.round(kk.length*0.8); });
   return n; }
 
 function cbotResponde(txt){
@@ -2784,14 +2901,24 @@ function cbotResponde(txt){
   let melhor=null, pts=0;
   CBOT_META.forEach(i=>{ const p=cbotScore(i.k,q); if(p>pts){pts=p;melhor=i;} });
   CBOT.forEach(i=>{ if(!can(i.mod)) return; const p=cbotScore(i.k,q); if(p>pts){pts=p;melhor=i;} });
-  if(!melhor) return {t:"Não sei responder a isso.<br><br>Não é modéstia: só reconheço as frases para que fui programado. Escolha uma das sugestões em baixo, ou escreva-a com outras palavras.", naoSei:true};
-  try{ return melhor.f(q); }
+  CBOT_AJUDA.forEach(i=>{ if(i.mod&&!can(i.mod)) return; const p=cbotScore(i.k,q); if(p>pts){pts=p;melhor=Object.assign({ajuda:1},i);} });
+  if(!melhor){
+    /* quem escreve "como/onde" quer instruções: manda-se ao manual em vez de
+       um encolher de ombros */
+    const pedeAjuda=/(^| )(como|onde|posso|consigo|para que serve)( |$)/.test(q);
+    return pedeAjuda
+      ? {t:"Essa não sei responder - mas o <strong>manual</strong> tem tudo, em português e inglês, com vídeos.", doc:"", naoSei:true}
+      : {t:"Não sei responder a isso.<br><br>Não é modéstia: só reconheço as frases para que fui programado. Escolha uma das sugestões em baixo, ou escreva-a com outras palavras.", naoSei:true};
+  }
+  if(!melhor.f) return melhor;   /* as de ajuda são texto fixo */
+  try{ return Object.assign({ajuda:melhor.ajuda},melhor.f(q)); }
   catch(e){ return {t:"Encontrei a pergunta mas falhei a ir buscar os dados. Veja o módulo diretamente."}; }
 }
 
 /* Sugestões: só as dos módulos a que a pessoa tem acesso */
 function cbotSugestoes(){
   const todas=[
+    {m:"propostas", t:"Como crio uma proposta?"},
     {m:"propostas", t:"Quantas propostas tenho em aberto?"},
     {m:"propostas", t:"Quanto vendi este mês?"},
     {m:"propostas", t:"Que propostas estão a expirar?"},
@@ -2802,17 +2929,21 @@ function cbotSugestoes(){
     {m:"agenda",    t:"Tenho tarefas atrasadas?"},
     {m:"casos",     t:"Como estão os casos de suporte?"},
     {m:"rgpd",      t:"Há pedidos RGPD por responder?"},
+    {m:"rgpd",      t:"Como respondo a um pedido de titular?"},
     {m:null,        t:"Chamas-te Pulso porquê?"},
   ];
-  return todas.filter(x=>!x.m||can(x.m)).slice(0,6);
+  return todas.filter(x=>!x.m||can(x.m)).slice(0,7);
 }
 
 function cbotMsgHTML(m){
   if(m.de==="eu") return `<div class="cbot-msg eu">${esc(m.t)}</div>`;
   if(m.de==="aviso") return `<div class="cbot-msg aviso">${m.t}</div>`;
-  return `<div class="cbot-msg ele">${m.t}`+
+  const irH = m.ir ? (typeof m.ir==="string" ? {h:m.ir, l:"Ir para "+(NAV_FLAT.find(x=>x.id===m.ir)||{label:m.ir}).label} : m.ir) : null;
+  return `<div class="cbot-msg ele">`+
+    (m.ajuda?`<span class="cbot-tag">${ic("book",11)} Como se faz</span>`:"")+m.t+
     (m.lista&&m.lista.length?`<ul class="cbot-lista">${m.lista.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:"")+
-    (m.ir?`<button class="cbot-ir" data-act="cbot-ir" data-h="${esc(m.ir.h)}">${esc(m.ir.l)} ${ic("chevR",13)}</button>`:"")+
+    (irH?`<button class="cbot-ir" data-act="cbot-ir" data-h="${esc(irH.h)}">${esc(irH.l)} ${ic("chevR",13)}</button>`:"")+
+    (m.doc!=null?`<a class="cbot-ir" href="${esc(helpURL(m.doc))}" target="_blank" rel="noopener">${ic("book",13)} Abrir no manual</a>`:"")+
     `</div>`;
 }
 function cbotPinta(){
@@ -6148,7 +6279,9 @@ const HELP_MAP={
   casos:'modulos/casos/', decisao:'modulos/decisao/', retencao:'modulos/retencao/',
   analytics:'modulos/analytics/', rgpd:'rgpd/', alertas:'modulos/alertas/', definicoes:'modulos/definicoes/'
 };
-function openHelp(){ try{ const v=currentView(); window.open(HELP_BASE+(HELP_MAP[v]||''),'_blank','noopener'); }catch(e){ window.open(HELP_BASE,'_blank','noopener'); } }
+/* o manual e bilingue: /manual/ e /manual/en/ */
+function helpURL(p){ return HELP_BASE+(getLang()==='en'?'en/':'')+(p||''); }
+function openHelp(){ try{ const v=currentView(); window.open(helpURL(HELP_MAP[v]||''),'_blank','noopener'); }catch(e){ window.open(HELP_BASE,'_blank','noopener'); } }
 function applyTheme(t){ document.documentElement.setAttribute('data-theme',t); localStorage.setItem('iefp-theme',t); $('#themeBtn').innerHTML=ic(t==='dark'?'sun':'moon',18); }
 /* ---------- Marca & Aparência (white-label) ---------- */
 function brandCfg(){ return state.settings.brand||{}; }
