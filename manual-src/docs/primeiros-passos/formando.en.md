@@ -31,7 +31,20 @@ Navigation is on the left, grouped (Main, Marketing & Analysis, Compliance, Syst
 !!! question "Forgot your password?"
     See **[Recover your password](../formando/recuperar.md)** - you can ask the trainer to reset it.
 
-## 4. Submit your work
+## 4. Your photo and your signature
+
+In the same place (**My profile**) you can set a **photo** and write your **email signature**, which is added automatically at the end of the emails you send from the CRM.
+
+These two do **not live in your sandbox**: they travel with your account. Change computer, clear your browsing data, restore a backup or start over - the photo and the signature come back on their own when you sign in.
+
+!!! note "The photo is personal data, and it lives on the server"
+    It is the only thing of yours that leaves this browser without you sending it. It is tied to your account in this class, nobody sees it in the class list, and it **disappears when the account or the class is deleted**.
+
+    Setting a photo is optional. Without one you get your initials - and everything works exactly the same.
+
+    :octicons-arrow-right-24: The detail is in the **[Legal notice](../aviso-legal.md)**.
+
+## 5. Submit your work
 
 When you finish the exercise, click **“Submit my work”** (at the bottom of the sidebar). You have a maximum of **2 submissions**.
 

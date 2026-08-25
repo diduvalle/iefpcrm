@@ -45,6 +45,11 @@ Só aparece quando o navegador está **mesmo** vazio. Se já lá tens trabalho, 
 !!! tip "A terceira cópia é a que fica contigo"
     O navegador é uma. O servidor é outra. A **exportação para ficheiro** (no mesmo cartão) é a terceira, e a única que não depende de nós nem da internet. Vale a pena fazê-la antes de uma experiência grande.
 
+!!! tip "O teu perfil não é sandbox"
+    A **foto** e a **assinatura de email** ficam ligadas à tua conta, no servidor, e não ao trabalho que tens aqui. Recuperar uma cópia, importar um ficheiro ou recomeçar do zero **não as apaga** - voltam sozinhas no início de sessão seguinte.
+
+    É a separação que interessa perceber: de um lado o **trabalho** (a sandbox, deste navegador), do outro a **identidade** (a conta, do servidor). São coisas diferentes e falham de maneiras diferentes.
+
 !!! note "O formador vê que a cópia existe, não o que lá está"
     Na lista da turma aparece **quem tem cópia e de quando**. O conteúdo só chega ao formador quando **submetes** o trabalho.
 

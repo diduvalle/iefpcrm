@@ -31,7 +31,20 @@ A navegação está à esquerda, por grupos (Principal, Marketing & Análise, Co
 !!! question "Esqueceste-te da palavra-passe?"
     Vê **[Recuperar a palavra-passe](../formando/recuperar.md)** - podes pedir ao formador para a repor.
 
-## 4. Submeter o trabalho
+## 4. A tua foto e a tua assinatura
+
+No mesmo sítio (**O meu perfil**) podes pôr uma **foto** e escrever a tua **assinatura de email**, que entra automaticamente no fim dos emails que enviares pelo CRM.
+
+Estas duas coisas **não vivem na tua sandbox**: viajam com a tua conta. Mudas de computador, limpas os dados de navegação, recuperas uma cópia de segurança ou recomeças do zero - a foto e a assinatura voltam sozinhas quando inicias sessão.
+
+!!! note "A foto é um dado pessoal, e fica no servidor"
+    É a única coisa tua que sai deste navegador sem seres tu a mandar. Fica ligada à tua conta desta turma, ninguém a vê na lista da turma, e **desaparece quando a conta ou a turma são apagadas**.
+
+    Pôr foto é opcional. Se não puseres, aparecem as tuas iniciais - e funciona exatamente igual.
+
+    :octicons-arrow-right-24: O detalhe está no **[Aviso legal](../aviso-legal.md)**.
+
+## 5. Submeter o trabalho
 
 Quando terminares o exercício, clica em **“Submeter o meu trabalho”** (em baixo, na barra lateral). Tens no máximo **2 entregas**.
 

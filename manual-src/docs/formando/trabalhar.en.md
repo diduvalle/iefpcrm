@@ -45,6 +45,11 @@ It only appears when the browser is **genuinely** empty. If you already have wor
 !!! tip "The third copy is the one that stays with you"
     The browser is one. The server is another. The **export to file** (same card) is the third, and the only one that depends neither on us nor on the internet. Worth doing before a big experiment.
 
+!!! tip "Your profile is not sandbox"
+    Your **photo** and **email signature** are tied to your account, on the server, not to the work you have here. Restoring a copy, importing a file or starting over **does not delete them** - they come back on their own at your next sign-in.
+
+    That is the separation worth grasping: on one side the **work** (the sandbox, from this browser), on the other the **identity** (the account, from the server). They are different things and they fail in different ways.
+
 !!! note "The trainer sees that the copy exists, not what is in it"
     The class list shows **who has a copy and from when**. The content only reaches the trainer when you **submit** your work.
 
