@@ -1265,6 +1265,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#a-primeira-linha-o-que-ha-para-fazer-hoje" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A primeira linha: o que há para fazer hoje
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#o-que-mostra" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2325,6 +2336,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#a-primeira-linha-o-que-ha-para-fazer-hoje" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A primeira linha: o que há para fazer hoje
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#o-que-mostra" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2425,6 +2447,17 @@
 <p><em>Vista geral: KPIs do período, propostas recentes e pipeline por estado.</em></p>
 <h2 id="dashboard">Dashboard<a class="headerlink" href="#dashboard" title="Permanent link">¶</a></h2>
 <p>A primeira página depois de entrares - a <strong>visão geral</strong> do negócio. Tudo respeita o <strong>filtro temporal</strong> no topo (Tudo / 30 dias / Trimestre / Este mês / Este ano / datas).</p>
+<h3 id="a-primeira-linha-o-que-ha-para-fazer-hoje">A primeira linha: o que há para fazer hoje<a class="headerlink" href="#a-primeira-linha-o-que-ha-para-fazer-hoje" title="Permanent link">¶</a></h3>
+<p>Por baixo do título, a app diz o que está à espera:</p>
+<blockquote>
+<p><strong>Diogo</strong>, hoje tem <strong>1 tarefa em atraso</strong>, <strong>1 tarefa para hoje</strong>, <strong>3 casos fora do prazo</strong> e <strong>2 pedidos RGPD fora de prazo</strong>.</p>
+</blockquote>
+<p>Cada número é uma <strong>ligação</strong> para o sítio respetivo. O que já passou do prazo sublinha-se a <strong>âmbar</strong> - distingue-se do que ainda dá para fazer hoje. Sem nada pendente, diz <em>"nada urgente hoje - bom dia para prospetar"</em>.</p>
+<div class="admonition tip">
+<p class="admonition-title">Porque é que isto substituiu a descrição da app</p>
+<p>Estava ali uma frase que explicava o que o CRM é. Lê-se uma vez.</p>
+<p>Um painel que só <strong>descreve</strong> é um cartaz; um painel que <strong>aponta</strong> é um ponto de partida. A descrição não desapareceu - ficou mais pequena, por baixo.</p>
+</div>
 <h3 id="o-que-mostra">O que mostra<a class="headerlink" href="#o-que-mostra" title="Permanent link">¶</a></h3>
 <ul>
 <li><strong>KPIs</strong> do período: receita ganha, ticket médio, pipeline, novos clientes.<ul>
@@ -2432,7 +2465,8 @@
 <li>Valores financeiros podem aparecer com 🔒 conforme o papel.</li>
 </ul>
 </li>
-<li><strong>Receita ganha por mês</strong> - gráfico de barras (só propostas <em>Ganha</em>).</li>
+<li><strong>Receita ganha por mês</strong> - gráfico de barras (só propostas <em>Ganha</em>), com a <strong>leitura</strong> por baixo: <em>"Melhor mês: abril, com 8.236,08 €. Em agosto ainda não há receita registada, e faltam 6 dias."</em> O gráfico mostra; a frase conclui - que é o que a UFCD 10868 pede. Com um mês só, não aparece: não há comparação a fazer.</li>
+<li><strong>De onde vêm os leads</strong> - donut das empresas por canal de aquisição, com atalho para o <strong>ROI por canal</strong> no Analytics, onde vive a análise a sério (conversão e valor gerado por canal).</li>
 <li><strong>Pipeline por estado</strong> - distribuição das propostas (donut/barras).</li>
 <li><strong>Propostas recentes</strong> - últimos movimentos; clica para abrir.</li>
 <li><strong>Atalhos pedagógicos</strong> - acesso rápido a Empresas, Agenda, Email, etc.</li>
@@ -2453,6 +2487,12 @@
 <li><strong>Semana</strong> - eixo de horas (8h-20h), estilo Google Calendar; as tarefas com hora aparecem como blocos posicionados.</li>
 <li>Botões <strong>‹ ›</strong> e <strong>Hoje</strong> para navegar (recuam/avançam 7 dias na vista semana).</li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Mudar de vista mantém-se no mesmo sítio</p>
+<p>Até agosto de 2026, andar três meses para a frente em <strong>Mês</strong> e carregar em <strong>Semana</strong> devolvia-o à semana de hoje: havia dois cursores independentes que nunca se falavam.</p>
+<p>Agora as duas vistas são a <strong>mesma viagem</strong>. De Mês para Semana fica no mês que está a ver (no mês corrente abre na semana de hoje; noutro qualquer, na primeira semana desse mês). De Semana para Mês, vai para o mês a que a semana pertence.</p>
+<p>Uma semana pode cair em dois meses, por isso a regra é a mesma nos dois sentidos: <strong>a semana pertence ao mês da sua quinta-feira</strong> (ISO 8601). E o título di-lo quando é o caso: <em>"30 out - 5 nov 2026"</em>.</p>
+</div>
 <h3 id="criar-uma-tarefa-campo-a-campo">Criar uma tarefa - campo a campo<a class="headerlink" href="#criar-uma-tarefa-campo-a-campo" title="Permanent link">¶</a></h3>
 <p>Clica num <strong>dia</strong> (vista mês) ou numa <strong>hora</strong> (vista semana) - a data/hora entram preenchidas. Campos:</p>
 <ul>
