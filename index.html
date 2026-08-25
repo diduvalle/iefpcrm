@@ -1702,7 +1702,8 @@ views.dashboard = () => {
   <div class="hero">
     <div>
       <h3 style="display:flex;align-items:center">Bem-vindo ao IEFP CRM <span style="color:#fff">${infoTip('crm')}</span></h3>
-      <p>Plataforma pedagógica de gestão de relação com clientes - vendas, marketing, analytics e conformidade RGPD num só lugar.</p>
+      ${linhaDeHoje()}
+      <p class="hero-sub">Plataforma pedagógica de CRM e RGPD - vendas, marketing, analytics e conformidade num só lugar.</p>
       <div class="hero-actions">
         <button class="btn" data-act="new" data-type="cliente">${ic('users',16)} Novo cliente</button>
         <button class="btn-out" data-act="new" data-type="proposta">${ic('doc',16)} Nova proposta</button>
@@ -1739,8 +1740,17 @@ views.dashboard = () => {
       </div>
     </div>
     <div class="card card-pad" style="display:flex;flex-direction:column">
+      <div class="section-head" style="margin-bottom:10px"><div><h3>De onde vêm os leads ${infoTip('origem')}</h3><div class="sub">Empresas por canal de aquisição</div></div>
+        <a class="btn-sec btn-xs" href="#analytics">Ver o ROI por canal</a></div>
+      ${(()=>{ const og=origemSegs(); return og.length
+        ? `<div style="flex:1;display:flex;flex-direction:column;justify-content:center">
+             <div style="display:flex;justify-content:center;margin:6px 0 14px">${donut(og)}</div>
+             <div class="legend" style="justify-content:center">${og.map(o=>`<span><i style="background:${o.c}"></i>${esc(o.l)} · ${o.v}</span>`).join('')}</div></div>`
+        : empty('Sem empresas para classificar'); })()}
+    </div>
+    <div class="card card-pad" style="display:flex;flex-direction:column">
       <div class="section-head" style="margin-bottom:12px"><div><h3>Receita ganha por mês</h3><div class="sub">Propostas com estado "Ganha"</div></div></div>
-      ${bars(monthlyRevenue(props),190,true)}
+      ${(()=>{ const d=monthlyRevenue(props); return bars(d,190,true)+leituraReceita(d); })()}
     </div>
     <div class="card card-pad" style="display:flex;flex-direction:column">
       <div class="section-head" style="margin-bottom:12px"><div><h3>Atalhos pedagógicos</h3><div class="sub">UFCD 10868 · 10870</div></div></div>
@@ -3790,6 +3800,85 @@ function renderSubmitFeito(){
   ].join("");
   const sv=$("[data-act=\"modal-save\"]"); if(sv) sv.style.display="none";
   const dl=$("#modalDelete"); if(dl) dl.style.display="none";
+}
+/* ================== O QUE HÁ PARA FAZER HOJE ==================
+   O hero dizia "Plataforma pedagógica de gestão de relação com clientes..." -
+   uma descrição que ninguém lê duas vezes. Passa a dizer o que está à espera:
+   os números que já existem, cada um clicável para o sítio respetivo.
+
+   Um painel que só descreve é um cartaz. Um painel que aponta é um ponto de
+   partida. ================== */
+function trabalhoDeHoje(){
+  const hoje=todayISO(); const it=[];
+  const add=(n,sing,plur,hash,urgente)=>{ if(n>0) it.push({n,t:n===1?sing:plur,h:hash,u:!!urgente}); };
+
+  if(can("clientes")) add((typeof leadsPorAtender==="function"?leadsPorAtender():[]).length,
+    "subscrição por atender","subscrições por atender","clientes",true);
+
+  if(can("agenda")){
+    const t=(state.tarefas||[]).filter(x=>x.estado!=="Concluída");
+    add(t.filter(x=>x.data&&x.data<hoje).length,"tarefa em atraso","tarefas em atraso","agenda",true);
+    add(t.filter(x=>x.data===hoje).length,"tarefa para hoje","tarefas para hoje","agenda");
+  }
+  if(can("propostas")) add((state.propostas||[]).filter(p=>p.validade&&!["Ganha","Perdida"].includes(p.estado)
+    &&daysBetween(hoje,p.validade)>=0&&daysBetween(hoje,p.validade)<=7).length,
+    "proposta a expirar","propostas a expirar","propostas",true);
+
+  if(can("casos")) add((state.casos||[]).filter(c=>casoAberto(c)&&casoSla(c).estado==="violado").length,
+    "caso fora do prazo","casos fora do prazo","casos",true);
+
+  if(can("rgpd")) add((state.pedidos||[]).filter(p=>p.estado!=="Concluído"&&p.prazo&&p.prazo<hoje).length,
+    "pedido RGPD fora de prazo","pedidos RGPD fora de prazo","rgpd",true);
+
+  return it;
+}
+function linhaDeHoje(){
+  const u=currentUser(); const nome=(u&&(u.nome||"").trim().split(/\s+/)[0])||"";
+  const it=trabalhoDeHoje();
+  /* o titulo ao lado ja diz "Bem-vindo ao IEFP CRM": repetir a saudacao aqui
+     ficava a dizer bem-vindo duas vezes na mesma linha */
+  const ola=nome?("<strong>"+esc(nome)+"</strong>, hoje tem "):"Hoje tem ";
+  if(!it.length) return `<p>${nome?"<strong>"+esc(nome)+"</strong>, nada":"Nada"} urgente hoje - bom dia para prospetar.</p>`;
+  const peca=x=>`<a href="#${x.h}" class="hoje-n${x.u?" urg":""}">${x.n} ${esc(x.t)}</a>`;
+  const partes=it.map(peca);
+  const lista=partes.length===1?partes[0]
+    :partes.slice(0,-1).join(", ")+" e "+partes[partes.length-1];
+  return `<p>${ola}${lista}.</p>`;
+}
+
+/* ---------- A leitura do gráfico da receita ----------
+   O gráfico mostra; esta frase conclui. É a diferença entre ter dados e ter
+   uma decisão - que é o que a UFCD 10868 pede. */
+/* o grafico usa abreviaturas; numa frase lem-se mal */
+const MES_CURTO={Jan:"janeiro",Fev:"fevereiro",Mar:"março",Abr:"abril",Mai:"maio",Jun:"junho",
+  Jul:"julho",Ago:"agosto",Set:"setembro",Out:"outubro",Nov:"novembro",Dez:"dezembro"};
+const mesLongo=x=>MES_CURTO[x]||String(x||"").toLowerCase();
+function leituraReceita(dados){
+  const com=(dados||[]).filter(d=>d.v>0);
+  if(com.length<2) return "";   /* com um mês só não há comparação a fazer */
+  const melhor=com.slice().sort((a,b)=>b.v-a.v)[0];
+  const atual=dados[dados.length-1];
+  const pc=melhor.v?Math.round(atual.v/melhor.v*100):0;
+  const hoje=todayISO(); const [y,m]=hoje.split("-").map(Number);
+  const faltam=new Date(y,m,0).getDate()-(+hoje.slice(8,10));
+  const igual=atual.l===melhor.l;
+  return `<div class="callout ${igual?"green":"info"}" style="margin-top:12px">${ic(igual?"trend":"bulb",16)}<div class="ctxt">
+    <strong>Melhor mês: ${esc(mesLongo(melhor.l))}, com ${money(melhor.v)}.</strong>`+
+    (igual ? ` É o mês em curso - e ainda faltam ${faltam} dia(s).`
+     : atual.v===0 ? ` Em ${esc(mesLongo(atual.l))} ainda não há receita registada${faltam>0?`, e faltam ${faltam} dia(s)`:""}.`
+     : ` ${esc(mesLongo(atual.l))} vai em ${pc}% disso${faltam>0?`, e faltam ${faltam} dia(s)`:""}.`)+
+    `</div></div>`;
+}
+
+/* ---------- De onde vêm os leads ----------
+   O detalhe com conversão e valor vive no Analytics. Aqui fica só a pergunta
+   mais simples: por que porta e que eles entram. */
+function origemSegs(){
+  const paleta=["#00A651","#2563eb","#7c3aed","#d97706","#0891b2","#dc2626","#3cba6f","#94a3b8"];
+  const m={};
+  (state.empresas||[]).forEach(e=>{ const o=comDetalhe(e.origem,e.origemOutro)||"(sem origem)"; m[o]=(m[o]||0)+1; });
+  return Object.entries(m).sort((a,b)=>b[1]-a[1]).map(([l,v],i)=>({l,v,c:paleta[i%paleta.length],
+    act:"ir-empresas", tip:`${l} · ${v} empresa(s)`}));
 }
 function comDetalhe(valor,detalhe){ const v=String(valor||''); const d=String(detalhe||'').trim();
   return (v && d) ? (v+': '+d) : v; }

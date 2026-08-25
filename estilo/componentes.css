@@ -370,3 +370,12 @@ a.cbot-ir{text-decoration:none}
 .cbot-perto-t{font-size:.68rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
   color:var(--muted);margin-bottom:1px}
 .cbot-perto .cbot-chip{background:var(--surface);width:100%}
+
+/* linha do trabalho de hoje, no hero do Dashboard */
+.hero .hoje-n{color:#fff;font-weight:800;text-decoration:none;border-bottom:2px solid rgba(255,255,255,.42);
+  padding-bottom:1px;transition:border-color .12s,background .12s;border-radius:3px}
+.hero .hoje-n:hover{border-bottom-color:#fff;background:rgba(255,255,255,.12)}
+/* o que passou do prazo distingue-se do que ainda dá para fazer */
+.hero .hoje-n.urg{border-bottom-color:rgba(255,214,120,.85)}
+.hero .hoje-n.urg:hover{border-bottom-color:#ffd678;background:rgba(255,214,120,.18)}
+.hero .hero-sub{margin-top:8px;font-size:.84rem;opacity:.72}
