@@ -39,6 +39,19 @@ Matriz **papéis × módulos**: define o que cada grupo vê (Administrador/Forma
 ### Modelos de Proposta
 Atalho para o construtor de modelos. → [Modelos de Proposta](modelos.md).
 
+### Ver como
+O botão do **olho**, ao lado do sair, mostra a app **exatamente como ela chega a um formando** - sem trocar de conta.
+
+Enquanto está ligado, uma barra roxa no topo não deixa esquecer, com **Voltar a Administrador** sempre à vista. Em **Grupos de Utilizadores**, cada grupo tem também o seu *ver como*, para espreitar os grupos que criou.
+
+!!! tip "Para que serve mesmo"
+    Um formador só descobre que um formando não vê os valores, ou que lhe falta um módulo, **quando o formando o diz**. Isto mostra-o em dois cliques.
+
+    É também a forma mais rápida de preparar uma aula sobre perfis de acesso: ligue o cadeado financeiro num grupo, entre no modo, e a turma vê a app encolher em direto.
+
+!!! note "É só a vista"
+    Não muda dados, não muda a sessão e não grava nada - apenas responde às perguntas de permissão como se fosse o outro grupo. **Recarregar a página sai do modo**, que é a rede de segurança mais simples que há para não ficar lá preso.
+
 ### Equipa & permissões
 Dois cartões que respondem à pergunta *"e se eu tiver uma equipa?"*:
 

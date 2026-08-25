@@ -27,3 +27,21 @@ O teu trabalho (um *snapshot* do CRM: clientes, propostas, etc.) é entregue ao 
 
 !!! info "O que o formador vê"
     O formador consegue **rever** o teu trabalho (clientes, propostas) e **gerar o PDF** das tuas propostas - com o modelo que tu desenhaste.
+
+## Depois de submeter
+
+A confirmação **fica no ecrã** - não é um aviso que passa:
+
+> **O seu trabalho ficou registado no servidor.**
+> Entrega **1 de 2** · 25/08/2026 às 10:10 · Turma 12023483
+
+Por baixo vem o **resumo do que foi entregue** (quantas empresas, contactos, propostas, casos…), para conferires antes de fechar.
+
+### Recebes um email
+
+Vai uma cópia para o teu **email pessoal** (ou, se não houver, para o do IEFP), com o resumo e o número da entrega. É o teu comprovativo.
+
+!!! warning "Se o email não chegar, a entrega continua válida"
+    O que conta é o **registo no servidor**, feito no momento em que a confirmação aparece no ecrã. O email é só aviso - pode ficar preso no spam, ou o serviço de envio pode falhar, e nada disso desfaz a entrega.
+
+    Se ficares na dúvida, o formador vê a entrega na lista dele.

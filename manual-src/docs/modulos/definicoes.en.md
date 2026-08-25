@@ -39,6 +39,19 @@ The **keys** are **fixed** (🔒); you only manage the **mode** (real/simulated)
 ### Proposal Templates
 Shortcut to the template builder. → [Proposal Templates](modelos.md).
 
+### View as
+The **eye** button, next to sign-out, shows the app **exactly as a learner gets it** - without switching accounts.
+
+While it is on, a purple bar at the top makes sure you do not forget, with **Back to Administrator** always in sight. In **User Groups**, each group has its own *view as* too, so you can preview the groups you created.
+
+!!! tip "What it is really for"
+    A trainer only finds out that a learner cannot see the figures, or is missing a module, **when the learner says so**. This shows it in two clicks.
+
+    It is also the fastest way to prepare a lesson on access profiles: switch the finance lock on for a group, enter the mode, and the class watches the app shrink live.
+
+!!! note "It is only the view"
+    It changes no data, no session and saves nothing - it just answers permission questions as if it were the other group. **Reloading the page exits the mode**, which is the simplest safety net there is against getting stuck in it.
+
 ### Team & permissions
 Two cards answering *"what if I have a team?"*:
 

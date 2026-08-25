@@ -131,6 +131,11 @@ Debaixo da conversa há **sugestões clicáveis** - as perguntas que ele garanti
 !!! tip "Ctrl+K"
     Abre e fecha o Pulso de qualquer sítio. `Escape` também fecha.
 
+!!! note "As sugestões arrumam-se sozinhas"
+    Ficam **abertas ao iniciar a conversa** - que é quando ninguém sabe o que pode perguntar - e **fecham-se assim que fizeres a primeira pergunta**, porque a partir daí o espaço é da conversa.
+
+    Voltam com um clique em **Sugestões**, que fica sempre visível. Na prática, a área da conversa passa de 212 px para 390 px depois da primeira pergunta.
+
 ### As tuas, não as de todos
 Escrever **"as minhas"**, **"eu"** ou **"meu"** restringe a resposta ao teu utilizador:
 

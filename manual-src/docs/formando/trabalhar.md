@@ -21,6 +21,33 @@ O teu espaço tem vários **módulos**, na barra lateral. Aqui está o que cada 
 
 - **RGPD** - consentimentos, pedidos de titular, RoPA, violações. Vê **[RGPD & Pedagogia](../rgpd/index.md)**.
 
+## O meu trabalho está seguro?
+
+O que fazes fica **neste navegador**, neste computador. Isso desaparece se mudares de máquina, se abrires numa janela anónima, ou se alguém limpar os dados de navegação - e **nenhuma dessas coisas é erro teu**.
+
+Por isso há uma **cópia de segurança no servidor**:
+
+- guarda-se sozinha **um minuto depois de parares de mexer**, e sempre que fechas o separador (que é quando as pessoas costumam perder coisas);
+- é **uma** cópia, substituída de cada vez - não guarda histórico;
+- **não gasta** nenhuma das tuas entregas.
+
+Vês o estado em **Definições → O meu trabalho**, com a data da última cópia e dois botões: *Guardar cópia agora* e *Recuperar do servidor*.
+
+### Se abrires e não estiver lá nada
+
+A app pergunta antes de fazer o que quer que seja:
+
+> **Encontrámos o seu trabalho**
+> Este navegador está sem trabalho seu, mas há uma cópia guardada no servidor de 25/08/2026 às 09:55. Isto acontece quando se muda de computador ou de navegador, ou quando se limpam os dados de navegação. **Recuperar?**
+
+Só aparece quando o navegador está **mesmo** vazio. Se já lá tens trabalho, ninguém te incomoda - e nada é substituído sem tu mandares.
+
+!!! tip "A terceira cópia é a que fica contigo"
+    O navegador é uma. O servidor é outra. A **exportação para ficheiro** (no mesmo cartão) é a terceira, e a única que não depende de nós nem da internet. Vale a pena fazê-la antes de uma experiência grande.
+
+!!! note "O formador vê que a cópia existe, não o que lá está"
+    Na lista da turma aparece **quem tem cópia e de quando**. O conteúdo só chega ao formador quando **submetes** o trabalho.
+
 ## Dicas
 
 !!! tip "Experimenta sem medo"

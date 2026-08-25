@@ -131,6 +131,11 @@ Below the conversation there are **clickable suggestions** - the questions it is
 !!! tip "Ctrl+K"
     Opens and closes Pulso from anywhere. `Escape` closes it too.
 
+!!! note "The suggestions get out of the way"
+    They stay **open at the start of the conversation** - which is when nobody knows what can be asked - and **collapse as soon as you ask your first question**, because from then on the space belongs to the conversation.
+
+    One click on **Suggestions**, always visible, brings them back. In practice the conversation area goes from 212 px to 390 px after the first question.
+
 ### Yours, not everyone's
 Writing **"my"** or **"I"** narrows the answer to your user:
 
