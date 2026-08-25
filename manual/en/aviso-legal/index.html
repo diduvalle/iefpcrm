@@ -2210,6 +2210,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#class-accounts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Class accounts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#analytics" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2288,6 +2299,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#class-accounts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Class accounts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#analytics" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2339,9 +2361,52 @@
 <li>All data shown in the application (clients, companies, proposals, etc.) is <strong>fictional</strong>, created only for demonstration and practice. It does not correspond to real people or entities.</li>
 <li>The application is intended for <strong>training purposes</strong> and is provided <strong>"as is"</strong>, without warranties of any kind.</li>
 </ul>
+<h2 id="class-accounts">Class accounts<a class="headerlink" href="#class-accounts" title="Permanent link">¶</a></h2>
+<p>Anyone who merely visits the site or reads the manual <strong>leaves nothing behind</strong> - no record, no account, no cookies.</p>
+<p>When a trainee <strong>signs in to a class</strong>, an account exists. From then on we store on the server, tied to that account:</p>
+<table>
+<thead>
+<tr>
+<th>What</th>
+<th>What for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Username, first and last name</td>
+<td>Identifying who signs in and showing the name in the app</td>
+</tr>
+<tr>
+<td>IEFP email and, if given, personal email</td>
+<td>Sending the invitation, the submission receipt and password recovery</td>
+</tr>
+<tr>
+<td>Password</td>
+<td>Stored <strong>hashed</strong> (<em>bcrypt</em>); it is not readable, not even by us</td>
+</tr>
+<tr>
+<td><strong>Profile photo, email signature, phone and job title</strong></td>
+<td>Filling in the profile and the email signature. They follow the account, so they are not lost when changing computer</td>
+</tr>
+<tr>
+<td>Backup of the work</td>
+<td>One copy, replaced each time, so work is not lost</td>
+</tr>
+<tr>
+<td>Submitted work</td>
+<td>The submission the trainer assesses (at most two per trainee)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>The <strong>practice work</strong> (clients, companies, proposals) lives in <strong>each person's browser</strong>. It only reaches the server in the backup and in the submission, and only the class trainer can read it.</li>
+<li>The <strong>photo is personal data</strong> and it is optional - without one you get initials. It is not shown in the class list: each person sees their own.</li>
+<li><strong>Deleting the account deletes all of this</strong>, and deleting the class takes every account with it. It is immediate and no copy remains.</li>
+<li>None of this is used for anything other than the training. There is no advertising, no profiling and no sharing with third parties.</li>
+</ul>
 <h2 id="analytics">Analytics<a class="headerlink" href="#analytics" title="Permanent link">¶</a></h2>
 <ul>
-<li>To understand usage, we record <strong>anonymous, aggregated statistics</strong> (page visited, language, device type, videos played). We <strong>do not use cookies</strong>, <strong>do not collect personal data</strong>, and do not share with third parties - the data stays within the project's own infrastructure.</li>
+<li>To understand usage, we record <strong>anonymous, aggregated statistics</strong> (page visited, language, device type, videos played). We <strong>do not use cookies</strong>, <strong>do not collect personal data</strong> in this counting, and do not share with third parties - the data stays within the project's own infrastructure.</li>
 </ul>
 <h2 id="rights-and-contact">Rights and contact<a class="headerlink" href="#rights-and-contact" title="Permanent link">¶</a></h2>
 <ul>
