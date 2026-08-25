@@ -1512,6 +1512,7 @@ const SUPA_ERR={
   TURMA_JA_EXISTE:'Já existe uma turma com esse número.',
   TURMA_NAO_EXISTE:'Turma não encontrada. Confirme o link com o formador.',
   CREDENCIAIS_INVALIDAS:'Utilizador ou palavra-passe incorretos.',
+  PERFIL_GRANDE:'A foto ou a assinatura são grandes demais. Use uma imagem mais pequena.',
   USERNAME_EM_USO:'Esse nome de utilizador já existe nesta turma.',
   SESSAO_INVALIDA:'Sessão expirada. Inicie sessão novamente.',
   SEM_PERMISSAO:'Sem permissão para esta ação.',
@@ -1523,11 +1524,57 @@ const SUPA_ERR={
   DADOS_EM_FALTA:'Preencha todos os campos obrigatórios.'};
 function supaMsg(e){ const m=(e&&e.message)||String(e); return SUPA_ERR[m]||m; }
 // Espelha um utilizador do Supabase no state local (para permissões/currentUser funcionarem)
+/* ================== O PERFIL SEGUE A CONTA ==================
+   A foto e a assinatura sao a identidade da pessoa, nao trabalho de sandbox.
+   Enquanto viveram so no localStorage, qualquer recuperacao de copia,
+   importacao ou reset do ambiente as levava com o resto - e voltar a po-las a
+   cada inicio de sessao e um imposto que ninguem devia pagar. Passam a vir do
+   servidor, como ja vinham o nome e o email.
+
+   O servidor distingue duas coisas que parecem a mesma:
+     null -> nunca la esteve nada: sobe-se o que estiver aqui (uma vez so).
+     ''   -> foi apagado de proposito: apaga-se aqui tambem.
+   Sem essa distincao, o primeiro arranque depois da migracao apagava as fotos
+   que as pessoas ja tinham. ================== */
+const PERFIL_CAMPOS=['avatar','assinatura','assinaturaFont','assinaturaSize','telefone','cargo'];
+let perfilSubido=false;
+function perfilAplicar(lu,u){
+  if(!lu||!u) return false;
+  let subir=false;
+  PERFIL_CAMPOS.forEach(k=>{ const v=u[k]; if(v!=null) lu[k]=v; else if(lu[k]) subir=true; });
+  return subir;
+}
+/* guarda o perfil na sessao em cache: assim aparece logo no arranque seguinte,
+   mesmo sem rede, e nao se pede o mesmo ao servidor a cada abertura */
+function perfilCache(lu){
+  const sess=supaSession(); if(!sess||!sess.user||!lu) return;
+  PERFIL_CAMPOS.forEach(k=>{ sess.user[k]=lu[k]||''; });
+  sess.user.nome=lu.nome; sess.user.apelido=lu.apelido||''; sess.user.email=lu.email||'';
+  setSupaSession(sess);
+}
+function perfilSubir(lu){
+  if(perfilSubido||!lu||!TURMA||!supaToken()) return;
+  perfilSubido=true;
+  supaAtualizarPerfil(lu).then(()=>perfilCache(lu)).catch(()=>{ perfilSubido=false; });
+}
+/* Substituir o estado (recuperar copia, importar JSON, recarregar a base) traz
+   com ele o perfil que estava DENTRO desse ficheiro. Isto volta a por o da
+   conta por cima - a foto e a assinatura nao sao daquele ficheiro, sao da pessoa. */
+function perfilDoServidor(){
+  if(!TURMA||!supaToken()) return Promise.resolve(null);
+  return supaRpc('meu_perfil',{p_token:supaToken()}).then(u=>{
+    if(!u||!u.id) return null;
+    ingestSupaUser(u); perfilCache(state.utilizadores.find(x=>x.id===u.id));
+    render(); return u;
+  }).catch(()=>null);   /* migracao por correr, ou sem rede: fica o que ha */
+}
 function ingestSupaUser(u){
   if(!u||!u.id) return;
   const rec={id:u.id,username:u.username,nome:u.nome,apelido:u.apelido||'',email:u.email||'',email2:u.email2||'',papel:u.papel||'Formando',estado:'Ativo',password:'(supabase)'};
   const lu=state.utilizadores.find(x=>x.id===u.id);
   if(lu) Object.assign(lu,rec); else state.utilizadores.push(rec);
+  const alvo=state.utilizadores.find(x=>x.id===u.id);
+  if(perfilAplicar(alvo,u)) perfilSubir(alvo);
   save();
 }
 // Restaura a sessão Supabase guardada (turma mode) no arranque
@@ -3863,7 +3910,7 @@ async function rascunhoRepor(){
     localStorage.setItem(storeKey(), JSON.stringify(r.payload));
     load();
     if(u) ingestSupaUser({id:u.id,nome:u.nome,apelido:u.apelido,email:u.email,username:u.username,papel:u.papel});
-    save(); render();
+    save(); render(); perfilDoServidor();
     rascunhoAssinatura=rascunhoSig();
     toast("Trabalho recuperado","Cópia de "+dPT(String(r.em).slice(0,10))+" reposta neste navegador");
   }catch(e){ toast("Não foi possível recuperar",supaMsg(e),"err"); }
@@ -5238,7 +5285,20 @@ async function supaResetPwd(id,pwd){ return await supaRpc('redefinir_password',{
 async function supaLimiteEnvios(userId,limite){ return await supaRpc('definir_limite_envios',{p_token:supaToken(),p_user_id:userId||null,p_limite:limite==null?null:Number(limite)}); }
 async function supaMarcarConvite(id){ return await supaRpc('marcar_convite',{p_token:supaToken(),p_user_id:id}); }
 async function supaMudarMinhaPwd(atual,nova){ return await supaRpc('mudar_minha_password',{p_token:supaToken(),p_atual:atual,p_nova:nova}); }
-async function supaAtualizarPerfil(p){ return await supaRpc('atualizar_meu_perfil',{p_token:supaToken(),p_nome:p.nome||'',p_apelido:p.apelido||'',p_email:p.email||''}); }
+async function supaAtualizarPerfil(p){
+  const so=v=>v==null?null:String(v);   /* null = nao mexer; '' = apagar */
+  const base={p_token:supaToken(),p_nome:p.nome||'',p_apelido:p.apelido||'',p_email:p.email||''};
+  const cheio=Object.assign({},base,{p_avatar:so(p.avatar),p_assinatura:so(p.assinatura),
+    p_assinatura_font:so(p.assinaturaFont),p_assinatura_size:so(p.assinaturaSize),
+    p_telefone:so(p.telefone),p_cargo:so(p.cargo)});
+  try{ return await supaRpc('atualizar_meu_perfil',cheio); }
+  catch(e){
+    /* migracao do perfil ainda por correr no servidor: grava ao menos nome/email */
+    const m=String((e&&(e.code||e.message))||'');
+    if(/PGRST202|Could not find|does not exist/i.test(m)) return await supaRpc('atualizar_meu_perfil',base);
+    throw e;
+  }
+}
 async function supaRecuperar(codigo,username,recovery,nova){ return await supaRpc('recuperar_password',{p_codigo:codigo,p_username:username,p_recovery:recovery,p_nova:nova}); }
 async function supaGerarRecovery(){ return await supaRpc('gerar_recovery',{p_token:supaToken()}); }
 async function supaSubmeter(mensagem,payload){ return await supaRpc('submeter_trabalho',{p_token:supaToken(),p_mensagem:mensagem||'',p_payload:payload}); }
@@ -6554,13 +6614,15 @@ function saveProfile(){
   u.nome=nome; u.apelido=String(fd.get('apelido')||'').trim();
   u.email=String(fd.get('email')||'').trim(); u.telefone=String(fd.get('telefone')||'').trim();
   u.cargo=String(fd.get('cargo')||'').trim(); u.avatar=fd.get('avatar')||'';
-  // numa turma, nome/apelido/email são do Supabase → gravar no servidor E na sessão em cache,
-  // senão ingestSupaUser() reverte-os no próximo arranque
+  /* a assinatura tem de ser lida ANTES do envio, senao ia por gravar no servidor */
+  const ed=$('#sigEditor'); if(ed) u.assinatura=ed.innerHTML;
+  const ff=$('#modalForm [data-sigfont]'); if(ff) u.assinaturaFont=ff.value;
+  const fz=$('#modalForm [data-sigsize]'); if(fz) u.assinaturaSize=fz.value;
+  // numa turma o perfil é do Supabase → gravar no servidor E na sessão em cache,
+  // senão ingestSupaUser() revertia-o no próximo arranque
   if(TURMA && supaToken()){
-    const perfil={nome:u.nome,apelido:u.apelido,email:u.email};
-    supaAtualizarPerfil(perfil)
-      .then(()=>{ const s=supaSession(); if(s&&s.user){ Object.assign(s.user,perfil); setSupaSession(s); } })
-      .catch(e=>toast('Email/nome por gravar no servidor',supaMsg(e),'err'));
+    supaAtualizarPerfil(u).then(()=>perfilCache(u))
+      .catch(e=>toast('Perfil por gravar no servidor',supaMsg(e),'err'));
   }
   const pw=String(fd.get('password')||'');
   if(pw){
@@ -6570,9 +6632,6 @@ function saveProfile(){
       supaMudarMinhaPwd(atual,pw).then(()=>toast('Palavra-passe alterada','Use a nova no próximo início de sessão')).catch(e=>toast('Não foi possível mudar a palavra-passe',supaMsg(e),'err'));
     } else { u.password=hashPwd(pw); }
   }
-  const ed=$('#sigEditor'); if(ed) u.assinatura=ed.innerHTML;
-  const ff=$('#modalForm [data-sigfont]'); if(ff) u.assinaturaFont=ff.value;
-  const fz=$('#modalForm [data-sigsize]'); if(fz) u.assinaturaSize=fz.value;
   save(); closeModal(); render(); toast('Perfil atualizado',`As suas alterações foram guardadas`);
 }
 async function saveModal(){
@@ -7058,7 +7117,7 @@ function exportJSON(){
 }
 function importJSON(file){
   const r=new FileReader();
-  r.onload=e=>{ try{ const d=JSON.parse(e.target.result); if(!d.clientes) throw 0; localStorage.setItem(storeKey(),JSON.stringify(d)); load(); render(); toast('Importado','Dados carregados com sucesso'); }catch(err){ toast('Erro','Ficheiro inválido','err'); } };
+  r.onload=e=>{ try{ const d=JSON.parse(e.target.result); if(!d.clientes) throw 0; localStorage.setItem(storeKey(),JSON.stringify(d)); load(); render(); perfilDoServidor(); toast('Importado','Dados carregados com sucesso'); }catch(err){ toast('Erro','Ficheiro inválido','err'); } };
   r.readAsText(file);
 }
 
@@ -7070,14 +7129,14 @@ function tryLoadBase(){
   if(localStorage.getItem(storeKey())) return; // já há dados locais → não sobrepor
   const url=turmaBaseURL();
   fetch(url,{cache:'no-store'}).then(r=>{ if(!r.ok) throw 0; return r.json(); })
-    .then(d=>{ if(d&&Array.isArray(d.clientes)){ localStorage.setItem(storeKey(),JSON.stringify(d)); load(); save(); render(); toast('Base da turma carregada',TURMA?('Turma: '+TURMA):'Dados da formação'); } })
+    .then(d=>{ if(d&&Array.isArray(d.clientes)){ localStorage.setItem(storeKey(),JSON.stringify(d)); load(); save(); render(); perfilDoServidor(); toast('Base da turma carregada',TURMA?('Turma: '+TURMA):'Dados da formação'); } })
     .catch(()=>{});
 }
 function reloadBase(){
   const url=turmaBaseURL();
   toast('A procurar base…','',('info'));
   fetch(url,{cache:'no-store'}).then(r=>{ if(!r.ok) throw 0; return r.json(); })
-    .then(async d=>{ if(d&&Array.isArray(d.clientes)){ if(!(await uiConfirm('Substitui os dados atuais NESTE navegador pelos dados online.',{title:'Recarregar a base online?',danger:true,okText:'Recarregar'}))) return; localStorage.setItem(storeKey(),JSON.stringify(d)); load(); save(); render(); toast('Base recarregada','Dados online aplicados'); } else toast('Base inválida','O ficheiro não tem o formato esperado','warn'); })
+    .then(async d=>{ if(d&&Array.isArray(d.clientes)){ if(!(await uiConfirm('Substitui os dados atuais NESTE navegador pelos dados online.',{title:'Recarregar a base online?',danger:true,okText:'Recarregar'}))) return; localStorage.setItem(storeKey(),JSON.stringify(d)); load(); save(); render(); perfilDoServidor(); toast('Base recarregada','Dados online aplicados'); } else toast('Base inválida','O ficheiro não tem o formato esperado','warn'); })
     .catch(()=>toast('Sem base online',`Não encontrei "${esc(url)}" no servidor`,'warn'));
 }
 function exportBase(){
