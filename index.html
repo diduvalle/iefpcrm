@@ -433,6 +433,7 @@ body.present #presentExit{display:inline-flex;align-items:center;gap:6px;positio
 </head>
 <body>
 <div class="toast-wrap" id="toasts"></div>
+<div id="verComoBar" class="vercomo-bar" style="display:none"></div>
 <button id="presentExit" data-act="present">✕ Sair da apresentação</button>
 
 <div class="app" id="app">
@@ -1381,8 +1382,21 @@ const SESSION_KEY='iefp-crm-v4-session'+TURMA_SFX;
 function hashPwd(s){ let h=5381; s=String(s); for(let i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))>>>0; return 'h'+h.toString(36); }
 let sessionUserId = null;
 function currentUser(){ return state.utilizadores.find(u=>u.id===sessionUserId)||null; }
-function currentRole(){ const u=currentUser(); return u?(state.roles[u.papel]||{modules:[]}):null; }
-function isAdmin(){ if(!state.settings.requireLogin) return true; const u=currentUser(); return !!(u && u.papel==='Administrador'); }
+/* ================== VER COMO ==================
+   Um formador so descobre que um formando nao ve os valores, ou que lhe falta
+   um modulo, quando o formando o diz. Isto deixa-o ver a app EXATAMENTE como
+   ela chega a quem esta do outro lado, sem trocar de conta.
+
+   E so leitura de permissoes: nao muda dados, nao muda sessao. Vive numa
+   variavel, por isso recarregar a pagina sai do modo - a rede de seguranca
+   mais simples que ha para nao ficar la preso. ================== */
+let verComo=null;   /* nome do grupo que se esta a espreitar */
+function papelReal(){ const u=currentUser(); return u?u.papel:null; }
+function papelEfetivo(){ return verComo || papelReal(); }
+function verComoEntrar(g){ if(!g||!state.roles[g]) return; verComo=g; render(); toast('A ver como '+g,'Recarregar a página sai deste modo','info'); }
+function verComoSair(){ verComo=null; render(); }
+function currentRole(){ const p=papelEfetivo(); return p?(state.roles[p]||{modules:[]}):null; }
+function isAdmin(){ if(!state.settings.requireLogin) return !verComo; return papelEfetivo()==='Administrador'; }
 function can(mod){ if(!state.settings.requireLogin) return true; const r=currentRole(); return r?r.modules.includes(mod):false; }
 function isGestor(){ const r=currentRole(); return !!(r&&r.gestor); }
 /* Sub-permissões (sandbox): acesso a secções específicas das Definições sem dar o módulo completo. */
@@ -5783,7 +5797,7 @@ function secEquipaGrupos(){
   return `  <div class="card card-pad">
     <div class="section-head" style="margin-bottom:6px"><div><h3>Grupos de Utilizadores</h3><div class="sub">Crie grupos e marque os módulos a que cada um tem acesso. Aplica-se a todos os utilizadores do grupo.</div></div><button class="btn" data-act="new-group">${ic('users',16)} Novo grupo</button></div>
     <div class="table-wrap"><table><thead><tr><th>Grupo</th>${NAV_FLAT.map(m=>`<th class="t-center" style="font-size:.68rem">${esc(m.label)}</th>`).join('')}<th></th></tr></thead><tbody>
-      ${Object.keys(state.roles).map(rn=>{const r=state.roles[rn];return `<tr><td class="cell-main">${esc(rn)}${r.gestor?' <span class="tag">gestor</span>':''}${(r.feats&&r.feats.length)?` <span class="pill green" style="font-size:.62rem" title="${esc(r.feats.map(k=>(FEATS.find(f=>f.k===k)||{}).l||k).join(', '))}">+${r.feats.length} sandbox</span>`:''}</td>${NAV_FLAT.map(m=>`<td class="t-center"><input type="checkbox" data-perm="${esc(rn)}" data-mod="${m.id}" ${r.modules.includes(m.id)?'checked':''} style="width:17px;height:17px;accent-color:var(--g600);cursor:pointer"></td>`).join('')}<td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit-group" data-group="${esc(rn)}">Editar</button>${rn==='Administrador'?'':`<button class="btn-danger btn-xs" data-act="del-group" data-group="${esc(rn)}">✕</button>`}</div></td></tr>`;}).join('')}
+      ${Object.keys(state.roles).map(rn=>{const r=state.roles[rn];return `<tr><td class="cell-main">${esc(rn)}${rn!==papelReal()?` <button class="btn-ghost btn-xs" data-act="ver-como-grupo" data-g="${esc(rn)}" title="Ver a app como este grupo a vê">${ic('eye',12)} ver como</button>`:''}${r.gestor?' <span class="tag">gestor</span>':''}${(r.feats&&r.feats.length)?` <span class="pill green" style="font-size:.62rem" title="${esc(r.feats.map(k=>(FEATS.find(f=>f.k===k)||{}).l||k).join(', '))}">+${r.feats.length} sandbox</span>`:''}</td>${NAV_FLAT.map(m=>`<td class="t-center"><input type="checkbox" data-perm="${esc(rn)}" data-mod="${m.id}" ${r.modules.includes(m.id)?'checked':''} style="width:17px;height:17px;accent-color:var(--g600);cursor:pointer"></td>`).join('')}<td><div class="row-actions"><button class="btn-sec btn-xs" data-act="edit-group" data-group="${esc(rn)}">Editar</button>${rn==='Administrador'?'':`<button class="btn-danger btn-xs" data-act="del-group" data-group="${esc(rn)}">✕</button>`}</div></td></tr>`;}).join('')}
     </tbody></table></div>
     <p class="muted" style="font-size:.78rem;margin-top:10px">${ic('lock',14)} Nota pedagógica: autenticação simulada para fins de formação - não constitui segurança real (palavras-passe ficam no navegador).</p>
   </div>`;
@@ -7086,6 +7100,15 @@ function sendSubmitWork(){
 /* =========================================================================
    ROUTER + EVENTOS
    ========================================================================= */
+/* Uma barra fixa no topo. Sem ela, um formador que se esqueca de sair passa a
+   ver a app amputada e a pensar que algo se partiu. */
+function renderVerComoBar(){
+  const b=$('#verComoBar'); if(!b) return;
+  if(!verComo){ b.style.display='none'; b.innerHTML=''; document.body.classList.remove('vercomo'); return; }
+  b.style.display='flex'; document.body.classList.add('vercomo');
+  b.innerHTML=`${ic('eye',15)}<span>Está a ver a app como <strong>${esc(verComo)}</strong> - é só a vista, os dados são os seus.</span>`+
+    `<button class="btn-sec btn-xs" data-act="ver-como-sair">Voltar a ${esc(papelReal()||'Administrador')}</button>`;
+}
 function buildNav(){
   $('#nav').innerHTML=NAV.map(g=>{
     const items=g.items.filter(it=>can(it.id)||(it.id==='definicoes'&&hasAnyFeat()));
@@ -7106,7 +7129,7 @@ function buildNav(){
     const credit=`${TURMA?`<div class="turma-chip" title="Ambiente isolado desta turma">${ic('building',12)} Turma: ${esc(TURMA)}</div>`:''}<a href="https://www.linkedin.com/in/ldvale/" target="_blank" rel="noopener noreferrer" class="made-by" title="LinkedIn - Diogo du Valle">${ic('linkedin',14)}<span>Created by Diogo du Valle</span></a><a class="legal-link" href="https://iefpcrm.cr0x.org/manual/aviso-legal/" target="_blank" rel="noopener">Aviso legal</a>`;
     if(u){
       const submitBtn=(u.papel==='Formando')?`<button class="btn-sec btn-sm submit-work" data-act="submit-work" title="Enviar o meu trabalho ao formador">${ic('upload',15)}<span>Submeter o meu trabalho</span></button>`:'';
-      foot.innerHTML=`<div class="profile"><div class="profile-id" data-act="profile" title="Editar o meu perfil" style="display:flex;align-items:center;gap:11px;flex:1;min-width:0;cursor:pointer">${avatarHTML(u,36)}<div class="profile-txt"><strong>${esc(u.nome)} ${esc(u.apelido||'')}</strong><span>${esc(u.papel)}</span></div></div><button class="icon-btn" data-act="logout" title="Terminar sessão" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18);color:#fff;width:34px;height:34px">${ic('logout',16)}</button></div>${submitBtn}${credit}`;
+      foot.innerHTML=`<div class="profile"><div class="profile-id" data-act="profile" title="Editar o meu perfil" style="display:flex;align-items:center;gap:11px;flex:1;min-width:0;cursor:pointer">${avatarHTML(u,36)}<div class="profile-txt"><strong>${esc(u.nome)} ${esc(u.apelido||'')}</strong><span>${verComo?`a ver como ${esc(verComo)}`:esc(u.papel)}</span></div></div>${(papelReal()==='Administrador'||papelReal()==='Formador')?`<button class="icon-btn" data-act="ver-como" title="Ver a app como um formando a vê" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18);color:#fff;width:34px;height:34px">${ic('eye',16)}</button>`:''}<button class="icon-btn" data-act="logout" title="Terminar sessão" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18);color:#fff;width:34px;height:34px">${ic('logout',16)}</button></div>${submitBtn}${credit}`;
     } else {
       foot.innerHTML=`<div class="profile"><div class="avatar">DV</div><div class="profile-txt"><strong>Formador IEFP</strong><span>Sessão de demonstração</span></div></div>${credit}`;
     }
@@ -7153,6 +7176,7 @@ function renderNotifPanel(){
   p.innerHTML=`<div class="notif-head">Notificações <span class="muted" style="font-weight:600;font-size:.78rem">${al.length} item(s)</span></div><div class="notif-list">${al.length?al.map((x,idx)=>`<div class="notif-item" data-act="notif-go" data-k="${x.k}" data-id="${x.id||''}"><span class="ni-ic" style="background:${pillBgVar(x.c)};color:${pillColorVar(x.c)}">${ic(x.i,17)}</span><span class="grow"><strong>${esc(x.t)}</strong><span>${esc(x.s)}</span></span></div>`).join(''):`<div class="notif-empty">${ic('check',28)}<div style="margin-top:8px">Tudo em dia! Sem alertas.</div></div>`}</div>`;
 }
 function render(){
+  try{ renderVerComoBar(); }catch(e){}
   let v=currentView();
   const appEl=$('#app'), portalEl=$('#portal'), loginEl=$('#login'); const pubEl=$('#pubprop');
   if(pubEl && v.slice(0,2)!=='p/') pubEl.style.display='none';
@@ -7594,6 +7618,12 @@ document.addEventListener('click', async e=>{
       const aviso=quantos?`${quantos} pessoa(s) estão nesse departamento. Removê-lo não lhes mexe - deixa só de estar disponível para escolher.`:'';
       if(!await uiConfirm(aviso||`Remover o departamento \"${d}\"?`,{title:'Remover departamento',okText:'Remover',danger:true})) break;
       state.settings.departamentos=departamentos().filter(x=>x!==d); save(); render(); } break;
+    case 'ver-como': { const g=Object.keys(state.roles||{}).filter(x=>x!==papelReal());
+      const alvo=g.includes('Formando')?'Formando':g[0];
+      if(!alvo){ toast('Sem outros grupos','Crie um grupo em Definições para poder espreitar','warn'); break; }
+      verComoEntrar(alvo); } break;
+    case 'ver-como-grupo': verComoEntrar(el.dataset.g); break;
+    case 'ver-como-sair': verComoSair(); break;
     case 'rasc-guardar': { const b=el; b.disabled=true; b.textContent='A guardar…';
       rascunhoAssinatura='';   /* forçar, mesmo que nada tenha mudado */
       rascunhoGuardar('manual').then(fez=>{ b.disabled=false; b.innerHTML=ic('upload',16)+' Guardar cópia agora';

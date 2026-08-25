@@ -397,3 +397,16 @@ a.cbot-ir{text-decoration:none}
    aquilo era um paragrafo descritivo. Numa lista de numeros, isso partia a
    frase em tres linhas e deixava metade do hero vazia. */
 .hero .hoje{max-width:none;font-size:1.02rem;line-height:1.55}
+
+/* barra do modo "ver como" - fica por cima de tudo e nao se confunde com a app */
+.vercomo-bar{position:fixed;left:0;right:0;top:0;z-index:210;display:flex;align-items:center;gap:10px;
+  padding:9px 16px;background:linear-gradient(90deg,#7c3aed,#a855f7);color:#fff;
+  font-size:.84rem;font-weight:600;box-shadow:0 6px 20px -6px rgba(0,0,0,.45)}
+.vercomo-bar strong{font-weight:800}
+.vercomo-bar .btn-sec{margin-left:auto;background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.34);
+  color:#fff;font-weight:700}
+.vercomo-bar .btn-sec:hover{background:rgba(255,255,255,.28)}
+/* a app desce, para a barra nao tapar o cabecalho */
+body.vercomo .app{padding-top:38px}
+body.vercomo .toast-wrap{top:56px}
+@media print{.vercomo-bar{display:none!important}}
