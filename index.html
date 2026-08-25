@@ -189,7 +189,7 @@
 .root-console .root-cards{max-height:none}
 
 /* ---------- HERO ---------- */
-.hero{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;padding:26px;border-radius:var(--rl);background:linear-gradient(125deg,var(--g800),var(--g600) 55%,var(--g400));color:#fff;position:relative;overflow:hidden;box-shadow:0 16px 40px rgba(0,107,60,.24)}
+.hero{display:grid;grid-template-columns:1.7fr minmax(280px,.85fr);gap:20px;padding:26px;border-radius:var(--rl);background:linear-gradient(125deg,var(--g800),var(--g600) 55%,var(--g400));color:#fff;position:relative;overflow:hidden;box-shadow:0 16px 40px rgba(0,107,60,.24)}
 .hero::after{content:"";position:absolute;right:-60px;top:-60px;width:280px;height:280px;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%);pointer-events:none}
 .hero h3{font-size:1.5rem;font-weight:800;margin-bottom:6px;position:relative}
 .hero p{color:rgba(255,255,255,.88);max-width:46ch;position:relative}
@@ -3838,12 +3838,12 @@ function linhaDeHoje(){
   /* o titulo ao lado ja diz "Bem-vindo ao IEFP CRM": repetir a saudacao aqui
      ficava a dizer bem-vindo duas vezes na mesma linha */
   const ola=nome?("<strong>"+esc(nome)+"</strong>, hoje tem "):"Hoje tem ";
-  if(!it.length) return `<p>${nome?"<strong>"+esc(nome)+"</strong>, nada":"Nada"} urgente hoje - bom dia para prospetar.</p>`;
+  if(!it.length) return `<p class="hoje">${nome?"<strong>"+esc(nome)+"</strong>, nada":"Nada"} urgente hoje - bom dia para prospetar.</p>`;
   const peca=x=>`<a href="#${x.h}" class="hoje-n${x.u?" urg":""}">${x.n} ${esc(x.t)}</a>`;
   const partes=it.map(peca);
   const lista=partes.length===1?partes[0]
     :partes.slice(0,-1).join(", ")+" e "+partes[partes.length-1];
-  return `<p>${ola}${lista}.</p>`;
+  return `<p class="hoje">${ola}${lista}.</p>`;
 }
 
 /* ---------- A leitura do gráfico da receita ----------

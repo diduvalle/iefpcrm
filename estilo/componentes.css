@@ -122,9 +122,23 @@ a{text-decoration:none;color:inherit}
 .split.eq>.card{display:flex;flex-direction:column}
 .dash-cols{display:grid;grid-template-columns:1.55fr 1fr;gap:16px;align-items:stretch}
 .dash-col{display:flex;flex-direction:column;gap:16px;min-width:0}
-@media(max-width:900px){.dash-cols{grid-template-columns:1fr}}
+/* 900px era tarde de mais: a 1024 a coluna da direita ficava com ~296px e o
+   cabecalho do cartao ("Pipeline por estado" + botao) ja nao cabia. */
+@media(max-width:1100px){.dash-cols{grid-template-columns:1fr}}
+/* As grelhas .cols-2/3/4 e .split nao tinham ponto de quebra nenhum: ficavam
+   com 2, 3 ou 4 colunas mesmo num telemovel, e a pagina passava a ter scroll
+   horizontal (1149px de conteudo em 1024px de ecra). Encontrado ao medir o
+   hero, nao vinha de la. */
+@media(max-width:1100px){ .cols-4{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media(max-width:900px){  .cols-3{grid-template-columns:repeat(2,minmax(0,1fr))}
+                          .split{grid-template-columns:1fr} }
+@media(max-width:640px){  .cols-2,.cols-3,.cols-4{grid-template-columns:1fr} }
 /* ---------- TABLES ---------- */
-.table-wrap{overflow:auto;border:1px solid var(--border);border-radius:var(--r);background:var(--surface)}
+/* min-width:0 e o que permite a um item de grelha/flex encolher abaixo do seu
+   conteudo. Sem isto, uma tabela larga empurrava a PAGINA inteira em vez de
+   fazer scroll dentro da propria moldura, que e para isso que ela existe. */
+.card,.dash-col,.grid>*{min-width:0}
+.table-wrap{overflow:auto;min-width:0;border:1px solid var(--border);border-radius:var(--r);background:var(--surface)}
 table{width:100%;border-collapse:collapse;font-size:.88rem}
 th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--border);vertical-align:middle;white-space:nowrap}
 th{background:var(--surface2);font-size:.74rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;position:sticky;top:0;z-index:1}
@@ -379,3 +393,7 @@ a.cbot-ir{text-decoration:none}
 .hero .hoje-n.urg{border-bottom-color:rgba(255,214,120,.85)}
 .hero .hoje-n.urg:hover{border-bottom-color:#ffd678;background:rgba(255,214,120,.18)}
 .hero .hero-sub{margin-top:8px;font-size:.84rem;opacity:.72}
+/* A linha do dia estava presa ao max-width:46ch de .hero p - herdado de quando
+   aquilo era um paragrafo descritivo. Numa lista de numeros, isso partia a
+   frase em tres linhas e deixava metade do hero vazia. */
+.hero .hoje{max-width:none;font-size:1.02rem;line-height:1.55}
