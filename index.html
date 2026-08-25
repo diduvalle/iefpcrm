@@ -554,7 +554,54 @@ body.present #presentExit{display:inline-flex;align-items:center;gap:6px;positio
 function currentTurma(){ try{ const sp=new URLSearchParams(location.search); let raw=(sp.get('t')||'').replace(/\D/g,''); if(raw.length!==8){ for(const [k,v] of sp){ if(!v && /^\d{8}$/.test(k)){ raw=k; break; } } } return raw.length===8?raw:''; }catch(e){ return ''; } }
 const TURMA = currentTurma();
 const TURMA_SFX = TURMA ? ('::'+TURMA) : '';
-const STORE_KEY = 'iefp-crm-v4'+TURMA_SFX;
+/* ================== A SANDBOX E DE CADA UM ==================
+   A chave era 'iefp-crm-v4::<turma>' - com a TURMA mas SEM o utilizador. Num
+   navegador partilhado, todos os que entrassem na mesma turma escreviam e liam
+   o MESMO sitio: bastava um formador entrar com a conta de um formando para
+   ajudar, e ao voltar a si proprio continuava a ver o trabalho dele. Terminar
+   sessao nao resolvia, porque a chave nao mudava.
+
+   Passa a 'iefp-crm-v4::<turma>::<utilizador>'. Como o utilizador so se sabe
+   depois do login, isto tem de ser uma FUNCAO e nao uma constante - e o estado
+   em memoria tem de ser recarregado sempre que a sessao muda. ================== */
+const STORE_BASE = 'iefp-crm-v4'+TURMA_SFX;
+const MIGRA_FALHOU='iefp-crm-v4-migracao'+TURMA_SFX;
+/* quem esta autenticado, ANTES de o resto do arranque correr: numa turma a
+   identidade vive no token do Supabase, so fora de turma e que esta na SESSION_KEY */
+function sessaoGuardadaId(){
+  try{
+    if(TURMA){ const s=supaSession(); return (s&&s.user&&s.user.id)||''; }
+    return localStorage.getItem(SESSION_KEY)||'';
+  }catch(e){ return ''; }
+}
+function storeKey(){
+  /* fora de turma (demo publica, um so posto) mantem-se a chave antiga */
+  if(!TURMA) return STORE_BASE;
+  const id = sessionUserId || sessaoGuardadaId();
+  return id ? (STORE_BASE+'::'+id) : STORE_BASE;
+}
+/* Migracao unica: o que estava na chave partilhada passa para quem esta a
+   entrar AGORA, e a chave antiga e APAGADA - senao a proxima pessoa a usar
+   este computador herdava o trabalho da anterior, que e exatamente o defeito. */
+function migrarSandbox(){
+  if(!TURMA) return;
+  const nova=storeKey(); if(nova===STORE_BASE) return;   /* ainda sem sessao */
+  try{
+    if(localStorage.getItem(nova)!=null){ localStorage.removeItem(STORE_BASE); return; }
+    const antiga=localStorage.getItem(STORE_BASE);
+    if(antiga==null) return;
+    /* copiar e CONFIRMAR antes de apagar - se o localStorage estiver cheio, o
+       setItem falha, e apagar primeiro seria perder o trabalho de alguem */
+    localStorage.setItem(nova,antiga);
+    if(localStorage.getItem(nova)===antiga){ localStorage.removeItem(STORE_BASE); localStorage.removeItem(MIGRA_FALHOU); }
+    else throw new Error('copia incompleta');
+  }catch(e){
+    /* falhou: fica tudo como estava e marca-se de quem e a chave antiga, para
+       o load() a poder ler - so a essa pessoa, nao a quem vier a seguir */
+    try{ localStorage.removeItem(nova); }catch(_){}
+    try{ localStorage.setItem(MIGRA_FALHOU, sessionUserId||sessaoGuardadaId()); }catch(_){}
+  }
+}
 const LANG_KEY = 'iefp-crm-v4-lang'+TURMA_SFX;
 const EMAILJS_DEFAULT = {ativo:true, serviceId:'service_l6a25qr', templateId:'template_8rfnjxa', publicKey:'JkeRPKt-DLk3GryQx'};
 const $  = (s,r=document)=>r.querySelector(s);
@@ -1128,7 +1175,15 @@ function demoData(){
 
 let state;
 function load(){
-  try{ const s=localStorage.getItem(STORE_KEY); state = s?JSON.parse(s):demoData(); }
+  try{
+    let s=localStorage.getItem(storeKey());
+    /* migracao falhada: a chave antiga ainda existe e e desta pessoa */
+    if(s==null && TURMA){
+      const dono=(function(){ try{ return localStorage.getItem(MIGRA_FALHOU)||''; }catch(e){ return ''; } })();
+      if(dono && dono===(sessionUserId||sessaoGuardadaId())) s=localStorage.getItem(STORE_BASE);
+    }
+    state = s?JSON.parse(s):demoData();
+  }
   catch(e){ state = demoData(); }
   // migração defensiva: garantir coleções esperadas
   const def=demoData();
@@ -1248,7 +1303,11 @@ function load(){
   try{ const sid=localStorage.getItem(SESSION_KEY); if(sid&&state.utilizadores.some(u=>u.id===sid)) sessionUserId=sid; }catch(e){}
   try{ processAgendamentos(); }catch(e){}
 }
-function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){ toast('Erro ao gravar','Sem espaço no localStorage','err'); }
+function save(){
+  /* numa turma sem sessao aberta nao ha a quem pertencer: nao se grava nada,
+     para o ecra de login nunca escrever por cima do trabalho de ninguem */
+  if(TURMA && !sessionUserId) return;
+  try{ localStorage.setItem(storeKey(), JSON.stringify(state)); }catch(e){ toast('Erro ao gravar','Sem espaço no localStorage','err'); }
   try{ rascunhoAgenda(); }catch(e){} }
 function resetDemo(){ state = demoData(); save(); render(); toast('Dados repostos','Carregados os dados de demonstração.'); }
 
@@ -1410,7 +1469,21 @@ function doLogin(username,password){
   sessionUserId=u.id; try{localStorage.setItem(SESSION_KEY,u.id);}catch(e){}
   return {ok:true,user:u};
 }
-function doLogout(){ sessionUserId=null; try{localStorage.removeItem(SESSION_KEY);}catch(e){} if(TURMA) supaLogout(); render(); }
+function doLogout(){
+  /* fechar as contas de quem sai, ainda com a sessao dele aberta: gravar no
+     navegador e mandar a ultima copia para o servidor - dele, nao de ninguem */
+  try{ save(); }catch(e){}
+  try{ rascunhoGuardar('saida'); }catch(e){}
+  try{ if(rascunhoTimer){ clearTimeout(rascunhoTimer); rascunhoTimer=null; } }catch(e){}
+  sessionUserId=null;
+  verComo=null;
+  try{ localStorage.removeItem(SESSION_KEY); }catch(e){}
+  if(TURMA) supaLogout();
+  /* limpar a memoria: sem isto, o trabalho de quem saiu ficava carregado e a
+     proxima pessoa a entrar gravava-o por cima do seu */
+  if(TURMA){ state=demoData(); rascunhoAssinatura=''; rascunhoEm=null; }
+  render();
+}
 function firstAllowedView(){ const r=currentRole(); return (r&&r.modules[0])||'dashboard'; }
 
 /* ---------- Supabase: identidade central (modelo híbrido) ----------
@@ -1467,7 +1540,11 @@ function restoreSupaSession(){
 async function supaLogin(username,password){
   const data=await supaRpc('login',{p_codigo:TURMA,p_username:username,p_password:password});
   setSupaSession({token:data.token,user:data.user});
-  ingestSupaUser(data.user); sessionUserId=data.user.id;
+  sessionUserId=data.user.id;
+  /* a chave depende de quem entrou: migra o que houvesse e recarrega, senao
+     ficava em memoria o trabalho de quem esteve aqui antes */
+  migrarSandbox(); load();
+  ingestSupaUser(data.user);
   rememberTurma(TURMA);
   carregarEquipa();
   return data.user;
@@ -3783,7 +3860,7 @@ async function rascunhoRepor(){
     const u=currentUser();
     /* escreve-se e volta a carregar: load() é que corre as migrações todas,
        e não existe um normalize() separado para chamar */
-    localStorage.setItem(STORE_KEY, JSON.stringify(r.payload));
+    localStorage.setItem(storeKey(), JSON.stringify(r.payload));
     load();
     if(u) ingestSupaUser({id:u.id,nome:u.nome,apelido:u.apelido,email:u.email,username:u.username,papel:u.papel});
     save(); render();
@@ -6981,7 +7058,7 @@ function exportJSON(){
 }
 function importJSON(file){
   const r=new FileReader();
-  r.onload=e=>{ try{ const d=JSON.parse(e.target.result); if(!d.clientes) throw 0; localStorage.setItem(STORE_KEY,JSON.stringify(d)); load(); render(); toast('Importado','Dados carregados com sucesso'); }catch(err){ toast('Erro','Ficheiro inválido','err'); } };
+  r.onload=e=>{ try{ const d=JSON.parse(e.target.result); if(!d.clientes) throw 0; localStorage.setItem(storeKey(),JSON.stringify(d)); load(); render(); toast('Importado','Dados carregados com sucesso'); }catch(err){ toast('Erro','Ficheiro inválido','err'); } };
   r.readAsText(file);
 }
 
@@ -6990,17 +7067,17 @@ let baseTried=false;
 function turmaBaseURL(){ return TURMA ? `bases/${TURMA}.json` : (state.settings.baseURL||'base.json'); }
 function tryLoadBase(){
   if(baseTried) return; baseTried=true;
-  if(localStorage.getItem(STORE_KEY)) return; // já há dados locais → não sobrepor
+  if(localStorage.getItem(storeKey())) return; // já há dados locais → não sobrepor
   const url=turmaBaseURL();
   fetch(url,{cache:'no-store'}).then(r=>{ if(!r.ok) throw 0; return r.json(); })
-    .then(d=>{ if(d&&Array.isArray(d.clientes)){ localStorage.setItem(STORE_KEY,JSON.stringify(d)); load(); save(); render(); toast('Base da turma carregada',TURMA?('Turma: '+TURMA):'Dados da formação'); } })
+    .then(d=>{ if(d&&Array.isArray(d.clientes)){ localStorage.setItem(storeKey(),JSON.stringify(d)); load(); save(); render(); toast('Base da turma carregada',TURMA?('Turma: '+TURMA):'Dados da formação'); } })
     .catch(()=>{});
 }
 function reloadBase(){
   const url=turmaBaseURL();
   toast('A procurar base…','',('info'));
   fetch(url,{cache:'no-store'}).then(r=>{ if(!r.ok) throw 0; return r.json(); })
-    .then(async d=>{ if(d&&Array.isArray(d.clientes)){ if(!(await uiConfirm('Substitui os dados atuais NESTE navegador pelos dados online.',{title:'Recarregar a base online?',danger:true,okText:'Recarregar'}))) return; localStorage.setItem(STORE_KEY,JSON.stringify(d)); load(); save(); render(); toast('Base recarregada','Dados online aplicados'); } else toast('Base inválida','O ficheiro não tem o formato esperado','warn'); })
+    .then(async d=>{ if(d&&Array.isArray(d.clientes)){ if(!(await uiConfirm('Substitui os dados atuais NESTE navegador pelos dados online.',{title:'Recarregar a base online?',danger:true,okText:'Recarregar'}))) return; localStorage.setItem(storeKey(),JSON.stringify(d)); load(); save(); render(); toast('Base recarregada','Dados online aplicados'); } else toast('Base inválida','O ficheiro não tem o formato esperado','warn'); })
     .catch(()=>toast('Sem base online',`Não encontrei "${esc(url)}" no servidor`,'warn'));
 }
 function exportBase(){
@@ -8935,6 +9012,9 @@ function inspectorHTML(b,i){
 async function delPropTpl(id){ if(!id) return; if(!(await uiConfirm('Esta ação não pode ser anulada.',{title:'Eliminar modelo de proposta?',danger:true,okText:'Eliminar'}))) return; state.propostaTemplates=state.propostaTemplates.filter(x=>x.id!==id); save(); render(); toast('Modelo eliminado'); }
 
 /* ---------- arranque ---------- */
+/* a sessao primeiro: a chave da sandbox depende de quem esta autenticado */
+try{ const sid=sessaoGuardadaId(); if(sid) sessionUserId=sid; }catch(e){}
+migrarSandbox();
 load();
 applyTheme(localStorage.getItem('iefp-theme')||'light');
 applyBrand();
