@@ -522,7 +522,6 @@ async function carregarSessoes(t){
       <button class="chip" id="copiarLink">${ic('link')} Copiar link da turma</button>
     </div>`;
 
-  sessoes = sessoes.filter(x=>x.titulo!=='Selo de conclusão');
   $('#vSessoes').innerHTML = topo + (!sessoes.length
     ? `<div class="empty">${ic('mail')}<strong>Ainda não há sessões</strong>
         <span>Carrega em "Nova sessão" para avisar a turma de que a pasta tem material novo.</span></div>`
