@@ -40,6 +40,9 @@ td .tag{align-self:auto}
 .tc-drive svg{flex:none;width:16px;height:16px}
 .tc-drive.falta{color:var(--warn)}
 .tc-foot{display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:14px;border-top:1px solid var(--border)}
+/* o dourado do badge: so existe aqui, nao entra no sistema de estilos */
+.btn-ouro{background:#d4af37;border-color:#d4af37;color:#16240f}
+.btn-ouro:hover{background:#c8a42d;border-color:#c8a42d}
 .tc-foot .btn{margin-left:auto}
 
 /* CABEÇALHO DE SECÇÃO COM VOLTAR */
@@ -368,7 +371,7 @@ async function carregarTurmas(){
           <div class="muted" style="font-size:.8rem">${t.n_formandos} formandos · último envio: ${t.ultimo_envio?dt(t.ultimo_envio):'nunca'}</div>
           <div class="tc-foot">
             <button class="btn-sec btn-sm" data-cfg="${t.id}">${ic('cog')}Definições</button>
-            <button class="btn-sec btn-sm" data-selos="${t.id}">Selos</button>
+            <button class="btn btn-sm btn-ouro" data-selos="${t.id}">Badges</button>
             <button class="btn btn-sm" data-abrir="${t.id}">Abrir</button>
           </div>
         </article>`).join('')}</div>`;
@@ -518,6 +521,7 @@ async function carregarSessoes(t){
       <button class="chip" id="copiarLink">${ic('link')} Copiar link da turma</button>
     </div>`;
 
+  sessoes = sessoes.filter(x=>x.titulo!=='Selo de conclusão');
   $('#vSessoes').innerHTML = topo + (!sessoes.length
     ? `<div class="empty">${ic('mail')}<strong>Ainda não há sessões</strong>
         <span>Carrega em "Nova sessão" para avisar a turma de que a pasta tem material novo.</span></div>`
@@ -558,7 +562,7 @@ async function abrirSelos(t){
   $('#vTurmas').classList.remove('active');
   $('#vSessoes').classList.remove('active');
   $('#vSelos').classList.add('active');
-  $('#hTitulo').textContent='Selos · '+(t.nome||('Turma '+t.codigo));
+  $('#hTitulo').textContent='Badges · '+(t.nome||('Turma '+t.codigo));
   $('#hSub').textContent='Turma '+t.codigo+' · '+t.n_formandos+' formandos';
   $('#btnPrimario').innerHTML=ic('mais')+'Adicionar turma';
   $('#pesquisa').value='';
@@ -578,16 +582,16 @@ async function carregarSelos(t){
   const semDestino=lista.filter(x=>!x.destino).length;
   const topo=`<button class="voltar" id="voltarTurmas2">${ic('seta')}Todas as turmas</button>
     <div class="section-head" style="margin-bottom:16px">
-      <div><h3>Selos de conclusão</h3>
-        <div class="sub">Cada formando recebe o link do seu selo em crm.cr0x.org.${
-          semDestino?` <span style="color:var(--warn)">${semDestino} ainda sem selo gerado.</span>`:''}</div></div>
+      <div><h3>Badges de conclusão</h3>
+        <div class="sub">Cada formando recebe o link do seu badge em crm.cr0x.org.${
+          semDestino?` <span style="color:var(--warn)">${semDestino} ainda sem badge gerado.</span>`:''}</div></div>
     </div>`;
 
   $('#vSelos').innerHTML = topo + (!lista.length
     ? `<div class="empty">${ic('gente')}<strong>Sem formandos com email</strong>
-        <span>Os selos enviam-se para o email pessoal de cada formando.</span></div>`
+        <span>Os badges enviam-se para o email pessoal de cada formando.</span></div>`
     : `<div class="table-wrap"><table><thead><tr>
-        <th>Formando</th><th>Selo</th><th>Estado</th><th>Abriu</th><th></th>
+        <th>Formando</th><th>Badge</th><th>Estado</th><th>Abriu</th><th></th>
       </tr></thead><tbody>${lista.map(x=>{
         const curto=x.destino?esc(String(x.destino).replace(/^https?:\/\/crm\.cr0x\.org\/b\//,'').replace(/\/$/,'')):'';
         return `<tr>
@@ -617,7 +621,7 @@ async function carregarSelos(t){
 async function enviarSelo(t,acessoId,btn){
   btn.disabled=true; btn.textContent='A enviar…';
   const r=await edge('repo-enviar',{token:sessao.token,sessao_id:selosSess,acesso_id:acessoId});
-  if(r&&r.ok){ toast('Selo enviado.'); }
+  if(r&&r.ok){ toast('Badge enviado.'); }
   else { toast('Não foi possível enviar: '+((r&&(r.erro||r.detalhe))||'erro'),'err'); }
   carregarSelos(t);
 }
