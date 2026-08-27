@@ -333,7 +333,8 @@ $('#btnPrimario').addEventListener('click',()=>{
 
 function mostrarTurmas(){
   turmaAtual=null;
-  $('#vSessoes').classList.remove('active'); $('#vTurmas').classList.add('active');
+  $('#vSessoes').classList.remove('active'); $('#vSelos').classList.remove('active');
+  $('#vTurmas').classList.add('active');
   $('#hTitulo').textContent='Turmas'; $('#hSub').textContent='As turmas que geres aqui';
   $('#btnPrimario').innerHTML=ic('mais')+'Adicionar turma';
   $('#pesquisa').value='';
@@ -555,7 +556,7 @@ async function carregarSessoes(t){
 
    O botão envia a UMA pessoa de cada vez, de propósito: são poucos, e assim
    vê-se o que aconteceu a cada um antes de avançar para o seguinte. ====== */
-let selosSess=null;
+let selosSess=null, selosEmail=null;
 
 async function abrirSelos(t){
   turmaAtual=t; selosSess=null;
@@ -569,7 +570,7 @@ async function abrirSelos(t){
   $('#vSelos').innerHTML='<div class="empty"><strong>A preparar…</strong></div>';
   try{
     const p=await rpc('repo_selos_preparar',{p_token:sessao.token,p_repo_turma_id:t.id});
-    selosSess=p&&p.sessao_id;
+    selosSess=p&&p.sessao_id; selosEmail=p||null;
   }catch(e){ return tratar(e); }
   carregarSelos(t);
 }
@@ -585,6 +586,7 @@ async function carregarSelos(t){
       <div><h3>Badges de conclusão</h3>
         <div class="sub">Cada formando recebe o link do seu badge em crm.cr0x.org.${
           semDestino?` <span style="color:var(--warn)">${semDestino} ainda sem badge gerado.</span>`:''}</div></div>
+      <button class="chip" id="verEmailBadge">${ic('mail')} Ver o email</button>
     </div>`;
 
   $('#vSelos').innerHTML = topo + (!lista.length
@@ -599,16 +601,21 @@ async function carregarSelos(t){
           <td>${x.destino
               ? `<a href="${esc(x.destino)}" target="_blank" rel="noopener" class="chip">${curto}</a>`
               : '<span class="muted">por gerar</span>'}</td>
-          <td>${x.erro
+          <td>${x.bloqueado
+              ? '<span class="pill red">Não aprovado</span>'
+              : x.erro
               ? `<span class="pill red" title="${esc(x.erro)}">Erro</span>`
               : x.enviado_em ? `<span class="pill green">Enviado · ${dt(x.enviado_em)}</span>`
                              : '<span class="pill amber">Por enviar</span>'}</td>
           <td>${x.cliques ? `<span class="pill grey">${x.cliques}×</span>` : '<span class="muted">-</span>'}</td>
-          <td class="t-right">${x.destino
-              ? (x.enviado_em && !x.erro
-                  ? `<button class="btn-sec btn-sm" data-reenviar="${x.acesso_id}">Reenviar</button>`
-                  : `<button class="btn btn-sm" data-enviar="${x.acesso_id}">Enviar</button>`)
-              : ''}</td>
+          <td class="t-right" style="white-space:nowrap">${x.bloqueado
+              ? `<button class="btn-sec btn-sm" data-destrancar="${x.acesso_id}">Destrancar</button>`
+              : `${x.destino
+                  ? (x.enviado_em && !x.erro
+                      ? `<button class="btn-sec btn-sm" data-reenviar="${x.acesso_id}">Reenviar</button>`
+                      : `<button class="btn btn-sm" data-enviar="${x.acesso_id}">Enviar</button>`)
+                  : ''}
+                 ${x.enviado_em ? '' : `<button class="btn-danger btn-sm" data-trancar="${x.acesso_id}" title="Não aprovado - tranca o envio">Não aprovado</button>`}`}</td>
         </tr>`;}).join('')}</tbody></table></div>`);
 
   $('#voltarTurmas2').addEventListener('click',mostrarTurmas);
@@ -616,6 +623,17 @@ async function carregarSelos(t){
     ()=>enviarSelo(t,b.dataset.enviar,b)));
   document.querySelectorAll('[data-reenviar]').forEach(b=>b.addEventListener('click',
     ()=>reenviarSelo(t,b.dataset.reenviar,b)));
+  document.querySelectorAll('[data-trancar]').forEach(b=>b.addEventListener('click',
+    ()=>trancarSelo(t,b.dataset.trancar,true)));
+  document.querySelectorAll('[data-destrancar]').forEach(b=>b.addEventListener('click',
+    ()=>trancarSelo(t,b.dataset.destrancar,false)));
+  const vb=$('#verEmailBadge');
+  if(vb) vb.addEventListener('click',()=>{
+    if(!selosEmail) return toast('Ainda não sei o texto do email.','warn');
+    modalEmail({titulo:selosEmail.titulo, texto:selosEmail.texto, assunto:selosEmail.assunto,
+      cabecalho:selosEmail.cabecalho, saudacao:selosEmail.saudacao,
+      botao:selosEmail.botao, rodape:selosEmail.rodape});
+  });
 }
 
 async function enviarSelo(t,acessoId,btn){
@@ -623,6 +641,18 @@ async function enviarSelo(t,acessoId,btn){
   const r=await edge('repo-enviar',{token:sessao.token,sessao_id:selosSess,acesso_id:acessoId});
   if(r&&r.ok){ toast('Badge enviado.'); }
   else { toast('Não foi possível enviar: '+((r&&(r.erro||r.detalhe))||'erro'),'err'); }
+  carregarSelos(t);
+}
+
+/* Trancar vive no servidor, nao no ecra: um nao aprovado nunca entra num
+   envio, mesmo que alguem carregue no botao errado noutra altura. */
+async function trancarSelo(t,acessoId,bloquear){
+  if(bloquear && !(await uiConfirm({titulo:'Não aprovado?',
+      texto:'Fica trancado e não recebe o badge. Podes destrancar depois.',
+      ok:'Trancar',perigo:true}))) return;
+  try{ await rpc('repo_selo_bloquear',{p_token:sessao.token,p_acesso_id:acessoId,p_bloqueado:bloquear}); }
+  catch(e){ return tratar(e); }
+  toast(bloquear?'Trancado - não recebe o badge.':'Destrancado.');
   carregarSelos(t);
 }
 
