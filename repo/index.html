@@ -184,6 +184,7 @@ td .tag{align-self:auto}
     <div class="content">
       <section class="view active" id="vTurmas"></section>
       <section class="view" id="vSessoes"></section>
+      <section class="view" id="vSelos"></section>
     </div>
   </div>
 </div>
@@ -367,6 +368,7 @@ async function carregarTurmas(){
           <div class="muted" style="font-size:.8rem">${t.n_formandos} formandos · último envio: ${t.ultimo_envio?dt(t.ultimo_envio):'nunca'}</div>
           <div class="tc-foot">
             <button class="btn-sec btn-sm" data-cfg="${t.id}">${ic('cog')}Definições</button>
+            <button class="btn-sec btn-sm" data-selos="${t.id}">Selos</button>
             <button class="btn btn-sm" data-abrir="${t.id}">Abrir</button>
           </div>
         </article>`).join('')}</div>`;
@@ -375,6 +377,8 @@ async function carregarTurmas(){
     ()=>abrirTurma(geridas.find(t=>t.id===b.dataset.abrir))));
   document.querySelectorAll('[data-cfg]').forEach(b=>b.addEventListener('click',
     ()=>modalTurma(geridas.find(t=>t.id===b.dataset.cfg))));
+  document.querySelectorAll('[data-selos]').forEach(b=>b.addEventListener('click',
+    ()=>abrirSelos(geridas.find(t=>t.id===b.dataset.selos))));
 }
 
 function abrirModal(html){
@@ -538,6 +542,92 @@ async function carregarSessoes(t){
     const s=sessoes.find(x=>x.id===r.dataset.ver);
     if(!s.enviado_em) modalSessao(t,s); else modalEstado(s);
   }));
+}
+
+/* ================== SELOS ==================
+   O mesmo mecanismo das sessões, com uma diferença: cada pessoa vai para um
+   destino diferente - o seu selo. Vive numa "sessão" chamada "Selo de
+   conclusão", criada sozinha na primeira vez que se abre este ecrã.
+
+   O botão envia a UMA pessoa de cada vez, de propósito: são poucos, e assim
+   vê-se o que aconteceu a cada um antes de avançar para o seguinte. ====== */
+let selosSess=null;
+
+async function abrirSelos(t){
+  turmaAtual=t; selosSess=null;
+  $('#vTurmas').classList.remove('active');
+  $('#vSessoes').classList.remove('active');
+  $('#vSelos').classList.add('active');
+  $('#hTitulo').textContent='Selos · '+(t.nome||('Turma '+t.codigo));
+  $('#hSub').textContent='Turma '+t.codigo+' · '+t.n_formandos+' formandos';
+  $('#btnPrimario').innerHTML=ic('mais')+'Adicionar turma';
+  $('#pesquisa').value='';
+  $('#vSelos').innerHTML='<div class="empty"><strong>A preparar…</strong></div>';
+  try{
+    const p=await rpc('repo_selos_preparar',{p_token:sessao.token,p_repo_turma_id:t.id});
+    selosSess=p&&p.sessao_id;
+  }catch(e){ return tratar(e); }
+  carregarSelos(t);
+}
+
+async function carregarSelos(t){
+  let lista;
+  try{ lista=await rpc('repo_selos',{p_token:sessao.token,p_repo_turma_id:t.id}); }
+  catch(e){ return tratar(e); }
+
+  const semDestino=lista.filter(x=>!x.destino).length;
+  const topo=`<button class="voltar" id="voltarTurmas2">${ic('seta')}Todas as turmas</button>
+    <div class="section-head" style="margin-bottom:16px">
+      <div><h3>Selos de conclusão</h3>
+        <div class="sub">Cada formando recebe o link do seu selo em crm.cr0x.org.${
+          semDestino?` <span style="color:var(--warn)">${semDestino} ainda sem selo gerado.</span>`:''}</div></div>
+    </div>`;
+
+  $('#vSelos').innerHTML = topo + (!lista.length
+    ? `<div class="empty">${ic('gente')}<strong>Sem formandos com email</strong>
+        <span>Os selos enviam-se para o email pessoal de cada formando.</span></div>`
+    : `<div class="table-wrap"><table><thead><tr>
+        <th>Formando</th><th>Selo</th><th>Estado</th><th>Abriu</th><th></th>
+      </tr></thead><tbody>${lista.map(x=>{
+        const curto=x.destino?esc(String(x.destino).replace(/^https?:\/\/crm\.cr0x\.org\/b\//,'').replace(/\/$/,'')):'';
+        return `<tr>
+          <td><div class="cell-main">${esc(x.nome)}</div><div class="cell-sub">${esc(x.email||'sem email')}</div></td>
+          <td>${x.destino
+              ? `<a href="${esc(x.destino)}" target="_blank" rel="noopener" class="chip">${curto}</a>`
+              : '<span class="muted">por gerar</span>'}</td>
+          <td>${x.erro
+              ? `<span class="pill red" title="${esc(x.erro)}">Erro</span>`
+              : x.enviado_em ? `<span class="pill green">Enviado · ${dt(x.enviado_em)}</span>`
+                             : '<span class="pill amber">Por enviar</span>'}</td>
+          <td>${x.cliques ? `<span class="pill grey">${x.cliques}×</span>` : '<span class="muted">-</span>'}</td>
+          <td class="t-right">${x.destino
+              ? (x.enviado_em && !x.erro
+                  ? `<button class="btn-sec btn-sm" data-reenviar="${x.acesso_id}">Reenviar</button>`
+                  : `<button class="btn btn-sm" data-enviar="${x.acesso_id}">Enviar</button>`)
+              : ''}</td>
+        </tr>`;}).join('')}</tbody></table></div>`);
+
+  $('#voltarTurmas2').addEventListener('click',mostrarTurmas);
+  document.querySelectorAll('[data-enviar]').forEach(b=>b.addEventListener('click',
+    ()=>enviarSelo(t,b.dataset.enviar,b)));
+  document.querySelectorAll('[data-reenviar]').forEach(b=>b.addEventListener('click',
+    ()=>reenviarSelo(t,b.dataset.reenviar,b)));
+}
+
+async function enviarSelo(t,acessoId,btn){
+  btn.disabled=true; btn.textContent='A enviar…';
+  const r=await edge('repo-enviar',{token:sessao.token,sessao_id:selosSess,acesso_id:acessoId});
+  if(r&&r.ok){ toast('Selo enviado.'); }
+  else { toast('Não foi possível enviar: '+((r&&(r.erro||r.detalhe))||'erro'),'err'); }
+  carregarSelos(t);
+}
+
+async function reenviarSelo(t,acessoId,btn){
+  if(!(await uiConfirm({titulo:'Enviar outra vez?',
+        texto:'A pessoa vai receber o mesmo email com o mesmo link.',ok:'Enviar'}))) return;
+  try{ await rpc('repo_selo_reabrir',{p_token:sessao.token,p_acesso_id:acessoId}); }
+  catch(e){ return tratar(e); }
+  enviarSelo(t,acessoId,btn);
 }
 
 /* Nova sessão / editar rascunho */

@@ -58,6 +58,8 @@ Deno.serve(async (req) => {
     const body0 = await req.json().catch(() => ({}));
     const token = body0.token;
     const sessao_id = body0.sessao_id || body0.publicacao_id; // aceita o nome novo e o antigo
+    // opcional: enviar a UMA pessoa em vez de a todos os que faltam
+    const acesso_id = body0.acesso_id || null;
     if (!token || !sessao_id) return json({ ok: false, erro: "DADOS_EM_FALTA" }, 400);
 
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -85,6 +87,7 @@ Deno.serve(async (req) => {
     const rDest = await rpc("repo_pendentes", {
       p_token: token,
       p_sessao_id: sessao_id,
+      p_acesso_id: acesso_id,
     });
     if (!rDest.ok) {
       const t = await rDest.text();
