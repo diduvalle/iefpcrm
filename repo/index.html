@@ -585,7 +585,7 @@ async function carregarSelos(t){
       <div><h3>Badges de conclusão</h3>
         <div class="sub">Cada formando recebe o link do seu badge em crm.cr0x.org.${
           semDestino?` <span style="color:var(--warn)">${semDestino} ainda sem badge gerado.</span>`:''}</div></div>
-      <button class="chip" id="verEmailBadge">${ic('mail')} Ver o email</button>
+      <button class="chip" id="verEmailBadge">${ic('mail')} Texto do email</button>
     </div>`;
 
   $('#vSelos').innerHTML = topo + (!lista.length
@@ -627,12 +627,7 @@ async function carregarSelos(t){
   document.querySelectorAll('[data-destrancar]').forEach(b=>b.addEventListener('click',
     ()=>trancarSelo(t,b.dataset.destrancar,false)));
   const vb=$('#verEmailBadge');
-  if(vb) vb.addEventListener('click',()=>{
-    if(!selosEmail) return toast('Ainda não sei o texto do email.','warn');
-    modalEmail({titulo:selosEmail.titulo, texto:selosEmail.texto, assunto:selosEmail.assunto,
-      cabecalho:selosEmail.cabecalho, saudacao:selosEmail.saudacao,
-      botao:selosEmail.botao, rodape:selosEmail.rodape});
-  });
+  if(vb) vb.addEventListener('click',()=>modalEmailBadge(t));
 }
 
 async function enviarSelo(t,acessoId,btn){
@@ -641,6 +636,76 @@ async function enviarSelo(t,acessoId,btn){
   if(r&&r.ok){ toast('Badge enviado.'); }
   else { toast('Não foi possível enviar: '+((r&&(r.erro||r.detalhe))||'erro'),'err'); }
   carregarSelos(t);
+}
+
+/* O texto do email dos badges edita-se aqui. As sessoes ja se editavam e os
+   badges nao - e este e o texto que a turma toda vai ler. A pre-visualizacao
+   acompanha enquanto se escreve, para nao ser preciso gravar para ver. */
+function modalEmailBadge(t){
+  if(!selosEmail) return toast('Ainda não sei o texto do email.','warn');
+  const v=selosEmail;
+  const f=abrirModal(`<div class="modal" style="width:min(720px,100%)">
+    <div class="modal-head"><div><h3>Texto do email</h3>
+      <div class="sub">O que os formandos recebem com o link do badge.</div></div></div>
+    <div class="modal-body">
+      <div class="grid2">
+        <div class="field full"><label>Assunto</label><input id="bAssunto" value="${esc(v.assunto||'')}"></div>
+        <div class="field full"><label>Cabeçalho (faixa verde)</label><input id="bCabecalho" value="${esc(v.cabecalho||'')}"></div>
+        <div class="field"><label>Saudação</label><input id="bSaudacao" value="${esc(v.saudacao||'')}"></div>
+        <div class="field"><label>Botão</label><input id="bBotao" value="${esc(v.botao||'')}"></div>
+        <div class="field full"><label>Título</label><input id="bTitulo" value="${esc(v.titulo||'')}"></div>
+        <div class="field full"><label>Mensagem</label><textarea id="bTexto" style="min-height:70px">${esc(v.texto||'')}</textarea></div>
+        <div class="field full"><label>Rodapé</label><textarea id="bRodape" style="min-height:60px">${esc(v.rodape||'')}</textarea></div>
+      </div>
+      <span class="hint">Podes usar <strong>{nome}</strong> - é substituído pelo nome de cada formando.</span>
+      <div class="field" style="margin-top:14px"><label>Pré-visualização</label>
+        <div class="preview">
+          <div class="preview-head" id="bvHead"></div>
+          <div class="preview-body">
+            <p class="pv-saud" id="bvSaudacao" style="margin:0 0 10px"></p>
+            <p class="pv-title" id="bvTitulo"></p>
+            <div class="pv-text" id="bvTexto"></div>
+            <span class="pv-btn" id="bvBotao"></span>
+            <p class="hint" id="bvRodape" style="margin-top:14px"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot"><span></span>
+      <div style="display:flex;gap:10px">
+        <button class="btn-sec" data-fechar>Cancelar</button>
+        <button class="btn" id="bGuardar">Guardar</button>
+      </div>
+    </div>
+  </div>`);
+
+  const q=x=>f.querySelector(x);
+  const nomeFalso='<span class="muted">[nome do formando]</span>';
+  const pinta=()=>{
+    const sub=x=>esc(x||'').replace(/{nome}/g,nomeFalso);
+    q('#bvHead').innerHTML=sub(q('#bCabecalho').value);
+    q('#bvSaudacao').innerHTML=sub(q('#bSaudacao').value);
+    q('#bvTitulo').textContent=q('#bTitulo').value;
+    q('#bvTexto').textContent=q('#bTexto').value;
+    q('#bvBotao').textContent=q('#bBotao').value||'Ver o meu badge';
+    q('#bvRodape').innerHTML=sub(q('#bRodape').value);
+  };
+  ['#bAssunto','#bCabecalho','#bSaudacao','#bBotao','#bTitulo','#bTexto','#bRodape']
+    .forEach(x=>q(x).addEventListener('input',pinta));
+  pinta();
+
+  q('#bGuardar').addEventListener('click',async()=>{
+    const novo={assunto:q('#bAssunto').value.trim(),cabecalho:q('#bCabecalho').value.trim(),
+      saudacao:q('#bSaudacao').value.trim(),titulo:q('#bTitulo').value.trim(),
+      texto:q('#bTexto').value,botao:q('#bBotao').value.trim(),rodape:q('#bRodape').value.trim()};
+    try{
+      await rpc('repo_selos_email',{p_token:sessao.token,p_repo_turma_id:t.id,
+        p_assunto:novo.assunto,p_cabecalho:novo.cabecalho,p_saudacao:novo.saudacao,
+        p_titulo:novo.titulo,p_texto:novo.texto,p_botao:novo.botao,p_rodape:novo.rodape});
+    }catch(e){ return tratar(e); }
+    Object.assign(selosEmail,novo);
+    f.remove(); toast('Texto guardado.');
+  });
 }
 
 /* Trancar vive no servidor, nao no ecra: um nao aprovado nunca entra num
