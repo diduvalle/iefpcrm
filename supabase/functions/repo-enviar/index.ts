@@ -131,7 +131,7 @@ Deno.serve(async (req) => {
             <p style="margin:24px 0 8px">
               <a href="${url}" style="display:inline-block;background:#006B3C;color:#fff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:700">${marcadores(d.botao, vars)}</a>
             </p>
-            <p style="color:#5f746b;font-size:12px;margin:16px 0 0">${marcadores(d.rodape, vars)}</p>
+            <p style="color:#5f746b;font-size:12px;margin:16px 0 0">${corpo(d.rodape, vars)}</p>
           </div>
         </div>`;
 
