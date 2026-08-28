@@ -49,7 +49,7 @@ function limpar(html: string) {
 // rico das sessoes, que ja produz HTML, e a caixa simples dos badges, que
 // produz texto com quebras de linha. Sem distinguir, um email escrito em
 // paragrafos chegava todo numa linha so.
-function corpo(txt: string, vars: Record<string, string>) {
+function corpoHTML(txt: string, vars: Record<string, string>) {
   const t = String(txt ?? "");
   if (/<[a-z][\s\S]*>/i.test(t)) return limpar(marcadores(t, vars));
   return marcadores(esc(t), vars).replace(/\r?\n/g, "<br>");
@@ -127,11 +127,11 @@ Deno.serve(async (req) => {
           <div style="border:1px solid #dbe6df;border-top:0;border-radius:0 0 14px 14px;padding:24px">
             <p style="margin:0 0 12px">${marcadores(d.saudacao, vars)}</p>
             <p style="margin:0 0 16px;font-weight:700;font-size:16px">${esc(d.titulo)}</p>
-            <div style="margin:0 0 8px">${corpo(d.texto, vars)}</div>
+            <div style="margin:0 0 8px">${corpoHTML(d.texto, vars)}</div>
             <p style="margin:24px 0 8px">
               <a href="${url}" style="display:inline-block;background:#006B3C;color:#fff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:700">${marcadores(d.botao, vars)}</a>
             </p>
-            <p style="color:#5f746b;font-size:12px;margin:16px 0 0">${corpo(d.rodape, vars)}</p>
+            <p style="color:#5f746b;font-size:12px;margin:16px 0 0">${corpoHTML(d.rodape, vars)}</p>
           </div>
         </div>`;
 
