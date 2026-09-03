@@ -5357,7 +5357,7 @@ function renderTurmaRoster(){
       return `<span class="chip" data-act="set-limite" data-id="${u.id}" data-lim="${lim}" data-n="${n}" data-nome="${esc(nomeMembro(u))}" data-propria="${excecao?1:''}"`+
         ` style="${st};font-weight:700;cursor:pointer" title="${n} de ${lim} entregas. Clique para alterar o limite desta pessoa.">${ic('send',12)} ${n}/${lim}${excecao?' *':''}</span>`; };
     // estado do convite (enviado manualmente pelo formador; convite_em vem do Supabase)
-    const convCell=u=>{ if(u.papel!=='Formando') return '<span class="muted" style="font-size:.72rem">-</span>';
+    const convCell=u=>{ if(u.papel!=='Formando' && !u.convite_em) return '<span class="muted" style="font-size:.72rem">-</span>';
       if(u.convite_em) return `<span class="pill green" style="font-size:.62rem" title="Convite enviado">${ic('check',11)} ${dPT(String(u.convite_em).slice(0,10))}</span>`;
       return (u.email||u.email2) ? '<span class="pill amber" style="font-size:.62rem">Por enviar</span>' : '<span class="muted" style="font-size:.72rem">sem email</span>'; };
     const pendentes=list.filter(u=>u.papel==='Formando' && !u.convite_em && (u.email||u.email2));
@@ -7311,22 +7311,31 @@ function renderNotifPanel(){
   const al=computeAlerts(); const p=$('#notifPanel'); if(!p) return;
   p.innerHTML=`<div class="notif-head">Notificações <span class="muted" style="font-weight:600;font-size:.78rem">${al.length} item(s)</span></div><div class="notif-list">${al.length?al.map((x,idx)=>`<div class="notif-item" data-act="notif-go" data-k="${x.k}" data-id="${x.id||''}"><span class="ni-ic" style="background:${pillBgVar(x.c)};color:${pillColorVar(x.c)}">${ic(x.i,17)}</span><span class="grow"><strong>${esc(x.t)}</strong><span>${esc(x.s)}</span></span></div>`).join(''):`<div class="notif-empty">${ic('check',28)}<div style="margin-top:8px">Tudo em dia! Sem alertas.</div></div>`}</div>`;
 }
+/* O Pulso vive fora do #app - e irmao dele, nao filho - por isso nada o
+   esconde sozinho. Fora do CRM nao ha sandbox a que tomar o pulso, e o painel
+   prometeria que as perguntas ficam registadas para o formador quando o save()
+   desiste a entrada sem sessao. */
+function pulsoVisivel(sim){
+  const f=$('#cbotFab'), p=$('#cbotPanel');
+  if(f) f.hidden=!sim;
+  if(p){ p.hidden=!sim; if(!sim) p.classList.remove('open'); }
+}
 function render(){
   try{ renderVerComoBar(); }catch(e){}
   let v=currentView();
   const appEl=$('#app'), portalEl=$('#portal'), loginEl=$('#login'); const pubEl=$('#pubprop');
   if(pubEl && v.slice(0,2)!=='p/') pubEl.style.display='none';
   // Proposta online (link público #p/<token>) - não exige login
-  if(v.slice(0,2)==='p/'){ appEl.style.display='none'; portalEl.style.display='none'; loginEl.style.display='none'; if(pubEl) pubEl.style.display='flex'; renderPublicProposta(v.slice(2)); startI18n(); return; }
+  if(v.slice(0,2)==='p/'){ appEl.style.display='none'; portalEl.style.display='none'; loginEl.style.display='none'; pulsoVisivel(false); if(pubEl) pubEl.style.display='flex'; renderPublicProposta(v.slice(2)); startI18n(); return; }
   // Portal do Titular é público
-  if(v==='portal'){ appEl.style.display='none'; portalEl.style.display='flex'; loginEl.style.display='none'; renderPortal(); startI18n(); return; }
+  if(v==='portal'){ appEl.style.display='none'; portalEl.style.display='flex'; loginEl.style.display='none'; pulsoVisivel(false); renderPortal(); startI18n(); return; }
   // Exigir início de sessão
-  if(state.settings.requireLogin && !currentUser()){ appEl.style.display='none'; portalEl.style.display='none'; loginEl.style.display='flex'; renderLogin(); return; }
+  if(state.settings.requireLogin && !currentUser()){ appEl.style.display='none'; portalEl.style.display='none'; loginEl.style.display='flex'; pulsoVisivel(false); renderLogin(); return; }
   loginEl.style.display='none';
   // Controlo de acesso por permissão
   if(!can(v) && !(v==='definicoes'&&hasAnyFeat())){ const fv=firstAllowedView(); if(v!==fv){ location.hash='#'+fv; return; } v=fv; }
   recalcLoyalty();
-  appEl.style.display=''; portalEl.style.display='none';
+  appEl.style.display=''; portalEl.style.display='none'; pulsoVisivel(true);
   buildNav(); updateNotifBadge();
   $$('#nav .nav-link').forEach(a=>a.classList.toggle('active',a.dataset.nav===v));
   $('#pageTitle').textContent=titleOf(v);

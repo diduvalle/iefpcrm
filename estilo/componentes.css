@@ -313,6 +313,7 @@ html.dp-on[data-theme="dark"] input[type="date"]{
 .cbot-fab{position:fixed;right:20px;bottom:20px;z-index:58;width:54px;height:54px;border-radius:50%;
   border:none;cursor:pointer;background:var(--g700);color:#fff;box-shadow:var(--shadow-md);
   display:flex;align-items:center;justify-content:center;transition:transform .15s,background .15s}
+.cbot-fab[hidden],.cbot-panel[hidden]{display:none}
 .cbot-fab:hover{background:var(--g800);transform:translateY(-2px)}
 .cbot-fab.on{background:var(--surface3);color:var(--text)}
 .cbot-panel{position:fixed;right:20px;bottom:86px;z-index:58;width:380px;max-width:calc(100vw - 40px);
